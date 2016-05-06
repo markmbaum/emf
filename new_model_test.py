@@ -147,21 +147,6 @@ p_cond = np.array([0.,120.])    #phase angle (degrees)
 
 E_x,E_y = E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
 
-"""
-#conductor properties 2
-f_cond = 60     #frequency (degrees)
-x_cond = 5.     #x coordinate (feet)
-y_cond = 30.    #y coordinate (feet)
-subconds = 1.   #number of subconductors
-d_cond = .56    #diameter (inches)
-d_bund = .56    #bundle diameter
-V_cond = 300.   #phase-phase voltage (kV)
-I_cond = 420.   #phase current (amp)
-p_cond = 120.   #phase angle (degrees)
-"""
-
-#E2 = E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
-
 #calculate resultant fields
 E = np.sqrt(E_x**2 + E_y**2)
 
