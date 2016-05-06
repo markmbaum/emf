@@ -171,6 +171,8 @@ E_max = np.zeros((N,))
 for i in range(N):
     E_max[i] = max(E[:,i])
 
+print(E_max)
+
 #export the maximum values
 with open('temp.csv','w') as ofile:
     writer = csv.writer(ofile)
