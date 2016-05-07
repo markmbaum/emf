@@ -115,13 +115,15 @@ def E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_
     Ey_r = Ey*Q_r
     Ey_i = Ey*Q_i
 
-    #sum the real parts and imaginary parts of each phasor for each x,y
+    #sum the real parts and imaginary parts of each phasor for each sample
+    #point, yielding the sum of phasors for each conductor
     Ex_r = np.sum(Ex_r, axis = 0)
     Ex_i = np.sum(Ex_i, axis = 0)
     Ey_r = np.sum(Ey_r, axis = 0)
     Ey_i = np.sum(Ey_i, axis = 0)
 
     #find the magnitude of each phasor
+    print (np.sqrt(Ex_r**2+Ex_i**2), '\n', np.sqrt(Ey_r**2+Ey_i**2))
     Ex_max = np.sqrt(Ex_r**2 + Ex_i**2)
     Ey_max = np.sqrt(Ey_r**2 + Ey_i**2)
 
@@ -200,8 +202,12 @@ p_cond = np.array([0., 120., 240.])    #phase angle (degrees)
 
 E_x,E_y = E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
 
-E_max = np.sqrt(E_x**2 + E_y**2)
+E_prod = np.sqrt(E_x**2 + E_y**2)
 
+M = np.empty((len(E_x), 2))
+M[:,0] = E_x
+M[:,1] = E_y
+E_max = np.amax(M, axis = 1)
 
 B_x,B_y = B_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
 
@@ -212,9 +218,9 @@ for i in range(len(x)):
     B_max[i] = max(B[:,i])
 
 with open('new_model_out.csv','w') as ofile:
-    ofile.write('%s,%s,%s\n' % ('x','B_max','E_max'))
-    for z in zip(x,B_max,E_max):
-        ofile.write('%s,%s,%s\n' % tuple([str(i) for i in z]))
+    ofile.write('%s,%s,%s,%s,%s\n' % ('x','B','Ex','Ey','E'))
+    for z in zip(x,B_max,E_x,E_y,E_max):
+        ofile.write('%s,%s,%s,%s,%s\n' % tuple([str(i) for i in z]))
 
 #plot the maxima at each point
 plt.plot(x, E_max, 'bo')
