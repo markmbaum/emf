@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 class FLDError(Exception):
@@ -122,12 +123,13 @@ def E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_
     Ey_r = np.sum(Ey_r, axis = 0)
     Ey_i = np.sum(Ey_i, axis = 0)
 
-    #find the magnitude of each phasor
-    print (np.sqrt(Ex_r**2+Ex_i**2), '\n', np.sqrt(Ey_r**2+Ey_i**2))
-    Ex_max = np.sqrt(Ex_r**2 + Ex_i**2)
-    Ey_max = np.sqrt(Ey_r**2 + Ey_i**2)
+    #find the magnitude and phase of the phasors at each point
+    Ex_mag = np.sqrt(Ex_r**2 + Ex_i**2)
+    Ex_phase = np.arctan(Ex_i/Ex_r)
+    Ey_mag = np.sqrt(Ey_r**2 + Ey_i**2)
+    Ey_phase = np.arctan(Ey_i/Ey_r)
 
-    return(Ex_max, Ey_max)
+    return(Ex_mag, Ex_phase, Ey_mag, Ey_phase)
 
 
 def B_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y):
@@ -137,17 +139,9 @@ def B_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_
     unique conductor, i.e. the 0th value in each variable is attributed to
     one power line."""
 
-    #Define a time interval with the maximum amount of time required to
-    #complete one cycle (the period).
-    if(any(np.diff(f_cond))):
-        raise(FLDError('At least one input frequency is different than the others. Calculations assume they are uniform.'))
-    T = 1./f_cond[0]
-    t = np.linspace(0, T, 1001)
-
     #convenient variables/constants
     mu = 4*np.pi*1e-7
     C = 1./(2*np.pi)
-    L = len(t)          #number of time steps
     N = len(f_cond)     #number of conductors
     Z = len(x)          #number of sample points or x,y pairs
 
@@ -200,33 +194,50 @@ V_cond = np.array([500., 500., 500.])   #phase-phase voltage (kV)
 I_cond = np.array([500., 500., 500.])   #phase current (amp)
 p_cond = np.array([0., 120., 240.])    #phase angle (degrees)
 
-E_x,E_y = E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
+E_x,E_x_ph,E_y,E_y_ph = E_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
 
 E_prod = np.sqrt(E_x**2 + E_y**2)
 
 M = np.empty((len(E_x), 2))
-M[:,0] = E_x
-M[:,1] = E_y
+M[:,0] = (E_x)
+M[:,1] = (E_y)
 E_max = np.amax(M, axis = 1)
 
-B_x,B_y = B_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
+R = (E_x**2)*np.cos(2*E_x_ph) + (E_y**2)*np.cos(2*E_y_ph)
+I = (E_x**2)*np.sin(2*E_x_ph) + (E_y**2)*np.cos(2*E_y_ph)
 
-B = np.sqrt(B_x**2 + B_y**2)
+t = np.linspace(0,2*np.pi,1000)
+for i in range(len(E_max)):
+    mag = np.sqrt((E_x[i]*np.cos(t+E_x_ph[i]))**2 + (E_y[i]*np.cos(t+E_y_ph[i]))**2)
+    E_max[i] = max(abs(mag))
 
-B_max = np.zeros((len(x),))
-for i in range(len(x)):
-    B_max[i] = max(B[:,i])
+print(np.sqrt((E_x*np.cos(E_x_ph))**2 + (E_y*np.sin(E_y_ph))**2))
 
-with open('new_model_out.csv','w') as ofile:
-    ofile.write('%s,%s,%s,%s,%s\n' % ('x','B','Ex','Ey','E'))
-    for z in zip(x,B_max,E_x,E_y,E_max):
-        ofile.write('%s,%s,%s,%s,%s\n' % tuple([str(i) for i in z]))
+#B_x,B_y = B_field(f_cond, x_cond, y_cond, subconds, d_cond, d_bund, V_cond, I_cond, p_cond, x, y)
+
+#B = np.sqrt(B_x**2 + B_y**2)
+
+#B_max = np.zeros((len(x),))
+#for i in range(len(x)):
+#    B_max[i] = max(B[:,i])
+
+df = pd.read_table('TEST.DAT', skiprows = [0,1,2,3,5,6], delim_whitespace = True)
+
+Experc = (E_x - df['E_Horz'])/abs(df['E_Horz'])
+Eyperc = (E_y - df['E_Vert'])/abs(df['E_Vert'])
+Eprodperc = (E_prod - df['E_PROD'])/abs(df['E_PROD'])
+Emaxperc = (E_max  - df['E_MAX'])/abs(df['E_MAX'])
+
+with open('new_model_out.txt','w') as ofile:
+    ofile.write('%3s\t%7s\t%7s\t%7s\t%7s\t%7s\t%7s\t%7s\t%7s\n' % ('x','Ex','Experc','Ey','Eyperc','Eprod','Eprodp','Emax','Emaxp'))
+    for z in zip(x,E_x,Experc,E_y,Eyperc,E_prod,Eprodperc,E_max,Emaxperc):
+        ofile.write('%3d\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\t%7.4f\n' % z)
 
 #plot the maxima at each point
 plt.plot(x, E_max, 'bo')
 plt.savefig('new_model_plot_E.png')
 plt.close()
 
-plt.plot(x, B_max, 'bo')
-plt.savefig('new_model_plot_B.png')
-plt.close()
+#plt.plot(x, B_max, 'bo')
+#plt.savefig('new_model_plot_B.png')
+#plt.close()

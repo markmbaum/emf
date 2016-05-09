@@ -2,7 +2,7 @@ test
 test
 test.FLD
 
- DIST    B Horz   B Vert   B PROD    B MAX   E Horz   E Vert   E PROD    E MAX
+ DIST    B_Horz   B_Vert   B_PROD    B_MAX   E_Horz   E_Vert   E_PROD    E_MAX
  (Ft)     (mG)     (mG)     (mG)      (mG)   (kV/m)   (kV/m)   (kV/m)   (V/m)
  ----    ------   ------   ------    -----   ------   ------   ------   ------
  -25.00   30.607   28.880   42.082   38.296    0.794    3.136    3.235    3.227
