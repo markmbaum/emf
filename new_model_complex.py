@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class FLDError(Exception):
     def __init__(self, message):
@@ -22,6 +23,8 @@ class CrossSection:
          self.sample_height = None
          self.lROW = None
          self.rROW = None
+         self.N_hot = None
+         self.N_ground = None
          self.x_cond = np.array([])
          self.y_cond = np.array([])
          self.subconds = np.array([])
@@ -66,7 +69,165 @@ class CrossSection:
         #return the fields dataframe
         return(self.fields)
 
-    def compare_DAT(self, DAT_path):
+    def plot_Emax(self, **kwargs):
+        """Plot the maximum electric field along the ROW with conductor
+        locations shown in artificial but to-scale locations. Pass in an
+        existing figure with keyword argument 'figure' to recycle an object.
+        Pass in a plot title with the keyword argument 'title' to specify an
+        exact title, otherwise the main_title will be used. Use the kwarg
+        'xmax' to cut the plotted fields at a certain distance from the ROW
+        center. If the keyword argument 'save_path' is passed in, the plot
+        will be saved to that path."""
+        #prepare figure and axis
+        plt.rc('font', family = 'calibri')
+        k = kwargs
+        keys = k.keys()
+        if('figure' in keys):
+            fig = k['figure']
+        else:
+            fig = plt.figure()
+        ax = plt.gca()
+        #get x cutoff, if any
+        if('xmax' in keys):
+            xmax = abs(k['xmax'])
+        else:
+            xmax = max(abs(self.fields.index))
+        #plot the field curve
+        ax.plot(self.fields['Emax'][-xmax:xmax], '.-', color = 'steelblue')
+        #plot wires
+        scale = (.25*max(self.fields['Emax'])/min(self.y_cond))
+        nhot = self.N_hot
+        ax.plot(self.x_cond[:nhot], self.y_cond[:nhot]*scale, 'kd')#hot lines
+        ax.plot(self.x_cond[nhot:], self.y_cond[nhot:]*scale, 'd', color = 'gray')#ground lines
+        #plot ROW lines and adjust ylimits to make room for legend
+        ax.set_ylim([0, max(self.fields['Emax'])*1.35])
+        yl = ax.get_ylim()
+        ax.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        #set axis text and legend
+        ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
+        ax.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
+        if('title' in keys):
+            t = k['title']
+        else:
+            t = '%s, Maximum Electric Field' % self.main_title
+        ax.set_title(t)
+        ax.legend(['Electric Field (kV/m)','Conductors','Grounded Conductors',
+                    'ROW Edge'], numpoints = 1, fontsize = 12)
+        #save the fig, or don't
+        if('save_path' in keys):
+            plt.savefig(k['save_path'])
+        return(fig)
+
+    def plot_Bmax(self, **kwargs):
+        """Plot the maximum magnetic field along the ROW with conductor
+        locations shown in artificial but to-scale locations. Pass in an
+        existing figure with keyword argument 'figure' to recycle an object.
+        Pass in a plot title with the keyword argument 'title' to specify an
+        exact title, otherwise the main_title will be used. Use the kwarg
+        'xmax' to cut the plotted fields at a certain distance from the ROW
+        center. If the keyword argument 'save_path' is passed in, the plot
+        will be saved to that path."""
+        #prepare figure and axis
+        plt.rc('font', family = 'calibri')
+        k = kwargs
+        keys = k.keys()
+        if('figure' in keys):
+            fig = k['figure']
+        else:
+            fig = plt.figure()
+        ax = plt.gca()
+        #get x cutoff, if any
+        if('xmax' in keys):
+            xmax = abs(k['xmax'])
+        else:
+            xmax = max(abs(self.fields.index))
+        #plot the field curve
+        ax.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = 'sienna')
+        #plot wires
+        scale = (.25*max(self.fields['Bmax'])/min(self.y_cond))
+        nhot = self.N_hot
+        ax.plot(self.x_cond[:nhot], self.y_cond[:nhot]*scale, 'kd')#hot lines
+        ax.plot(self.x_cond[nhot:], self.y_cond[nhot:]*scale, 'd', color = 'gray')#ground lines
+        #plot ROW lines and adjust ylimits to make room for legend
+        ax.set_ylim([0, max(self.fields['Bmax'])*1.35])
+        yl = ax.get_ylim()
+        ax.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        #set axis text and legend
+        ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
+        ax.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
+        if('title' in keys):
+            t = k['title']
+        else:
+            t = '%s, Maximum Magnetic Field' % self.main_title
+        ax.set_title(t)
+        ax.legend(['Magnetic Field (mG)','Conductors','Grounded Conductors',
+                    'ROW Edge'], numpoints = 1, fontsize = 12)
+        #save the fig, or don't
+        if('save_path' in keys):
+            plt.savefig(k['save_path'])
+        return(fig)
+
+    def plot_max_fields(self, **kwargs):
+        """Plot the maximum fields along the ROW with conductor
+        locations shown in artificial but to-scale locations. Pass in an
+        existing figure with keyword argument 'figure' to recycle an object.
+        Pass in a plot title with the keyword argument 'title' to specify an
+        exact title, otherwise the main_title will be used. Use the kwarg
+        'xmax' to cut the plotted fields at a certain distance from the ROW
+        center. If the keyword argument 'save_path' is passed in, the plot
+        will be saved to that path."""
+        #prepare figure and axes
+        plt.rc('font', family = 'calibri')
+        k = kwargs
+        keys = k.keys()
+        if('figure' in keys):
+            fig = k['figure']
+        else:
+            fig = plt.figure()
+        ax_B = plt.gca()
+        ax_E = ax_B.twinx()
+        #get x cutoff, if any
+        if('xmax' in keys):
+            xmax = abs(k['xmax'])
+        else:
+            xmax = max(abs(self.fields.index))
+        #plot the field curves
+        hB, = ax_B.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = 'sienna')
+        hE, = ax_E.plot(self.fields['Emax'][-xmax:xmax], '.-', color = 'steelblue')
+        #plot wires
+        scale = (.25*max(self.fields['Bmax'])/min(self.y_cond))
+        nhot = self.N_hot
+        hhot, = ax_B.plot(self.x_cond[:nhot], self.y_cond[:nhot]*scale, 'kd')#hot lines
+        hgnd, = ax_B.plot(self.x_cond[nhot:], self.y_cond[nhot:]*scale, 'd', color = 'gray')#ground lines
+        #plot ROW lines and adjust ylimits to make room for legend
+        ax_B.set_ylim([0, max(self.fields['Bmax'])*1.4])
+        ax_E.set_ylim([0, max(self.fields['Emax'])*1.4])
+        yl = ax_B.get_ylim()
+        hROW = ax_B.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        #set axis text and legend
+        ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
+        ax_B.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
+        ax_E.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
+        if('title' in keys):
+            t = k['title']
+        else:
+            t = '%s, Maximum Magnetic and Electric Fields' % self.main_title
+        ax_B.set_title(t)
+        ax_B.legend([hB, hE, hhot, hgnd, hROW[0]],
+                    ['Magnetic Field (mG)','Electric Field (kV/m)','Conductors',
+                    'Grounded Conductors','ROW Edge'],
+                    numpoints = 1, fontsize = 12)
+        #save the fig, or don't
+        if('save_path' in keys):
+            plt.savefig(k['save_path'])
+        return(fig)
+
+    def compare_DAT(self, DAT_path, **kwargs):
+        """Load a FIELDS output file, find the absolute and percentage
+        differences between it and the CrossSection objects results, and
+        write them to an excel file. The default excel file name is the
+        CrossSection's main_title with '-DAT_comparison' appended to it. Use
+        the keyword argument 'filename' to specify a different one."""
         #load the .DAT file into a dataframe
         df = pd.read_table(DAT_path, skiprows = [0,1,2,3,4,5,6],
                             delim_whitespace = True, header = None,
@@ -79,7 +240,15 @@ class CrossSection:
                 'Absolute Difference' : self.fields - df,
                 'Percent Difference' : 100*(self.fields - df)/self.fields}
         #write the frames to a spreadsheet
-        pd.Panel(data = comp).to_excel('DAT_comparison.xlsx')
+        if('filename' in kwargs.keys()):
+            fn = kwargs['filename']
+            if('.' in fn):
+                fn = fn[:fn.index('.')] + '.xlsx'
+            else:
+                fn += '.xlsx'
+        else:
+            fn = self.main_title + '-DAT_comparison.xlsx'
+        pd.Panel(data = comp).to_excel(fn)
 
 def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     """Calculate the approximate electric field generated by a group of
@@ -246,7 +415,7 @@ def import_template(file_path):
     #handy formatting operator
     cdv = lambda a,b: pd.concat([a,b]).dropna().values
     #import the cross sections as a dictionary of pandas dataframes
-    sheets = pd.read_excel(file_path, sheetname = None, skiprows = [0,1,2,3,13,14],
+    sheets = pd.read_excel(file_path, sheetname = None, skiprows = [0,1,2,3],
                         parse_cols = 16, header = None)
     #convert the dataframes into a list of CrossSection objects
     xcs = []
@@ -266,8 +435,9 @@ def import_template(file_path):
         xc.lROW = misc[7]
         xc.rROW = misc[8]
         #load conductor information
-        Lg = df[12].dropna().shape[0] #ground wires count
-        gpad = pd.Series(np.ones((Lg,)))
+        xc.N_hot = df[3].dropna().shape[0] #hot wires count
+        xc.N_ground = df[12].dropna().shape[0] #ground wires count
+        gpad = pd.Series(np.ones((xc.N_ground,)))
         xc.x_cond = cdv(df[3], df[12])
         xc.y_cond = cdv(df[4], df[13])
         xc.subconds = cdv(df[5], gpad)
@@ -286,6 +456,7 @@ def import_template(file_path):
 
 xcs = import_template('XC-template1.xlsx')
 
-xcs[0].compare_DAT('TEST.DAT')
+xcs[0].plot_max_fields()
+xcs[1].plot_Emax(save_path = 'xc1-emax')
 
-print(xcs[0].fields)
+plt.show()
