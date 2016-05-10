@@ -8,38 +8,50 @@ class FLDError(Exception):
     def __str__(self):
         return(self.message)
 
+class Conductor:
+
+    def __init__(self):
+        self.name = None #conductor label
+        self.freq = 60. #phase frequency
+        self.x = None #x coordinate
+        self.y = None #y coordinate
+        self.subconds = None #number of subconductors per bundle
+        self.d_cond = None #conductor diameter
+        self.d_bund = None #bundle diameter
+        self.V = None #line voltage
+        self.I = None #line current
+        self.phase = None #phase angle
+
+    def __str__(self):
+        v = vars(self)
+        keys = v.keys()
+        s = '\n'
+        for k in keys:
+            s += str(k) + ': ' + str(v[k]) + '\n'
+        return(s)
+
 class CrossSection:
     """Store the input information for a power line cross section and the
     results of electric and magnetic field simulations across the section."""
 
     def __init__(self, name):
-        self.name = name
+        self.name = name #mandatory
         self.main_title = ''
         self.subtitle = ''
-        self.freq = None
-        self.soil_resistivity = None
-        self.max_dist = None
-        self.step = None
-        self.sample_height = None
-        self.lROW = None
+        self.soil_resistivity = 100. #?
+        self.max_dist = None #maximum simulated distance from the ROW center
+        self.step = None #step size for calculations
+        self.sample_height = 3. #uniform sample height
+        self.lROW = None #exact coordinate of the left ROW edge
         self.lROWi = None #self.fields index closest to self.lROW
-        self.rROW = None
+        self.rROW = None #exact coordinate of the left ROW edge
         self.rROWi = None #self.fields index closest to self.rROW
-        self.N_hot = None
-        self.N_ground = None
-        self.phase_names = []
-        self.x_cond = np.array([])
-        self.y_cond = np.array([])
-        self.subconds = np.array([])
-        self.d_cond = np.array([])
-        self.d_bund = np.array([])
-        self.V = np.array([])
-        self.I = np.array([])
-        self.phase = np.array([])
+        self.hot = [] #list of Conductor objects with nonzero voltage
+        self.gnd = [] #list of Conductor objects with zero voltage
         self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
                                             'Ex','Ey','Eprod','Emax'])
-        self.B_color = 'darkgreen'
-        self.E_color = 'midnightblue'
+        self.B_color = 'darkgreen' #for plotting
+        self.E_color = 'midnightblue' #for plotting
 
     def __str__(self):
         v = vars(self)
@@ -48,7 +60,7 @@ class CrossSection:
         for k in keys:
             if(k != 'fields'):
                 s += str(k) + ': ' + str(v[k]) + '\n'
-        s += '\nprint self.fields separately to see field simulation results\n'
+        s += '\ninspect self.fields separately to see field simulation results\n'
         return(s)
 
     def calculate_fields(self):
@@ -58,19 +70,38 @@ class CrossSection:
         x = np.linspace(-self.max_dist, self.max_dist, num = N)
         y = self.sample_height*np.ones((N,))
 
+        #assemble all the conductor data in arrays for calculations
+        conds = self.hot + self.gnd
+        x_c = np.array([c.x for c in conds])
+        y_c = np.array([c.y for c in conds])
+        subc = np.array([c.subconds for c in conds])
+        d_c = np.array([c.d_cond for c in conds])
+        d_b = np.array([c.d_bund for c in conds])
+        V = np.array([c.V for c in conds])
+        I = np.array([c.I for c in conds])
+        ph = np.array([c.phase for c in conds])
+
         #calculate electric field
-        Ex, Ey = E_field(self.x_cond, self.y_cond, self.subconds, self.d_cond,
-                        self.d_bund, self.V, self.phase, x, y)
+        Ex, Ey = E_field(x_c, y_c, subc, d_c, d_b, V, ph, x, y)
         Ex, Ey, Eprod, Emax = phasors_to_output(Ex, Ey)
 
         #calculate magnetic field
-        Bx, By = B_field(self.x_cond, self.y_cond, self.I, self.phase, x, y)
+        Bx, By = B_field(x_c, y_c, I, ph, x, y)
         Bx, By, Bprod, Bmax = phasors_to_output(Bx, By)
 
         #store the values
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
                                     index = x)
+
+        #update ROW edge index variables
+        #if ROW edge lies between two sample points, use the one closer to zero
+        d = np.absolute((self.fields.index - self.lROW).values)
+        self.lROWi = max(self.fields.index[d == np.min(d)])
+
+        #if ROW edge lies between two sample points, use the one closer to zero
+        d = np.absolute((self.fields.index - self.rROW).values)
+        self.rROWi = min(self.fields.index[d == np.min(d)])
 
         #return the fields dataframe
         return(self.fields)
@@ -123,9 +154,8 @@ class CrossSection:
         ax.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
         scale = (.25*max(self.fields['Emax'])/min(self.y_cond))
-        nhot = self.N_hot
-        ax.plot(self.x_cond[:nhot], self.y_cond[:nhot]*scale, 'kd')#hot lines
-        ax.plot(self.x_cond[nhot:], self.y_cond[nhot:]*scale, 'd', color = 'gray')#ground lines
+        ax.plot([c.x for c in self.hot], [scale*c.y for c in self.hot], 'kd')#hot lines
+        ax.plot([c.x for c in self.gnd], [scale*c.y for c in self.gnd], 'd', color = 'gray')#ground lines
         #plot ROW lines and adjust ylimits to make room for legend
         ax.set_ylim([0, max(self.fields['Emax'])*1.35])
         yl = ax.get_ylim()
@@ -173,8 +203,8 @@ class CrossSection:
         #plot wires
         scale = (.25*max(self.fields['Bmax'])/min(self.y_cond))
         nhot = self.N_hot
-        ax.plot(self.x_cond[:nhot], self.y_cond[:nhot]*scale, 'kd')#hot lines
-        ax.plot(self.x_cond[nhot:], self.y_cond[nhot:]*scale, 'd', color = 'gray')#ground lines
+        ax.plot([c.x for c in self.hot], [scale*c.y for c in self.gnd], 'kd')#hot lines
+        ax.plot([c.x for c in self.gnd], [scale*c.y for c in self.gnd], 'd', color = 'gray')#ground lines
         #plot ROW lines and adjust ylimits to make room for legend
         ax.set_ylim([0, max(self.fields['Bmax'])*1.35])
         yl = ax.get_ylim()
@@ -222,10 +252,10 @@ class CrossSection:
         hB, = ax_B.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
         hE, = ax_E.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
-        scale = (.25*max(self.fields['Bmax'])/min(self.y_cond))
-        nhot = self.N_hot
-        hhot, = ax_B.plot(self.x_cond[:nhot], self.y_cond[:nhot]*scale, 'kd')#hot lines
-        hgnd, = ax_B.plot(self.x_cond[nhot:], self.y_cond[nhot:]*scale, 'd', color = 'gray')#ground lines
+        y = [c.y for c in self.hot + self.gnd]
+        scale = (.25*max(self.fields['Bmax'])/min(y))
+        hhot, = ax_B.plot([c.x for c in self.hot], [scale*c.y for c in self.hot], 'kd')#hot lines
+        hgnd, = ax_B.plot([c.x for c in self.gnd], [scale*c.y for c in self.gnd], 'd', color = 'gray')#ground lines
         #plot ROW lines and adjust ylimits to make room for legend
         ax_B.set_ylim([0, max(self.fields['Bmax'])*1.4])
         ax_E.set_ylim([0, max(self.fields['Emax'])*1.4])
@@ -235,12 +265,14 @@ class CrossSection:
         ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax_B.set_ylabel('Maximum Magnetic Field (mG)',
                         fontsize = 14, color = self.B_color)
-        for t_B in ax_B.get_yticklabels():
-            t_B.set_color(self.B_color)
-        for t_E in ax_E.get_yticklabels():
-            t_E.set_color(self.E_color)
         ax_E.set_ylabel('Maximum Electric Field (kV/m)',
                         fontsize = 14, color = self.E_color)
+        """for t_B in ax_B.get_yticklabels():
+            t_B.set_color(self.B_color)
+        for t_E in ax_E.get_yticklabels():
+            t_E.set_color(self.E_color)"""
+        ax_B.tick_params(axis = 'y', colors = self.B_color)
+        ax_E.tick_params(axis = 'y', colors = self.E_color)
         if('title' in keys):
             t = k['title']
         else:
@@ -281,7 +313,7 @@ class CrossSection:
                 fn += '.xlsx'
         else:
             fn = self.main_title + '-DAT_comparison.xlsx'
-        pd.Panel(data = comp).to_excel(fn)
+        pd.Panel(data = comp).to_excel(fn, index_label = 'x')
 
 def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     """Calculate the approximate electric field generated by a group of
@@ -396,6 +428,8 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
             B = C*I[b]/np.sqrt(dx**2 + dy**2)
             #break it up into components
             theta = np.arctan(abs(dy/dx))
+            #x component calculated with sine and y component with cosine
+            #because the field is perpendicular to the line to the conductor,
             Bx[a] -= np.sign(dy)*np.sin(theta)*B
             By[a] += np.sign(dx)*np.cos(theta)*B
 
@@ -437,52 +471,53 @@ def import_template(file_path):
     #convert the dataframes into a list of CrossSection objects
     xcs = []
     for k in sheets.keys():
-
-        #load miscellaneous information
+        #load miscellaneous information applicable for the whole CrossSection
         df = sheets[k]
         xc = CrossSection(k)
         misc = df[1]
         xc.main_title = misc[0]
         xc.subtitle = misc[1]
-        xc.freq = misc[2]
         xc.soil_resistivity = misc[3]
         xc.max_dist = misc[4]
         xc.step = misc[5]
         xc.sample_height = misc[6]
         xc.lROW = misc[7]
         xc.rROW = misc[8]
-
-        #load conductor information
-        xc.N_hot = df[3].dropna().shape[0] #hot wires count
-        xc.N_ground = df[12].dropna().shape[0] #ground wires count
-        gpad = pd.Series(np.ones((xc.N_ground,)))
-
-        xc.phase_names = list(cdv(df[2], df[11]))
-        xc.x_cond = cdv(df[3], df[12])
-        xc.y_cond = cdv(df[4], df[13])
-        xc.subconds = cdv(df[5], gpad)
-        xc.d_cond = cdv(df[6], df[14])
-        xc.d_bund = cdv(df[7], df[14])
-        xc.V = cdv(df[8], 0*gpad)
-        xc.I = cdv(df[9], 0*gpad)
-        xc.phase = cdv(df[10], 0*gpad)
-
+        #load hot conductors
+        for i in range(df[3].dropna().shape[0]):
+            cond = Conductor()
+            cond.name = df[2].iloc[i]
+            cond.freq = misc[2]
+            cond.x = df[3].iloc[i]
+            cond.y = df[4].iloc[i]
+            cond.subconds = df[5].iloc[i]
+            cond.d_cond = df[6].iloc[i]
+            cond.d_bund = df[7].iloc[i]
+            cond.V = df[8].iloc[i]
+            cond.I = df[9].iloc[i]
+            cond.phase = df[10].iloc[i]
+            xc.hot.append(cond)
+        #load grounded conductors
+        for i in range(df[12].dropna().shape[0]):
+            cond = Conductor()
+            cond.name = df[11].iloc[i]
+            cond.freq = misc[2]
+            cond.x = df[12].iloc[i]
+            cond.y = df[13].iloc[i]
+            cond.subconds = 1.
+            cond.d_cond = df[14].iloc[i]
+            cond.d_bund = df[14].iloc[i]
+            cond.V = 0.
+            cond.I = 0.
+            cond.phase = 0.
+            xc.gnd.append(cond)
         #calculate electric and magnetic fields automatically
         xc.calculate_fields()
-
-        #update ROW edge index variables
-        xc.lROWi = xc.fields.index[np.argmin(abs(xc.fields.index - xc.lROW).values)]
-        xc.rROWi = xc.fields.index[np.argmin(abs(xc.fields.index - xc.rROW).values)]
-
         #replace the dataframe with the CrossSection object
         xcs.append(xc)
-
     #return the list of CrossSection objects
     return(xcs)
 
-xcs = import_template('XC-template1.xlsx')
+xcs = import_template('XC-template.xlsx')
 
-xcs[0].plot_max_fields(save_path = 'xc2-right')
-xcs[1].plot_max_fields(save_path = 'xc1-right')
-
-plt.show()
+print(xcs[0].hot[0])
