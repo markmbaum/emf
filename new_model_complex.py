@@ -13,28 +13,34 @@ class CrossSection:
     results of electric and magnetic field simulations across the section."""
 
     def __init__(self, name):
-         self.name = name
-         self.main_title = ''
-         self.subtitle = ''
-         self.freq = None
-         self.soil_resistivity = None
-         self.max_dist = None
-         self.step = None
-         self.sample_height = None
-         self.lROW = None
-         self.rROW = None
-         self.N_hot = None
-         self.N_ground = None
-         self.x_cond = np.array([])
-         self.y_cond = np.array([])
-         self.subconds = np.array([])
-         self.d_cond = np.array([])
-         self.d_bund = np.array([])
-         self.V = np.array([])
-         self.I = np.array([])
-         self.phase = np.array([])
-         self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
-                                                'Ex','Ey','Eprod','Emax'])
+        self.name = name
+        self.main_title = ''
+        self.subtitle = ''
+        self.freq = None
+        self.soil_resistivity = None
+        self.max_dist = None
+        self.step = None
+        self.sample_height = None
+        self.lROW = None
+        self.lROWi = None #self.fields index closest to self.lROW
+        self.rROW = None
+        self.rROWi = None #self.fields index closest to self.rROW
+        self.N_hot = None
+        self.N_ground = None
+        self.phase_names = []
+        self.x_cond = np.array([])
+        self.y_cond = np.array([])
+        self.subconds = np.array([])
+        self.d_cond = np.array([])
+        self.d_bund = np.array([])
+        self.V = np.array([])
+        self.I = np.array([])
+        self.phase = np.array([])
+        self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
+                                            'Ex','Ey','Eprod','Emax'])
+        self.B_color = 'darkgreen'
+        self.E_color = 'midnightblue'
+
     def __str__(self):
         v = vars(self)
         keys = v.keys()
@@ -69,6 +75,27 @@ class CrossSection:
         #return the fields dataframe
         return(self.fields)
 
+    def optimize_phasing(self):
+        """Permute the phasing of the non-grounded conductors and find the
+        arrangement that results in the lowest fields at the left and right
+        edge of the ROW. The number of hot conductors must be a multiple of
+        three. The phases of consecutive groups of three conductors are
+        swapped around, assuming that those groups represent a single
+        three-phase transfer line."""
+        #check the number of hot lines
+        if(self.N_hot % 3 != 0):
+            raise(FLDError("""The number of hot (not grounded) conductors must
+                            be a multiple of three."""))
+        #number of 3 phase groups
+        G = self.N_hot/3
+        #number of permutations
+        N = 6*G
+        #all permutations of a single three phase group
+        perm = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]]
+        #variables to store results of permutations
+        #
+        #...to be continued?
+
     def plot_Emax(self, **kwargs):
         """Plot the maximum electric field along the ROW with conductor
         locations shown in artificial but to-scale locations. Pass in an
@@ -93,7 +120,7 @@ class CrossSection:
         else:
             xmax = max(abs(self.fields.index))
         #plot the field curve
-        ax.plot(self.fields['Emax'][-xmax:xmax], '.-', color = 'steelblue')
+        ax.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
         scale = (.25*max(self.fields['Emax'])/min(self.y_cond))
         nhot = self.N_hot
@@ -142,7 +169,7 @@ class CrossSection:
         else:
             xmax = max(abs(self.fields.index))
         #plot the field curve
-        ax.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = 'sienna')
+        ax.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
         #plot wires
         scale = (.25*max(self.fields['Bmax'])/min(self.y_cond))
         nhot = self.N_hot
@@ -192,8 +219,8 @@ class CrossSection:
         else:
             xmax = max(abs(self.fields.index))
         #plot the field curves
-        hB, = ax_B.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = 'sienna')
-        hE, = ax_E.plot(self.fields['Emax'][-xmax:xmax], '.-', color = 'steelblue')
+        hB, = ax_B.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
+        hE, = ax_E.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
         scale = (.25*max(self.fields['Bmax'])/min(self.y_cond))
         nhot = self.N_hot
@@ -204,10 +231,16 @@ class CrossSection:
         ax_E.set_ylim([0, max(self.fields['Emax'])*1.4])
         yl = ax_B.get_ylim()
         hROW = ax_B.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
-        #set axis text and legend
+        #set axis text, ticks, and legend
         ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
-        ax_B.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
-        ax_E.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
+        ax_B.set_ylabel('Maximum Magnetic Field (mG)',
+                        fontsize = 14, color = self.B_color)
+        for t_B in ax_B.get_yticklabels():
+            t_B.set_color(self.B_color)
+        for t_E in ax_E.get_yticklabels():
+            t_E.set_color(self.E_color)
+        ax_E.set_ylabel('Maximum Electric Field (kV/m)',
+                        fontsize = 14, color = self.E_color)
         if('title' in keys):
             t = k['title']
         else:
@@ -363,24 +396,8 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
             B = C*I[b]/np.sqrt(dx**2 + dy**2)
             #break it up into components
             theta = np.arctan(abs(dy/dx))
-
-            """This implementation will match FIELDS output but I think it's
-            incorrect. The x component here is computed with a sin() and the
-            y component is computed with a cos(). It should be the other way
-            around. 'theta' is calculated with dy/dx, so it is the angle from
-            the sample point to the conductor, with zero being the positive
-            x axis, per normal convention. So the x component should be given
-            by the cosine and the y component by the sine. This switch changes
-            how phasors cancel and will significantly change the results when
-            there are multiple conductors and the sample points lie on both
-            sides of at least one conductor."""
             Bx[a] -= np.sign(dy)*np.sin(theta)*B
             By[a] += np.sign(dx)*np.cos(theta)*B
-
-            """I believe this implementation is the correct one, with correctly
-            decomposed components, but it doesn't match FIELDS."""
-            #Bx[a] -= np.sign(dy)*np.cos(theta)*B
-            #By[a] += np.sign(dx)*np.sin(theta)*B
 
     #return phasors, complex numbers, for the x and y components
     return(Bx, By)
@@ -419,8 +436,8 @@ def import_template(file_path):
                         parse_cols = 16, header = None)
     #convert the dataframes into a list of CrossSection objects
     xcs = []
-    keys = sheets.keys()
-    for k in keys:
+    for k in sheets.keys():
+
         #load miscellaneous information
         df = sheets[k]
         xc = CrossSection(k)
@@ -434,10 +451,13 @@ def import_template(file_path):
         xc.sample_height = misc[6]
         xc.lROW = misc[7]
         xc.rROW = misc[8]
+
         #load conductor information
         xc.N_hot = df[3].dropna().shape[0] #hot wires count
         xc.N_ground = df[12].dropna().shape[0] #ground wires count
         gpad = pd.Series(np.ones((xc.N_ground,)))
+
+        xc.phase_names = list(cdv(df[2], df[11]))
         xc.x_cond = cdv(df[3], df[12])
         xc.y_cond = cdv(df[4], df[13])
         xc.subconds = cdv(df[5], gpad)
@@ -446,8 +466,14 @@ def import_template(file_path):
         xc.V = cdv(df[8], 0*gpad)
         xc.I = cdv(df[9], 0*gpad)
         xc.phase = cdv(df[10], 0*gpad)
+
         #calculate electric and magnetic fields automatically
         xc.calculate_fields()
+
+        #update ROW edge index variables
+        xc.lROWi = xc.fields.index[np.argmin(abs(xc.fields.index - xc.lROW).values)]
+        xc.rROWi = xc.fields.index[np.argmin(abs(xc.fields.index - xc.rROW).values)]
+
         #replace the dataframe with the CrossSection object
         xcs.append(xc)
 
@@ -456,7 +482,7 @@ def import_template(file_path):
 
 xcs = import_template('XC-template1.xlsx')
 
-xcs[0].plot_max_fields()
-xcs[1].plot_Emax(save_path = 'xc1-emax')
+xcs[0].plot_max_fields(save_path = 'xc2-right')
+xcs[1].plot_max_fields(save_path = 'xc1-right')
 
 plt.show()
