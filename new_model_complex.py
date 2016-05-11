@@ -37,7 +37,7 @@ class CrossSection:
 
     def __init__(self, name):
         self.name = name #mandatory
-        self.main_title = ''
+        self.title = ''
         self.subtitle = ''
         self.soil_resistivity = 100. #?
         self.max_dist = None #maximum simulated distance from the ROW center
@@ -169,14 +169,14 @@ class CrossSection:
                 #save the plot
                 fn += '.' + fmt
                 plt.savefig(fn, format = fmt)
-                print('plot saved to "%s"' % fn)
+                print('plot saved to: "%s"' % fn)
 
     def plot_Emax(self, **kwargs):
         """Plot the maximum electric field along the ROW with conductor
         locations shown in artificial but to-scale locations. Pass in an
         existing figure with keyword argument 'figure' to recycle an object.
         Pass in a plot title with the keyword argument 'title' to specify an
-        exact title, otherwise the main_title will be used. Use the kwarg
+        exact title, otherwise the title will be used. Use the kwarg
         'xmax' to cut the plotted fields at a certain distance from the ROW
         center. If the keyword argument 'save' is passed in True, the plot
         will be saved. Use the keyword argument 'path' to specify the path
@@ -190,23 +190,27 @@ class CrossSection:
         #plot the field curve
         ax.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
-        y = [c.y for c in self.hot + self.gnd]
-        scale = (.25*max(self.fields['Emax'])/min(y))
-        (x_cond,y_cond) = [c.x for c in self.hot],[scale*c.y for c in self.hot]
-        ax.plot(x_cond, y_cond, 'kd')#hot lines
-        (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
-        ax.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
-        #plot ROW lines and adjust ylimits to make room for legend
+        x = np.array([c.x for c in self.hot + self.gnd])
+        y = np.array([c.y for c in self.hot + self.gnd])
+        scale = .3*np.max(self.fields['Bmax'])/np.max(np.absolute(y))
+        y[y < 0.] = 0.
+        hhot, = ax_B.plot(x[:len(self.hot)], scale*y[:len(self.hot)], 'kd')
+        hgnd, = ax_B.plot(x[len(self.hot):], scale*y[len(self.hot):], 'd', color = 'gray')
+        #plot ROW lines and adjust axis limits for legend and ROW lines
         ax.set_ylim([0, max(self.fields['Emax'])*1.35])
         yl = ax.get_ylim()
         ax.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        xl = ax_B.get_xlim()
+        if((xl[0] == self.lROW) or (xl[1] == self.rROW)):
+            ax_B.set_xlim((xl[0]*1.15, xl[1]*1.15))
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
         if('title' in keys):
             t = k['title']
         else:
-            t = '%s, Maximum Electric Field' % self.main_title
+            t = '%s, Maximum Electric Field' % self.title
+            t = '%s, Maximum Electric Field' % self.title
         ax.set_title(t)
         ax.legend(['Electric Field (kV/m)','Conductors','Grounded Conductors',
                     'ROW Edge'], numpoints = 1, fontsize = 12)
@@ -220,7 +224,7 @@ class CrossSection:
         locations shown in artificial but to-scale locations. Pass in an
         existing figure with keyword argument 'figure' to recycle an object.
         Pass in a plot title with the keyword argument 'title' to specify an
-        exact title, otherwise the main_title will be used. Use the kwarg
+        exact title, otherwise the title will be used. Use the kwarg
         'xmax' to cut the plotted fields at a certain distance from the ROW
         center. If the keyword argument 'save' is passed in, the plot
         will be saved. Use the keyword argument 'path' to specify the path
@@ -234,23 +238,26 @@ class CrossSection:
         #plot the field curve
         ax.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
         #plot wires
-        y = [c.y for c in self.hot + self.gnd]
-        scale = (.25*max(self.fields['Bmax'])/min(y))
-        (x_cond,y_cond) = [c.x for c in self.hot],[scale*c.y for c in self.hot]
-        ax.plot(x_cond, y_cond, 'kd')#hot lines
-        (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
-        ax.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
-        #plot ROW lines and adjust ylimits to make room for legend
+        x = np.array([c.x for c in self.hot + self.gnd])
+        y = np.array([c.y for c in self.hot + self.gnd])
+        scale = .3*np.max(self.fields['Bmax'])/np.max(np.absolute(y))
+        y[y < 0.] = 0.
+        hhot, = ax_B.plot(x[:len(self.hot)], scale*y[:len(self.hot)], 'kd')
+        hgnd, = ax_B.plot(x[len(self.hot):], scale*y[len(self.hot):], 'd', color = 'gray')
+        #plot ROW lines and adjust axis limits for legend and ROW lines
         ax.set_ylim([0, max(self.fields['Bmax'])*1.35])
         yl = ax.get_ylim()
         ax.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        xl = ax_B.get_xlim()
+        if((xl[0] == self.lROW) or (xl[1] == self.rROW)):
+            ax_B.set_xlim((xl[0]*1.15, xl[1]*1.15))
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
         if('title' in keys):
             t = k['title']
         else:
-            t = '%s, Maximum Magnetic Field' % self.main_title
+            t = '%s, Maximum Magnetic Field' % self.title
         ax.set_title(t)
         ax.legend(['Magnetic Field (mG)','Conductors','Grounded Conductors',
                     'ROW Edge'], numpoints = 1, fontsize = 12)
@@ -264,7 +271,7 @@ class CrossSection:
         locations shown in artificial but to-scale locations. Pass in an
         existing figure with keyword argument 'figure' to recycle an object.
         Pass in a plot title with the keyword argument 'title' to specify an
-        exact title, otherwise the main_title will be used. Use the kwarg
+        exact title, otherwise the title will be used. Use the kwarg
         'xmax' to cut the plotted fields at a certain distance from the ROW
         center. If the keyword argument 'save' is passed in, the plot
         will be saved. Use the keyword argument 'path' to specify the path
@@ -280,17 +287,20 @@ class CrossSection:
         hB, = ax_B.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
         hE, = ax_E.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
-        y = [c.y for c in self.hot + self.gnd]
-        scale = (.25*max(self.fields['Bmax'])/min(y))
-        (x_cond,y_cond) = [c.x for c in self.hot],[scale*c.y for c in self.hot]
-        hhot, = ax_B.plot(x_cond, y_cond, 'kd')#hot lines
-        (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
-        hgnd, = ax_B.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
-        #plot ROW lines and adjust ylimits to make room for legend
+        x = np.array([c.x for c in self.hot + self.gnd])
+        y = np.array([c.y for c in self.hot + self.gnd])
+        scale = .3*np.max(self.fields['Bmax'])/np.max(np.absolute(y))
+        y[y < 0.] = 0.
+        hhot, = ax_B.plot(x[:len(self.hot)], scale*y[:len(self.hot)], 'kd')
+        hgnd, = ax_B.plot(x[len(self.hot):], scale*y[len(self.hot):], 'd', color = 'gray')
+        #plot ROW lines and adjust axis limits for legend and ROW lines
         ax_B.set_ylim([0, max(self.fields['Bmax'])*1.4])
         ax_E.set_ylim([0, max(self.fields['Emax'])*1.4])
         yl = ax_B.get_ylim()
         hROW = ax_B.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        xl = ax_B.get_xlim()
+        if((xl[0] == self.lROW) or (xl[1] == self.rROW)):
+            ax_B.set_xlim((xl[0]*1.15, xl[1]*1.15))
         #set axis text
         ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax_B.set_ylabel('Maximum Magnetic Field (mG)',
@@ -300,12 +310,12 @@ class CrossSection:
         if('title' in keys):
             t = k['title']
         else:
-            t = '%s, Maximum Magnetic and Electric Fields' % self.main_title
+            t = '%s, Maximum Magnetic and Electric Fields' % self.title
         ax_B.set_title(t)
         #set color of axis spines and ticklabels
         ax_B.spines['left'].set_color(self.B_color)
-        ax_B.spines['right'].set_color(self.B_color)
-        ax_E.spines['left'].set_color(self.E_color)
+        ax_B.spines['right'].set_color(self.E_color)
+        ax_E.spines['left'].set_color(self.B_color)
         ax_E.spines['right'].set_color(self.E_color)
         ax_B.tick_params(axis = 'y', colors = self.B_color)
         ax_E.tick_params(axis = 'y', colors = self.E_color)
@@ -323,8 +333,12 @@ class CrossSection:
         """Load a FIELDS output file, find the absolute and percentage
         differences between it and the CrossSection objects results, and
         write them to an excel file. The default excel file name is the
-        CrossSection's main_title with '-DAT_comparison' appended to it. Use
-        the keyword argument 'path' to specify a different one."""
+        CrossSection's title with '-DAT_comparison' appended to it. Use
+        the keyword argument 'path' to specify a different one. Pass an
+        integer to the keyword 'round' to round results to that number of
+        places after the decimal (FIELDS prints only 3 digits beyond the
+        decimal). Use 'truncate' to truncate, always to 3 digits after the
+        decimal point."""
         #load the .DAT file into a dataframe
         df = pd.read_table(DAT_path, skiprows = [0,1,2,3,4,5,6],
                             delim_whitespace = True, header = None,
@@ -332,22 +346,79 @@ class CrossSection:
                                     'Ex', 'Ey', 'Eprod', 'Emax'],
                             index_col = 0)
         #prepare a dictionary to create a Panel
+        if('round' in kwargs.keys()):
+            f = self.fields.round(kwargs['round'])
+        elif('truncate' in kwargs.keys()):
+            if(kwargs['truncate']):
+                f = self.fields.copy(deep = True)
+                for c in f.columns:
+                    for i in f.index:
+                        f[c].loc[i] = float('%.3f' % f[c].loc[i])
+        else:
+            f = self.fields
         comp = {'FIELDS_output' : df,
-                'New_model_output' : self.fields,
-                'Absolute Difference' : self.fields - df,
-                'Percent Difference' : 100*(self.fields - df)/self.fields}
+                'New_model_output' : f,
+                'Absolute Difference' : f - df,
+                'Percent Difference' : 100*(f - df)/f}
         #write the frames to a spreadsheet
         fn = path_manage(self.name + '-DAT_comparison', '.xlsx', **kwargs)
-        pd.Panel(data = comp).to_excel(fn, index_label = 'x')
+        pan = pd.Panel(data = comp)
+        pan.to_excel(fn, index_label = 'x')
         print('DAT comparison book saved to: %s' % fn)
+        #make plots of the absolute and percent error
+        fig = plt.figure(figsize = (15,10))
+        ax_abs = fig.add_subplot(2,1,1)
+        ax_per = ax_abs.twinx()
+        ax_mag = fig.add_subplot(2,1,2)
+        #Bmax
+        h_abs, = ax_abs.plot(pan['Absolute Difference']['Bmax'], 'k')
+        ax_abs.set_ylabel('Absolute Difference (kV/m)')
+        h_per, = ax_per.plot(pan['Percent Difference']['Bmax'], 'r')
+        ax_per.set_ylabel('Percent Difference', color = 'r')
+        ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
+        ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
+        h_fld, = ax_mag.plot(pan['FIELDS_output']['Bmax'], 'k')
+        h_nm, = ax_mag.plot(pan['New_model_output']['Bmax'], 'b')
+        ax_mag.set_ylabel('Bmax (mG)')
+        ax_mag.set_xlabel('Distance from ROW Center (ft)')
+        ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
+        ax_mag.set_title('Model Results, Magnetic Field')
+        plt.tight_layout()
+        fn = path_manage(self.name + '-DAT_comparison_Bmax', '.png', **kwargs)
+        plt.savefig(fn)
+        print('DAT comparison plot of Bmax saved to: "%s"' % fn)
+        #Emax
+        ax_abs.clear()
+        ax_per.clear()
+        ax_mag.clear()
+        h_abs, = ax_abs.plot(pan['Absolute Difference']['Emax'], 'k')
+        ax_abs.set_ylabel('Absolute Difference (kV/m)')
+        h_per, = ax_per.plot(pan['Percent Difference']['Emax'], 'r')
+        ax_per.set_ylabel('Percent Difference', color = 'r')
+        ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
+        ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
+        h_fld, = ax_mag.plot(pan['FIELDS_output']['Emax'], 'k')
+        h_nm, = ax_mag.plot(pan['New_model_output']['Emax'], 'b')
+        ax_mag.set_ylabel('Emax (kV/m)')
+        ax_mag.set_xlabel('Distance from ROW Center (ft)')
+        ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
+        ax_mag.set_title('Model Results, Electric Field')
+        plt.tight_layout()
+        fn = path_manage(self.name + '-DAT_comparison_Emax', '.png', **kwargs)
+        plt.savefig(fn)
+        print('DAT comparison plot of Emax saved to: "%s"' % fn)
+        plt.close(fig)
 
 class SectionBook:
 
     def __init__(self, name):
-        self.name = name
+        self.name = name #mandatory identification field
         self.xcs = [] #list of cross section objects
-        self.xcname2idx = dict() #mapping dictionary for CrossSection retrieval
-        self.xcnames = [] #list of CrossSection names
+        self.name2idx = dict() #mapping dictionary for CrossSection retrieval
+        self.names = [] #list of CrossSection names
+        #DataFrame of maximum fields at ROW edges
+        self.ROW_edge_max = pd.DataFrame(columns = ['name','title',
+                                            'Bmaxl','Bmaxr','Emaxl','Emaxr'])
 
     def __iter__(self):
         for xc in self.xcs:
@@ -355,31 +426,83 @@ class SectionBook:
 
     def __getitem__(self, key):
         try:
-            idx = self.xcname2idx[key]
+            idx = self.name2idx[key]
         except(KeyError):
             return(False)
         else:
             return(self.xcs[idx])
 
+    def __len__(self):
+        return(len(self.xcs))
+
     def i(self, idx):
         return(self.xcs[idx])
 
     def add_section(self, xc):
-        if(xc.name in self.xcnames):
-            raise(FLDError('CrossSection name "%s" already exists.' % xc.name))
+        if(xc.name in self.names):
+            raise(FLDError(r"""CrossSection name "%s" already exists in the
+                        SectionBook. Duplicate names would cause collisions
+                        in the lookup dictionary (self.name2idx). Use a
+                        different name.""" % xc.name))
         else:
-            self.xcname2idx[xc.name] = len(self.xcs)
+            self.name2idx[xc.name] = len(self.xcs)
             self.xcs.append(xc)
-            self.xcnames.append(xc.name)
+            self.names.append(xc.name)
 
-    def export(self, **kwargs):
-        """Write all of the cross sections to an excel workbook"""
+    def compile_ROW_edge_max(self):
+        """Execution populates the self.ROW_edge_results DataFrame with
+        the most current results of the fields calculation in each
+        CrossSection."""
+        #gather ROW edge results
+        L = len(self.xcs)
+        El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
+        titles = []
+        for i in range(L):
+            xc = self.i(i)
+            Bl[i] = xc.fields['Bmax'][xc.lROWi]
+            Br[i] = xc.fields['Bmax'][xc.rROWi]
+            El[i] = xc.fields['Emax'][xc.lROWi]
+            Er[i] = xc.fields['Emax'][xc.rROWi]
+            titles.append(xc.title)
+        #construct DataFrame
+        data = {'name' : self.names, 'title' : titles,
+                'Bmaxl' : Bl, 'Emaxl' : El, 'Bmaxr' : Br, 'Emaxr' : Er}
+        self.ROW_edge_max = pd.DataFrame(data = data).sort_values('name')
+        return(self)
+
+    def ROW_edge_export(self, **kwargs):
+        """Write max field results at ROW edges for each cross section to
+        an excel or csv file. Default is csv, but use kwarg 'file_type'
+        and pass in 'excel' to export to excel. Specify the path of the
+        output file with the 'path' kwarg."""
+        #be sure ROW_edge_results are current
+        #self.compile_ROW_edge_results()
+        #export
+        c = ['name','title','Bmaxl','Emaxl','Bmaxr','Emaxr']
+        h = ['Name','Title','Bmax - Left ROW Edge','Emax - Left ROW Edge',
+                'Bmax - Right ROW Edge','Emax - Right ROW Edge']
+        excel = False
+        if('file_type' in kwargs.keys()):
+            if(kwargs['file_type'] == 'excel'):
+                excel = True
+        if(excel):
+            fn = path_manage(self.name + '-ROW_edge_max', '.xlsx', **kwargs)
+            self.ROW_edge_max.to_excel(fn, index = False, columns = c,
+                                    header = h, sheet_name = 'ROW_edge_max')
+        else:
+            fn = path_manage(self.name + '-ROW_edge_max', '.csv', **kwargs)
+            self.ROW_edge_max.to_csv(fn, index = False, columns = c, header = h)
+        print('Maximum fields at ROW edges written to: "%s"' % fn)
+
+    def full_export(self, **kwargs):
+        """Write all of the cross section results to an excel workbook"""
         #path management
-        fn = path_manage(self.name + '-export', '.xlsx', **kwargs)
+        fn = path_manage(self.name + '-full_results', '.xlsx', **kwargs)
         #data management
-        data = dict(zip(self.xcnames, [xc.fields for xc in self.xcs]))
-        pd.Panel(data = data).to_excel(fn, index_label = 'x')
-        print('SectionBook written to "%s"' % fn)
+        xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+        for xc in self:
+            xc.fields.to_excel(xlwriter, sheet_name = xc.name)
+        print('Full SectionBook results written to: "%s"' % fn)
 
 def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     """Calculate the approximate electric field generated by a group of
@@ -387,6 +510,19 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     array of parameters, where each index in those arrays describes a
     unique conductor, i.e. the 0th value in each variable is attributed to
     one power line."""
+
+    #conversions and screening out underground lines
+    ohd = y_cond > 0.
+    x_cond = x_cond[ohd]*0.3048         #convert to meters
+    y_cond = y_cond[ohd]*0.3048         #convert to meters
+    subconds = subconds[ohd]
+    d_cond = d_cond[ohd]*0.0254         #convert to meters
+    d_bund = d_bund[ohd]*0.0254         #convert to meters
+    V_cond = V_cond[ohd]/np.sqrt(3)     #convert to ground reference from
+                                        #line-line reference, leave in kV
+    p_cond = p_cond[ohd]*2*np.pi/360.   #convert to radians
+    x      = x*0.3048                   #convert to meters
+    y      = y*0.3048                   #convert to meters
 
     #convenient variables/constants
     epsilon = 8.854e-12
@@ -396,16 +532,6 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
 
     #calculate the effective conductor diameters
     d_cond  = d_bund*((subconds*d_cond/d_bund)**(1./subconds))
-
-    #conversions
-    x_cond = x_cond*0.3048          #convert to meters
-    y_cond = y_cond*0.3048          #convert to meters
-    d_cond = d_cond*0.0254          #convert to meters
-    V_cond = V_cond/np.sqrt(3)      #convert to ground reference from line-line
-                                    #reference, leave in units of kV
-    p_cond = p_cond*2*np.pi/360.    #convert to radians
-    x      = x*0.3048               #convert to meters
-    y      = y*0.3048               #convert to meters
 
     #compute the matrix of potential coefficients
     P = np.empty((N,N))
@@ -533,15 +659,21 @@ def import_template(file_path):
     #import the cross sections as a dictionary of pandas dataframes
     sheets = pd.read_excel(file_path, sheetname = None, skiprows = [0,1,2,3],
                         parse_cols = 16, header = None)
-    #create a SectioBook object to store the CrossSection objects
+    #create a SectionBook object to store the CrossSection objects
     xcs = SectionBook(path.basename(file_path[:file_path.index('.')]))
     #convert the dataframes into a list of CrossSection objects
+    titles = []
     for k in sheets.keys():
         #load miscellaneous information applicable for the whole CrossSection
         df = sheets[k]
         xc = CrossSection(k)
         misc = df[1]
-        xc.main_title = misc[0]
+        xc.title = misc[0]
+        #check for duplicate title inputs
+        if(xc.title in titles):
+            raise(FLDError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
+        else:
+            titles.append(xc.title)
         xc.subtitle = misc[1]
         xc.soil_resistivity = misc[3]
         xc.max_dist = misc[4]
@@ -579,50 +711,69 @@ def import_template(file_path):
             xc.gnd.append(cond)
         #calculate electric and magnetic fields automatically
         xc.calculate_fields()
-        #replace the dataframe with the CrossSection object
+        #add the CrossSection object to the SectionBook
         xcs.add_section(xc)
-    #return the list of CrossSection objects
+    #update the SectionBook's ROW edge results dataframe
+    xcs.compile_ROW_edge_max()
+    #return the SectionBook object
     return(xcs)
 
 def path_manage(filename_if_needed, extension, **kwargs):
-    """Expects the keyword argument 'path' which leads to a path string,
-    otherwise the return will be 'filename_if_needed + '.' + extension'. If
-    the path string is a directory, the string should end with a slash."""
+    """This function takes a path string through the kwarg 'path' and
+    returns a path string with a file name at it's end, to save a file
+    at that location. If the path string is a directory (ends with a slash),
+    a new path string is returned with the 'filename_if_needed' and
+    'extension' arguments appended. If the path string already has a file
+    name at its end, the input extension will replace any preexisting one.
+    If no path string is passed in via the keyword argument 'path', the
+    returned path is simply the input filename_if_needed with the input
+    extension at its end."""
+    #remove extensions from filename_if_needed
+    if('.' in filename_if_needed):
+        filename_if_needed = filename_if_needed[:filename_if_needed.index('.')]
+    #make sure the extension has a period at its beginning
     if(extension):
         if(extension[0] != '.'):
             extension = '.' + extension
+    #construct the path
     if('path' in kwargs.keys()):
-        path_string = kwargs['path']
-        head,tail = path.split(path_string)
+        p = kwargs['path']
+        #if there's a filename_if_needed argument and a 'path' keyword, assume
+        #the 'path' argument is a directory and append a slash if it has no
+        #leading director(y/ies)
+        if(filename_if_needed and p):
+            if(all(path.split(p))):
+                p += '/'
+        #split the path
+        head,tail = path.split(p)
+        #if a file name lies at the end of p, replace its extension
         if(tail):
             if('.' in tail):
                 tail = tail[:tail.index('.')]
-            fn = head + '/' + tail + extension
+            if(head):
+                return(head + '/' + tail + extension)
+            else:
+                return(tail + extension)
+        #if no file name, but a directory
         elif(head):
-            fn = head + '/' + filename_if_needed + extension
-        else:
-            fn = filename_if_needed + extension
-    else:
-        fn = filename_if_needed + extension
-    return(fn)
+            return(head + '/' + filename_if_needed + extension)
+    #if 'path' kwarg is empty or missing
+    return(filename_if_needed + extension)
 
 def run(template_path, output_path):
     """Import the templates in an excel file with the path 'template_path'
-    then generate a workbook of all fields results with accompanying plot,
-    saved to the directory described by 'output_path'. Fine control of the
+    then generate a workbook of all fields results and accompanying plots,
+    saved to the directory described by 'output_path'. Finer control of the
     output, like x-distance cutoffs for the plots, is given up by the use
     of this function but it's a fast way to generate all the results. Pass
     an empty string to output_path to send results to the active directory."""
     #import templates
     b = import_template(template_path)
-    #condition output path
-    if(output_path):
-        if((output_path[-1] != '/') and (output_path != '\\')):
-            output_path += '/'
-    #export the results workbook
-    b.export(path = output_path)
+    #export the full results workbook
+    b.full_export(path = output_path)
+    #export ROW edge results
+    b.ROW_edge_export(path = output_path)
     #export plots
     for xc in b:
-        xc.plot_max_fields(save = True, path = output_path)
-
-run('XC-template.xlsx', '')
+        fig = xc.plot_max_fields(save = True, path = output_path)
+        plt.close(fig)
