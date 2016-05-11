@@ -169,7 +169,7 @@ class CrossSection:
                 #save the plot
                 fn += '.' + fmt
                 plt.savefig(fn, format = fmt)
-                print('plot saved to "%s"' % fn)
+                print('plot saved to: "%s"' % fn)
 
     def plot_Emax(self, **kwargs):
         """Plot the maximum electric field along the ROW with conductor
@@ -190,12 +190,12 @@ class CrossSection:
         #plot the field curve
         ax.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
-        y = [c.y for c in self.hot + self.gnd]
-        scale = (.25*max(self.fields['Emax'])/min(y))
-        (x_cond,y_cond) = [c.x for c in self.hot],[scale*c.y for c in self.hot]
-        ax.plot(x_cond, y_cond, 'kd')#hot lines
-        (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
-        ax.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
+        x = np.array([c.x for c in self.hot + self.gnd])
+        y = np.array([c.y for c in self.hot + self.gnd])
+        scale = .3*np.max(self.fields['Bmax'])/np.max(np.absolute(y))
+        y[y < 0.] = 0.
+        hhot, = ax_B.plot(x[:len(self.hot)], scale*y[:len(self.hot)], 'kd')
+        hgnd, = ax_B.plot(x[len(self.hot):], scale*y[len(self.hot):], 'd', color = 'gray')
         #plot ROW lines and adjust axis limits for legend and ROW lines
         ax.set_ylim([0, max(self.fields['Emax'])*1.35])
         yl = ax.get_ylim()
@@ -238,12 +238,12 @@ class CrossSection:
         #plot the field curve
         ax.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
         #plot wires
-        y = [c.y for c in self.hot + self.gnd]
-        scale = (.25*max(self.fields['Bmax'])/min(y))
-        (x_cond,y_cond) = [c.x for c in self.hot],[scale*c.y for c in self.hot]
-        ax.plot(x_cond, y_cond, 'kd')#hot lines
-        (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
-        ax.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
+        x = np.array([c.x for c in self.hot + self.gnd])
+        y = np.array([c.y for c in self.hot + self.gnd])
+        scale = .3*np.max(self.fields['Bmax'])/np.max(np.absolute(y))
+        y[y < 0.] = 0.
+        hhot, = ax_B.plot(x[:len(self.hot)], scale*y[:len(self.hot)], 'kd')
+        hgnd, = ax_B.plot(x[len(self.hot):], scale*y[len(self.hot):], 'd', color = 'gray')
         #plot ROW lines and adjust axis limits for legend and ROW lines
         ax.set_ylim([0, max(self.fields['Bmax'])*1.35])
         yl = ax.get_ylim()
@@ -287,12 +287,12 @@ class CrossSection:
         hB, = ax_B.plot(self.fields['Bmax'][-xmax:xmax], '.-', color = self.B_color)
         hE, = ax_E.plot(self.fields['Emax'][-xmax:xmax], '.-', color = self.E_color)
         #plot wires
-        y = [c.y for c in self.hot + self.gnd]
-        scale = (.25*max(self.fields['Bmax'])/min(y))
-        (x_cond,y_cond) = [c.x for c in self.hot],[scale*c.y for c in self.hot]
-        hhot, = ax_B.plot(x_cond, y_cond, 'kd')#hot lines
-        (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
-        hgnd, = ax_B.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
+        x = np.array([c.x for c in self.hot + self.gnd])
+        y = np.array([c.y for c in self.hot + self.gnd])
+        scale = .3*np.max(self.fields['Bmax'])/np.max(np.absolute(y))
+        y[y < 0.] = 0.
+        hhot, = ax_B.plot(x[:len(self.hot)], scale*y[:len(self.hot)], 'kd')
+        hgnd, = ax_B.plot(x[len(self.hot):], scale*y[len(self.hot):], 'd', color = 'gray')
         #plot ROW lines and adjust axis limits for legend and ROW lines
         ax_B.set_ylim([0, max(self.fields['Bmax'])*1.4])
         ax_E.set_ylim([0, max(self.fields['Emax'])*1.4])
@@ -354,7 +354,6 @@ class CrossSection:
                 for c in f.columns:
                     for i in f.index:
                         f[c].loc[i] = float('%.3f' % f[c].loc[i])
-                print(f)
         else:
             f = self.fields
         comp = {'FIELDS_output' : df,
@@ -493,16 +492,17 @@ class SectionBook:
         else:
             fn = path_manage(self.name + '-ROW_edge_max', '.csv', **kwargs)
             self.ROW_edge_max.to_csv(fn, index = False, columns = c, header = h)
-        print('Maximum fields at ROW edges written to "%s"' % fn)
+        print('Maximum fields at ROW edges written to: "%s"' % fn)
 
     def full_export(self, **kwargs):
         """Write all of the cross section results to an excel workbook"""
         #path management
         fn = path_manage(self.name + '-full_results', '.xlsx', **kwargs)
         #data management
-        data = dict(zip(self.names, [xc.fields for xc in self.xcs]))
-        pd.Panel(data = data).to_excel(fn, index_label = 'x')
-        print('Full SectionBook results written to "%s"' % fn)
+        xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+        for xc in self:
+            xc.fields.to_excel(xlwriter, sheet_name = xc.name)
+        print('Full SectionBook results written to: "%s"' % fn)
 
 def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     """Calculate the approximate electric field generated by a group of
@@ -547,9 +547,6 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
                 P[a,b] = C*np.log(np.sqrt(n/d))
 
     #initialize complex voltage phasors
-    #Underground lines are assumed to be completely electrically shielded, with
-    #zero voltage from the appearance of an above ground observer. Lines at
-    # y <= 0 are zeroed.
     V = V_cond*(np.cos(p_cond) + complex(1j)*np.sin(p_cond))
 
     #compute real and imaginary charge phasors
@@ -662,7 +659,7 @@ def import_template(file_path):
     #import the cross sections as a dictionary of pandas dataframes
     sheets = pd.read_excel(file_path, sheetname = None, skiprows = [0,1,2,3],
                         parse_cols = 16, header = None)
-    #create a SectioBook object to store the CrossSection objects
+    #create a SectionBook object to store the CrossSection objects
     xcs = SectionBook(path.basename(file_path[:file_path.index('.')]))
     #convert the dataframes into a list of CrossSection objects
     titles = []
@@ -742,9 +739,10 @@ def path_manage(filename_if_needed, extension, **kwargs):
     if('path' in kwargs.keys()):
         p = kwargs['path']
         #if there's a filename_if_needed argument and a 'path' keyword, assume
-        #the 'path' argument is a directory and append a slash if needed
+        #the 'path' argument is a directory and append a slash if it has no
+        #leading director(y/ies)
         if(filename_if_needed and p):
-            if(path.basename(p)):
+            if(all(path.split(p))):
                 p += '/'
         #split the path
         head,tail = path.split(p)
@@ -771,10 +769,6 @@ def run(template_path, output_path):
     an empty string to output_path to send results to the active directory."""
     #import templates
     b = import_template(template_path)
-    #condition output path
-    if(output_path):
-        if((output_path[-1] != '/') and (output_path != '\\')):
-            output_path += '/'
     #export the full results workbook
     b.full_export(path = output_path)
     #export ROW edge results
