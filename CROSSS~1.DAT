@@ -1,6 +1,6 @@
-xc1
+Cross Section 1
 test cross section
-XC1.FLD
+CROSSS~1.FLD
 
  DIST    B Horz   B Vert   B PROD    B MAX   E Horz   E Vert   E PROD    E MAX
  (Ft)     (mG)     (mG)     (mG)      (mG)   (kV/m)   (kV/m)   (kV/m)   (V/m)
