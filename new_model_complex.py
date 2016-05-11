@@ -196,16 +196,20 @@ class CrossSection:
         ax.plot(x_cond, y_cond, 'kd')#hot lines
         (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
         ax.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
-        #plot ROW lines and adjust ylimits to make room for legend
+        #plot ROW lines and adjust axis limits for legend and ROW lines
         ax.set_ylim([0, max(self.fields['Emax'])*1.35])
         yl = ax.get_ylim()
         ax.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        xl = ax_B.get_xlim()
+        if((xl[0] == self.lROW) or (xl[1] == self.rROW)):
+            ax_B.set_xlim((xl[0]*1.15, xl[1]*1.15))
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
         if('title' in keys):
             t = k['title']
         else:
+            t = '%s, Maximum Electric Field' % self.title
             t = '%s, Maximum Electric Field' % self.title
         ax.set_title(t)
         ax.legend(['Electric Field (kV/m)','Conductors','Grounded Conductors',
@@ -240,10 +244,13 @@ class CrossSection:
         ax.plot(x_cond, y_cond, 'kd')#hot lines
         (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
         ax.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
-        #plot ROW lines and adjust ylimits to make room for legend
+        #plot ROW lines and adjust axis limits for legend and ROW lines
         ax.set_ylim([0, max(self.fields['Bmax'])*1.35])
         yl = ax.get_ylim()
         ax.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        xl = ax_B.get_xlim()
+        if((xl[0] == self.lROW) or (xl[1] == self.rROW)):
+            ax_B.set_xlim((xl[0]*1.15, xl[1]*1.15))
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
@@ -286,11 +293,14 @@ class CrossSection:
         hhot, = ax_B.plot(x_cond, y_cond, 'kd')#hot lines
         (x_cond,y_cond) = [c.x for c in self.gnd],[scale*c.y for c in self.gnd]
         hgnd, = ax_B.plot(x_cond, y_cond, 'd', color = 'gray')#ground lines
-        #plot ROW lines and adjust ylimits to make room for legend
+        #plot ROW lines and adjust axis limits for legend and ROW lines
         ax_B.set_ylim([0, max(self.fields['Bmax'])*1.4])
         ax_E.set_ylim([0, max(self.fields['Emax'])*1.4])
         yl = ax_B.get_ylim()
         hROW = ax_B.plot([self.lROW]*2, yl, 'k--', [self.rROW]*2, yl, 'k--')
+        xl = ax_B.get_xlim()
+        if((xl[0] == self.lROW) or (xl[1] == self.rROW)):
+            ax_B.set_xlim((xl[0]*1.15, xl[1]*1.15))
         #set axis text
         ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
         ax_B.set_ylabel('Maximum Magnetic Field (mG)',
@@ -338,8 +348,52 @@ class CrossSection:
                 'Percent Difference' : 100*(self.fields - df)/self.fields}
         #write the frames to a spreadsheet
         fn = path_manage(self.name + '-DAT_comparison', '.xlsx', **kwargs)
-        pd.Panel(data = comp).to_excel(fn, index_label = 'x')
+        pan = pd.Panel(data = comp)
+        pan.to_excel(fn, index_label = 'x')
         print('DAT comparison book saved to: %s' % fn)
+        #make plots of the absolute and percent error
+        fig = plt.figure(figsize = (15,10))
+        ax_abs = fig.add_subplot(2,1,1)
+        ax_per = ax_abs.twinx()
+        ax_mag = fig.add_subplot(2,1,2)
+        #Bmax
+        h_abs, = ax_abs.plot(pan['Absolute Difference']['Bmax'], 'k')
+        ax_abs.set_ylabel('Absolute Difference (kV/m)')
+        h_per, = ax_per.plot(pan['Percent Difference']['Bmax'], 'r')
+        ax_per.set_ylabel('Percent Difference', color = 'r')
+        ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
+        plt.title('Absolute and Percent Difference, Max Magnetic Field')
+        h_fld, = ax_mag.plot(pan['FIELDS_output']['Bmax'], 'k')
+        h_nm, = ax_mag.plot(pan['New_model_output']['Bmax'], 'b')
+        ax_mag.set_ylabel('Bmax (mG)')
+        ax_mag.set_xlabel('Distance from ROW Center (ft)')
+        ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
+        plt.title('Model Results, Magnetic Field')
+        plt.tight_layout()
+        fn = path_manage(self.name + '-DAT_comparison_Bmax', '.png', **kwargs)
+        plt.savefig(fn)
+        print('DAT comparison plot of Bmax saved to: "%s"' % fn)
+        #Emax
+        ax_abs.clear()
+        ax_per.clear()
+        ax_mag.clear()
+        h_abs, = ax_abs.plot(pan['Absolute Difference']['Emax'], 'k')
+        ax_abs.set_ylabel('Absolute Difference (kV/m)')
+        h_per, = ax_per.plot(pan['Percent Difference']['Emax'], 'r')
+        ax_per.set_ylabel('Percent Difference', color = 'r')
+        ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
+        ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
+        h_fld, = ax_mag.plot(pan['FIELDS_output']['Emax'], 'k')
+        h_nm, = ax_mag.plot(pan['New_model_output']['Emax'], 'b')
+        ax_mag.set_ylabel('Emax (kV/m)')
+        ax_mag.set_xlabel('Distance from ROW Center (ft)')
+        ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
+        ax_mag.set_title('Model Results, Electric Field')
+        plt.tight_layout()
+        fn = path_manage(self.name + '-DAT_comparison_Emax', '.png', **kwargs)
+        plt.savefig(fn)
+        print('DAT comparison plot of Emax saved to: "%s"' % fn)
+        plt.close(fig)
 
 class SectionBook:
 
@@ -358,7 +412,7 @@ class SectionBook:
 
     def __getitem__(self, key):
         try:
-            idx = self.xcname2idx[key]
+            idx = self.name2idx[key]
         except(KeyError):
             return(False)
         else:
@@ -417,7 +471,7 @@ class SectionBook:
         if('file_type' in kwargs.keys()):
             if(kwargs['file_type'] == 'excel'):
                 excel = True
-        if(not excel):
+        if(excel):
             fn = path_manage(self.name + '-ROW_edge_max', '.xlsx', **kwargs)
             self.ROW_edge_max.to_excel(fn, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
@@ -689,8 +743,8 @@ def path_manage(filename_if_needed, extension, **kwargs):
 
 def run(template_path, output_path):
     """Import the templates in an excel file with the path 'template_path'
-    then generate a workbook of all fields results with accompanying plot,
-    saved to the directory described by 'output_path'. Fine control of the
+    then generate a workbook of all fields results and accompanying plots,
+    saved to the directory described by 'output_path'. Finer control of the
     output, like x-distance cutoffs for the plots, is given up by the use
     of this function but it's a fast way to generate all the results. Pass
     an empty string to output_path to send results to the active directory."""
@@ -706,6 +760,5 @@ def run(template_path, output_path):
     b.ROW_edge_export(path = output_path)
     #export plots
     for xc in b:
-        xc.plot_max_fields(save = True, path = output_path)
-
-run('XC-template.xlsx', 'test-dir/')
+        fig = xc.plot_max_fields(save = True, path = output_path)
+        plt.close(fig)
