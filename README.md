@@ -15,12 +15,14 @@ the code has been able to reproduce FIELDS results to a very high degree of
 accuracy. In most cases, this code is able to exactly match FIELDS results.
 However, because FIELDS only prints results to three digits past the decimal
 point, a question remains about the internal precision of the calculations.
-The output of this code has been within 2% of FIELDS output for all tests so
-far.
+The largest difference between the results of this code and those of 
+FIELDS has been about 2% and difference are vanishingly small in most cases,
+on the order of round-off error.
 
 The FIELDS method of calculating EMF near transmission lines is not improved by
-this code. It seems like the FIELDS approach has a lot of inertia and people are hesitant to diverge from it. However, this code does significantly improve upon
-the usability and analytical capabilities of FIELDS, mostly by making the
+this code. It seems like the FIELDS approach has a lot of inertia and people
+are hesitant to diverge from it. However, this code does significantly improve
+upon the usability and analytical capabilities of FIELDS, mostly by making the
 functions that calculate electric and magnetic fields accessible. It interfaces
 with excel templates that store the conductor and cross section data. In the
 most routine modeling scenarios, this code enables a one line effort (after
