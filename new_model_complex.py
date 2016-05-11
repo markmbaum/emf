@@ -625,4 +625,4 @@ def run(template_path, output_path):
     for xc in b:
         xc.plot_max_fields(save = True, path = output_path)
 
-run('S4_11_P_winter_normal.xlsx', '')
+run('XC-template.xlsx', '')
