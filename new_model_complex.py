@@ -334,7 +334,11 @@ class CrossSection:
         differences between it and the CrossSection objects results, and
         write them to an excel file. The default excel file name is the
         CrossSection's title with '-DAT_comparison' appended to it. Use
-        the keyword argument 'path' to specify a different one."""
+        the keyword argument 'path' to specify a different one. Pass an
+        integer to the keyword 'round' to round results to that number of
+        places after the decimal (FIELDS prints only 3 digits beyond the
+        decimal). Use 'truncate' to truncate, always to 3 digits after the
+        decimal point."""
         #load the .DAT file into a dataframe
         df = pd.read_table(DAT_path, skiprows = [0,1,2,3,4,5,6],
                             delim_whitespace = True, header = None,
@@ -342,10 +346,21 @@ class CrossSection:
                                     'Ex', 'Ey', 'Eprod', 'Emax'],
                             index_col = 0)
         #prepare a dictionary to create a Panel
+        if('round' in kwargs.keys()):
+            f = self.fields.round(kwargs['round'])
+        elif('truncate' in kwargs.keys()):
+            if(kwargs['truncate']):
+                f = self.fields.copy(deep = True)
+                for c in f.columns:
+                    for i in f.index:
+                        f[c].loc[i] = float('%.3f' % f[c].loc[i])
+                print(f)
+        else:
+            f = self.fields
         comp = {'FIELDS_output' : df,
-                'New_model_output' : self.fields,
-                'Absolute Difference' : self.fields - df,
-                'Percent Difference' : 100*(self.fields - df)/self.fields}
+                'New_model_output' : f,
+                'Absolute Difference' : f - df,
+                'Percent Difference' : 100*(f - df)/f}
         #write the frames to a spreadsheet
         fn = path_manage(self.name + '-DAT_comparison', '.xlsx', **kwargs)
         pan = pd.Panel(data = comp)
@@ -362,13 +377,13 @@ class CrossSection:
         h_per, = ax_per.plot(pan['Percent Difference']['Bmax'], 'r')
         ax_per.set_ylabel('Percent Difference', color = 'r')
         ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
-        plt.title('Absolute and Percent Difference, Max Magnetic Field')
+        ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
         h_fld, = ax_mag.plot(pan['FIELDS_output']['Bmax'], 'k')
         h_nm, = ax_mag.plot(pan['New_model_output']['Bmax'], 'b')
         ax_mag.set_ylabel('Bmax (mG)')
         ax_mag.set_xlabel('Distance from ROW Center (ft)')
         ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
-        plt.title('Model Results, Magnetic Field')
+        ax_mag.set_title('Model Results, Magnetic Field')
         plt.tight_layout()
         fn = path_manage(self.name + '-DAT_comparison_Bmax', '.png', **kwargs)
         plt.savefig(fn)
@@ -496,6 +511,19 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     unique conductor, i.e. the 0th value in each variable is attributed to
     one power line."""
 
+    #conversions and screening out underground lines
+    ohd = y_cond > 0.
+    x_cond = x_cond[ohd]*0.3048         #convert to meters
+    y_cond = y_cond[ohd]*0.3048         #convert to meters
+    subconds = subconds[ohd]
+    d_cond = d_cond[ohd]*0.0254         #convert to meters
+    d_bund = d_bund[ohd]*0.0254         #convert to meters
+    V_cond = V_cond[ohd]/np.sqrt(3)     #convert to ground reference from
+                                        #line-line reference, leave in kV
+    p_cond = p_cond[ohd]*2*np.pi/360.   #convert to radians
+    x      = x*0.3048                   #convert to meters
+    y      = y*0.3048                   #convert to meters
+
     #convenient variables/constants
     epsilon = 8.854e-12
     C = 1./(2.*np.pi*epsilon)
@@ -504,16 +532,6 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
 
     #calculate the effective conductor diameters
     d_cond  = d_bund*((subconds*d_cond/d_bund)**(1./subconds))
-
-    #conversions
-    x_cond = x_cond*0.3048          #convert to meters
-    y_cond = y_cond*0.3048          #convert to meters
-    d_cond = d_cond*0.0254          #convert to meters
-    V_cond = V_cond/np.sqrt(3)      #convert to ground reference from line-line
-                                    #reference, leave in units of kV
-    p_cond = p_cond*2*np.pi/360.    #convert to radians
-    x      = x*0.3048               #convert to meters
-    y      = y*0.3048               #convert to meters
 
     #compute the matrix of potential coefficients
     P = np.empty((N,N))
@@ -529,6 +547,9 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
                 P[a,b] = C*np.log(np.sqrt(n/d))
 
     #initialize complex voltage phasors
+    #Underground lines are assumed to be completely electrically shielded, with
+    #zero voltage from the appearance of an above ground observer. Lines at
+    # y <= 0 are zeroed.
     V = V_cond*(np.cos(p_cond) + complex(1j)*np.sin(p_cond))
 
     #compute real and imaginary charge phasors
