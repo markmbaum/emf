@@ -36,9 +36,10 @@ class CrossSection:
     results of electric and magnetic field simulations across the section."""
 
     def __init__(self, name):
-        self.name = name #mandatory
-        self.title = ''
-        self.subtitle = ''
+        self.name = name #mandatory, short, generally template sheet name
+        self.title = '' #longer form, used for ploting text
+        self.tag = None #identifier linking multiple CrossSection objects
+        self.subtitle = '' #any extra information
         self.soil_resistivity = 100. #?
         self.max_dist = None #maximum simulated distance from the ROW center
         self.step = None #step size for calculations
@@ -416,6 +417,8 @@ class SectionBook:
         self.xcs = [] #list of cross section objects
         self.name2idx = dict() #mapping dictionary for CrossSection retrieval
         self.names = [] #list of CrossSection names
+        self.tags = [] #collection of CrossSection tags
+        self.tag_groups = [[]] #groups of CrossSection indices with identical tags
         #DataFrame of maximum fields at ROW edges
         self.ROW_edge_max = pd.DataFrame(columns = ['name','title',
                                             'Bmaxl','Bmaxr','Emaxl','Emaxr'])
@@ -440,35 +443,34 @@ class SectionBook:
 
     def add_section(self, xc):
         if(xc.name in self.names):
-            raise(FLDError(r"""CrossSection name "%s" already exists in the
-                        SectionBook. Duplicate names would cause collisions
-                        in the lookup dictionary (self.name2idx). Use a
-                        different name.""" % xc.name))
+            raise(FLDError('CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self.name2idx). Use a different name.' % xc.name))
         else:
             self.name2idx[xc.name] = len(self.xcs)
             self.xcs.append(xc)
             self.names.append(xc.name)
+            self.tags.append(xc.tag)
 
-    def compile_ROW_edge_max(self):
-        """Execution populates the self.ROW_edge_results DataFrame with
-        the most current results of the fields calculation in each
-        CrossSection."""
-        #gather ROW edge results
-        L = len(self.xcs)
-        El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
-        titles = []
-        for i in range(L):
-            xc = self.i(i)
-            Bl[i] = xc.fields['Bmax'][xc.lROWi]
-            Br[i] = xc.fields['Bmax'][xc.rROWi]
-            El[i] = xc.fields['Emax'][xc.lROWi]
-            Er[i] = xc.fields['Emax'][xc.rROWi]
-            titles.append(xc.title)
-        #construct DataFrame
-        data = {'name' : self.names, 'title' : titles,
-                'Bmaxl' : Bl, 'Emaxl' : El, 'Bmaxr' : Br, 'Emaxr' : Er}
-        self.ROW_edge_max = pd.DataFrame(data = data).sort_values('name')
-        return(self)
+    def plot_groups(self, **kwargs):
+        """Plot the fields of CrossSections in the same group in the same
+        axis, one plot for both fields. Use the 'save' keyword to save
+        each plot and the 'path' keyword to specify the save location (and
+        filename if it's in the path string). Use the kwarg 'xmax' to cut the
+        plotted fields at a certain distance from the ROW center."""
+        #get plotting objects and x cutoff
+        (fig, ax, xmax) = self.prepare_fig(**kwargs)
+        #iterate over the groups
+        for g in groups:
+            #iterate over the indices in the group plotting B field
+            h = []
+            for idx in g:
+                xc = self.xcs[idx]
+                #B field
+                han, = ax.plot(xc['Bmax'][-xmax:xmax], '.-', color = xc.B_color,
+                        label = xc.title)
+                h.append(han)
+        plt.close(fig)
+            #UNFINISHED, SHOULD REPLICATE PLOTTING FUNCTIONS OF CROSSSECTION
+            #OBJECT AS MUCH AS POSSIBLE
 
     def ROW_edge_export(self, **kwargs):
         """Write max field results at ROW edges for each cross section to
@@ -503,6 +505,42 @@ class SectionBook:
         for xc in self:
             xc.fields.to_excel(xlwriter, sheet_name = xc.name)
         print('Full SectionBook results written to: "%s"' % fn)
+
+    #---------------------------------------------------------------------------
+    #functions that update SectionBook variables when CrossSections are done
+    #being added or when CrossSection data changes
+
+    def update(self):
+        """Executes all of the update functions"""
+        self.update_tag_groups()
+        self.update_ROW_edge_max()
+
+    def update_tag_groups(self):
+        """Generate a list of lists of CrossSection indices with the same tag"""
+        u = list(set(self.tags)) #get unique CrossSection tags
+        self.tag_groups = [[] for i in range(len(u))]
+        for i in range(len(self.xcs)):
+            self.tag_groups[u.index(self.xcs[i].tag)].append(i)
+
+    def update_ROW_edge_max(self):
+        """Execution populates the self.ROW_edge_max DataFrame with
+        the most current results of the fields calculation in each
+        CrossSection."""
+        #gather ROW edge results
+        L = len(self.xcs)
+        El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
+        titles = []
+        for i in range(L):
+            xc = self.i(i)
+            Bl[i] = xc.fields['Bmax'][xc.lROWi]
+            Br[i] = xc.fields['Bmax'][xc.rROWi]
+            El[i] = xc.fields['Emax'][xc.lROWi]
+            Er[i] = xc.fields['Emax'][xc.rROWi]
+            titles.append(xc.title)
+        #construct DataFrame
+        data = {'name' : self.names, 'title' : titles,
+                'Bmaxl' : Bl, 'Emaxl' : El, 'Bmaxr' : Br, 'Emaxr' : Er}
+        self.ROW_edge_max = pd.DataFrame(data = data).sort_values('name')
 
 def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     """Calculate the approximate electric field generated by a group of
@@ -669,18 +707,19 @@ def import_template(file_path):
         xc = CrossSection(k)
         misc = df[1]
         xc.title = misc[0]
+        xc.tag = misc[1]
         #check for duplicate title inputs
         if(xc.title in titles):
             raise(FLDError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
         else:
             titles.append(xc.title)
-        xc.subtitle = misc[1]
-        xc.soil_resistivity = misc[3]
-        xc.max_dist = misc[4]
-        xc.step = misc[5]
-        xc.sample_height = misc[6]
-        xc.lROW = misc[7]
-        xc.rROW = misc[8]
+        xc.subtitle = misc[2]
+        xc.soil_resistivity = misc[4]
+        xc.max_dist = misc[5]
+        xc.step = misc[6]
+        xc.sample_height = misc[7]
+        xc.lROW = misc[8]
+        xc.rROW = misc[9]
         #load hot conductors
         for i in range(df[3].dropna().shape[0]):
             cond = Conductor()
@@ -713,8 +752,8 @@ def import_template(file_path):
         xc.calculate_fields()
         #add the CrossSection object to the SectionBook
         xcs.add_section(xc)
-    #update the SectionBook's ROW edge results dataframe
-    xcs.compile_ROW_edge_max()
+    #update the SectionBook's remaining variables
+    xcs.update()
     #return the SectionBook object
     return(xcs)
 
@@ -727,7 +766,9 @@ def path_manage(filename_if_needed, extension, **kwargs):
     name at its end, the input extension will replace any preexisting one.
     If no path string is passed in via the keyword argument 'path', the
     returned path is simply the input filename_if_needed with the input
-    extension at its end."""
+    extension at its end. Path strings without slashes at the end are
+    assumed to be directories. If the last part of the path string is
+    supposed to be the filename, include the extension."""
     #remove extensions from filename_if_needed
     if('.' in filename_if_needed):
         filename_if_needed = filename_if_needed[:filename_if_needed.index('.')]
