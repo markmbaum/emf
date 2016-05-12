@@ -141,6 +141,9 @@ class CrossSection:
                             names = ['Bx', 'By', 'Bprod', 'Bmax',
                                     'Ex', 'Ey', 'Eprod', 'Emax'],
                             index_col = 0)
+        #check dataframe shape compatibility
+        if(df.shape != self.fields.shape):
+            raise(FLDError('self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes.' % self.name))
         #prepare a dictionary to create a Panel
         if('round' in kwargs.keys()):
             f = self.fields.round(kwargs['round'])
@@ -303,7 +306,7 @@ class SectionBook:
         L = len(self.xcs)
         El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
         titles = []
-        for i in range(L):
+        for i in range(len(self)):
             xc = self.i(i)
             Bl[i] = xc.fields['Bmax'][xc.lROWi]
             Br[i] = xc.fields['Bmax'][xc.rROWi]
