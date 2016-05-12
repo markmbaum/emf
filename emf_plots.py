@@ -8,9 +8,14 @@ import emf_calcs
 #-------------------------------------------------------------------------------
 #plotting routines working primarily with a CrossSection object
 
+#useful globals for the cross section plotting routines, unlikely to collide
+#with other variables of the same name
+emf_plots_xc_headspace = 1.4 #space at the top of plots for legend
+emf_plots_xc_figsize = (10,6) #figure size, use None to revert to default
+
 def prepare_fig(xc, **kwargs):
     """Snippet executed at the beginning of plotting methods to handle figure
-    object generation and some keywords"""
+    object generation and some keywords initializing other params."""
     #prepare figure and axis
     plt.rc('font', family = 'calibri')
     k = kwargs
@@ -18,7 +23,7 @@ def prepare_fig(xc, **kwargs):
     if('figure' in keys):
         fig = k['figure']
     else:
-        fig = plt.figure()
+        fig = plt.figure(figsize = emf_plots_xc_figsize)
     ax = plt.gca()
     #get x cutoff, if any
     if('xmax' in keys):
@@ -88,6 +93,20 @@ def plot_ROW_edges(ax, lROW, rROW):
         ax.set_xlim((xl[0]*1.15, xl[1]*1.15))
     return(hROW)
 
+def color_twin_axes(ax1, color1, ax2, color2):
+    """Assign colors to split y axes"""
+    #spines
+    ax1.spines['left'].set_color(color1)
+    ax1.spines['right'].set_color(color2)
+    ax2.spines['left'].set_color(color1)
+    ax2.spines['right'].set_color(color2)
+    #text
+    ax1.yaxis.label.set_color(color1)
+    ax2.yaxis.label.set_color(color2)
+    #ticks
+    ax1.tick_params(axis = 'y', colors = color1)
+    ax2.tick_params(axis = 'y', colors = color2)
+
 def plot_Bmax(xc, **kwargs):
     """Plot the maximum magnetic field along the ROW with conductor
     locations shown in artificial but to-scale locations. Pass in an
@@ -109,7 +128,7 @@ def plot_Bmax(xc, **kwargs):
     #plot wires
     hhot, hgnd = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'], .3)
     #adjust axis limits
-    ax.set_ylim(0, 1.4*max(xc.fields['Bmax']))
+    ax.set_ylim(0, emf_plots_xc_headspace*max(xc.fields['Bmax']))
     #plot ROW lines
     hROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW)
     #set axis text and legend
@@ -148,7 +167,7 @@ def plot_Emax(xc, **kwargs):
     #plot wires
     hhot, hgnd = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'], .3)
     #adjust axis limits
-    ax.set_ylim(0, 1.4*max(xc.fields['Emax']))
+    ax.set_ylim(0, emf_plots_xc_headspace*max(xc.fields['Emax']))
     #plot ROW lines
     hROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
@@ -189,8 +208,8 @@ def plot_max_fields(xc, **kwargs):
     #plot wires
     hhot, hgnd = plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'], .3)
     #adjust axis limits
-    ax_B.set_ylim(0, 1.4*max(xc.fields['Bmax']))
-    ax_E.set_ylim(0, 1.4*max(xc.fields['Emax']))
+    ax_B.set_ylim(0, emf_plots_xc_headspace*max(xc.fields['Bmax']))
+    ax_E.set_ylim(0, emf_plots_xc_headspace*max(xc.fields['Emax']))
     #plot ROW lines
     hROW = plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
@@ -205,12 +224,7 @@ def plot_max_fields(xc, **kwargs):
         t = '%s, Maximum Magnetic and Electric Fields' % xc.title
     ax_B.set_title(t)
     #set color of axis spines and ticklabels
-    ax_B.spines['left'].set_color(xc.B_color)
-    ax_B.spines['right'].set_color(xc.E_color)
-    ax_E.spines['left'].set_color(xc.B_color)
-    ax_E.spines['right'].set_color(xc.E_color)
-    ax_B.tick_params(axis = 'y', colors = xc.B_color)
-    ax_E.tick_params(axis = 'y', colors = xc.E_color)
+    color_twin_axes(ax_B, xc.B_color, ax_E, xc.E_color)
     #legend
     ax_B.legend([hB, hE, hhot, hgnd, hROW[0]],
                 ['Magnetic Field (mG)','Electric Field (kV/m)','Conductors',
