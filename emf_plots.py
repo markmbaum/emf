@@ -25,7 +25,13 @@ def prepare_fig(xc, **kwargs):
         xmax = abs(k['xmax'])
     else:
         xmax = max(abs(xc.fields.index))
-    return(fig, ax, xmax)
+    #get appropriate linestyle based on number of sample points
+    n = xc.fields[-xmax:xmax].shape[0]
+    if(n > 200):
+        linesym = '-'
+    else:
+        linesym = '.-'
+    return(fig, ax, xmax, linesym)
 
 def save_fig(xc, fig, **kwargs):
     """Snippet executed at the end of plotting methods to handle saving"""
@@ -69,14 +75,12 @@ def plot_wires(ax, hot, gnd, v, perc):
     hgnd, = ax.plot(x[len(hot):], scale*y[len(hot):], 'd', color = 'gray')
     return(hhot, hgnd)
 
-def plot_ROW_and_adjust(ax, lROW, rROW, v, headroom):
+def plot_ROW_edges(ax, lROW, rROW):
     """Plot dashed lines marking the left and right edges of the
     Right-of-Way in ax, the locations of which are given by lROW and rROW.
     The iterable v is used to scale the lines. Axis limits are also adjusted
-    to allow a percentage of empty space at the top, defined by headroom, and
-    extra space on the sides to make the ROW edge lines visible if needed.
+    to allow extra space on the sides to make the ROW edge lines visible if needed.
     The ROW edge line handles are returned in a list."""
-    ax.set_ylim([0, max(v)*(1 + headroom)])
     yl = ax.get_ylim()
     hROW = ax.plot([lROW]*2, yl, 'k--', [rROW]*2, yl, 'k--')
     xl = ax.get_xlim()
@@ -99,13 +103,15 @@ def plot_Bmax(xc, **kwargs):
     k = kwargs
     keys = k.keys()
     #get axes and x cutoff
-    (fig, ax, xmax) = prepare_fig(xc, **kwargs)
+    (fig, ax, xmax, linesym) = prepare_fig(xc, **kwargs)
     #plot the field curve
-    hB, = ax.plot(xc.fields['Bmax'][-xmax:xmax], '.-', color = xc.B_color)
+    hB, = ax.plot(xc.fields['Bmax'][-xmax:xmax], linesym, color = xc.B_color)
     #plot wires
     hhot, hgnd = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'], .3)
-    #plot ROW lines and adjust axis limits for legend and ROW lines
-    hROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW, xc.fields['Bmax'], .35)
+    #adjust axis limits
+    ax.set_ylim(0, 1.4*max(xc.fields['Bmax']))
+    #plot ROW lines
+    hROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
     ax.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
@@ -136,13 +142,15 @@ def plot_Emax(xc, **kwargs):
     k = kwargs
     keys = k.keys()
     #get axes and x cutoff
-    (fig, ax, xmax) = prepare_fig(xc, **kwargs)
+    (fig, ax, xmax, linesym) = prepare_fig(xc, **kwargs)
     #plot the field curve
-    hE, = ax.plot(xc.fields['Emax'][-xmax:xmax], '.-', color = xc.E_color)
+    hE, = ax.plot(xc.fields['Emax'][-xmax:xmax], linesym, color = xc.E_color)
     #plot wires
     hhot, hgnd = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'], .3)
-    #plot ROW lines and adjust axis limits for legend and ROW lines
-    hROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW, xc.fields['Emax'], .35)
+    #adjust axis limits
+    ax.set_ylim(0, 1.4*max(xc.fields['Emax']))
+    #plot ROW lines
+    hROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
     ax.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
@@ -173,15 +181,18 @@ def plot_max_fields(xc, **kwargs):
     k = kwargs
     keys = k.keys()
     #get axes and x cutoff
-    (fig, ax_B, xmax) = prepare_fig(xc, **kwargs)
+    (fig, ax_B, xmax, linesym) = prepare_fig(xc, **kwargs)
     ax_E = ax_B.twinx()
     #plot the field curves
-    hB, = ax_B.plot(xc.fields['Bmax'][-xmax:xmax], '.-', color = xc.B_color)
-    hE, = ax_E.plot(xc.fields['Emax'][-xmax:xmax], '.-', color = xc.E_color)
+    hB, = ax_B.plot(xc.fields['Bmax'][-xmax:xmax], linesym, color = xc.B_color)
+    hE, = ax_E.plot(xc.fields['Emax'][-xmax:xmax], linesym, color = xc.E_color)
     #plot wires
     hhot, hgnd = plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'], .3)
-    #plot ROW lines and adjust axis limits for legend and ROW lines
-    hROW = plot_ROW_and_adjust(ax_B, xc.lROW, xc.rROW, xc.fields['Emax'], .35)
+    #adjust axis limits
+    ax_B.set_ylim(0, 1.4*max(xc.fields['Bmax']))
+    ax_E.set_ylim(0, 1.4*max(xc.fields['Emax']))
+    #plot ROW lines
+    hROW = plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
     ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
     ax_B.set_ylabel('Maximum Magnetic Field (mG)',
