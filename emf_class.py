@@ -7,7 +7,7 @@ import emf_funks
 import emf_plots
 import emf_calcs
 
-class FLDError(Exception):
+class EMFError(Exception):
     def __init__(self, message):
         self.message = message
     def __str__(self):
@@ -114,7 +114,7 @@ class CrossSection:
         three-phase transfer line."""
         #check the number of hot lines
         if(self.N_hot % 3 != 0):
-            raise(FLDError('The number of hot (not grounded) conductors mustbe a multiple of three.'))
+            raise(EMFError('The number of hot (not grounded) conductors mustbe a multiple of three.'))
         #number of 3 phase groups
         G = self.N_hot/3
         #number of permutations
@@ -143,7 +143,7 @@ class CrossSection:
                             index_col = 0)
         #check dataframe shape compatibility
         if(df.shape != self.fields.shape):
-            raise(FLDError('self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes.' % self.name))
+            raise(EMFError('self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes. Be sure to target the correct .DAT file and that it has compatible DIST values.' % self.name))
         #prepare a dictionary to create a Panel
         if('round' in kwargs.keys()):
             f = self.fields.round(kwargs['round'])
@@ -165,48 +165,7 @@ class CrossSection:
         pan.to_excel(fn, index_label = 'x')
         print('DAT comparison book saved to: %s' % fn)
         #make plots of the absolute and percent error
-        fig = plt.figure(figsize = (15,10))
-        ax_abs = fig.add_subplot(2,1,1)
-        ax_per = ax_abs.twinx()
-        ax_mag = fig.add_subplot(2,1,2)
-        #Bmax
-        h_abs, = ax_abs.plot(pan['Absolute Difference']['Bmax'], 'k')
-        ax_abs.set_ylabel('Absolute Difference (kV/m)')
-        h_per, = ax_per.plot(pan['Percent Difference']['Bmax'], 'r')
-        ax_per.set_ylabel('Percent Difference', color = 'r')
-        ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
-        ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
-        h_fld, = ax_mag.plot(pan['FIELDS_output']['Bmax'], 'k')
-        h_nm, = ax_mag.plot(pan['New_model_output']['Bmax'], 'b')
-        ax_mag.set_ylabel('Bmax (mG)')
-        ax_mag.set_xlabel('Distance from ROW Center (ft)')
-        ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
-        ax_mag.set_title('Model Results, Magnetic Field')
-        plt.tight_layout()
-        fn = emf_funks.path_manage(self.name + '-DAT_comparison_Bmax', '.png', **kwargs)
-        plt.savefig(fn)
-        print('DAT comparison plot of Bmax saved to: "%s"' % fn)
-        #Emax
-        ax_abs.clear()
-        ax_per.clear()
-        ax_mag.clear()
-        h_abs, = ax_abs.plot(pan['Absolute Difference']['Emax'], 'k')
-        ax_abs.set_ylabel('Absolute Difference (kV/m)')
-        h_per, = ax_per.plot(pan['Percent Difference']['Emax'], 'r')
-        ax_per.set_ylabel('Percent Difference', color = 'r')
-        ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
-        ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
-        h_fld, = ax_mag.plot(pan['FIELDS_output']['Emax'], 'k')
-        h_nm, = ax_mag.plot(pan['New_model_output']['Emax'], 'b')
-        ax_mag.set_ylabel('Emax (kV/m)')
-        ax_mag.set_xlabel('Distance from ROW Center (ft)')
-        ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'])
-        ax_mag.set_title('Model Results, Electric Field')
-        plt.tight_layout()
-        fn = emf_funks.path_manage(self.name + '-DAT_comparison_Emax', '.png', **kwargs)
-        plt.savefig(fn)
-        print('DAT comparison plot of Emax saved to: "%s"' % fn)
-        plt.close(fig)
+        figs = emf_plots.plot_DAT_comparison(self, pan, **kwargs)
 
 class SectionBook:
 
@@ -241,7 +200,7 @@ class SectionBook:
 
     def add_section(self, xc):
         if(xc.name in self.names):
-            raise(FLDError('CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self.name2idx). Use a different name.' % xc.name))
+            raise(EMFError('CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self.name2idx). Use a different name.' % xc.name))
         else:
             self.name2idx[xc.name] = len(self.xcs)
             self.xcs.append(xc)
@@ -306,7 +265,7 @@ class SectionBook:
         L = len(self.xcs)
         El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
         titles = []
-        for i in range(len(self)):
+        for i in range(L):
             xc = self.i(i)
             Bl[i] = xc.fields['Bmax'][xc.lROWi]
             Br[i] = xc.fields['Bmax'][xc.rROWi]

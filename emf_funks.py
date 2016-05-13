@@ -52,7 +52,7 @@ def import_template(file_path):
         xc.tag = misc[1]
         #check for duplicate title inputs
         if(xc.title in titles):
-            raise(FLDError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
+            raise(EMFError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
         else:
             titles.append(xc.title)
         xc.subtitle = misc[2]
