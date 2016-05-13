@@ -13,10 +13,10 @@ mpl.rcParams['text.color'] = (.2, .2, .2)
 mpl.rcParams['axes.labelcolor'] = (.2, .2, .2)
 mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
-mpl.rcParams['axes.titlesize'] = 13
+mpl.rcParams['axes.titlesize'] = 14
 mpl.rcParams['axes.labelsize'] = 12
 mpl.rcParams['legend.fontsize'] = 10
-mpl.rcParams['figure.figsize'] = (10,6)
+mpl.rcParams['figure.figsize'] = (12,6)
 #other more specific and dynamic formatting variables
 emf_plots_B_color = 'darkgreen'
 emf_plots_E_color = 'midnightblue'
@@ -45,7 +45,7 @@ def format_axes_legends(*args):
             rec = leg.get_frame()
             if(not emf_plots_leg_edge_on):
                 rec.set_edgecolor('white')
-                print('why cant I get the legend exactly in the corner?')
+                #print('why cant I get the legend exactly in the corner?')
 
 def save_fig(filename_if_needed, fig, **kwargs):
     """Snippet executed at the end of plotting methods to handle saving"""
@@ -171,15 +171,15 @@ def plot_Bmax(xc, **kwargs):
     #plot ROW lines
     hROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW)
     #set axis text and legend
-    ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
-    ax.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
+    ax.set_xlabel('Distance from Center of ROW (ft)')
+    ax.set_ylabel('Maximum Magnetic Field (mG)')
     if('title' in keys):
         t = k['title']
     else:
         t = 'Maximum Magnetic Field, %s' % xc.title
     ax.set_title(t)
     ax.legend(['Magnetic Field (mG)','Conductors','Grounded Conductors',
-                'ROW Edge'], numpoints = 1, fontsize = 10)
+                'ROW Edge'], numpoints = 1)
     format_axes_legends(ax)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)
@@ -208,15 +208,15 @@ def plot_Emax(xc, **kwargs):
     #plot ROW lines
     hROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
-    ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
-    ax.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
+    ax.set_xlabel('Distance from Center of ROW (ft)')
+    ax.set_ylabel('Maximum Electric Field (kV/m)')
     if('title' in keys):
         t = k['title']
     else:
         t = 'Maximum Electric Field, %s' % xc.title
     ax.set_title(t)
     ax.legend(['Electric Field (kV/m)','Conductors','Grounded Conductors',
-                'ROW Edge'], numpoints = 1, fontsize = 10)
+                'ROW Edge'], numpoints = 1)
     format_axes_legends(ax)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)
@@ -248,11 +248,9 @@ def plot_max_fields(xc, **kwargs):
     #plot ROW lines
     hROW = plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
-    ax_B.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
-    ax_B.set_ylabel('Maximum Magnetic Field (mG)',
-                    fontsize = 14, color = emf_plots_B_color)
-    ax_E.set_ylabel('Maximum Electric Field (kV/m)',
-                    fontsize = 14, color = emf_plots_E_color)
+    ax_B.set_xlabel('Distance from Center of ROW (ft)')
+    ax_B.set_ylabel('Maximum Magnetic Field (mG)', color = emf_plots_B_color)
+    ax_E.set_ylabel('Maximum Electric Field (kV/m)', color = emf_plots_E_color)
     if('title' in kwargs.keys()):
         t = kwargs['title']
     else:
@@ -263,15 +261,14 @@ def plot_max_fields(xc, **kwargs):
     #legend
     ax_B.legend([hB, hE, hhot, hgnd, hROW[0]],
                 ['Magnetic Field (mG)','Electric Field (kV/m)','Conductors',
-                'Grounded Conductors','ROW Edge'],
-                numpoints = 1, fontsize = 10)
+                'Grounded Conductors','ROW Edge'], numpoints = 1)
     format_axes_legends(ax_B, ax_E)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)
     #return
     return(fig)
 
-def plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field):
+def plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hhot, hgnd):
     #plot absolute error
     h_abs, = ax_abs.plot(pan['Absolute Difference'][field], 'k')
     ax_abs.set_ylabel('Absolute Difference (kV/m)')
@@ -279,24 +276,26 @@ def plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field):
     h_per, = ax_per.plot(pan['Percent Difference'][field], 'r')
     ax_per.set_ylabel('Percent Difference', color = 'r')
     #set error axes legend
-    ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'],
-                    fontsize = 10)
+    ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
     #plot results
     h_fld, = ax_mag.plot(pan['FIELDS_output'][field], 'k')
     h_nm, = ax_mag.plot(pan['New_model_output'][field], 'b')
     ax_mag.set_xlabel('Distance from ROW Center (ft)')
     #set results legend
-    ax_mag.legend([h_fld, h_nm], ['FIELDS','New Code'], fontsize = 10)
+    ax_mag.legend([h_fld, h_nm, hhot, hgnd],
+                ['FIELDS','New Code','Hot Wires','Ground Wires'], numpoints = 1)
 
 def plot_DAT_comparison(xc, pan, **kwargs):
-    figs = []
+
     #figure object and axes
     fig = plt.figure()
     ax_abs = fig.add_subplot(2,1,1)
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Bmax
-    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax')
+
+    hhot,hgnd = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Bmax'])
+    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax', hhot, hgnd)
     ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
     ax_mag.set_ylabel('Bmax (mG)')
     ax_mag.set_title('Model Results, Magnetic Field')
@@ -305,7 +304,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     plt.tight_layout()
     format_axes_legends(ax_abs, ax_per, ax_mag)
     save_fig(xc.name + '-DAT_comparison_Emax', fig, **kwargs)
-    figs.append(fig)
+    plt.close(fig)
 
     #figure object and axes
     fig = plt.figure()
@@ -313,7 +312,8 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Emax
-    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax')
+    hhot,hgnd = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Emax'])
+    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax', hhot, hgnd)
     ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
     ax_mag.set_ylabel('Emax (kV/m)')
     ax_mag.set_title('Model Results, Electric Field')
@@ -321,9 +321,8 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     plt.tight_layout()
     format_axes_legends(ax_abs, ax_per, ax_mag)
     save_fig(xc.name + '-DAT_comparison_Bmax', fig, **kwargs)
-    figs.append(fig)
+    plt.close(fig)
 
-    return(figs)
 
 #-------------------------------------------------------------------------------
 #plotting routines working primarily with a SectionBook object
@@ -453,10 +452,7 @@ def plot_groups(sb, **kwargs):
     both fields. Use the 'save' keyword to save each plot and the 'path'
     keyword to specify the save location (don't inculde a file name or the
     plots will overwrite eachother). Use the kwarg 'xmax' to cut the plotted
-    fields off at a certain distance from the ROW center. A list of figure
-    objects is returned."""
-    #figure list
-    figs = []
+    fields off at a certain distance from the ROW center. Nothing is returned"""
     #iterate over the groups
     for g in sb.tag_groups:
         xcs = [sb.xcs[i] for i in g]
@@ -474,18 +470,18 @@ def plot_groups(sb, **kwargs):
         #plot ROW lines
         hROW, lROW = plot_group_ROW_edges(ax, xcs)
         #set axis text and legend
-        ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
-        ax.set_ylabel('Maximum Magnetic Field (mG)', fontsize = 14)
+        ax.set_xlabel('Distance from Center of ROW (ft)')
+        ax.set_ylabel('Maximum Magnetic Field (mG)')
         t = 'Maximum Magnetic Field - '
         for i in range(len(xcs)):
             t += xcs[i].title + ', '
         t = t[:-2]
         ax.set_title(t)
-        ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1, fontsize = 10)
+        ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1)
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
         save_fig('group_%s-Bmax' % str(xcs[0].tag), fig, **kwargs)
-        figs.append(fig)
+        plt.close(fig)
 
         #EMAX
         #get plotting objects
@@ -500,17 +496,15 @@ def plot_groups(sb, **kwargs):
         #plot ROW lines
         hROW, lROW = plot_group_ROW_edges(ax, xcs)
         #set axis text and legend
-        ax.set_xlabel('Distance from Center of ROW (ft)', fontsize = 14)
-        ax.set_ylabel('Maximum Electric Field (kV/m)', fontsize = 14)
+        ax.set_xlabel('Distance from Center of ROW (ft)')
+        ax.set_ylabel('Maximum Electric Field (kV/m)')
         t = 'Maximum Electric Field - '
         for i in range(len(xcs)):
             t += xcs[i].title + ', '
         t = t[:-2]
         ax.set_title(t)
-        ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1, fontsize = 10)
+        ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1)
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
         save_fig('group_%s-Emax' % str(xcs[0].tag), fig, **kwargs)
-        figs.append(fig)
-
-    return(figs)
+        plt.close(fig)

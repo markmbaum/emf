@@ -28,6 +28,7 @@ class Conductor:
         self.phase = None #phase angle
 
     def __str__(self):
+        """quick and dirty printing"""
         v = vars(self)
         keys = v.keys()
         s = '\n'
@@ -60,6 +61,7 @@ class CrossSection:
         self.E_color = 'midnightblue' #for plotting
 
     def __str__(self):
+        """quick and dirty printing"""
         v = vars(self)
         keys = v.keys()
         s = '\n'
@@ -180,10 +182,6 @@ class SectionBook:
         self.ROW_edge_max = pd.DataFrame(columns = ['name','title',
                                             'Bmaxl','Bmaxr','Emaxl','Emaxr'])
 
-    def __iter__(self):
-        for xc in self.xcs:
-            yield(xc)
-
     def __getitem__(self, key):
         try:
             idx = self.name2idx[key]
@@ -192,8 +190,21 @@ class SectionBook:
         else:
             return(self.xcs[idx])
 
+    def __iter__(self):
+        for xc in self.xcs:
+            yield(xc)
+
     def __len__(self):
         return(len(self.xcs))
+
+    def __str__(self):
+        """quick and dirty printing"""
+        v = vars(self)
+        keys = v.keys()
+        s = '\n'
+        for k in keys:
+            s += str(k) + ': ' + str(v[k]) + '\n'
+        return(s)
 
     def i(self, idx):
         return(self.xcs[idx])

@@ -54,7 +54,7 @@ def load_template(file_path):
         xc.tag = misc[1]
         #check for duplicate title inputs
         if(xc.title in titles):
-            raise(EMFError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
+            raise(emf_class.EMFError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
         else:
             titles.append(xc.title)
         xc.subtitle = misc[2]
@@ -151,7 +151,8 @@ def run(template_path, **kwargs):
     Use the 'path' keyword argument to specify a destination for the output,
     otherwise it will be save to the active directory, Finer control of the
     output, like x-distance cutoffs for the plots, is given up by the use of
-    this function but it's a fast way to generate all the results."""
+    this function but it's a fast way to generate all the results. Returns
+    a SectionBook object of the imported template."""
     #force saving for the plotting functions if there is no 'path' keyword
     kwargs['save'] = True
     #import templates
@@ -166,3 +167,4 @@ def run(template_path, **kwargs):
         plt.close(fig)
     #export group comparison plots
     emf_plots.plot_groups(b, **kwargs)
+    return(b)

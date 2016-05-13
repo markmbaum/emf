@@ -3,6 +3,10 @@ import emf
 #emf.run(r"G:\Projects\216041_Line111EMF\Models\FIELDS_inputs.xlsx",
 #        r"G:\Projects\216041_Line111EMF\Models\new_model_output")
 
-emf.run(r"P:\MBaum\Programming\Python\python_code\FLD\practice_xcs.xlsx")
+b = emf.run('practice_xcs.xlsx', path = 'run-dest/')
+
+for xc in b:
+    xc.compare_DAT('XC-comparisons/' + xc.name.upper() + '.DAT',
+                    round = 3, path = 'XC-comparisons/')
 
 #plt.show()
