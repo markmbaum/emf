@@ -223,11 +223,11 @@ class SectionBook:
             if(kwargs['file_type'] == 'excel'):
                 excel = True
         if(excel):
-            fn = emf_funks.path_manage(self.name + '-ROW_edge_max', '.xlsx', **kwargs)
+            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.xlsx', **kwargs)
             self.ROW_edge_max.to_excel(fn, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
-            fn = emf_funks.path_manage(self.name + '-ROW_edge_max', '.csv', **kwargs)
+            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.csv', **kwargs)
             self.ROW_edge_max.to_csv(fn, index = False, columns = c, header = h)
         print('Maximum fields at ROW edges written to: "%s"' % fn)
 

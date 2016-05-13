@@ -2,8 +2,8 @@
 
 This repo contains code for the approximation of electric and magnetic fields
 near parallel groups of power lines. It's meant to replace the old and
-difficult program called FIELDS, originally developed by California
-Edison, which has been the standard tool for these simple modeling efforts.
+difficult program called FIELDS, originally developed by Southern California
+Edison Co., which has been the standard tool for these simple modeling efforts.
 The FIELDS software runs through a DOSBOX application and is long out of date.
 
 This code is intended to exactly replicate the results of FIELDS by following
@@ -23,10 +23,12 @@ are hesitant to diverge from it. However, this code does significantly improve
 upon the usability and analytical capabilities of FIELDS, mostly by making the
 functions that calculate electric and magnetic fields accessible. It uses data
 structures and I/O methods from the pandas library to interface with excel
-templates that store the conductor and cross section data. It also implements
+templates that store the conductor and cross section data. It implements
 three classes to organize the imported data and the EMF results in a flexible,
 hierarchical system. For the most routine modeling scenarios, this code enables
 a one line effort (after filling in template excel sheets) to generate full sets
-of electric and magnetic field results, accompanying double-axis plots of both
-fields, and a table of maximum field magnitudes at the right-of-way edges of
-each cross-section (the run() function).
+of electric and magnetic field results, double-axis plots of both electric and
+magnetic fields, plots comparing the electric and magnetic fields of grouped
+cross sections, and a table of maximum field magnitudes at the right-of-way
+edges of each cross-section. The run() function does all this and only requires
+the path of the excel workbook of templates.

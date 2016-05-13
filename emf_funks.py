@@ -145,20 +145,24 @@ def path_manage(filename_if_needed, extension, **kwargs):
     #if 'path' kwarg is empty or missing
     return(filename_if_needed + extension)
 
-def run(template_path, output_path):
+def run(template_path, **kwargs):
     """Import the templates in an excel file with the path 'template_path'
-    then generate a workbook of all fields results and accompanying plots,
-    saved to the directory described by 'output_path'. Finer control of the
-    output, like x-distance cutoffs for the plots, is given up by the use
-    of this function but it's a fast way to generate all the results. Pass
-    an empty string to output_path to send results to the active directory."""
+    then generate a workbook of all fields results and accompanying plots.
+    Use the 'path' keyword argument to specify a destination for the output,
+    otherwise it will be save to the active directory, Finer control of the
+    output, like x-distance cutoffs for the plots, is given up by the use of
+    this function but it's a fast way to generate all the results."""
+    #force saving for the plotting functions if there is no 'path' keyword
+    kwargs['save'] = True
     #import templates
     b = load_template(template_path)
     #export the full results workbook
-    b.full_export(path = output_path)
+    b.full_export(**kwargs)
     #export ROW edge results
-    b.ROW_edge_export(path = output_path)
-    #export plots
+    b.ROW_edge_export(**kwargs)
+    #export single CrossSection plots
     for xc in b:
-        fig = emf_plots.plot_max_fields(xc, save = True, path = output_path)
+        fig = emf_plots.plot_max_fields(xc, **kwargs)
         plt.close(fig)
+    #export group comparison plots
+    emf_plots.plot_groups(b, **kwargs)

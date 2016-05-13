@@ -112,7 +112,7 @@ def prepare_fig(xc, **kwargs):
         xmax = max(abs(xc.fields.index))
     #get appropriate linestyle based on number of sample points
     n = xc.fields[-xmax:xmax].shape[0]
-    if(n > 200):
+    if(n > 100):
         linesym = '-'
     else:
         linesym = '.-'
@@ -367,6 +367,13 @@ def plot_group_wires(ax, xcs, max_field, **kwargs):
         #get x and y pairs of Conductors in each group
         xy_0 = [(c.x,c.y) for c in xcs[0].hot]
         xy_1 = [(c.x,c.y) for c in xcs[1].hot]
+        #zero the y coordinate of any underground lines
+        for i in range(len(xy_0)):
+            if(xy_0[i][1] < 0):
+                xy_0[i] = (xy_0[i][0], 0.0)
+        for i in range(len(xy_1)):
+            if(xy_1[i][1] < 0):
+                xy_1[i] = (xy_1[i][0], 0.0)
         #grab all x and y coordinates while they're available
         all_x, all_y = zip(*(xy_0 + xy_1))
         all_y = np.array(all_y)
@@ -415,6 +422,8 @@ def plot_group_wires(ax, xcs, max_field, **kwargs):
         xc = xcs[0]
         x = np.array([c.x for c in xc.hot])
         y = np.array([c.y for c in xc.hot])
+        #zero underground lines
+        y[y < 0] = 0.0
         scale = emf_plots_xc_wireperc*max_field/max(abs(y))
         h = ax.plot(x, scale*y, 'd', color = emf_plots_colormap[0])
         l = [xc.title + ' Conductors']
@@ -426,6 +435,7 @@ def plot_group_ROW_edges(ax, xcs):
     left = [xc.lROW for xc in xcs]
     right = [xc.rROW for xc in xcs]
     #if all ROW edges are the same, just plot one set
+    h, l = [], []
     if((len(np.unique(left)) == 1) and (len(np.unique(right)) == 1)):
         l = [np.unique(left)]*2
         r = [np.unique(right)]*2
@@ -474,7 +484,7 @@ def plot_groups(sb, **kwargs):
         ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1, fontsize = 10)
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
-        save_fig('B_field-group_%s' % str(xcs[0].tag), fig, **kwargs)
+        save_fig('group_%s-Bmax' % str(xcs[0].tag), fig, **kwargs)
         figs.append(fig)
 
         #EMAX
@@ -500,7 +510,7 @@ def plot_groups(sb, **kwargs):
         ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1, fontsize = 10)
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
-        save_fig('E_field-group_%s' % str(xcs[0].tag), fig, **kwargs)
+        save_fig('group_%s-Emax' % str(xcs[0].tag), fig, **kwargs)
         figs.append(fig)
 
     return(figs)
