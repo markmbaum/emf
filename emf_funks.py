@@ -5,7 +5,6 @@ from os import path
 
 import emf_class
 import emf_plots
-import emf_calcs
 
 def phasors_to_magnitudes(Ph_x, Ph_y):
     """Convert vectors of complex x and y phasors into real quantities,
@@ -31,21 +30,24 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
 
     return(mag_x, mag_y, prod, maxi)
 
-def import_template(file_path):
+def load_template(file_path):
     """Import conductor data from an excel template, loading each conductor
     into a Conductor object, each Conductor into a CrossSection object, and
     each CrossSection object into a SectionBook object. The SectionBook
     object is returned."""
-    #import the cross sections as a dictionary of pandas dataframes
-    sheets = pd.read_excel(file_path, sheetname = None, skiprows = [0,1,2,3],
-                        parse_cols = 16, header = None)
+    #import the cross sections as a dictionary of pandas dataframes, also
+    #getting a list of the ordered sheets
+    xl = pd.ExcelFile(file_path)
+    sheets = xl.sheet_names
+    frames = xl.parse(sheetname = None, skiprows = [0,1,2,3], parse_cols = 16,
+                    header = None)
     #create a SectionBook object to store the CrossSection objects
     xcs = emf_class.SectionBook(path.basename(file_path[:file_path.index('.')]))
     #convert the dataframes into a list of CrossSection objects
     titles = []
-    for k in sheets.keys():
+    for k in sheets:
         #load miscellaneous information applicable for the whole CrossSection
-        df = sheets[k]
+        df = frames[k]
         xc = emf_class.CrossSection(k)
         misc = df[1]
         xc.title = misc[0]
@@ -151,7 +153,7 @@ def run(template_path, output_path):
     of this function but it's a fast way to generate all the results. Pass
     an empty string to output_path to send results to the active directory."""
     #import templates
-    b = import_template(template_path)
+    b = load_template(template_path)
     #export the full results workbook
     b.full_export(path = output_path)
     #export ROW edge results
