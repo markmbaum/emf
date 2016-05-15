@@ -9,7 +9,10 @@ import emf_plots
 def phasors_to_magnitudes(Ph_x, Ph_y):
     """Convert vectors of complex x and y phasors into real quantities,
     namely the amplitude of the field in the x and y directions, the
-    product (the hypotenuse of the amplitudes), and the maximum field."""
+    product (the hypotenuse of the amplitudes), and the maximum field.
+    args:
+        Ph_x - phasor x component
+        Ph_y - phasor y component"""
     #amplitude along each component
     mag_x = np.sqrt(np.real(Ph_x)**2 + np.imag(Ph_x)**2)
     mag_y = np.sqrt(np.real(Ph_y)**2 + np.imag(Ph_y)**2)
@@ -17,7 +20,7 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
     prod = np.sqrt(mag_x**2 + mag_y**2)
     #"max" - attempts at non-brute-force methods have slightly missed the mark,
     #for mysterious reasons
-    t = np.linspace(0,2*np.pi,1001)
+    t = np.linspace(0,2*np.pi,5001)
     maxi = np.zeros((len(Ph_x),))
     for i in range(len(maxi)):
         Rx = mag_x[i]*np.cos(t + np.arctan(np.imag(Ph_x[i])/np.real(Ph_x[i])))
@@ -34,7 +37,9 @@ def load_template(file_path):
     """Import conductor data from an excel template, loading each conductor
     into a Conductor object, each Conductor into a CrossSection object, and
     each CrossSection object into a SectionBook object. The SectionBook
-    object is returned."""
+    object is returned.
+    args:
+        template_path - path to cross section template excel workbook"""
     #import the cross sections as a dictionary of pandas dataframes, also
     #getting a list of the ordered sheets
     xl = pd.ExcelFile(file_path)
@@ -104,15 +109,20 @@ def load_template(file_path):
 def path_manage(filename_if_needed, extension, **kwargs):
     """This function takes a path string through the kwarg 'path' and
     returns a path string with a file name at it's end, to save a file
-    at that location. If the path string is a directory (ends with a slash),
-    a new path string is returned with the 'filename_if_needed' and
-    'extension' arguments appended. If the path string already has a file
-    name at its end, the input extension will replace any preexisting one.
-    If no path string is passed in via the keyword argument 'path', the
-    returned path is simply the input filename_if_needed with the input
-    extension at its end. Path strings without slashes at the end are
-    assumed to be directories. If the last part of the path string is
-    supposed to be the filename, include an extension."""
+    at that location. If the path string is a directory (ends with a slash
+    or doesn't but has preceding directory elements) a new path string is
+    returned with the 'filename_if_needed' and 'extension' arguments
+    appended. If the path string already has a file name at its end, the
+    input extension will replace any preexisting one. If no path string is
+    passed in via the keyword argument 'path', the returned path is simply
+    the input filename_if_needed with the input extension at its end. If the
+    last part of the path string is supposed to be the filename, include an
+    extension.
+    args:
+        filename_if_needed - name of file if not in path string
+        extension - file extension
+    kwargs:
+        path - string, destination/filename for saved file(s)"""
     #remove extensions from filename_if_needed
     if('.' in filename_if_needed):
         filename_if_needed = filename_if_needed[:filename_if_needed.index('.')]
@@ -152,7 +162,12 @@ def run(template_path, **kwargs):
     otherwise it will be save to the active directory, Finer control of the
     output, like x-distance cutoffs for the plots, is given up by the use of
     this function but it's a fast way to generate all the results. Returns
-    a SectionBook object of the imported template."""
+    a SectionBook object of the imported template.
+    args:
+        template_path - path to cross section template excel workbook
+    kwargs:
+        path - string, destination/filename for saved files
+        format - string, saved plot format (usually 'png' or 'pdf')"""
     #force saving for the plotting functions if there is no 'path' keyword
     kwargs['save'] = True
     #import templates

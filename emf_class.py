@@ -8,12 +8,15 @@ import emf_plots
 import emf_calcs
 
 class EMFError(Exception):
+    """Exception class for emf specific errors"""
+
     def __init__(self, message):
         self.message = message
     def __str__(self):
         return(self.message)
 
 class Conductor:
+    """Class representing a single conductor or power line."""
 
     def __init__(self):
         self.tag = None #conductor label
@@ -37,8 +40,9 @@ class Conductor:
         return(s)
 
 class CrossSection:
-    """Store the input information for a power line cross section and the
-    results of electric and magnetic field simulations across the section."""
+    """Class that organizes Conductor objects and stores other input
+    information for a power line cross section. Includes plotting methods
+    for the fields results and exporting methods for the results."""
 
     def __init__(self, name):
         self.name = name #mandatory, short, generally template sheet name
@@ -57,8 +61,6 @@ class CrossSection:
         self.gnd = [] #list of Conductor objects with zero voltage
         self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
                                             'Ex','Ey','Eprod','Emax'])
-        self.B_color = 'darkgreen' #for plotting
-        self.E_color = 'midnightblue' #for plotting
 
     def __str__(self):
         """quick and dirty printing"""
@@ -71,21 +73,32 @@ class CrossSection:
         s += '\ninspect self.fields separately to see field simulation results\n'
         return(s)
 
+    def fetch(self, v):
+        """Collect variables from all Conductors stored in the CrossSection
+        into a numpy array, using the variable name as a string.
+        args:
+            v - string, variable name to fetch"""
+        if(not (v in vars(Conductor()).keys())):
+            raise(EMFError('"%s" is not a Conductor class variable, could not be fetched.'))
+        a = []
+        for c in (self.hot + self.gnd):
+            exec('a.append(c.' + v + ')')
+        return(np.array(a))
+
     def calculate_fields(self):
-        """Calculate electric and magnetic fields across the ROW"""
+        """Calculate electric and magnetic fields across the ROW and store the
+        results in the self.fields DataFrame"""
         #calculate sample points
         N = 1 + 2*self.max_dist/self.step
         x = np.linspace(-self.max_dist, self.max_dist, num = N)
         y = self.sample_height*np.ones((N,))
         #assemble all the conductor data in arrays for calculations
         conds = self.hot + self.gnd
-        x_c = np.array([c.x for c in conds])
-        y_c = np.array([c.y for c in conds])
+        x_c, y_c = np.array([c.x for c in conds]), np.array([c.y for c in conds])
         subc = np.array([c.subconds for c in conds])
         d_c = np.array([c.d_cond for c in conds])
         d_b = np.array([c.d_bund for c in conds])
-        V = np.array([c.V for c in conds])
-        I = np.array([c.I for c in conds])
+        V, I = np.array([c.V for c in conds]), np.array([c.I for c in conds])
         ph = np.array([c.phase for c in conds])
         #calculate electric field
         Ex, Ey = emf_calcs.E_field(x_c, y_c, subc, d_c, d_b, V, ph, x, y)
@@ -116,7 +129,7 @@ class CrossSection:
         three-phase transfer line."""
         #check the number of hot lines
         if(self.N_hot % 3 != 0):
-            raise(EMFError('The number of hot (not grounded) conductors mustbe a multiple of three.'))
+            raise(EMFError('The number of hot (not grounded) conductors must be a multiple of three.'))
         #number of 3 phase groups
         G = self.N_hot/3
         #number of permutations
@@ -128,15 +141,20 @@ class CrossSection:
         #...to be continued?
 
     def compare_DAT(self, DAT_path, **kwargs):
-        """Load a FIELDS output file, find the absolute and percentage
-        differences between it and the CrossSection objects results, and
-        write them to an excel file. The default excel file name is the
-        CrossSection's title with '-DAT_comparison' appended to it. Use
-        the keyword argument 'path' to specify a different one. Pass an
-        integer to the keyword 'round' to round results to that number of
-        places after the decimal (FIELDS prints only 3 digits beyond the
-        decimal). Use 'truncate' to truncate, always to 3 digits after the
-        decimal point."""
+        """Load a FIELDS output file (.DAT), find absolute and percentage
+        differences between it and the CrossSection objects results,
+        write them to an excel file and generate comparative plots. The
+        default excel file name is the CrossSection's title with
+        '-DAT_comparison' appended to it.
+        args:
+            DAT_path - path of FIELDS results file
+        kwargs:
+            path - string, destination saved files
+            round - int, round the results in self.fields to a certain
+                    number of digits in an attempt to exactly match the
+                    FIELDS results, which are printed only to the
+                    thousandths digit
+            truncate - bool, truncate results after the thousandths digit"""
         #load the .DAT file into a dataframe
         df = pd.read_table(DAT_path, skiprows = [0,1,2,3,4,5,6],
                             delim_whitespace = True, header = None,
@@ -147,9 +165,12 @@ class CrossSection:
         if(df.shape != self.fields.shape):
             raise(EMFError('self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes. Be sure to target the correct .DAT file and that it has compatible DIST values.' % self.name))
         #prepare a dictionary to create a Panel
-        if('round' in kwargs.keys()):
+        keys = kwargs.keys()
+        if(('round' in keys) and ('truncate' in keys)):
+            raise(FLDError('Cannot both round and truncate for DAT comparison. Choose either rounding or truncation.'))
+        elif('round' in keys):
             f = self.fields.round(kwargs['round'])
-        elif('truncate' in kwargs.keys()):
+        elif('truncate' in keys):
             if(kwargs['truncate']):
                 f = self.fields.copy(deep = True)
                 for c in f.columns:
@@ -170,6 +191,12 @@ class CrossSection:
         figs = emf_plots.plot_DAT_comparison(self, pan, **kwargs)
 
 class SectionBook:
+    """Top level class organizing a group of CrossSection objects. Uses a
+    dictionary to track CrossSections in a list and provide a convenient
+    __getitem__ method than gets CrossSections by their name. Also tracks
+    maximum field results at the ROW edges of each CrossSection added,
+    provides a plotting method for CrossSection groups, and provides
+    exporting methods."""
 
     def __init__(self, name):
         self.name = name #mandatory identification field
@@ -183,6 +210,7 @@ class SectionBook:
                                             'Bmaxl','Bmaxr','Emaxl','Emaxr'])
 
     def __getitem__(self, key):
+        """Index the SectionBook by CrossSection names"""
         try:
             idx = self.name2idx[key]
         except(KeyError):
@@ -191,10 +219,12 @@ class SectionBook:
             return(self.xcs[idx])
 
     def __iter__(self):
+        """Iteration over all CrossSections in the SectionBook"""
         for xc in self.xcs:
             yield(xc)
 
     def __len__(self):
+        """Length of SectionBook is the number of CrossSections in it"""
         return(len(self.xcs))
 
     def __str__(self):
@@ -207,9 +237,13 @@ class SectionBook:
         return(s)
 
     def i(self, idx):
+        """Get a CrossSection object by it's numeric index in self.xcs"""
         return(self.xcs[idx])
 
     def add_section(self, xc):
+        """Add a CrossSection to the book. Doing so by directly altering
+        self.xcs will make the CrossSections inaccessible by __getitem__."""
+        #Prevent adding CrossSections with the same names
         if(xc.name in self.names):
             raise(EMFError('CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self.name2idx). Use a different name.' % xc.name))
         else:
@@ -220,9 +254,10 @@ class SectionBook:
 
     def ROW_edge_export(self, **kwargs):
         """Write max field results at ROW edges for each cross section to
-        an excel or csv file. Default is csv, but use kwarg 'file_type'
-        and pass in 'excel' to export to excel. Specify the path of the
-        output file with the 'path' kwarg."""
+        an excel or csv file. Default is csv.
+        kwargs:
+            file_type - string, accepts 'csv' or 'excel'
+            path - string, destination/filename for saved file"""
         #be sure ROW_edge_results are current
         #self.compile_ROW_edge_results()
         #export

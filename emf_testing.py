@@ -5,8 +5,10 @@ import emf
 
 b = emf.run('practice_xcs.xlsx', path = 'run-dest/')
 
-for xc in b:
-    xc.compare_DAT('XC-comparisons/' + xc.name.upper() + '.DAT',
-                    round = 3, path = 'XC-comparisons/')
+#b = emf.load_template('practice_xcs.xlsx')
+
+#for xc in b:
+#    xc.compare_DAT('XC-comparisons/' + xc.name.upper() + '.DAT',
+#                    round = 3, path = 'XC-comparisons/')
 
 #plt.show()

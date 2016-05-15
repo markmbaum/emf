@@ -5,22 +5,24 @@ lines = mpl.lines
 
 import emf_funks
 
-#useful globals used by any/all emf_plots functions
-#rcparams for static formatting changes
+#rcparams for more static global formatting changes
 mpl.rcParams['figure.facecolor'] = 'white'
+mpl.rcParams['figure.figsize'] = (12,6)
 mpl.rcParams['font.family'] = 'calibri'
 mpl.rcParams['text.color'] = (.2, .2, .2)
 mpl.rcParams['axes.labelcolor'] = (.2, .2, .2)
+mpl.rcParams['axes.titlesize'] = 16
+mpl.rcParams['axes.labelsize'] = 14
+mpl.rcParams['legend.fontsize'] = 10
 mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
-mpl.rcParams['axes.titlesize'] = 14
-mpl.rcParams['axes.labelsize'] = 12
-mpl.rcParams['legend.fontsize'] = 10
-mpl.rcParams['figure.figsize'] = (12,6)
-#other more specific and dynamic formatting variables
+
+#other more specific and dynamic global formatting variables
 emf_plots_B_color = 'darkgreen'
 emf_plots_E_color = 'midnightblue'
+emf_plots_fields_linewidth = 2
 emf_plots_ROW_color = 'gray'
+emf_plots_ROW_linewidth = 0.75
 emf_plots_ax_frameon = False
 emf_plots_ax_ticks_on = False
 emf_plots_leg_edge_on = False
@@ -28,11 +30,13 @@ emf_plots_colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
                     (0.9290, 0.6940, 0.1250),(0.4940, 0.1840, 0.5560),
                     (0.4660, 0.6740, 0.1880),(0.3010, 0.7450, 0.9330),
                     (0.6350, 0.0780, 0.1840)]
+
 #-------------------------------------------------------------------------------
-#general plotting routines
+#general plotting support functions
 
 def format_axes_legends(*args):
-    """Apply axis formatting commands to axes objects"""
+    """Apply axis formatting commands to axes objects
+    args: some number of axis objects"""
     for ax in args:
         #apply axis formatting
         ax.set_frame_on(emf_plots_ax_frameon)
@@ -48,7 +52,14 @@ def format_axes_legends(*args):
                 #print('why cant I get the legend exactly in the corner?')
 
 def save_fig(filename_if_needed, fig, **kwargs):
-    """Snippet executed at the end of plotting methods to handle saving"""
+    """Snippet executed at the end of plotting methods to handle saving
+    args:
+        filename_if_needed - string used for filename if it's not in 'path'
+        fig - figure to save
+    kwargs:
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')"""
     #force saving if a path is passed in
     if('path' in kwargs.keys()):
         kwargs['save'] = True
@@ -96,7 +107,12 @@ emf_plots_xc_wireperc = 0.3 #percent of max field value to scale wire heights
 
 def prepare_fig(xc, **kwargs):
     """Snippet executed at the beginning of plotting methods to handle figure
-    object generation and some keywords initializing other params."""
+    object generation and some keywords initializing other params.
+    args:
+        xc - CrossSection objects
+    kwargs:
+        figure - figure object to recycle, if needed
+        xmax - cutoff distance from the ROW center"""
     #prepare figure and axis
     k = kwargs
     keys = k.keys()
@@ -119,10 +135,13 @@ def prepare_fig(xc, **kwargs):
     return(fig, ax, xmax, linesym)
 
 def plot_wires(ax, hot, gnd, v):
-    """Plot conductor symbols in ax, where hot and gnd are lists of
-    Conductor objects, v is an iterable used to scale the Conductor heights,
-    and perc is the percentage of the max value in v that the Conductor
-    heights are scaled to. Returns handles for the hot and gnd conductors."""
+    """Plot conductor symbols in ax.Returns handles for the hot and gnd
+    Conductors.
+    args:
+        ax - target axis
+        hot - list of non-grounded conductors
+        gnd - list of grounded conductors
+        v - iterable of calculated field results used to scale conductors"""
     #get x and y coordinates
     x = np.array([c.x for c in hot + gnd])
     y = np.array([c.y for c in hot + gnd])
@@ -131,55 +150,67 @@ def plot_wires(ax, hot, gnd, v):
     #bring underground lines to zero
     y[y < 0.] = 0.
     #plot
-    hhot, = ax.plot(x[:len(hot)], scale*y[:len(hot)], 'kd')
-    hgnd, = ax.plot(x[len(hot):], scale*y[len(hot):], 'd', color = 'gray')
-    return(hhot, hgnd)
+    h, l = [], []
+    if(hot):
+        h.append(ax.plot(x[:len(hot)], scale*y[:len(hot)], 'kd')[0])
+        l.append('Conductors')
+    if(gnd):
+        h.append(ax.plot(x[len(hot):], scale*y[len(hot):], 'd', color = 'gray')[0])
+        l.append('Grounded Conductors')
+    return(h, l)
 
 def plot_ROW_edges(ax, lROW, rROW):
     """Plot dashed lines marking the left and right edges of the
-    Right-of-Way in ax, the locations of which are given by lROW and rROW.
-    The iterable v is used to scale the lines. Axis limits are also adjusted
-    to allow extra space on the sides to make the ROW edge lines visible if needed.
-    The ROW edge line handles are returned in a list."""
+    Right-of-Way. Axis limits are also adjusted to allow extra space on the
+    sides to make the ROW edge lines visible if needed. The ROW edge line
+    handles are returned in a list.
+    args:
+        ax - target axis
+        lROW - x value of the left edge of the ROW
+        rROW - x value of the right edge of the ROW"""
     yl = ax.get_ylim()
-    hROW = ax.plot([lROW]*2, yl, '--', color = emf_plots_ROW_color)
-    ax.plot([rROW]*2, yl, '--', color = emf_plots_ROW_color)
+    hROW = ax.plot([lROW]*2, yl, '--', color = emf_plots_ROW_color,
+                    linewidth = emf_plots_ROW_linewidth, zorder = -1)
+    ax.plot([rROW]*2, yl, '--', color = emf_plots_ROW_color,
+            linewidth = emf_plots_ROW_linewidth, zorder = -1)
+    l = ['ROW Edges']
     xl = ax.get_xlim()
     if((xl[0] == lROW) or (xl[1] == rROW)):
         ax.set_xlim((xl[0]*1.15, xl[1]*1.15))
-    return(hROW)
+    return(hROW, l)
 
 def plot_Bmax(xc, **kwargs):
     """Plot the maximum magnetic field along the ROW with conductor
-    locations shown in artificial but to-scale locations. Pass in an
-    existing figure with keyword argument 'figure' to recycle an object.
-    Pass in a plot title with the keyword argument 'title' to specify an
-    exact title, otherwise the title will be used. Use the kwarg
-    'xmax' to cut the plotted fields at a certain distance from the ROW
-    center. If the keyword argument 'save' is passed in, the plot
-    will be saved. Use the keyword argument 'path' to specify the path
-    or filename of the saved plot. The format can also be specified
-    (usually 'png' or 'pdf') with the 'format' keyword."""
+    locations shown in artificial coordinates.
+    args:
+        xc - a CrossSection object
+    kwargs:
+        figure - matplotlib Figure object, target figure for plotting
+        title - string, exact plot title
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')"""
     #get axes and x cutoff
     (fig, ax, xmax, linesym) = prepare_fig(xc, **kwargs)
     #plot the field curve
-    hB, = ax.plot(xc.fields['Bmax'][-xmax:xmax], linesym, color = emf_plots_B_color)
+    hB = ax.plot(xc.fields['Bmax'][-xmax:xmax], linesym,
+            color = emf_plots_B_color, linewidth = emf_plots_fields_linewidth)
+    lB = ['Magnetic Field (mg)']
     #plot wires
-    hhot, hgnd = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'])
+    hw, lw = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'])
     #adjust axis limits
     ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Bmax']))
     #plot ROW lines
-    hROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW)
+    hROW, lROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)')
     ax.set_ylabel('Maximum Magnetic Field (mG)')
     if('title' in keys):
         t = k['title']
     else:
-        t = 'Maximum Magnetic Field, %s' % xc.title
+        t = 'Maximum Magnetic Field - %s' % xc.title
     ax.set_title(t)
-    ax.legend(['Magnetic Field (mG)','Conductors','Grounded Conductors',
-                'ROW Edge'], numpoints = 1)
+    ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
     format_axes_legends(ax)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)
@@ -188,35 +219,36 @@ def plot_Bmax(xc, **kwargs):
 
 def plot_Emax(xc, **kwargs):
     """Plot the maximum electric field along the ROW with conductor
-    locations shown in artificial but to-scale locations. Pass in an
-    existing figure with keyword argument 'figure' to recycle an object.
-    Pass in a plot title with the keyword argument 'title' to specify an
-    exact title, otherwise the title will be used. Use the kwarg
-    'xmax' to cut the plotted fields at a certain distance from the ROW
-    center. If the keyword argument 'save' is passed in True, the plot
-    will be saved. Use the keyword argument 'path' to specify the path
-    or filename of the saved plot. The format can also be specified
-    (usually 'png' or 'pdf') with the 'format' keyword."""
+    locations shown in artificial coordinates.
+    args:
+        xc - a CrossSection object
+    kwargs:
+        figure - matplotlib Figure object, target figure for plotting
+        title - string, exact plot title
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')"""
     #get axes and x cutoff
     (fig, ax, xmax, linesym) = prepare_fig(xc, **kwargs)
     #plot the field curve
-    hE, = ax.plot(xc.fields['Emax'][-xmax:xmax], linesym, color = emf_plots_E_color)
+    hE = ax.plot(xc.fields['Emax'][-xmax:xmax], linesym,
+            color = emf_plots_E_color, linewidth = emf_plots_fields_linewidth)
+    lE = ['Electric Field (kV/m)']
     #plot wires
-    hhot, hgnd = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'])
+    hw, lw = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'])
     #adjust axis limits
     ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Emax']))
     #plot ROW lines
-    hROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
+    hROW, lROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)')
     ax.set_ylabel('Maximum Electric Field (kV/m)')
     if('title' in keys):
         t = k['title']
     else:
-        t = 'Maximum Electric Field, %s' % xc.title
+        t = 'Maximum Electric Field - %s' % xc.title
     ax.set_title(t)
-    ax.legend(['Electric Field (kV/m)','Conductors','Grounded Conductors',
-                'ROW Edge'], numpoints = 1)
+    ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
     format_axes_legends(ax)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)
@@ -224,29 +256,32 @@ def plot_Emax(xc, **kwargs):
     return(fig)
 
 def plot_max_fields(xc, **kwargs):
-    """Plot the maximum fields along the ROW with conductor
-    locations shown in artificial but to-scale locations. Pass in an
-    existing figure with keyword argument 'figure' to recycle an object.
-    Pass in a plot title with the keyword argument 'title' to specify an
-    exact title, otherwise the title will be used. Use the kwarg
-    'xmax' to cut the plotted fields at a certain distance from the ROW
-    center. If the keyword argument 'save' is passed in, the plot
-    will be saved. Use the keyword argument 'path' to specify the path
-    or filename of the saved plot. The format can also be specified
-    (usually 'png' or 'pdf') with the 'format' keyword."""
+    """Plot the maximum magnetic and electric field on split vertical axes,
+    along the ROW with conductor locations shown in artificial coordinates.
+    args:
+        xc - a CrossSection object
+    kwargs:
+        figure - matplotlib Figure object, target figure for plotting
+        title - string, exact plot title
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')"""
     #get axes and x cutoff
     (fig, ax_B, xmax, linesym) = prepare_fig(xc, **kwargs)
     ax_E = ax_B.twinx()
     #plot the field curves
-    hB, = ax_B.plot(xc.fields['Bmax'][-xmax:xmax], linesym, color = emf_plots_B_color)
-    hE, = ax_E.plot(xc.fields['Emax'][-xmax:xmax], linesym, color = emf_plots_E_color)
+    hf = [ax_B.plot(xc.fields['Bmax'][-xmax:xmax], linesym,
+        color = emf_plots_B_color, linewidth = emf_plots_fields_linewidth)[0],
+        ax_E.plot(xc.fields['Emax'][-xmax:xmax], linesym,
+        color = emf_plots_E_color, linewidth = emf_plots_fields_linewidth)[0]]
+    lf = ['Magnetic Field (mG)', 'Electric Field (kV/m)']
     #plot wires
-    hhot, hgnd = plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'])
+    hw, lw = plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'])
     #adjust axis limits
     ax_B.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Bmax']))
     ax_E.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Emax']))
     #plot ROW lines
-    hROW = plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
+    hROW, lROW = plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
     ax_B.set_xlabel('Distance from Center of ROW (ft)')
     ax_B.set_ylabel('Maximum Magnetic Field (mG)', color = emf_plots_B_color)
@@ -254,38 +289,54 @@ def plot_max_fields(xc, **kwargs):
     if('title' in kwargs.keys()):
         t = kwargs['title']
     else:
-        t = '%s, Maximum Magnetic and Electric Fields' % xc.title
+        t = 'Maximum Magnetic and Electric Fields - %s' % xc.title
     ax_B.set_title(t)
     #set color of axis spines and ticklabels
     color_twin_axes(ax_B, emf_plots_B_color, ax_E, emf_plots_E_color)
     #legend
-    ax_B.legend([hB, hE, hhot, hgnd, hROW[0]],
-                ['Magnetic Field (mG)','Electric Field (kV/m)','Conductors',
-                'Grounded Conductors','ROW Edge'], numpoints = 1)
+    ax_B.legend(hf + hw + hROW, lf + lw + lROW, numpoints = 1)
     format_axes_legends(ax_B, ax_E)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)
     #return
     return(fig)
 
-def plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hhot, hgnd):
+def plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hw, lw):
+    """Handle plotting of DAT comparison features that don't require unique
+    strings
+    args:
+        ax_abs - axis of absolute error plot
+        ax_per - axis of percentage error plot
+        ax_mag - axis of field magnitude plot
+        pan - pandas.Panel object containing results and errors
+        field - string, column label of field to be plotted (Bmax/Emax)
+        hw - handles of the conductor symbol plots
+        lw - labels for conductor symbols"""
     #plot absolute error
-    h_abs, = ax_abs.plot(pan['Absolute Difference'][field], 'k')
+    h_abs = ax_abs.plot(pan['Absolute Difference'][field], 'k')
     ax_abs.set_ylabel('Absolute Difference (kV/m)')
     #plot percentage error
-    h_per, = ax_per.plot(pan['Percent Difference'][field], 'r')
+    h_per = ax_per.plot(pan['Percent Difference'][field], 'r')
     ax_per.set_ylabel('Percent Difference', color = 'r')
     #set error axes legend
-    ax_abs.legend([h_abs,h_per], ['Absolute Difference','Percent Difference'])
+    ax_abs.legend(h_abs + h_per, ['Absolute Difference','Percent Difference'])
     #plot results
-    h_fld, = ax_mag.plot(pan['FIELDS_output'][field], 'k')
-    h_nm, = ax_mag.plot(pan['New_model_output'][field], 'b')
+    h_fld = ax_mag.plot(pan['FIELDS_output'][field], 'k')
+    h_nm = ax_mag.plot(pan['New_model_output'][field], 'b')
     ax_mag.set_xlabel('Distance from ROW Center (ft)')
     #set results legend
-    ax_mag.legend([h_fld, h_nm, hhot, hgnd],
-                ['FIELDS','New Code','Hot Wires','Ground Wires'], numpoints = 1)
+    ax_mag.legend(h_fld + h_nm + hw, ['FIELDS','New Code'] + lw, numpoints = 1)
 
 def plot_DAT_comparison(xc, pan, **kwargs):
+    """Generate 2 subplots showing the FIELDS results (from a .DAT file)
+    compared to the results of this code and the error.
+    args:
+        xc - CrossSection object
+        pan - pandas.Panel object containing results and errors
+    kwargs:
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')"""
 
     #figure object and axes
     fig = plt.figure()
@@ -294,8 +345,8 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_mag = fig.add_subplot(2,1,2)
     #Bmax
 
-    hhot,hgnd = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Bmax'])
-    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax', hhot, hgnd)
+    hw, lw = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Bmax'])
+    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax', hw, lw)
     ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
     ax_mag.set_ylabel('Bmax (mG)')
     ax_mag.set_title('Model Results, Magnetic Field')
@@ -312,8 +363,8 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Emax
-    hhot,hgnd = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Emax'])
-    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax', hhot, hgnd)
+    hw, lw = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Emax'])
+    plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax', hw, lw)
     ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
     ax_mag.set_ylabel('Emax (kV/m)')
     ax_mag.set_title('Model Results, Electric Field')
@@ -333,6 +384,13 @@ emf_plots_sb_headspace = 0.4 #space at the top of plots for legend
 emf_plots_sb_wireperc = 0.3 #percent of max field value to scale wire heights
 
 def plot_group_fields(ax, xcs, field, **kwargs):
+    """Plot the results of fields calculations
+    args:
+        ax - target axis
+        xcs - list of CrossSection objects to plot results from
+        field - column label of the results to plot
+    kwargs:
+        xmax - cutoff distance from ROW center"""
     #check for an xmax keyword
     if('xmax' in kwargs.keys()):
         xmax = kwargs['xmax']
@@ -347,18 +405,25 @@ def plot_group_fields(ax, xcs, field, **kwargs):
         #plot
         if(xmax):
             h.append(ax.plot(fields_list[i][-xmax:xmax],
-                    color = emf_plots_colormap[i%7])[0])
+                    color = emf_plots_colormap[i%7],
+                    linewidth = emf_plots_fields_linewidth)[0])
         else:
-            h.append(ax.plot(fields_list[i], color = emf_plots_colormap[i%7])[0])
-        l.append(xcs[i].title + ' ' + field)
+            h.append(ax.plot(fields_list[i], color = emf_plots_colormap[i%7],
+                    linewidth = emf_plots_fields_linewidth)[0])
+        l.append(field + ' - ' + xcs[i].title)
         #find max
         if(max(fields_list[i]) > max_field):
             max_field = max(fields_list[i])
     return(h, l, max_field)
 
-def plot_group_wires(ax, xcs, max_field, **kwargs):
-    #conductor markers not available for more than 2 cross sections, the split
-    #color symbols are too complex and the plot gets cluttered
+def plot_group_wires(ax, xcs, max_field):
+    """Plot the conductors of 1 or 2 CrossSections, using split color
+    for conductor locations shared by 2 CrossSections
+    args:
+        ax - target axis
+        xcs - list of CrossSection objects to plot results from
+        max_field - maximum value of all fields plotted in ax"""
+    #conductor markers not available for more than 2 cross sections for now
     h, l = [], []
     if(len(xcs) == 2):
         #---only hot conductors are plotted
@@ -398,7 +463,7 @@ def plot_group_wires(ax, xcs, max_field, **kwargs):
             #still need a handle for the legend
             h.append(lines.Line2D([], [], marker = 'd', linestyle = '',
                     color = emf_plots_colormap[0]))
-        l.append(xcs[0].title + ' Conductors')
+        l.append('Conductors - ' + xcs[0].title)
         #cross section 1 conductors only
         if(len(xy_1) > 0):
             x,y = zip(*xy_1)
@@ -408,7 +473,7 @@ def plot_group_wires(ax, xcs, max_field, **kwargs):
             #still need a handle for the legend
             h.append(lines.Line2D([], [], marker = 'd', linestyle = '',
                     color = emf_plots_colormap[1]))
-        l.append(xcs[1].title + ' Conductors')
+        l.append('Conductors - ' + xcs[1].title)
         #shared conductors
         if(len(shared) > 0):
             x,y = zip(*shared)
@@ -416,47 +481,65 @@ def plot_group_wires(ax, xcs, max_field, **kwargs):
                     fillstyle = 'left')
             ax.plot(x, scale*np.array(y), 'd', color = emf_plots_colormap[1],
                     fillstyle = 'right')
-    elif(len(xcs) == 1):
-        #single set of conductors
-        xc = xcs[0]
-        x = np.array([c.x for c in xc.hot])
-        y = np.array([c.y for c in xc.hot])
-        #zero underground lines
-        y[y < 0] = 0.0
-        scale = emf_plots_xc_wireperc*max_field/max(abs(y))
-        h = ax.plot(x, scale*y, 'd', color = emf_plots_colormap[0])
-        l = [xc.title + ' Conductors']
     #return handles and labels
     return(h, l)
 
 def plot_group_ROW_edges(ax, xcs):
-    yl = ax.get_ylim()
-    left = [xc.lROW for xc in xcs]
-    right = [xc.rROW for xc in xcs]
-    #if all ROW edges are the same, just plot one set
+    """Plot lines delineating the Right-of-Way boundaries
+    args:
+        ax - target axis
+        xcs - list of CrossSection objects to plot results from"""
     h, l = [], []
-    if((len(np.unique(left)) == 1) and (len(np.unique(right)) == 1)):
-        l = [np.unique(left)]*2
-        r = [np.unique(right)]*2
-        h = ax.plot(l, yl, '--', color = emf_plots_ROW_color)
-        ax.plot(r, yl, '--', color = emf_plots_ROW_color)
-        l = ['ROW Edges']
-    else:
-        pass
-        #unfinished
+    if(len(xcs) == 2):
+        yl = ax.get_ylim()
+        #check if the left ROW edges are in the same place for both sections
+        if(xcs[0].lROW == xcs[1].lROW):
+            #plot overlapping dashed lines to create double colored dashes
+            ax.plot([xcs[0].lROW]*2, yl, '--', color = emf_plots_colormap[0],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1,
+                        dashes = [6,6,6,6])
+            ax.plot([xcs[1].lROW]*2, yl, '--', color = emf_plots_colormap[1],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1,
+                        dashes = [6,18,6,18])
+        else:
+            ax.plot([xcs[0].lROW]*2, yl, '--', color = emf_plots_colormap[0],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1)
+            ax.plot([xcs[1].lROW]*2, yl, '--', color = emf_plots_colormap[1],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1)
+        #check if the left ROW edges are in the same place for both sections
+        if(xcs[0].rROW == xcs[1].rROW):
+            #plot overlapping dashed lines to create double colored dashes
+            ax.plot([xcs[0].rROW]*2, yl, '--', color = emf_plots_colormap[0],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1,
+                        dashes = [6,6,6,6])
+            ax.plot([xcs[1].rROW]*2, yl, '--', color = emf_plots_colormap[1],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1,
+                        dashes = [6,18,6,18])
+        else:
+            ax.plot([xcs[0].rROW]*2, yl, '--', color = emf_plots_colormap[0],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1)
+            ax.plot([xcs[1].rROW]*2, yl, '--', color = emf_plots_colormap[1],
+                        linewidth = emf_plots_ROW_linewidth, zorder = -1)
+        #create a line handle and label for each color of the dashed line
+        h = [lines.Line2D([], [], linestyle = '--',color = emf_plots_colormap[0]),
+            lines.Line2D([], [], linestyle = '--', color = emf_plots_colormap[1])]
+        l = ['ROW Edges - ' + xcs[0].title, 'ROW Edges - ' + xcs[1].title]
 
     return(h, l)
 
 def plot_groups(sb, **kwargs):
     """Plot the fields of grouped CrossSections in the same axis, a plot for
-    both fields. Use the 'save' keyword to save each plot and the 'path'
-    keyword to specify the save location (don't inculde a file name or the
-    plots will overwrite eachother). Use the kwarg 'xmax' to cut the plotted
-    fields off at a certain distance from the ROW center. Nothing is returned"""
-    #iterate over the groups
-    for g in sb.tag_groups:
+    both fields. Only plots groups of more than one CrossSection.
+    args:
+        sb - SectionBook object to pull plotting groups from
+    kwargs:
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')
+        xmax - cutoff distance from ROW center"""
+    #iterate over groups with more than 1 CrossSection
+    for g in [group for group in sb.tag_groups if len(group) > 1]:
         xcs = [sb.xcs[i] for i in g]
-
         #BMAX
         #get plotting objects
         fig = plt.figure()
@@ -464,7 +547,7 @@ def plot_groups(sb, **kwargs):
         #plot the Bmax results for each xc in the group
         h, l, max_field = plot_group_fields(ax, xcs, 'Bmax', **kwargs)
         #plot wires
-        hw, lw = plot_group_wires(ax, xcs, max_field, **kwargs)
+        hw, lw = plot_group_wires(ax, xcs, max_field)
         #adjust axis limits
         ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max_field)
         #plot ROW lines
@@ -490,7 +573,7 @@ def plot_groups(sb, **kwargs):
         #plot the Bmax results for each xc in the group
         h, l, max_field = plot_group_fields(ax, xcs, 'Emax', **kwargs)
         #plot wires
-        hw, lw = plot_group_wires(ax, xcs, max_field, **kwargs)
+        hw, lw = plot_group_wires(ax, xcs, max_field)
         #adjust axis limits
         ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max_field)
         #plot ROW lines
