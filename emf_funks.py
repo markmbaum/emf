@@ -132,15 +132,18 @@ def path_manage(filename_if_needed, extension, **kwargs):
             extension = '.' + extension
     #construct the path
     if('path' in kwargs.keys()):
-        p = kwargs['path']
+        p = path.normcase(kwargs['path'])
         #if there's a filename_if_needed argument and a 'path' keyword, assume
-        #the 'path' argument is a directory and append a slash if it has no
+        #the 'path' argument is a directory. Append a slash if it has no
         #leading director(y/ies)
         if(filename_if_needed and p):
             if(all(path.split(p))):
                 p += '/'
         #split the path
         head,tail = path.split(p)
+        #check that head describes an existing directory if it isn't empty
+        if(head and (not path.isdir(head))):
+            raise(emf_class.EMFError('"%s" was not recognized as an existing directory, invalid path string' % head))
         #if a file name lies at the end of p, replace its extension
         if(tail):
             if('.' in tail):

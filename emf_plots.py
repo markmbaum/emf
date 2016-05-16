@@ -7,13 +7,14 @@ import emf_funks
 
 #rcparams for more static global formatting changes
 mpl.rcParams['figure.facecolor'] = 'white'
-mpl.rcParams['figure.figsize'] = (12,6)
+mpl.rcParams['figure.figsize'] = (12, 6)
 mpl.rcParams['font.family'] = 'calibri'
 mpl.rcParams['text.color'] = (.2, .2, .2)
 mpl.rcParams['axes.labelcolor'] = (.2, .2, .2)
 mpl.rcParams['axes.titlesize'] = 16
 mpl.rcParams['axes.labelsize'] = 14
 mpl.rcParams['legend.fontsize'] = 10
+mpl.rcParams['legend.borderaxespad'] = 0 #default is None
 mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
@@ -49,7 +50,6 @@ def format_axes_legends(*args):
             rec = leg.get_frame()
             if(not emf_plots_leg_edge_on):
                 rec.set_edgecolor('white')
-                #print('why cant I get the legend exactly in the corner?')
 
 def save_fig(filename_if_needed, fig, **kwargs):
     """Snippet executed at the end of plotting methods to handle saving

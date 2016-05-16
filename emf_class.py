@@ -242,7 +242,9 @@ class SectionBook:
 
     def add_section(self, xc):
         """Add a CrossSection to the book. Doing so by directly altering
-        self.xcs will make the CrossSections inaccessible by __getitem__."""
+        self.xcs will make the CrossSections inaccessible by __getitem__
+        and make the group plotting functions impossible, so don't do that
+        and use this method instead."""
         #Prevent adding CrossSections with the same names
         if(xc.name in self.names):
             raise(EMFError('CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self.name2idx). Use a different name.' % xc.name))
