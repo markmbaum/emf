@@ -126,7 +126,7 @@ class CrossSection:
         edge of the ROW. The number of hot conductors must be a multiple of
         three. The phases of consecutive groups of three conductors are
         swapped around, assuming that those groups represent a single
-        three-phase transfer line."""
+        three-phase transfer circuit."""
         #check the number of hot lines
         if(self.N_hot % 3 != 0):
             raise(EMFError('The number of hot (not grounded) conductors must be a multiple of three.'))

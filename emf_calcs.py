@@ -79,6 +79,8 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     Ey = np.sum(Ey, axis = 0)
 
     #return phasors, complex numbers, for the x and y components
+    #these complex phasors are converted to real valued outputs by the
+    #   phasors_to_magnitudes() function
     return(Ex, Ey)
 
 def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
@@ -121,4 +123,6 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
             By[a] += np.sign(dx)*np.cos(theta)*B
 
     #return phasors, complex numbers, for the x and y components
+    #these complex phasors are converted to real valued outputs by the
+    #   phasors_to_magnitudes() function
     return(Bx, By)

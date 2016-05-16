@@ -11,41 +11,59 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
     namely the amplitude of the field in the x and y directions, the
     product (the hypotenuse of the amplitudes), and the maximum field.
     args:
-        Ph_x - phasor x component
-        Ph_y - phasor y component"""
-    #amplitude along each component
-    mag_x = np.sqrt(np.real(Ph_x)**2 + np.imag(Ph_x)**2)
-    mag_y = np.sqrt(np.real(Ph_y)**2 + np.imag(Ph_y)**2)
+        Ph_x - numpy vector or number, phasor x component
+        Ph_y - numpy vector or number, phasor y component"""
+    #amplitude along each component, storing squared magnitudes for later
+    mag_x_sq = np.real(Ph_x)**2 + np.imag(Ph_x)**2
+    mag_x = np.sqrt(mag_x_sq)
+    mag_y_sq = np.real(Ph_y)**2 + np.imag(Ph_y)**2
+    mag_y = np.sqrt(mag_y_sq)
+    #phase angle of each component
+    phase_x = np.arctan(np.imag(Ph_x)/np.real(Ph_x))
+    phase_y = np.arctan(np.imag(Ph_y)/np.real(Ph_y))
     #"product"
     prod = np.sqrt(mag_x**2 + mag_y**2)
-    #"max" - attempts at non-brute-force methods have slightly missed the mark,
-    #for mysterious reasons
-    t = np.linspace(0,2*np.pi,5001)
-    maxi = np.zeros((len(Ph_x),))
-    for i in range(len(maxi)):
-        Rx = mag_x[i]*np.cos(t + np.arctan(np.imag(Ph_x[i])/np.real(Ph_x[i])))
-        Ry = mag_y[i]*np.cos(t + np.arctan(np.imag(Ph_y[i])/np.real(Ph_y[i])))
-        maxi[i] = max(np.sqrt(Rx**2 + Ry**2))
+    #maximum resultant value found by setting the time derivative of the
+    #squared resultant magnitude to zero (Appendix 8.1 EPRI's "Big Red Book")
+    num = mag_x_sq*np.sin(2*phase_x) + mag_y_sq*np.sin(2*phase_y)
+    den = mag_x_sq*np.cos(2*phase_x) + mag_y_sq*np.cos(2*phase_y)
+    t1 = (0.5)*np.arctan(-num/den)
+    t2 = t1 + np.pi/2
+    term1 = mag_x_sq*(np.cos(t1 + phase_x))**2
+    term2 = mag_y_sq*(np.cos(t1 + phase_y))**2
+    ax_mag1 = np.sqrt(term1 + term2)
+    term1 = mag_x_sq*(np.cos(t2 + phase_x))**2
+    term2 = mag_y_sq*(np.cos(t2 + phase_y))**2
+    ax_mag2 = np.sqrt(term1 + term2)
+    #pick out the semi-major axis magnitude from the two semi-axis results
+    maxx = np.zeros((len(Ph_x),))
+    for i in range(len(maxx)):
+        if(ax_mag1[i] > ax_mag2[i]):
+            maxx[i] = ax_mag1[i]
+        else:
+            maxx[i] = ax_mag2[i]
+    #return the 4 output colums
+    return(mag_x, mag_y, prod, maxx)
 
-    #R = np.sqrt(Ph_x**2 + Ph_y**2)
-    #R = np.sqrt((np.real(Ph_x) + np.real(Ph_y))**2 + (np.imag(Ph_x) + np.imag(Ph_y))**2)
-    #maxi = np.abs(R)
-
-    return(mag_x, mag_y, prod, maxi)
-
-def load_template(file_path):
+def load_template(file_path, **kwargs):
     """Import conductor data from an excel template, loading each conductor
     into a Conductor object, each Conductor into a CrossSection object, and
     each CrossSection object into a SectionBook object. The SectionBook
     object is returned.
     args:
-        template_path - path to cross section template excel workbook"""
+        template_path - path to cross section template excel workbook
+    kwargs:
+        sheets - a list of sheet names to load, default is all sheets"""
     #import the cross sections as a dictionary of pandas dataframes, also
     #getting a list of the ordered sheets
     xl = pd.ExcelFile(file_path)
     sheets = xl.sheet_names
     frames = xl.parse(sheetname = None, skiprows = [0,1,2,3], parse_cols = 16,
                     header = None)
+    #remove necessary sheets if the 'sheets' keyword is passed in
+    if('sheets' in kwargs.keys()):
+        include = kwargs['sheets']
+        sheets = [sh for sh in sheets if sh in include]
     #create a SectionBook object to store the CrossSection objects
     xcs = emf_class.SectionBook(path.basename(file_path[:file_path.index('.')]))
     #convert the dataframes into a list of CrossSection objects
@@ -169,6 +187,7 @@ def run(template_path, **kwargs):
     args:
         template_path - path to cross section template excel workbook
     kwargs:
+        sheets - a list of sheet names to load, default is all sheets
         path - string, destination/filename for saved files
         format - string, saved plot format (usually 'png' or 'pdf')"""
     #force saving for the plotting functions if there is no 'path' keyword
