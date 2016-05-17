@@ -1,8 +1,8 @@
 """This module/script contains a few functions to automate the management
 of input and output files for the FIELDS electromagnetic fields modeling
 program. It basically does two things:
-    1) create input .FLD files from the excel templates
-    2) convert output .DAT files to csv files with distance, maximum
+    1) creates input .FLD files from excel templates
+    2) converts output .DAT files to csv files with distance, maximum
        magnetic field, and maximum electric field in its columns. Plots
        of the max fields can optionally be saved as the csv files are
        generated.
@@ -10,16 +10,12 @@ program. It basically does two things:
 Written for Python 2.7"""
 
 import openpyxl
-from os import path
-from glob import glob
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import pull_columns as pc #mmb module: P:\MBaum\Programming\Python\python_code
-from is_number import is_number #mmb function: P:\MBaum\Programming\Python\python_code
-from temp_csv import temp_csv #mmb module: P:\MBaum\Programming\Python\python_code
-
-#turn off print(statements in the pull_columns module
-pc.output(False)
+from os import path
+from glob import glob
+from string import ascii_uppercase
 
 #-------------------------------------------------------------------------------
 #FUNCTIONS FOR GENERATING INPUT .FLD FILES FROM TEMPLATE WORKSHEETS
@@ -79,7 +75,7 @@ def create_FLDs(workbook_filename, **kwargs):
     for sn in sheets:
 
         #pull out the data
-        data = pc.pull_columns(fn, list(range(1,18)), 5, sheet = sn, empties = False)
+        data = pull_columns(fn, list(range(1,18)), 5, sheet = sn, empties = False)
 
         #define column index ranges for the conductors and ground lines to
         #check that their lengths are all equal
@@ -275,3 +271,467 @@ def plot_fields(d, E, B, fn):
     plt.savefig(fn[:-4] + '_plot')
 
 #------------------------------------------------------------------------------
+#support functions
+
+def is_number(s):
+    """Check if an element can be converted to a float, returning `True`
+    if it can and `False` if it can't"""
+    if(s == None):
+        return(False)
+    else:
+        try:
+            float(s)
+        except ValueError:
+            return(False)
+        else:
+            return(True)
+
+#global variable used to toggle print statements in the main pull_columns code
+pull_columns_printing = True
+
+def output(a):
+    """A method for turning the print statements in pull_columns on/off.
+    Pass 'True' to turn them on. Pass 'False' to turn them off."""
+    global pull_columns_printing
+    if(a == True):
+        pull_columns_printing = True
+    elif(a == False):
+        pull_columns_printing = False
+
+def column_index_from_string(str_idx):
+    r"""Convert an excel column index in string form into numberic form. For
+    example, 'B' yields 2 and 'AB' yields 28. Lowercase input is fine and
+    is converted to uppercase."""
+
+    #convert to uppercase
+    s = str_idx.upper()
+
+    #make sure the input is all alphabetical
+    for c in s:
+        if(not (c in ascii_uppercase)):
+            msg = 'The column string index "%s" is not alphabetical' % str_idx
+            msg = msg + ' and does not reference an excel/csv column number.'
+            raise ValueError(msg)
+
+    #calculate the numeric index by using multiples of powers of 26
+    num_idx = 0
+    L = len(s)
+    for i in range(L):
+        num_idx += (26**(L-i-1))*(ascii_uppercase.index(s[i]) + 1)
+
+    return(num_idx)
+
+def condition(ucol):
+    r"""Take a list and return a np array with the values of that list than
+    can be converted to floats, setting all other elements to np.nan"""
+
+    #conditioned column
+    ccol = np.zeros((len(ucol),), dtype = float) #conditioned column
+
+    for i in range(len(ucol)):
+        #if the cell is empty, set to NaN
+        if((not ucol[i]) and (ucol[i] != 0)):
+            ccol[i] = np.nan
+        #if the cell is a number, convert it to a float
+        elif(is_number(ucol[i])):
+            ccol[i] = float(ucol[i])
+        #if the cell has non-numeric contents, set it to np.nan
+        else:
+            ccol[i] = np.nan
+
+    return(ccol)
+
+#global variable used to toggle print statements in the main pull_columns code
+pull_columns_printing = False
+
+#warning message for recasting numpy.nan elements as non-float types
+dtype_warning = "numpy.nan is a float type element. Empty and non-numeric\n"
+dtype_warning += "   cells replaced with numpy.nan and subsequently recast\n"
+dtype_warning += "   to your input data type may be in a different form.\n"
+dtype_warning += "   For example, recasting an array with numpy.nan elements\n"
+dtype_warning += "   into integer type converts the numpy.nans to -2147483648.\n"
+
+def pull_columns(fname, cols, rows, **kwargs):
+    r"""
+    col_data = pull_column(fname, col, row, **kwargs)
+
+        col_data - returned column data, as a tuple of lists/arrays for
+                   multiple columns and as a single list/array for a
+                   single column
+
+        fname - filename to extract a column from
+
+        **sheet - if the file is an excel file, the keyword argument
+                  'sheet' must be provided with the target sheet name
+
+        cols - column indices to pull from, either numeric indices or
+               alphabetical excel indices like 'AB', and either as a
+               single index or an interable (list/tuple) of indices.
+               Numeric indices are INDEXED FROM 1. If the string 'all'
+               is passed in for cols, every column in the sheet will be
+               pulled and returned.
+
+        rows - specifies which row to start on for each column. If an
+               iterable is passed in it must be the same length as cols.
+               Otherwise, passing in a single integer for 'rows' will
+               apply that starting row to all columns. Like in excel,
+               rows are also INDEXED FROM 1.
+
+        **delimiter - if a .txt file is passed in the delimiter is assumed
+                      to be '\t'. Use this keyword argument to choose a
+                      different one.
+
+        **fixed_width - if a .txt file is passed in with fixed with columns,
+                        use this kwarg to set the width of those columns
+
+        **dtype - keyword arg for data type of the numpy array returned. If
+                  unused, column data is returned in lists.
+
+        **empties - keyword argument that toggles whether empty cells are
+                    removed. To discard empties, use 'empties = False'.
+                    This will remove all implicitly 'False' elements
+                    except for zero if the return data type is
+                    unspecified and all non-numeric/empty cells if the
+                    return data type is specified.
+
+        This function pulls information from specified columns of an excel
+    file, csv file, or text file, returning those columns in a tuple of
+    lists by default, but capable of converting those columns into numpy
+    arrays if the keyword argument 'dtype' is passed in. For example, using
+    'dtype = float' will return a list of arrays with float-type elements.
+    Elements that can't be converted to floats are set to np.nan, but this
+    is only a valid object for float-type numbers, so be careful about
+    using 'dtype = int' or really anything but float unless you know the
+    data is complete and of uniform type.
+        For excel files, the sheet name must also be passed in as a keyword
+    argument. For example, if you wanted to pull the second and third
+    column of a .xlsx file, starting at the second and third rows
+    respectively, and return the columns as integers, you would use:
+
+    pull_columns('afile.xlsx', ('B',3), [2,3], sheet = 'asheet', dtype = int)
+
+        or
+
+    pull_columns('afile.xlsx', [2,'c'], (2,3), sheet = 'asheet', dtype = int)
+
+    For any dtype, empty elements can be removed from the returned objects
+    by using the keyword 'empties' and setting it to 'False'. This will
+    remove anything that is implicitly false from the lists except for
+    zero, like 'False', empty strings, or 'None' elements. For numpy
+    arrays, 'empties = False' will remove anything that cannot be converted
+    to a float.
+    """
+    k = kwargs.keys()
+
+    #store a variable for keeping or discarding empties, based on keyword arg
+    keep_empties = True
+    if('empties' in k):
+        if(kwargs['empties'] == False):
+            keep_empties = False
+
+    #get the data type keyword argument
+    dtype = False
+    if('dtype' in k):
+        dtype = kwargs['dtype']
+
+    #if cols is a single character, convert it and store as a len == 1 list
+    #also if cols is 'all', count the columns and set cols to get them all
+    if(type(cols) == str):
+        if(cols == 'all'):
+            if('.xls' in fname[-5:]):
+                wb = openpyxl.load_workbook(fname)
+                try:
+                    sh = wb[kwargs['sheet']]
+                except KeyError:
+                    raise KeyError('Incorrect sheet name or no sheet name.')
+                else:
+                    cols = list(range(1, sh.max_column+1))
+                    del(wb,sh)
+                L = len(cols)
+            elif(fname[-4:] == '.csv'):
+                ifile = open(fname, 'r')
+                cols = list(range(1,len(ifile.readline().split(',')) + 1))
+                ifile.close()
+                L = len(cols)
+        else:
+            cols = [column_index_from_string(cols)]
+            L = 1
+    #if cols is a single integer, turn it into a list
+    elif(type(cols) == int):
+        cols = [cols]
+        L = 1
+    #convert any string column indices to numberic indices
+    else:
+        #elements of a tuple cannot be replaced (immutable) so convert to list
+        if(type(cols) == tuple):
+            cols = list(cols)
+        L = len(cols)
+        for i in range(len(cols)):
+            if(type(cols[i]) == str):
+                cols[i] = column_index_from_string(cols[i])
+
+    #if the input 'rows' is an integer, convert rows to a list with the same
+    #length as cols, with the same value repeated
+    if(type(rows) == int):
+        if(L > 1):
+            rows = [rows for i in range(len(cols))]
+        elif(L == 1):
+            rows = [rows]
+
+    #read the data into lists without changing any of it yet, handling the
+    #file types differently
+    #allocate list of lists, a list for each target column
+    data = [[] for i in range(L)]
+    if((fname[-4:] == '.csv') or (fname[-4:] == '.CSV')):
+
+        #open csv file and read selected columns into a list of lists
+        with open(fname) as ifile:
+            if(pull_columns_printing):
+                if(not dtype):
+                    print('\nREMEMBER that csv data is imported in string type unless otherwise specified.\n')
+                print('csv "%s" open, reading data...' % fname)
+            #create a csv reader object
+            csvobj = csv.reader(ifile)
+            #iterate over each line in the csv
+            for line in csvobj:
+                #iterate over the input column indices
+                for i in range(len(cols)):
+                    #if the column index doesn't exceed the number of columns,
+                    #store the element as a string (for now)
+                    if(len(line) > cols[i]-1):
+                        data[i].append(line[cols[i]-1])
+
+    elif((fname[-4:] == '.txt') or (fname[-4:] == '.TXT')):
+
+        if(pull_columns_printing and (not dtype)):
+            print('\nREMEMBER that text data is imported in string type unless otherwise specified.\n')
+
+        #check for a delimiter kwarg, otherwise default to '\t'
+        if('delimiter' in k):
+            delimiter = kwargs['delimiter']
+        else:
+            delimiter = '\t'
+        #open the file
+        with open(fname) as ifile:
+            if(pull_columns_printing):
+                print('txt file "%s" open...' % fname)
+            #check the fixed_width kwarg
+            if('fixed_width' in k):
+                fixed_width = kwargs['fixed_width']
+                if(int(fixed_width) != fixed_width):
+                    raise(ValueError('fixed_width arguments must be positive, non-zero integers.'))
+            else:
+                fixed_width = False
+            #if no fixed width argument is passed, assume delimited file
+            if(fixed_width):
+                if(pull_columns_printing):
+                    print('reading fixed width text file...')
+                #iterate over the lines in the file
+                for line in ifile:
+                    #remove trailing '\n'
+                    line = line.rstrip('\n')
+                    print line
+                    #separate the columns based on widths
+                    temp = []
+                    for i in range(int(np.floor(len(line)/fixed_width))):
+                        temp.append(line[i*fixed_width:(i+1)*fixed_width])
+                    print temp
+                    #iterate over the input column indices
+                    for i in range(len(cols)):
+                        #if the column index doesn't exceed the number of columns,
+                        #store the element as a string (for now)
+                        if(len(temp) > cols[i]-1):
+                            data[i].append(temp[cols[i]-1])
+
+            #otherwise read the delimited file
+            else:
+                if(pull_columns_printing):
+                    print('reading delimited text file...')
+                #iterate over lines in the file
+                for line in ifile:
+                    #split on the delimiting character and remove trailing '\n'
+                    temp = filter(None, line.split(delimiter))
+                    if(temp):
+                        temp[-1] = temp[-1].rstrip('\n')
+                    #iterate over the input column indices
+                    for i in range(len(cols)):
+                        #if the column index doesn't exceed the number of columns,
+                        #store the element as a string (for now)
+                        if(len(temp) > cols[i]-1):
+                            data[i].append(temp[cols[i]-1])
+
+    elif('.xls' in fname[-5:]):
+
+        #open the excel file
+        wb = openpyxl.load_workbook(fname, read_only = True, data_only = True)
+        if(pull_columns_printing):
+            print('\nWorkbook "%s" open...' % (fname))
+        #get the sheet name from kwargs
+        sheet = kwargs['sheet']
+        #get the target sheet
+        sh = wb.get_sheet_by_name(sheet)
+        if(pull_columns_printing):
+            print('Sheet "%s" aquired...' % (sheet))
+        #read selected columns into a list of lists
+        if(pull_columns_printing):
+            print('Parsing target column(s) of data...')
+        #find maximum column and row
+        maxcol = openpyxl.utils.get_column_letter(sh.max_column)
+        maxrow = sh.max_row
+
+        #iterate through the rows, storing values in 'data'
+        for row in sh.iter_rows(range_string = 'A1:' + maxcol + str(maxrow)):
+            #iterate through target columns of each row
+            for i in range(len(cols)):
+                data[i].append(row[cols[i] - 1].value)
+    else:
+        msg = '"%s" does not appear to be an excel, csv, or txt file. ' % fname
+        msg = msg + '\nInput files must have ".xls" in the extension or have an'
+        msg = msg + ' exact ".csv" or ".txt" extension.'
+        raise IOError(msg)
+
+    #prune off the undesired rows from the beginning of the columns
+    col_data = [[] for i in range(L)]
+    for i in range(L):
+        col_data[i] = data[i][rows[i]-1:]
+        #empty data[i] for memory, in case the file is large
+        data[i] = None
+
+    #data conditioing if dtype was not 'list' when it got passed in
+    if(dtype):
+        if(pull_columns_printing):
+            print('Columns parsed. Conditioning data...')
+        #condition each column and store it in conditioned_col_data
+        for i in range(L):
+            temp_col = col_data[i][:] #unconditioned column
+            #run data conditioning routine at the top
+            temp_col = condition(temp_col)
+            #get rid of the empties (np.nans) if called for
+            if(not keep_empties):
+                #grab indices of ccol's elements that aren't np.nan
+                idx_numeric = np.logical_not(np.isnan(temp_col))
+                #remove the np.nans from ccol and indices[i]
+                temp_col = temp_col[idx_numeric]
+            #re-cast data type if necessary
+            #THIS CHANGES THE np.nan ELEMENTS TO NON FLOATS
+            if(dtype != float):
+                temp_col = temp_col.astype(dtype)
+            #store the conditioned column back in col_data
+            col_data[i] = temp_col[:]
+    else:
+        #if lists are being returned but empties should be discarded, pop them
+        if(not keep_empties):
+            for i in range(L):
+                l = len(col_data[i])
+                j = 0
+                while(j < l):
+                    x = col_data[i][j]
+                    #pop elements implicitly False and not equal to 0
+                    if((x != 0) and (not x)):
+                        col_data[i].pop(j)
+                        l -= 1
+                        j -= 1
+                    j += 1
+
+    #manange the structure of the returned variables
+    #if there is only a single column returned, pull it out of the list of lists
+    #and simply return the list, unwrapped
+    if(len(col_data) == 1):
+        col_data = col_data[0]
+    #otherwise convert the outer list to a tuple for return
+    else:
+        col_data = tuple(col_data)
+
+    if(pull_columns_printing):
+        print('Finished.')
+
+    #issue a warning related to covnerting np.nan to data types besides float
+    if(dtype):
+        if((dtype != float) and (keep_empties)):
+            if(pull_columns_printing):
+                print('\nWARNING: %s' % dtype_warning)
+
+    return col_data
+
+def temp_csv(*args, **kwargs):
+    r"""This function writes a collection of variables to a csv file
+    called 'temp.csv'. It will overwrite without asking permission.
+    An optional keyword argument 'header' will also write a header line to
+    the file. If the variables are different lengths, it is assumed that the
+    first elements of each variable correspond to each other and empty
+    strings will be written at the end of variables shorter than the
+    longest one. The file is written with ',' delimiters and '\n' line
+    terminators unless otherwise specified by keyword arguments. Use the
+    keyword 'filename' to specify a filename.
+
+    write_to_temp(*args, **kwargs)
+
+        *args - variables to write to the file as columns, if one tuple is
+                passed in, it will be unpacked and the contents will be
+                written as separate columns
+
+        **kwargs - pass an iterable to the keyword 'header' to write those
+                   elements in the first line of the file. Characteres can
+                   also be passed to the keyword arguments 'delimiter' and
+                   'lineterminator' to choose the formatting of the csv. The
+                   default delimiter is ',' and the default lineterminator
+                   is '\n'
+    """
+    #create csv writing object
+    k = kwargs.keys()
+    #make filename
+    if('filename' in k):
+        fn = kwargs['filename']
+        if('.' in fn):
+            fn = fn[:fn.index('.')]
+        fn = fn + '.csv'
+    else:
+        fn = 'temp.csv'
+    #get delimiter
+    if('delimiter' in k):
+        delim = kwargs['delimiter']
+    else:
+        delim = ','
+    if('lineterminator' in k):
+        lineterm = kwargs['lineterminator']
+    else:
+        lineterm = '\n'
+    #open file and create writing object
+    ofile = open(fn, 'w')
+    csvobj = csv.writer(ofile, delimiter=delim, lineterminator=lineterm)
+    #write the header if it was passed in
+    if('header' in kwargs.keys()):
+        csvobj.writerow(kwargs['header'])
+    #unpack the args tuple into a list (so that it's mutable)
+    N = len(args)
+    if((N == 1) and (type(args[0] == tuple))):
+        args = args[0]
+        N = len(args)
+    temp = [None]*N
+    for i in range(N):
+        temp[i] = args[i]
+    args = temp
+    #find the maximum length of any of the variables
+    L = 1
+    l = [None]*N
+    for i in range(N):
+        try:
+            l[i] = (len(args[i]))
+        except TypeError:
+            l[i] = (1)
+            args[i] = [args[i]]
+        else:
+            if(l[i] > L):
+                L = l[i]
+    #write the variables
+    row = [None]*N
+    for i in range(L):
+        for j in range(N):
+            if(i < l[j]):
+                row[j] = args[j][i]
+            else:
+                row[j] = ''
+        csvobj.writerow(row)
+
+    #close the file
+    ofile.close()
