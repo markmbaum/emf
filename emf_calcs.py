@@ -72,15 +72,14 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     Ex = Ex*Q
     Ey = Ey*Q
 
-    #sum the real parts and imaginary parts of each phasor for each sample
-    #point, yielding the sum of phasors for each conductor, which are the final
-    #phasors for each point
+    #sum the phasors for each sample point, yielding the sum of phasors for each
+    #conductor, which are the final phasors for each point
     Ex = np.sum(Ex, axis = 0)
     Ey = np.sum(Ey, axis = 0)
 
     #return phasors, complex numbers, for the x and y components
-    #these complex phasors are converted to real valued outputs by the
-    #   phasors_to_magnitudes() function
+    #   - these complex phasors are converted to real valued outputs by the
+    #   - phasors_to_magnitudes() function
     return(Ex, Ey)
 
 def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
@@ -119,10 +118,12 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
             theta = np.arctan(abs(dy/dx))
             #x component calculated with sine and y component with cosine
             #because the field is perpendicular to the line to the conductor,
+            #potentially contrary to one's first instince that sine goes
+            #with y components and cosine with x components, but it's right
             Bx[a] -= np.sign(dy)*np.sin(theta)*B
             By[a] += np.sign(dx)*np.cos(theta)*B
 
     #return phasors, complex numbers, for the x and y components
-    #these complex phasors are converted to real valued outputs by the
-    #   phasors_to_magnitudes() function
+    #   - these complex phasors are converted to real valued outputs by the
+    #   - phasors_to_magnitudes() function
     return(Bx, By)
