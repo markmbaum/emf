@@ -32,7 +32,8 @@ functions that calculate electric and magnetic fields accessible. This code reli
 and [I/O methods](http://pandas.pydata.org/pandas-docs/stable/io.html) from the [pandas library](http://pandas.pydata.org/pandas-docs/stable/index.html) to interface with excel templates, store the results of fields simulations, and write results to output files
 * fast, explicit, low-level [numpy](http://www.numpy.org/) arrays and functions to perform the actual fields calculations
 * the [matplotlib](http://matplotlib.org/) plotting package to automatically useful plots of the simulation results
-* three custom classes to organize the imported data and the EMF results in a flexible, hierarchical system.
+* three custom classes (Conductor, CrossSection, and SectionBook) to organize the imported data and the EMF results in a flexible, hierarchical system.
+
 For the most routine modeling scenarios, this code enables a one line effort (after filling in template excel sheets) to generate full sets of electric and magnetic field results, double-axis plots of both electric and
 magnetic fields, plots comparing the electric and magnetic fields of grouped
 cross sections, and a table of maximum field magnitudes at the right-of-way
