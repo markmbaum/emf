@@ -1,5 +1,7 @@
 # FLD
 
+### Computing Electric and Magnetic Fields Near Parallel Sets of High Voltage Transmission Lines
+
 This repo contains code for the approximation of electric and magnetic fields
 near parallel groups of power lines. It's meant to replace the old and
 difficult program called FIELDS, originally developed by Southern California
@@ -8,7 +10,7 @@ The FIELDS software runs through a DOSBOX application and is long out of date.
 
 This code is intended to exactly replicate the results of FIELDS by following
 the conceptual guidelines laid out in the Electric Power Research Institute's
-"Big Red Book" (exact title/citation unknown at the moment). The FIELDS source
+"Red Book" (some more information on this source below). The FIELDS source
 code is not released, so a line-by-line replication of the calculations isn't
 possible. However, the physics are pretty manageable and this version of
 the code has been able to reproduce FIELDS results to a very high degree of
@@ -36,3 +38,12 @@ magnetic fields, plots comparing the electric and magnetic fields of grouped
 cross sections, and a table of maximum field magnitudes at the right-of-way
 edges of each cross-section. The run() function does all this and only requires
 the path of the excel workbook of templates.
+
+######EPRI's "Red Book"
+
+The editon of EPRI's "Red Book" that I worked from is titled
+"Transmission Line Reference Book: 345 kV and Above/Second Edition." Section
+8.3 outlines the calculation of electric fields. Section 8.4 outlines the
+calculation of magnetic fields. Appendix 8.1 details how to calculate the
+maximum field magnitude from horizontal and vertical component phasors, which
+might sound almost trivial but is more involved than I thought it would be.
