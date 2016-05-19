@@ -354,7 +354,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     format_axes_legends(ax_abs)
     plt.tight_layout()
     format_axes_legends(ax_abs, ax_per, ax_mag)
-    save_fig(xc.name + '-DAT_comparison_Emax', fig, **kwargs)
+    save_fig(xc.name + '-DAT_comparison_Bmax', fig, **kwargs)
     plt.close(fig)
 
     #figure object and axes
@@ -371,7 +371,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     plt.tight_layout()
     format_axes_legends(ax_abs, ax_per, ax_mag)
-    save_fig(xc.name + '-DAT_comparison_Bmax', fig, **kwargs)
+    save_fig(xc.name + '-DAT_comparison_Emax', fig, **kwargs)
     plt.close(fig)
 
 
