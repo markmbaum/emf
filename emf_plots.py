@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib as mpl
-plt = mpl.pyplot
+import matplotlib.pyplot as plt
 lines = mpl.lines
 
 import emf_funks
