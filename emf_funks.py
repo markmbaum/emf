@@ -90,27 +90,27 @@ def load_template(file_path, **kwargs):
         #load hot conductors
         for i in range(df[3].dropna().shape[0]):
             cond = emf_class.Conductor()
-            cond.tag = df[2].iloc[i]
+            cond.tag = df[2].iat[i]
             cond.freq = misc[2]
-            cond.x = df[3].iloc[i]
-            cond.y = df[4].iloc[i]
-            cond.subconds = df[5].iloc[i]
-            cond.d_cond = df[6].iloc[i]
-            cond.d_bund = df[7].iloc[i]
-            cond.V = df[8].iloc[i]
-            cond.I = df[9].iloc[i]
-            cond.phase = df[10].iloc[i]
+            cond.x = df[3].iat[i]
+            cond.y = df[4].iat[i]
+            cond.subconds = df[5].iat[i]
+            cond.d_cond = df[6].iat[i]
+            cond.d_bund = df[7].iat[i]
+            cond.V = df[8].iat[i]
+            cond.I = df[9].iat[i]
+            cond.phase = df[10].iat[i]
             xc.hot.append(cond)
         #load grounded conductors
         for i in range(df[12].dropna().shape[0]):
             cond = emf_class.Conductor()
-            cond.tag = df[11].iloc[i]
+            cond.tag = df[11].iat[i]
             cond.freq = misc[2]
-            cond.x = df[12].iloc[i]
-            cond.y = df[13].iloc[i]
+            cond.x = df[12].iat[i]
+            cond.y = df[13].iat[i]
             cond.subconds = 1.
-            cond.d_cond = df[14].iloc[i]
-            cond.d_bund = df[14].iloc[i]
+            cond.d_cond = df[14].iat[i]
+            cond.d_bund = df[14].iat[i]
             cond.V = 0.
             cond.I = 0.
             cond.phase = 0.
@@ -189,7 +189,8 @@ def run(template_path, **kwargs):
     kwargs:
         sheets - a list of sheet names to load, default is all sheets
         path - string, destination/filename for saved files
-        format - string, saved plot format (usually 'png' or 'pdf')"""
+        format - string, saved plot format (usually 'png' or 'pdf')
+        xmax - cutoff distance from ROW center in plots"""
     #force saving for the plotting functions if there is no 'path' keyword
     kwargs['save'] = True
     #import templates

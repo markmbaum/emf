@@ -263,9 +263,9 @@ class SectionBook:
         #be sure ROW_edge_results are current
         #self.compile_ROW_edge_results()
         #export
-        c = ['name','title','Bmaxl','Emaxl','Bmaxr','Emaxr']
-        h = ['Name','Title','Bmax - Left ROW Edge','Emax - Left ROW Edge',
-                'Bmax - Right ROW Edge','Emax - Right ROW Edge']
+        c = ['name','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
+        h = ['Name','Title','Bmax - Left ROW Edge','Bmax - Right ROW Edge',
+                'Emax - Left ROW Edge','Emax - Right ROW Edge']
         excel = False
         if('file_type' in kwargs.keys()):
             if(kwargs['file_type'] == 'excel'):
