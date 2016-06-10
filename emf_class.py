@@ -69,8 +69,8 @@ class CrossSection:
         self.V = np.empty((0,)) #ilne voltages
         self.I = np.empty((0,)) #line currents
         self.phase = np.empty((0,)) #phase angles
-        self.sample_x = np.empty((0,)) #x coordinates of sample points
-        self.sample_y = np.empty((0,)) #y coordinates of sample points
+        self.x_sample = np.empty((0,)) #x coordinates of sample points
+        self.y_sample = np.empty((0,)) #y coordinates of sample points
         #DataFrame storing results, populated with calculate_fields()
         self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
                                             'Ex','Ey','Eprod','Emax'])

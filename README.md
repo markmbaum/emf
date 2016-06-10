@@ -30,8 +30,15 @@ and [I/O methods](http://pandas.pydata.org/pandas-docs/stable/io.html) from the 
 For the most routine modeling scenarios, this code enables a one line effort (after filling in template excel sheets) to generate full sets of electric and magnetic field results, double-axis plots of both electric and
 magnetic fields, plots comparing the electric and magnetic fields of grouped
 cross sections, and a table of maximum field magnitudes at the right-of-way
-edges of each cross-section. The run() function does all this and only requires
+(ROW) edges of each cross-section. The run() function does all this and only requires
 the path of the excel workbook of templates.
+
+In addition to being quicker to use and more flexible than FIELDS, this code
+can automatically optimize the phasing arrangement of all three-line circuits in
+a cross section by brute force testing every possible phasing combination at
+the ROW edges. Not a scalable feature, but a potentially useful one. I'd also
+like to write a method for calculating what conductor height adjustments would
+be necessary to achieve specified field magnitudes at ROW edges.
 
 ######EPRI's "Red Book"
 

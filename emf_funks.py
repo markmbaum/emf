@@ -132,6 +132,8 @@ def optimize_phasing(xc):
     E_left_min, E_left_idx = np.inf, -1
     E_right_min, E_right_idx = np.inf, -1
     #loop through all possible combinations in P
+    x_ROW = np.array([xc.x_sample[xc.lROWi], xc.x_sample[xc.rROWi]])
+    y_ROW = np.array([xc.y_sample[xc.lROWi], xc.y_sample[xc.rROWi]])
     phase = np.empty((N,))
     for i in range(len(P)):
         #get a row of indices from P
@@ -139,23 +141,23 @@ def optimize_phasing(xc):
         #calculate fields with index swapped data
         Ex, Ey = emf_calcs.E_field(xc.x[:N], xc.y[:N], xc.subconds[:N],
             xc.d_cond[:N], xc.d_bund[:N], xc.V[:N], xc.phase[idx],
-            xc.x_sample, xc.y_sample)
+            x_ROW, y_ROW)
         Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
         Bx, By = emf_calcs.B_field(xc.x[:N], xc.y[:N], xc.I[:N],
-            xc.phase[idx], xc.x_sample, xc.y_sample)
+            xc.phase[idx], x_ROW, y_ROW)
         Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
         #test for minima
-        if(Bmax[xc.lROWi] < B_left_min):
-            B_left_min = Bmax[xc.lROWi]
+        if(Bmax[0] < B_left_min):
+            B_left_min = Bmax[0]
             B_left_idx = i
-        if(Bmax[xc.rROWi] < B_right_min):
-            B_right_min = Bmax[xc.rROWi]
+        if(Bmax[1] < B_right_min):
+            B_right_min = Bmax[1]
             B_right_idx = i
-        if(Emax[xc.lROWi] < E_left_min):
-            E_left_min = Emax[xc.lROWi]
+        if(Emax[0] < E_left_min):
+            E_left_min = Emax[0]
             E_left_idx = i
-        if(Emax[xc.rROWi] < E_right_min):
-            E_right_min = Emax[xc.rROWi]
+        if(Emax[1] < E_right_min):
+            E_right_min = Emax[1]
             E_right_idx = i
     #return results in a DataFrame
     results = pd.DataFrame(data = {
