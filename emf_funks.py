@@ -1,49 +1,13 @@
+import os
+import copy
+import itertools
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from os import path
 
 import emf_class
+import emf_calcs
 import emf_plots
-
-def phasors_to_magnitudes(Ph_x, Ph_y):
-    """Convert vectors of complex x and y phasors into real quantities,
-    namely the amplitude of the field in the x and y directions, the
-    product (the hypotenuse of the amplitudes), and the maximum field.
-    args:
-        Ph_x - numpy vector or number, phasor x component
-        Ph_y - numpy vector or number, phasor y component"""
-    #amplitude along each component, storing squared magnitudes for later
-    mag_x_sq = np.real(Ph_x)**2 + np.imag(Ph_x)**2
-    mag_x = np.sqrt(mag_x_sq)
-    mag_y_sq = np.real(Ph_y)**2 + np.imag(Ph_y)**2
-    mag_y = np.sqrt(mag_y_sq)
-    #phase angle of each component
-    phase_x = np.arctan(np.imag(Ph_x)/np.real(Ph_x))
-    phase_y = np.arctan(np.imag(Ph_y)/np.real(Ph_y))
-    #"product"
-    prod = np.sqrt(mag_x**2 + mag_y**2)
-    #maximum resultant value found by setting the time derivative of the
-    #squared resultant magnitude to zero (Appendix 8.1 EPRI's "Big Red Book")
-    num = mag_x_sq*np.sin(2*phase_x) + mag_y_sq*np.sin(2*phase_y)
-    den = mag_x_sq*np.cos(2*phase_x) + mag_y_sq*np.cos(2*phase_y)
-    t1 = (0.5)*np.arctan(-num/den)
-    t2 = t1 + np.pi/2
-    term1 = mag_x_sq*(np.cos(t1 + phase_x))**2
-    term2 = mag_y_sq*(np.cos(t1 + phase_y))**2
-    ax_mag1 = np.sqrt(term1 + term2)
-    term1 = mag_x_sq*(np.cos(t2 + phase_x))**2
-    term2 = mag_y_sq*(np.cos(t2 + phase_y))**2
-    ax_mag2 = np.sqrt(term1 + term2)
-    #pick out the semi-major axis magnitude from the two semi-axis results
-    maxx = np.zeros((len(Ph_x),))
-    for i in range(len(maxx)):
-        if(ax_mag1[i] > ax_mag2[i]):
-            maxx[i] = ax_mag1[i]
-        else:
-            maxx[i] = ax_mag2[i]
-    #return the 4 output colums
-    return(mag_x, mag_y, prod, maxx)
 
 def load_template(file_path, **kwargs):
     """Import conductor data from an excel template, loading each conductor
@@ -56,6 +20,10 @@ def load_template(file_path, **kwargs):
         sheets - a list of sheet names to load, default is all sheets"""
     #import the cross sections as a dictionary of pandas dataframes, also
     #getting a list of the ordered sheets
+    file_path = check_extention(file_path, 'xlsx', """
+        Templates must be excel workbooks. The input target path
+            "%s"
+        is not recognized as an excel file""" % file_path)
     xl = pd.ExcelFile(file_path)
     sheets = xl.sheet_names
     frames = xl.parse(sheetname = None, skiprows = [0,1,2,3], parse_cols = 16,
@@ -65,7 +33,7 @@ def load_template(file_path, **kwargs):
         include = kwargs['sheets']
         sheets = [sh for sh in sheets if sh in include]
     #create a SectionBook object to store the CrossSection objects
-    xcs = emf_class.SectionBook(path.basename(file_path[:file_path.index('.')]))
+    xcs = emf_class.SectionBook(os.path.basename(file_path[:file_path.index('.')]))
     #convert the dataframes into a list of CrossSection objects
     titles = []
     for k in sheets:
@@ -77,7 +45,13 @@ def load_template(file_path, **kwargs):
         xc.tag = misc[1]
         #check for duplicate title inputs
         if(xc.title in titles):
-            raise(emf_class.EMFError('Cross-sections should have unique Main Title entries. The Main Title "%s" in the sheet "%s" is used by at least one other sheet.' % (xc.title, k)))
+            raise(emf_class.EMFError("""
+            Cross-sections should have unique Main Title entries.
+            Main Title:
+                "%s"
+            in the sheet
+                "%s"
+            is used by at least one other sheet.""" % (xc.title, k)))
         else:
             titles.append(xc.title)
         xc.subtitle = misc[2]
@@ -124,6 +98,109 @@ def load_template(file_path, **kwargs):
     #return the SectionBook object
     return(xcs)
 
+def optimize_phasing(xc):
+    """Permute the phasing of the non-grounded conductors and find the
+    arrangement that results in the lowest fields at the left and right
+    edge of the ROW. The number of hot conductors must be a multiple of
+    three. The phases of consecutive groups of three conductors are
+    swapped around, assuming that those groups represent a single
+    three-phase transfer circuit."""
+    #number of hot wires
+    N = len(xc.hot)
+    #check the number of hot lines
+    if(N % 3 != 0):
+        raise(EMFError("""
+        The number of hot (not grounded) conductors must be a multiple
+        of three for phase optimization."""))
+    #number of circuits, groups of 3 hot conductors
+    G = N/3
+    #all permutations of the phases of each 3 line circuit
+    perm = list(itertools.permutations([0,1,2]))
+    #all possible arrangements of line phasings, 6 permutations for each circuit
+    #so 6^(N/3) total line arrangements
+    P = list(itertools.product(perm, repeat = G))
+    #flatten the elements of P
+    for i in range(len(P)):
+        P[i] = [item for sublist in P[i] for item in sublist]
+    #turn it into an array and add multiples of 3 to the appropriate columns
+    P = np.array(P, dtype = int)
+    for i in range(3, P.shape[1], 3):
+        P[:,i:i+3] += i
+    #variables to find the minima with respect to each field and ROW edge
+    B_left_min, B_left_idx = np.inf, -1
+    B_right_min, B_right_idx = np.inf, -1
+    E_left_min, E_left_idx = np.inf, -1
+    E_right_min, E_right_idx = np.inf, -1
+    #loop through all possible combinations in P
+    phase = np.empty((N,))
+    for i in range(len(P)):
+        #get a row of indices from P
+        idx = P[i,:]
+        #calculate fields with index swapped data
+        Ex, Ey = emf_calcs.E_field(xc.x[:N], xc.y[:N], xc.subconds[:N],
+            xc.d_cond[:N], xc.d_bund[:N], xc.V[:N], xc.phase[idx],
+            xc.x_sample, xc.y_sample)
+        Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
+        Bx, By = emf_calcs.B_field(xc.x[:N], xc.y[:N], xc.I[:N],
+            xc.phase[idx], xc.x_sample, xc.y_sample)
+        Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
+        #test for minima
+        if(Bmax[xc.lROWi] < B_left_min):
+            B_left_min = Bmax[xc.lROWi]
+            B_left_idx = i
+        if(Bmax[xc.rROWi] < B_right_min):
+            B_right_min = Bmax[xc.rROWi]
+            B_right_idx = i
+        if(Emax[xc.lROWi] < E_left_min):
+            E_left_min = Emax[xc.lROWi]
+            E_left_idx = i
+        if(Emax[xc.rROWi] < E_right_min):
+            E_right_min = Emax[xc.rROWi]
+            E_right_idx = i
+    #return results in a DataFrame
+    results = pd.DataFrame(data = {
+        'Conductor Tag' : [c.tag for c in xc.hot],
+        'Optimal Phasing - Bmax Left ROW Edge' : xc.phase[P[B_left_idx,:]],
+        'Optimal Phasing - Bmax Right ROW Edge' : xc.phase[P[B_right_idx,:]],
+        'Optimal Phasing - Emax Left ROW Edge' : xc.phase[P[E_left_idx,:]],
+        'Optimal Phasing - Emax Right ROW Edge' : xc.phase[P[E_right_idx,:]]})
+
+    return(results)
+
+def run(template_path, **kwargs):
+    """Import the templates in an excel file with the path 'template_path'
+    then generate a workbook of all fields results and accompanying plots.
+    Use the 'path' keyword argument to specify a destination for the output,
+    otherwise it will be save to the active directory, Finer control of the
+    output, like x-distance cutoffs for the plots, is given up by the use of
+    this function but it's a fast way to generate all the results. Returns
+    a SectionBook object of the imported template.
+    args:
+        template_path - path to cross section template excel workbook
+    kwargs:
+        sheets - a list of sheet names to load, default is all sheets
+        path - string, destination/filename for saved files
+        format - string, saved plot format (usually 'png' or 'pdf')
+        xmax - cutoff distance from ROW center in plots"""
+    #force saving for the plotting functions if there is no 'path' keyword
+    if(not ('path' in kwargs)):
+        kwargs['save'] = True
+        #also direct output files to the same directory as the template
+        kwargs['path'] = os.path.dirname(template_path)
+    #import templates
+    b = load_template(template_path)
+    #export the full results workbook
+    b.full_export(**kwargs)
+    #export ROW edge results
+    b.ROW_edge_export(**kwargs)
+    #export single CrossSection plots
+    for xc in b:
+        fig = emf_plots.plot_max_fields(xc, **kwargs)
+        plt.close(fig)
+    #export group comparison plots
+    emf_plots.plot_groups(b, **kwargs)
+    return(b)
+
 def path_manage(filename_if_needed, extension, **kwargs):
     """This function takes a path string through the kwarg 'path' and
     returns a path string with a file name at it's end, to save a file
@@ -150,18 +227,20 @@ def path_manage(filename_if_needed, extension, **kwargs):
             extension = '.' + extension
     #construct the path
     if('path' in kwargs.keys()):
-        p = path.normcase(kwargs['path'])
+        p = os.path.normcase(kwargs['path'])
         #if there's a filename_if_needed argument and a 'path' keyword, assume
         #the 'path' argument is a directory. Append a slash if it has no
         #leading director(y/ies)
         if(filename_if_needed and p):
-            if(all(path.split(p))):
+            if(all(os.path.split(p))):
                 p += '/'
         #split the path
-        head,tail = path.split(p)
+        head,tail = os.path.split(p)
         #check that head describes an existing directory if it isn't empty
-        if(head and (not path.isdir(head))):
-            raise(emf_class.EMFError('"%s" was not recognized as an existing directory, invalid path string' % head))
+        if(head and (not os.path.isdir(head))):
+            raise(emf_class.EMFError("""
+            "%s" was not recognized as an existing directory,
+            invalid path string""" % head))
         #if a file name lies at the end of p, replace its extension
         if(tail):
             if('.' in tail):
@@ -176,33 +255,21 @@ def path_manage(filename_if_needed, extension, **kwargs):
     #if 'path' kwarg is empty or missing
     return(filename_if_needed + extension)
 
-def run(template_path, **kwargs):
-    """Import the templates in an excel file with the path 'template_path'
-    then generate a workbook of all fields results and accompanying plots.
-    Use the 'path' keyword argument to specify a destination for the output,
-    otherwise it will be save to the active directory, Finer control of the
-    output, like x-distance cutoffs for the plots, is given up by the use of
-    this function but it's a fast way to generate all the results. Returns
-    a SectionBook object of the imported template.
+def check_extention(file_path, correct_ext, message):
+    """Check that a file path has the desired extention, raising an error if
+    not and appending the correct extension if no extension is present.
     args:
-        template_path - path to cross section template excel workbook
-    kwargs:
-        sheets - a list of sheet names to load, default is all sheets
-        path - string, destination/filename for saved files
-        format - string, saved plot format (usually 'png' or 'pdf')
-        xmax - cutoff distance from ROW center in plots"""
-    #force saving for the plotting functions if there is no 'path' keyword
-    kwargs['save'] = True
-    #import templates
-    b = load_template(template_path)
-    #export the full results workbook
-    b.full_export(**kwargs)
-    #export ROW edge results
-    b.ROW_edge_export(**kwargs)
-    #export single CrossSection plots
-    for xc in b:
-        fig = emf_plots.plot_max_fields(xc, **kwargs)
-        plt.close(fig)
-    #export group comparison plots
-    emf_plots.plot_groups(b, **kwargs)
-    return(b)
+        file_path - a target file path
+        correct_ext - the correct extension for the target path
+        message - error message if the extention is wrong
+    returns:
+        file_path"""
+    if(correct_ext[0] == '.'):
+        correct_ext = correct_ext[1:]
+    if('.' in file_path):
+        ext = file_path[file_path.index('.')+1:]
+        if(not (correct_ext == ext)):
+            raise(emf_class.EMFError(message))
+    else:
+        file_path += '.' + correct_ext
+    return(file_path)

@@ -35,6 +35,12 @@ emf_plots_colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
 #-------------------------------------------------------------------------------
 #general plotting support functions
 
+def ion():
+    plt.ion()
+
+def show():
+    plt.show()
+
 def format_axes_legends(*args):
     """Apply axis formatting commands to axes objects
     args: some number of axis objects"""
@@ -201,12 +207,12 @@ def plot_Bmax(xc, **kwargs):
     #adjust axis limits
     ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Bmax']))
     #plot ROW lines
-    hROW, lROW = plot_ROW_and_adjust(ax, xc.lROW, xc.rROW)
+    hROW, lROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)')
     ax.set_ylabel('Maximum Magnetic Field (mG)')
-    if('title' in keys):
-        t = k['title']
+    if('title' in kwargs):
+        t = kwargs['title']
     else:
         t = 'Maximum Magnetic Field - %s' % xc.title
     ax.set_title(t)
@@ -243,12 +249,12 @@ def plot_Emax(xc, **kwargs):
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)')
     ax.set_ylabel('Maximum Electric Field (kV/m)')
-    if('title' in keys):
-        t = k['title']
+    if('title' in kwargs):
+        t = kwargs['title']
     else:
         t = 'Maximum Electric Field - %s' % xc.title
     ax.set_title(t)
-    ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
+    ax.legend(hE + hw + hROW, lE + lw + lROW, numpoints = 1)
     format_axes_legends(ax)
     #save the fig or don't, depending on keywords
     save_fig(xc.name, fig, **kwargs)

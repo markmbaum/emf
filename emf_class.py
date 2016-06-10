@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from os import path
 
 import emf_funks
 import emf_plots
@@ -54,11 +53,25 @@ class CrossSection:
         self.step = None #step size for calculations
         self.sample_height = 3. #uniform sample height
         self.lROW = None #exact coordinate of the left ROW edge
-        self.lROWi = None #self.fields index closest to self.lROW
+        self.lROWi = None #integer index of x_sample closest to self.lROW
         self.rROW = None #exact coordinate of the left ROW edge
-        self.rROWi = None #self.fields index closest to self.rROW
+        self.rROWi = None #integer index of x_sample closest to self.rROW
         self.hot = [] #list of Conductor objects with nonzero voltage
         self.gnd = [] #list of Conductor objects with zero voltage
+        #arrays with unlabeled conductor data for fast passing to emf_calcs
+        #needs to be updated with calculate_fields() if conductors change
+        #these arrays store hot conductor info first, then the grounded lines
+        self.x = np.empty((0,)) #x coordinates
+        self.y = np.empty((0,)) #y coordinates
+        self.subconds = np.empty((0,)) #number of subconductors per bundles
+        self.d_cond = np.empty((0,)) #conductor diameters
+        self.d_bund = np.empty((0,)) #bundle diameters
+        self.V = np.empty((0,)) #ilne voltages
+        self.I = np.empty((0,)) #line currents
+        self.phase = np.empty((0,)) #phase angles
+        self.sample_x = np.empty((0,)) #x coordinates of sample points
+        self.sample_y = np.empty((0,)) #y coordinates of sample points
+        #DataFrame storing results, populated with calculate_fields()
         self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
                                             'Ex','Ey','Eprod','Emax'])
 
@@ -73,72 +86,46 @@ class CrossSection:
         s += '\ninspect self.fields separately to see field simulation results\n'
         return(s)
 
-    def fetch(self, v):
-        """Collect variables from all Conductors stored in the CrossSection
-        into a numpy array, using the variable name as a string.
-        args:
-            v - string, variable name to fetch"""
-        if(not (v in vars(Conductor()).keys())):
-            raise(EMFError('"%s" is not a Conductor class variable, could not be fetched.'))
-        a = []
-        for c in (self.hot + self.gnd):
-            exec('a.append(c.' + v + ')')
-        return(np.array(a))
-
     def calculate_fields(self):
         """Calculate electric and magnetic fields across the ROW and store the
-        results in the self.fields DataFrame"""
-        #calculate sample points
+        results in the self.fields DataFrame. This function also initializes
+        many CrossSection variables, so it's wise to run it as soon as the
+        all CrossSection data is entered or whenever it changes."""
+        #calculate sample point coordinates
         N = 1 + 2*self.max_dist/self.step
-        x = np.linspace(-self.max_dist, self.max_dist, num = N)
-        y = self.sample_height*np.ones((N,))
+        self.x_sample = np.linspace(-self.max_dist, self.max_dist, num = N)
+        self.y_sample = self.sample_height*np.ones((N,))
         #assemble all the conductor data in arrays for calculations
         conds = self.hot + self.gnd
-        x_c, y_c = np.array([c.x for c in conds]), np.array([c.y for c in conds])
-        subc = np.array([c.subconds for c in conds])
-        d_c = np.array([c.d_cond for c in conds])
-        d_b = np.array([c.d_bund for c in conds])
-        V, I = np.array([c.V for c in conds]), np.array([c.I for c in conds])
-        ph = np.array([c.phase for c in conds])
+        self.x = np.array([c.x for c in conds])
+        self.y = np.array([c.y for c in conds])
+        self.subconds = np.array([c.subconds for c in conds])
+        self.d_cond = np.array([c.d_cond for c in conds])
+        self.d_bund = np.array([c.d_bund for c in conds])
+        self.V = np.array([c.V for c in conds])
+        self.I = np.array([c.I for c in conds])
+        self.phase = np.array([c.phase for c in conds])
         #calculate electric field
-        Ex, Ey = emf_calcs.E_field(x_c, y_c, subc, d_c, d_b, V, ph, x, y)
-        Ex, Ey, Eprod, Emax = emf_funks.phasors_to_magnitudes(Ex, Ey)
+        Ex, Ey = emf_calcs.E_field(self.x, self.y, self.subconds, self.d_cond,
+            self.d_bund, self.V, self.phase, self.x_sample, self.y_sample)
+        Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
         #calculate magnetic field
-        Bx, By = emf_calcs.B_field(x_c, y_c, I, ph, x, y)
-        Bx, By, Bprod, Bmax = emf_funks.phasors_to_magnitudes(Bx, By)
+        Bx, By = emf_calcs.B_field(self.x, self.y, self.I, self.phase,
+            self.x_sample, self.y_sample)
+        Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
         #store the values
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
-                                    index = x)
+                                    index = self.x_sample)
         #update ROW edge index variables
         #if ROW edge lies between two sample points, use the one closer to zero
-        d = np.absolute((self.fields.index - self.lROW).values)
-        self.lROWi = max(self.fields.index[d == np.min(d)])
+        d = np.absolute(self.x_sample - self.lROW)
+        self.lROWi = max(np.where(d == np.min(d))[0])
         #if ROW edge lies between two sample points, use the one closer to zero
-        d = np.absolute((self.fields.index - self.rROW).values)
-        self.rROWi = min(self.fields.index[d == np.min(d)])
+        d = np.absolute(self.x_sample - self.rROW)
+        self.rROWi = min(np.where(d == np.min(d))[0])
         #return the fields dataframe
         return(self.fields)
-
-    def optimize_phasing(self):
-        """Permute the phasing of the non-grounded conductors and find the
-        arrangement that results in the lowest fields at the left and right
-        edge of the ROW. The number of hot conductors must be a multiple of
-        three. The phases of consecutive groups of three conductors are
-        swapped around, assuming that those groups represent a single
-        three-phase transfer circuit."""
-        #check the number of hot lines
-        if(self.N_hot % 3 != 0):
-            raise(EMFError('The number of hot (not grounded) conductors must be a multiple of three.'))
-        #number of 3 phase groups
-        G = self.N_hot/3
-        #number of permutations
-        N = 6*G
-        #all permutations of a single three phase group
-        perm = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]]
-        #variables to store results of permutations
-        #
-        #...to be continued?
 
     def compare_DAT(self, DAT_path, **kwargs):
         """Load a FIELDS output file (.DAT), find absolute and percentage
@@ -163,7 +150,10 @@ class CrossSection:
                             index_col = 0)
         #check dataframe shape compatibility
         if(df.shape != self.fields.shape):
-            raise(EMFError('self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes. Be sure to target the correct .DAT file and that it has compatible DIST values.' % self.name))
+            raise(EMFError("""
+            self.fields in CrossSection named "%s" and the imported .DAT
+            DataFrame have different shapes. Be sure to target the correct
+            .DAT file and that it has compatible DIST values.""" % self.name))
         #prepare a dictionary to create a Panel
         keys = kwargs.keys()
         if(('round' in keys) and ('truncate' in keys)):
@@ -189,6 +179,12 @@ class CrossSection:
         print('DAT comparison book saved to: %s' % fn)
         #make plots of the absolute and percent error
         figs = emf_plots.plot_DAT_comparison(self, pan, **kwargs)
+
+        def ion(self):
+            emf_plots.ion()
+
+        def show(self):
+            emf_plots.show()
 
 class SectionBook:
     """Top level class organizing a group of CrossSection objects. Uses a
@@ -240,6 +236,16 @@ class SectionBook:
         """Get a CrossSection object by it's numeric index in self.xcs"""
         return(self.xcs[idx])
 
+    def sample(self, *args):
+        """Get a random CrossSection from the SectionBook
+        args:
+            any input integer determines the number of random xcs fetched"""
+        if(len(args) == 0):
+            return(self.xcs[np.random.randint(len(self))])
+        else:
+            r = np.random.randint(len(self), size = args[0])
+            return([self.xcs[i] for i in r])
+
     def add_section(self, xc):
         """Add a CrossSection to the book. Doing so by directly altering
         self.xcs will make the CrossSections inaccessible by __getitem__
@@ -247,7 +253,10 @@ class SectionBook:
         and use this method instead."""
         #Prevent adding CrossSections with the same names
         if(xc.name in self.names):
-            raise(EMFError('CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self.name2idx). Use a different name.' % xc.name))
+            raise(EMFError("""
+            CrossSection name "%s" already exists in the SectionBook.
+            Duplicate names would cause collisions in the lookup dictionary
+            (self.name2idx). Use a different name.""" % xc.name))
         else:
             self.name2idx[xc.name] = len(self.xcs)
             self.xcs.append(xc)
@@ -289,6 +298,12 @@ class SectionBook:
             xc.fields.to_excel(xlwriter, sheet_name = xc.name)
         print('Full SectionBook results written to: "%s"' % fn)
 
+    def ion(self):
+        emf_plots.ion()
+
+    def show(self):
+        emf_plots.show()
+
     #---------------------------------------------------------------------------
     #functions that update SectionBook variables when CrossSections are done
     #being added or when CrossSection data changes
@@ -315,10 +330,10 @@ class SectionBook:
         titles = []
         for i in range(L):
             xc = self.i(i)
-            Bl[i] = xc.fields['Bmax'][xc.lROWi]
-            Br[i] = xc.fields['Bmax'][xc.rROWi]
-            El[i] = xc.fields['Emax'][xc.lROWi]
-            Er[i] = xc.fields['Emax'][xc.rROWi]
+            Bl[i] = xc.fields['Bmax'].iat[xc.lROWi]
+            Br[i] = xc.fields['Bmax'].iat[xc.rROWi]
+            El[i] = xc.fields['Emax'].iat[xc.lROWi]
+            Er[i] = xc.fields['Emax'].iat[xc.rROWi]
             titles.append(xc.title)
         #construct DataFrame
         data = {'name' : self.names, 'title' : titles,
