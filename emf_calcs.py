@@ -118,7 +118,7 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
             theta = np.arctan(abs(dy/dx))
             #x component calculated with sine and y component with cosine
             #because the field is perpendicular to the line to the conductor,
-            #potentially contrary to one's first instince that sine goes
+            #potentially contrary to one's first instinct that sine goes
             #with y components and cosine with x components, but it's right
             Bx[a] -= np.sign(dy)*np.sin(theta)*B
             By[a] += np.sign(dx)*np.cos(theta)*B

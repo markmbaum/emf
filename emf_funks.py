@@ -169,6 +169,92 @@ def optimize_phasing(xc):
 
     return(results)
 
+def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
+    """Increase conductor y coordinates until fields at ROW edges are below
+    thresholds. All selected conductors are adjusted by same amount.
+    args:
+        B_l - magnetic field threshold at left ROW edge
+        B_r - magnetic field threshold at right ROW edge
+        E_l - electric field threshold at left ROW edge
+        E_r - electric field threshold at right ROW edge
+        hot - indices of hot conductors in self.hot to raise
+        gnd - indices of ground conductors in self.gnd to raise
+    returns:
+        h_B_l - height adjustment necessary for left magnetic field
+        h_B_r - height adjustment necessary for right magnetic field
+        h_E_l - height adjustment necessary for left electric field
+        h_E_r - height adjustment necessary for right electric field"""
+    #maximum number of iterations, lots of breathing room
+    max_iter = 1e4
+    hlow = 0
+    hhigh = 1.0e5
+    #flattened indices
+    conds = np.array(hot + [len(xc.hot) + i for i in gnd])
+    print(conds)
+    #run secant method to find adjustments for each target
+    h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
+    if(B_l):
+        h_B_l = bisect(xc, conds, xc.lROWi, B_funk, B_l, hlow, hhigh, max_iter)
+    if(B_r):
+        h_B_r = bisect(xc, conds, xc.rROWi, B_funk, B_r, hlow, hhigh, max_iter)
+    if(E_l):
+        h_E_l = bisect(xc, conds, xc.lROWi, E_funk, E_l, hlow, hhigh, max_iter)
+    if(E_r):
+        h_E_r = bisect(xc, conds, xc.rROWi, E_funk, E_r, hlow, hhigh, max_iter)
+    return(h_B_l, h_B_r, h_E_l, h_E_r)
+
+def bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter):
+    flow = funk(hlow, target, xc, conds, sample_idx)
+    fhigh = funk(hhigh, target, xc, conds, sample_idx)
+    if(flow*fhigh > 0.):
+        raise(emf_class.EMFError("""
+        The root is not bracketed.
+            Initial guess for h = %g: %g
+            Initial guess for h = %g: %g"""
+        % (hlow, flow, hhigh, fhigh)))
+    hmid = (hhigh + hlow)/2.0
+    fmid = funk(hmid, target, xc, conds, sample_idx)
+    count = 1
+    while(((hhigh - hlow)/target > 1.0e-6) and (count < max_iter)):
+        #test and throw half out
+        if(fmid*flow > 0.):
+            hlow = hmid
+        elif(fmid*fhigh > 0.):
+            hhigh = hmid
+        #evaluate at middle
+        hmid = (hhigh + hlow)/2.0
+        fmid = funk(hmid, target, xc, conds, sample_idx)
+        #print(hmid, fmid)
+        #increment
+        #print xc.y
+        count += 1
+    if(count == max_iter):
+        raise(emf_class.EMFError("""
+        Divergence in bisection method. Iteration limit of %d was exceeded."""
+        % max_iter))
+    print(hmid)
+    return(hmid)
+
+def B_funk(h, target, xc, conds, sample_idx):
+    i = sample_idx
+    y = xc.y.copy()
+    y[conds] = y[conds] + h
+    Bx, By = emf_calcs.B_field(xc.x, y, xc.I, xc.phase,
+        xc.x_sample[i:i+1], xc.y_sample[i:i+1])
+    Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
+    return(Bmax[0] - target)
+
+def E_funk(h, target, xc, conds, sample_idx):
+    i = sample_idx
+    y = xc.y.copy()
+    y[conds] = y[conds] + h
+    #print y, i, xc.x_sample[i:i+1], xc.y_sample[i:i+1]
+    #calculate electric field
+    Ex, Ey = emf_calcs.E_field(xc.x, y, xc.subconds, xc.d_cond,
+        xc.d_bund, xc.V, xc.phase, xc.x_sample[i:i+1], xc.y_sample[i:i+1])
+    Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
+    return(Emax[0] - target)
+
 def run(template_path, **kwargs):
     """Import the templates in an excel file with the path 'template_path'
     then generate a workbook of all fields results and accompanying plots.

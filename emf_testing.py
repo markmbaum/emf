@@ -2,13 +2,15 @@ import emf
 import cProfile
 import pstats
 
+#emf.run('practice_xcs.xlsx', path = 'run-dest/')
+
 sb = emf.load_template('practice_xcs.xlsx')
 
-cProfile.run("""
-opt = emf.optimize_phasing(sb['HL_P'])
-""",
+xc = sb['32P']
+print(xc.y)
+print(emf.target_fields(xc, None, 10., None, .05, range((len(xc.hot))), range(len(xc.gnd))))
+
+"""cProfile.run(,
 filename = 'profile')
 
-opt.to_excel('optimize_phasing_test2.xlsx')
-
-pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)
+pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)"""

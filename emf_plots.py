@@ -18,12 +18,12 @@ mpl.rcParams['legend.borderaxespad'] = 0 #default is None
 mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
-#other more specific and dynamic global formatting variables
+#other more specific/dynamic global formatting variables
 emf_plots_B_color = 'darkgreen'
 emf_plots_E_color = 'midnightblue'
 emf_plots_fields_linewidth = 2
-emf_plots_ROW_color = 'gray'
 emf_plots_ROW_linewidth = 0.75
+emf_plots_ROW_color = 'gray'
 emf_plots_ax_frameon = False
 emf_plots_ax_ticks_on = False
 emf_plots_leg_edge_on = False

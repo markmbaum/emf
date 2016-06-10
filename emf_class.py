@@ -105,14 +105,14 @@ class CrossSection:
         self.V = np.array([c.V for c in conds])
         self.I = np.array([c.I for c in conds])
         self.phase = np.array([c.phase for c in conds])
-        #calculate electric field
-        Ex, Ey = emf_calcs.E_field(self.x, self.y, self.subconds, self.d_cond,
-            self.d_bund, self.V, self.phase, self.x_sample, self.y_sample)
-        Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
         #calculate magnetic field
         Bx, By = emf_calcs.B_field(self.x, self.y, self.I, self.phase,
             self.x_sample, self.y_sample)
         Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
+        #calculate electric field
+        Ex, Ey = emf_calcs.E_field(self.x, self.y, self.subconds, self.d_cond,
+            self.d_bund, self.V, self.phase, self.x_sample, self.y_sample)
+        Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
         #store the values
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
