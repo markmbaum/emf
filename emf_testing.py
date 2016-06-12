@@ -7,10 +7,8 @@ import pstats
 sb = emf.load_template('practice_xcs.xlsx')
 
 xc = sb['32P']
-print(xc.y)
-print(emf.target_fields(xc, None, 10., None, .05, range((len(xc.hot))), range(len(xc.gnd))))
 
-"""cProfile.run(,
+cProfile.run('emf.optimize_phasing(xc)',
 filename = 'profile')
 
-pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)"""
+pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

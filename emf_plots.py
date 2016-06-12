@@ -67,19 +67,16 @@ def save_fig(filename_if_needed, fig, **kwargs):
         path - string, destination/filename for saved figure
         format - string, saved plot format/extension (default 'png')"""
     #force saving if a path is passed in
-    if('path' in kwargs.keys()):
+    if('path' in kwargs):
         kwargs['save'] = True
-    #save the fig, or don't
-    k = kwargs
-    keys = k.keys()
     #condition filename and format strings for saving
-    if('save' in keys):
-        if(k['save']):
+    if('save' in kwargs):
+        if(kwargs['save']):
             #get filename
             fn = emf_funks.path_manage(filename_if_needed, '', **kwargs)
             #get format/extension
-            if('format' in keys):
-                fmt = k['format']
+            if('format' in kwargs):
+                fmt = kwargs['format']
                 if('.' in fmt):
                     fmt = fmt[fmt.index('.')+1:]
             else:
@@ -120,16 +117,14 @@ def prepare_fig(xc, **kwargs):
         figure - figure object to recycle, if needed
         xmax - cutoff distance from the ROW center"""
     #prepare figure and axis
-    k = kwargs
-    keys = k.keys()
-    if('figure' in keys):
-        fig = k['figure']
+    if('figure' in kwargs):
+        fig = kwargs['figure']
     else:
         fig = plt.figure()
     ax = plt.gca()
     #get x cutoff, if any
-    if('xmax' in keys):
-        xmax = abs(k['xmax'])
+    if('xmax' in kwargs):
+        xmax = abs(kwargs['xmax'])
     else:
         xmax = max(abs(xc.fields.index))
     #get appropriate linestyle based on number of sample points
@@ -201,7 +196,7 @@ def plot_Bmax(xc, **kwargs):
     #plot the field curve
     hB = ax.plot(xc.fields['Bmax'][-xmax:xmax], linesym,
             color = emf_plots_B_color, linewidth = emf_plots_fields_linewidth)
-    lB = ['Magnetic Field (mg)']
+    lB = ['Magnetic Field (mG)']
     #plot wires
     hw, lw = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'])
     #adjust axis limits
@@ -292,7 +287,7 @@ def plot_max_fields(xc, **kwargs):
     ax_B.set_xlabel('Distance from Center of ROW (ft)')
     ax_B.set_ylabel('Maximum Magnetic Field (mG)', color = emf_plots_B_color)
     ax_E.set_ylabel('Maximum Electric Field (kV/m)', color = emf_plots_E_color)
-    if('title' in kwargs.keys()):
+    if('title' in kwargs):
         t = kwargs['title']
     else:
         t = 'Maximum Magnetic and Electric Fields - %s' % xc.title
@@ -398,7 +393,7 @@ def plot_group_fields(ax, xcs, field, **kwargs):
     kwargs:
         xmax - cutoff distance from ROW center"""
     #check for an xmax keyword
-    if('xmax' in kwargs.keys()):
+    if('xmax' in kwargs):
         xmax = kwargs['xmax']
     else:
         xmax = False

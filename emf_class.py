@@ -155,12 +155,11 @@ class CrossSection:
             DataFrame have different shapes. Be sure to target the correct
             .DAT file and that it has compatible DIST values.""" % self.name))
         #prepare a dictionary to create a Panel
-        keys = kwargs.keys()
-        if(('round' in keys) and ('truncate' in keys)):
+        if(('round' in kwargs) and ('truncate' in kwargs)):
             raise(FLDError('Cannot both round and truncate for DAT comparison. Choose either rounding or truncation.'))
-        elif('round' in keys):
+        elif('round' in kwargs):
             f = self.fields.round(kwargs['round'])
-        elif('truncate' in keys):
+        elif('truncate' in kwargs):
             if(kwargs['truncate']):
                 f = self.fields.copy(deep = True)
                 for c in f.columns:
@@ -276,15 +275,17 @@ class SectionBook:
         h = ['Name','Title','Bmax - Left ROW Edge','Bmax - Right ROW Edge',
                 'Emax - Left ROW Edge','Emax - Right ROW Edge']
         excel = False
-        if('file_type' in kwargs.keys()):
+        if('file_type' in kwargs):
             if(kwargs['file_type'] == 'excel'):
                 excel = True
         if(excel):
-            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.xlsx', **kwargs)
+            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.xlsx',
+                **kwargs)
             self.ROW_edge_max.to_excel(fn, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
-            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.csv', **kwargs)
+            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.csv',
+                **kwargs)
             self.ROW_edge_max.to_csv(fn, index = False, columns = c, header = h)
         print('Maximum fields at ROW edges written to: "%s"' % fn)
 
