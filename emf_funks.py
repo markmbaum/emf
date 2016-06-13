@@ -89,11 +89,11 @@ def load_template(file_path, **kwargs):
             cond.I = 0.
             cond.phase = 0.
             xc.gnd.append(cond)
-        #calculate electric and magnetic fields automatically
-        xc.calculate_fields()
         #add the CrossSection object to the SectionBook
         xcs.add_section(xc)
-    #update the SectionBook's remaining variables
+    #update the SectionBook, which initiates fields calculations and
+    #population of lots of other variables in the CrossSection and SectionBook
+    #objects
     xcs.update()
     #return the SectionBook object
     return(xcs)
@@ -118,26 +118,27 @@ def optimize_phasing(xc):
     #number of circuits, groups of 3 hot conductors
     G = int(N/3)
     #all permutations of the phases of each 3 line circuit
-    perm = list(itertools.permutations([0,1,2]))
+    perm = []
+    for i in range(G):
+        perm.append(list(itertools.permutations(range(i*3,i*3 + 3))))
     #all possible arrangements of line phasings, 6 permutations for each circuit
     #so 6^(N/3) total line arrangements
-    P = list(itertools.product(perm, repeat = G))
+    P = list(itertools.product(*perm))
     #flatten the elements of P
     for i in range(len(P)):
         P[i] = [item for sublist in P[i] for item in sublist]
-    #turn it into an array and add multiples of 3 to the appropriate columns
+    #turn P into an array
     P = np.array(P, dtype = int)
-    for i in range(3, P.shape[1], 3):
-        P[:,i:i+3] += i
-    print('Optimizing phasing of CrossSection %s, with %d hot conductors'
+    #notifications, remove later
+    print('Optimizing phasing of CrossSection "%s", with %d hot conductors'
         % (xc.name, len(xc.hot)))
     print('Number of permutations to test = 6^(%d/3) = %d'
         % (len(xc.hot), P.shape[0]))
     #variables to find the minima with respect to each field and ROW edge
-    B_left_min, B_left_idx = np.inf, -1
-    B_right_min, B_right_idx = np.inf, -1
-    E_left_min, E_left_idx = np.inf, -1
-    E_right_min, E_right_idx = np.inf, -1
+    B_left_min, B_left_idx, B_right_min, B_right_idx = np.inf, -1, np.inf, -1
+    E_left_min, E_left_idx, E_right_min, E_right_idx = np.inf, -1, np.inf, -1
+    #make sure the necessary CrossSection variables are set
+    xc.update_data()
     #loop through all possible combinations in P
     x_ROW = np.array([xc.x_sample[xc.lROWi], xc.x_sample[xc.rROWi]])
     y_ROW = np.array([xc.y_sample[xc.lROWi], xc.y_sample[xc.rROWi]])
@@ -204,6 +205,8 @@ def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
     hhigh = 1.0e6
     #flattened indices
     conds = np.array(list(hot) + [len(xc.hot) + i for i in gnd])
+    #make sure the necessary CrossSection variables are set
+    xc.update_data()
     #run secant method to find adjustments for each target
     h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
     if(B_l):
@@ -344,8 +347,9 @@ def path_manage(filename_if_needed, extension, **kwargs):
         #check that head describes an existing directory if it isn't empty
         if(head and (not os.path.isdir(head))):
             raise(emf_class.EMFError("""
-            "%s" was not recognized as an existing directory,
-            invalid path string""" % head))
+            "%s"
+            was not recognized as an existing directory, invalid path string"""
+            % head))
         #if a file name lies at the end of p, replace its extension
         if(tail):
             if('.' in tail):
@@ -365,7 +369,8 @@ def check_extention(file_path, correct_ext, message):
     not and appending the correct extension if no extension is present.
     args:
         file_path - a target file path
-        correct_ext - the correct extension for the target path
+        correct_ext - the correct extension for the target path, with or
+                      without the period
         message - error message if the extention is wrong
     returns:
         file_path"""
@@ -378,3 +383,49 @@ def check_extention(file_path, correct_ext, message):
     else:
         file_path += '.' + correct_ext
     return(file_path)
+
+def read_DAT(file_path):
+    """Read a DAT file, which can have some funky extra characters if the
+    numbers are too large (percent signs)"""
+    check_extention(file_path, 'DAT', """
+        Input file must have a '.DAT' extension.""")
+    #load data
+    with open(file_path,'r') as ifile:
+        #read through the header
+        for i in range(3):
+            ifile.readline()
+        #get the data
+        x,Bx,By,Bprod,Bmax,Ex,Ey,Eprod,Emax = [],[],[],[],[],[],[],[],[]
+        line = ifile.readline()
+        while(line):
+            if(line):
+                if(line[0][0] == '%'):
+                    line += ifile.readline()
+            temp = [i.replace('%','') for i in line.split()]
+            if(temp and all([is_number(i) for i in temp])):
+                x.append(float(temp[0]))
+                Bx.append(float(temp[1]))
+                By.append(float(temp[2]))
+                Bprod.append(float(temp[3]))
+                Bmax.append(float(temp[4]))
+                Ex.append(float(temp[5]))
+                Ey.append(float(temp[6]))
+                Eprod.append(float(temp[7]))
+                Emax.append(float(temp[8]))
+            line = ifile.readline()
+    return(pd.DataFrame(data = {
+        'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
+        'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax}, index = x))
+
+def is_number(s):
+    """Check if an element can be converted to a float, returning `True`
+    if it can and `False` if it can't"""
+    if(s == None):
+        return(False)
+    else:
+        try:
+            float(s)
+        except ValueError:
+            return(False)
+        else:
+            return(True)

@@ -86,15 +86,19 @@ class CrossSection:
         s += '\ninspect self.fields separately to see field simulation results\n'
         return(s)
 
-    def calculate_fields(self):
-        """Calculate electric and magnetic fields across the ROW and store the
-        results in the self.fields DataFrame. This function also initializes
-        many CrossSection variables, so it's wise to run it as soon as the
-        all CrossSection data is entered or whenever it changes."""
+    def update_data(self):
+        """Populate the CrossSection objects numpy array attributes"""
         #calculate sample point coordinates
         N = 1 + 2*self.max_dist/self.step
         self.x_sample = np.linspace(-self.max_dist, self.max_dist, num = N)
         self.y_sample = self.sample_height*np.ones((N,))
+        #update ROW edge index variables
+        #if ROW edge lies between two sample points, use the one closer to zero
+        d = np.absolute(self.x_sample - self.lROW)
+        self.lROWi = max(np.where(d == np.min(d))[0])
+        #if ROW edge lies between two sample points, use the one closer to zero
+        d = np.absolute(self.x_sample - self.rROW)
+        self.rROWi = min(np.where(d == np.min(d))[0])
         #assemble all the conductor data in arrays for calculations
         conds = self.hot + self.gnd
         self.x = np.array([c.x for c in conds])
@@ -105,6 +109,14 @@ class CrossSection:
         self.V = np.array([c.V for c in conds])
         self.I = np.array([c.I for c in conds])
         self.phase = np.array([c.phase for c in conds])
+
+    def calculate_fields(self):
+        """Calculate electric and magnetic fields across the ROW and store the
+        results in the self.fields DataFrame. This function also initializes
+        many CrossSection variables, so it's wise to run it as soon as the
+        all CrossSection data is entered or whenever it changes."""
+        #populate flat array variables with all Conductor data
+        self.update_data()
         #calculate magnetic field
         Bx, By = emf_calcs.B_field(self.x, self.y, self.I, self.phase,
             self.x_sample, self.y_sample)
@@ -117,15 +129,18 @@ class CrossSection:
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
                                     index = self.x_sample)
-        #update ROW edge index variables
-        #if ROW edge lies between two sample points, use the one closer to zero
-        d = np.absolute(self.x_sample - self.lROW)
-        self.lROWi = max(np.where(d == np.min(d))[0])
-        #if ROW edge lies between two sample points, use the one closer to zero
-        d = np.absolute(self.x_sample - self.rROW)
-        self.rROWi = min(np.where(d == np.min(d))[0])
         #return the fields dataframe
         return(self.fields)
+
+    def ROW_edge_values(self):
+        """Return the values of fields calculations at the left and right
+        ROW edges of the cross-section.
+        returns:
+            left - pandas Series with left ROW edge results
+            right - pandas Series with right ROW edge results"""
+        left = self.fields.iloc[self.lROWi]
+        right = self.fields.iloc[self.rROWi]
+        return(left, right)
 
     def compare_DAT(self, DAT_path, **kwargs):
         """Load a FIELDS output file (.DAT), find absolute and percentage
@@ -136,18 +151,18 @@ class CrossSection:
         args:
             DAT_path - path of FIELDS results file
         kwargs:
-            path - string, destination saved files
+            save - boolean, toggle whether output panel and figures are saved
+            path - string, destination of saved files, will force save == True
             round - int, round the results in self.fields to a certain
                     number of digits in an attempt to exactly match the
                     FIELDS results, which are printed only to the
                     thousandths digit
-            truncate - bool, truncate results after the thousandths digit"""
+            truncate - bool, truncate results after the thousandths digit
+        returns:
+            pan - pandas Panel with DAT results, results of this code,
+                  the absolute error between, and the relative error between"""
         #load the .DAT file into a dataframe
-        df = pd.read_table(DAT_path, skiprows = [0,1,2,3,4,5,6],
-                            delim_whitespace = True, header = None,
-                            names = ['Bx', 'By', 'Bprod', 'Bmax',
-                                    'Ex', 'Ey', 'Eprod', 'Emax'],
-                            index_col = 0)
+        df = emf_funks.read_DAT(DAT_path)
         #check dataframe shape compatibility
         if(df.shape != self.fields.shape):
             raise(EMFError("""
@@ -156,7 +171,9 @@ class CrossSection:
             .DAT file and that it has compatible DIST values.""" % self.name))
         #prepare a dictionary to create a Panel
         if(('round' in kwargs) and ('truncate' in kwargs)):
-            raise(FLDError('Cannot both round and truncate for DAT comparison. Choose either rounding or truncation.'))
+            raise(FLDError("""
+            Cannot both round and truncate for DAT comparison. Choose either
+            rounding or truncation."""))
         elif('round' in kwargs):
             f = self.fields.round(kwargs['round'])
         elif('truncate' in kwargs):
@@ -167,23 +184,31 @@ class CrossSection:
                         f[c].loc[i] = float('%.3f' % f[c].loc[i])
         else:
             f = self.fields
-        comp = {'FIELDS_output' : df,
-                'New_model_output' : f,
+        comp = {'FIELDS_DAT_results' : df,
+                'emf_results' : f,
                 'Absolute Difference' : f - df,
                 'Percent Difference' : 100*(f - df)/f}
-        #write the frames to a spreadsheet
-        fn = emf_funks.path_manage(self.name + '-DAT_comparison', '.xlsx', **kwargs)
+        #wrap comparison DataFrames in a Panel
         pan = pd.Panel(data = comp)
-        pan.to_excel(fn, index_label = 'x')
-        print('DAT comparison book saved to: %s' % fn)
-        #make plots of the absolute and percent error
-        figs = emf_plots.plot_DAT_comparison(self, pan, **kwargs)
+        #write data and save figures if called for
+        if('path' in kwargs):
+            kwargs['save'] = True
+        if('save' in kwargs):
+            if(kwargs['save']):
+                fn = emf_funks.path_manage(self.name + '-DAT_comparison',
+                    '.xlsx', **kwargs)
+                pan.to_excel(fn, index_label = 'x')
+                print('DAT comparison book saved to: "%s"' % fn)
+                #make plots of the absolute and percent error
+                figs = emf_plots.plot_DAT_comparison(self, pan, **kwargs)
+        #return the Panel
+        return(pan)
 
-        def ion(self):
-            emf_plots.ion()
+    def ion(self):
+        emf_plots.ion()
 
-        def show(self):
-            emf_plots.show()
+    def show(self):
+        emf_plots.show()
 
 class SectionBook:
     """Top level class organizing a group of CrossSection objects. Uses a
@@ -276,7 +301,10 @@ class SectionBook:
                 'Emax - Left ROW Edge','Emax - Right ROW Edge']
         excel = False
         if('file_type' in kwargs):
-            if(kwargs['file_type'] == 'excel'):
+            file_type = kwargs['file_type']
+            if(file_type[0] == '.'):
+                file_type = file_type[1:]
+            if(file_type == 'excel'):
                 excel = True
         if(excel):
             fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.xlsx',
@@ -311,15 +339,15 @@ class SectionBook:
 
     def update(self):
         """Executes all of the update functions"""
-        self.update_tag_groups()
+        self.update_fields()
         self.update_ROW_edge_max()
+        self.update_tag_groups()
 
-    def update_tag_groups(self):
-        """Generate a list of lists of CrossSection indices with the same tag"""
-        u = list(set(self.tags)) #get unique CrossSection tags
-        self.tag_groups = [[] for i in range(len(u))]
-        for i in range(len(self.xcs)):
-            self.tag_groups[u.index(self.xcs[i].tag)].append(i)
+    def update_fields(self):
+        """run the fields calculations for each CrossSection in the
+        SectionBook"""
+        for xc in self:
+            xc.calculate_fields()
 
     def update_ROW_edge_max(self):
         """Execution populates the self.ROW_edge_max DataFrame with
@@ -337,6 +365,13 @@ class SectionBook:
             Er[i] = xc.fields['Emax'].iat[xc.rROWi]
             titles.append(xc.title)
         #construct DataFrame
-        data = {'name' : self.names, 'title' : titles,
-                'Bmaxl' : Bl, 'Emaxl' : El, 'Bmaxr' : Br, 'Emaxr' : Er}
-        self.ROW_edge_max = pd.DataFrame(data = data).sort_values('name')
+        self.ROW_edge_max = pd.DataFrame(data = {
+            'name' : self.names, 'title' : titles, 'Bmaxl' : Bl, 'Emaxl' : El,
+            'Bmaxr' : Br, 'Emaxr' : Er}).sort_values('name')
+
+    def update_tag_groups(self):
+        """Generate a list of lists of CrossSection indices with the same tag"""
+        u = list(set(self.tags)) #get unique CrossSection tags
+        self.tag_groups = [[] for i in range(len(u))]
+        for i in range(len(self.xcs)):
+            self.tag_groups[u.index(self.xcs[i].tag)].append(i)

@@ -43,7 +43,7 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
                 P[a,b] = C*np.log(np.sqrt(n/d))
 
     #initialize complex voltage phasors
-    V = V_cond*(np.cos(p_cond) + complex(1j)*np.sin(p_cond))
+    V = V_cond*(np.cos(p_cond) + complex(0,1)*np.sin(p_cond))
 
     #compute real and imaginary charge phasors
     Q = np.linalg.solve(P, V)
@@ -68,7 +68,7 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
         Ey[:,a] = ny1/d1 - ny2/d2
 
     #multiply the charges by the field coefficients calculated above
-    Q = np.tile(np.reshape(Q, (N, 1)), (1,Z))
+    Q = np.tile(np.reshape(Q, (N,1)), (1,Z))
     Ex = Ex*Q
     Ey = Ey*Q
 
