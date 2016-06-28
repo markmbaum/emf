@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import emf_funks
 import emf_plots
 import emf_calcs
+import fields_io
 
 class EMFError(Exception):
     """Exception class for emf specific errors"""
@@ -45,9 +46,9 @@ class CrossSection:
 
     def __init__(self, name):
         self.name = name #mandatory, short, generally template sheet name
-        self.title = '' #longer form, used for ploting text
+        self.title = '' #shorter form, quick ID
         self.tag = None #identifier linking multiple CrossSection objects
-        self.subtitle = '' #any extra information
+        self.subtitle = '' #longer form, used for plotting text
         self.soil_resistivity = 100. #?
         self.max_dist = None #maximum simulated distance from the ROW center
         self.step = None #step size for calculations
@@ -132,7 +133,7 @@ class CrossSection:
         #return the fields dataframe
         return(self.fields)
 
-    def ROW_edge_values(self):
+    def ROW_edge_fields(self):
         """Return the values of fields calculations at the left and right
         ROW edges of the cross-section.
         returns:
@@ -162,7 +163,7 @@ class CrossSection:
             pan - pandas Panel with DAT results, results of this code,
                   the absolute error between, and the relative error between"""
         #load the .DAT file into a dataframe
-        df = emf_funks.read_DAT(DAT_path)
+        df = fields_io.read_DAT(DAT_path)
         #check dataframe shape compatibility
         if(df.shape != self.fields.shape):
             raise(EMFError("""

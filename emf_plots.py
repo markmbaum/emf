@@ -56,6 +56,21 @@ def format_axes_legends(*args):
             rec = leg.get_frame()
             if(not emf_plots_leg_edge_on):
                 rec.set_edgecolor('white')
+    #take care of scaling problems caused by underground lines
+    if(len(args) > 1):
+        #get minimum y limit
+        ylow, yhigh = 0., 0.
+        for ax in args:
+            yl = ax.get_ylim()
+            if(yl[0] < ylow):
+                ylow = yl[0]
+                yhigh = yl[1]
+        #scale all axes identically so that they overlap at y = 0
+        if(ylow != 0.):
+            frac = ylow/yhigh
+            for ax in args:
+                yl = ax.get_ylim()
+                ax.set_ylim(frac*yl[1], yl[1])
 
 def save_fig(filename_if_needed, fig, **kwargs):
     """Snippet executed at the end of plotting methods to handle saving
@@ -148,8 +163,6 @@ def plot_wires(ax, hot, gnd, v):
     y = np.array([c.y for c in hot + gnd])
     #calculate the scaling factor
     scale = emf_plots_xc_wireperc*np.max(v)/np.max(np.absolute(y))
-    #bring underground lines to zero
-    y[y < 0.] = 0.
     #plot
     h, l = [], []
     if(hot):
@@ -200,7 +213,7 @@ def plot_Bmax(xc, **kwargs):
     #plot wires
     hw, lw = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'])
     #adjust axis limits
-    ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Bmax']))
+    #ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Bmax']))
     #plot ROW lines
     hROW, lROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
@@ -209,7 +222,7 @@ def plot_Bmax(xc, **kwargs):
     if('title' in kwargs):
         t = kwargs['title']
     else:
-        t = 'Maximum Magnetic Field - %s' % xc.title
+        t = 'Maximum Magnetic Field - %s' % xc.subtitle
     ax.set_title(t)
     ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
     format_axes_legends(ax)
@@ -237,8 +250,6 @@ def plot_Emax(xc, **kwargs):
     lE = ['Electric Field (kV/m)']
     #plot wires
     hw, lw = plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'])
-    #adjust axis limits
-    ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Emax']))
     #plot ROW lines
     hROW, lROW = plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
@@ -247,7 +258,7 @@ def plot_Emax(xc, **kwargs):
     if('title' in kwargs):
         t = kwargs['title']
     else:
-        t = 'Maximum Electric Field - %s' % xc.title
+        t = 'Maximum Electric Field - %s' % xc.subtitle
     ax.set_title(t)
     ax.legend(hE + hw + hROW, lE + lw + lROW, numpoints = 1)
     format_axes_legends(ax)
@@ -278,9 +289,6 @@ def plot_max_fields(xc, **kwargs):
     lf = ['Magnetic Field (mG)', 'Electric Field (kV/m)']
     #plot wires
     hw, lw = plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'])
-    #adjust axis limits
-    ax_B.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Bmax']))
-    ax_E.set_ylim(0, (1 + emf_plots_xc_headspace)*max(xc.fields['Emax']))
     #plot ROW lines
     hROW, lROW = plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
@@ -290,7 +298,7 @@ def plot_max_fields(xc, **kwargs):
     if('title' in kwargs):
         t = kwargs['title']
     else:
-        t = 'Maximum Magnetic and Electric Fields - %s' % xc.title
+        t = 'Maximum Magnetic and Electric Fields - %s' % xc.subtitle
     ax_B.set_title(t)
     #set color of axis spines and ticklabels
     color_twin_axes(ax_B, emf_plots_B_color, ax_E, emf_plots_E_color)
@@ -550,7 +558,7 @@ def plot_groups(sb, **kwargs):
         #plot wires
         hw, lw = plot_group_wires(ax, xcs, max_field)
         #adjust axis limits
-        ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max_field)
+        #ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max_field)
         #plot ROW lines
         hROW, lROW = plot_group_ROW_edges(ax, xcs)
         #set axis text and legend
@@ -558,10 +566,10 @@ def plot_groups(sb, **kwargs):
         ax.set_ylabel('Maximum Magnetic Field (mG)')
         t = 'Maximum Magnetic Field - '
         for i in range(len(xcs)):
-            t += xcs[i].title + ', '
+            t += xcs[i].subtitle + ', '
         t = t[:-2]
         ax.set_title(t)
-        ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1)
+        ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
         save_fig('group_%s-Bmax' % str(xcs[0].tag), fig, **kwargs)
@@ -576,7 +584,7 @@ def plot_groups(sb, **kwargs):
         #plot wires
         hw, lw = plot_group_wires(ax, xcs, max_field)
         #adjust axis limits
-        ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max_field)
+        #ax.set_ylim(0, (1 + emf_plots_xc_headspace)*max_field)
         #plot ROW lines
         hROW, lROW = plot_group_ROW_edges(ax, xcs)
         #set axis text and legend
@@ -584,10 +592,10 @@ def plot_groups(sb, **kwargs):
         ax.set_ylabel('Maximum Electric Field (kV/m)')
         t = 'Maximum Electric Field - '
         for i in range(len(xcs)):
-            t += xcs[i].title + ', '
+            t += xcs[i].subtitle + ', '
         t = t[:-2]
         ax.set_title(t)
-        ax.legend(h+hw+hROW, l+lw+lROW, numpoints = 1)
+        ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
         save_fig('group_%s-Emax' % str(xcs[0].tag), fig, **kwargs)

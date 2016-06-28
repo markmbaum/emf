@@ -2,12 +2,9 @@ import emf
 import cProfile
 import pstats
 
-#emf.run('practice_xcs.xlsx', path = 'run-dest/')
-sb = emf.load_template('practice_xcs')
+#emf.run(r"G:\Projects\215008_EMF_Woburn_Wakefield\Models\FIELDS_Stoneham\FIELDS_StonehamIRs.xlsx")
 
-fn = r"P:\MBaum\Programming\Python\python_code\FLD\XC-comparisons\32P.DAT"
-
-sb['32P'].compare_DAT(fn, save = True)
+emf.DAT_to_csv_crawl(r"G:\Projects\215008_EMF_Woburn_Wakefield\Models\FIELDS_Stoneham")
 
 """cProfile.run('emf.optimize_phasing(xc)',
 filename = 'profile')

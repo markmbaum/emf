@@ -302,12 +302,12 @@ def run(template_path, **kwargs):
     #export ROW edge results
     sb.ROW_edge_export(**kwargs)
     #export single CrossSection plots
-    for xc in b:
+    for xc in sb:
         fig = emf_plots.plot_max_fields(xc, **kwargs)
         plt.close(fig)
     #export group comparison plots
     emf_plots.plot_groups(sb, **kwargs)
-    return(b)
+    return(sb)
 
 def path_manage(filename_if_needed, extension, **kwargs):
     """This function takes a path string through the kwarg 'path' and
@@ -384,38 +384,7 @@ def check_extention(file_path, correct_ext, message):
         file_path += '.' + correct_ext
     return(file_path)
 
-def read_DAT(file_path):
-    """Read a DAT file, which can have some funky extra characters if the
-    numbers are too large (percent signs)"""
-    check_extention(file_path, 'DAT', """
-        Input file must have a '.DAT' extension.""")
-    #load data
-    with open(file_path,'r') as ifile:
-        #read through the header
-        for i in range(3):
-            ifile.readline()
-        #get the data
-        x,Bx,By,Bprod,Bmax,Ex,Ey,Eprod,Emax = [],[],[],[],[],[],[],[],[]
-        line = ifile.readline()
-        while(line):
-            if(line):
-                if(line[0][0] == '%'):
-                    line += ifile.readline()
-            temp = [i.replace('%','') for i in line.split()]
-            if(temp and all([is_number(i) for i in temp])):
-                x.append(float(temp[0]))
-                Bx.append(float(temp[1]))
-                By.append(float(temp[2]))
-                Bprod.append(float(temp[3]))
-                Bmax.append(float(temp[4]))
-                Ex.append(float(temp[5]))
-                Ey.append(float(temp[6]))
-                Eprod.append(float(temp[7]))
-                Emax.append(float(temp[8]))
-            line = ifile.readline()
-    return(pd.DataFrame(data = {
-        'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
-        'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax}, index = x))
+
 
 def is_number(s):
     """Check if an element can be converted to a float, returning `True`
