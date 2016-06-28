@@ -564,10 +564,7 @@ def plot_groups(sb, **kwargs):
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)')
         ax.set_ylabel('Maximum Magnetic Field (mG)')
-        t = 'Maximum Magnetic Field - '
-        for i in range(len(xcs)):
-            t += xcs[i].subtitle + ', '
-        t = t[:-2]
+        t = 'Maximum Magnetic Field - Conductor Group %s' % str(xcs[0].tag)
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
         format_axes_legends(ax)
@@ -590,10 +587,7 @@ def plot_groups(sb, **kwargs):
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)')
         ax.set_ylabel('Maximum Electric Field (kV/m)')
-        t = 'Maximum Electric Field - '
-        for i in range(len(xcs)):
-            t += xcs[i].subtitle + ', '
-        t = t[:-2]
+        t = 'Maximum Electric Field - Conductor Group %s' % str(xcs[0].tag)
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
         format_axes_legends(ax)

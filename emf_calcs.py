@@ -135,22 +135,21 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
     args:
         Ph_x - numpy vector or number, phasor x component
         Ph_y - numpy vector or number, phasor y component"""
-
     #amplitude along each component, storing squared magnitudes for later
     mag_x_sq = np.real(Ph_x)**2 + np.imag(Ph_x)**2
     mag_x = np.sqrt(mag_x_sq)
     mag_y_sq = np.real(Ph_y)**2 + np.imag(Ph_y)**2
     mag_y = np.sqrt(mag_y_sq)
     #phase angle of each component
-    phase_x = np.arctan(np.imag(Ph_x)/np.real(Ph_x))
-    phase_y = np.arctan(np.imag(Ph_y)/np.real(Ph_y))
+    phase_x = np.arctan2(np.imag(Ph_x), np.real(Ph_x))
+    phase_y = np.arctan2(np.imag(Ph_y), np.real(Ph_y))
     #"product"
     prod = np.sqrt(mag_x**2 + mag_y**2)
     #maximum resultant value found by setting the time derivative of the
     #squared resultant magnitude to zero (Appendix 8.1 EPRI's "Big Red Book")
     num = mag_x_sq*np.sin(2*phase_x) + mag_y_sq*np.sin(2*phase_y)
     den = mag_x_sq*np.cos(2*phase_x) + mag_y_sq*np.cos(2*phase_y)
-    t1 = (0.5)*np.arctan(-num/den)
+    t1 = (0.5)*np.arctan2(-num, den)
     t2 = t1 + np.pi/2
     term1 = mag_x_sq*(np.cos(t1 + phase_x))**2
     term2 = mag_y_sq*(np.cos(t1 + phase_y))**2
