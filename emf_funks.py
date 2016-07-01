@@ -47,10 +47,8 @@ def load_template(file_path, **kwargs):
         if(xc.title in titles):
             raise(emf_class.EMFError("""
             Cross-sections should have unique Main Title entries.
-            Main Title:
-                "%s"
-            in the sheet
-                "%s"
+            Main Title: "%s"
+            in sheet: "%s"
             is used by at least one other sheet.""" % (xc.title, k)))
         else:
             titles.append(xc.title)
@@ -98,29 +96,49 @@ def load_template(file_path, **kwargs):
     #return the SectionBook object
     return(xcs)
 
-def optimize_phasing(xc):
-    """Permute the phasing of the non-grounded conductors and find the
+def optimize_phasing(xc, circuits, **kwargs):
+    """Permute the phasing of non-grounded conductors and find the
     arrangement that results in the lowest fields at the left and right
     edge of the ROW. The number of hot conductors must be a multiple of
     three. The phases of consecutive groups of three conductors are
     swapped around, assuming that those groups represent a single
-    three-phase transfer circuit."""
-    #number of hot wires
-    N = len(xc.hot)
-    #check the number of hot lines
-    if(N % 3 != 0):
-        raise(emf_class.EMFError("""
-        The number of hot (not grounded) conductors must be a multiple
-        of three for phase optimization. Circuits are assumed to be
-        three-phase and conductors comprising each circuit are assumed to
-        be consecutive groups of three, in the order that they appear in the
-        template."""))
-    #number of circuits, groups of 3 hot conductors
-    G = int(N/3)
-    #all permutations of the phases of each 3 line circuit
+    three-phase transfer circuit.
+    args:
+        xc - target CrossSection object
+        circuits - a list of lists, or 'all'. If a list of lists, each
+                   sublist contains the integer indices of the conductors
+                   that belong to a circuit, indexed from zero. If 'all',
+                   circuits are assumed to be consecutive groups of three
+                   conductors.
+    kwargs:
+        save - toggle saving of the results DataFrame to an excel book
+        path - location/filename for saved results workbook, forces saving
+               even if no 'save' keyword is used.
+    returns:
+        results - DataFrame listing conductor phasings that optimize
+                  electric and magnetic fields at both ROW edges."""
+
+    if(circuits == 'all'):
+        #number of hot wires
+        N = len(xc.hot)
+        #check the number of hot lines
+        if(N % 3 != 0):
+            raise(emf_class.EMFError("""
+            The number of hot (not grounded) conductors must be a multiple
+            of three for phase optimization with 'all' circuits. Circuits are
+            assumed to be three-phase and conductors comprising each circuit
+            are assumed to be consecutive groups of three, in the order that
+            they appear in the template. The number of hot conductors is not a
+            multiple of three in CrossSection "%s" """ % xc.name))
+        #number of circuits, groups of 3 hot conductors
+        G = int(N/3)
+        #circuits, consecutive groups of three conductors
+        circuits = [range(i*3,i*3 + 3) for i in range(G)]
+
+    #all permutations of the phases of each circuit
     perm = []
-    for i in range(G):
-        perm.append(list(itertools.permutations(range(i*3,i*3 + 3))))
+    for c in circuits:
+        perm.append(list(itertools.permutations(c)))
     #all possible arrangements of line phasings, 6 permutations for each circuit
     #so 6^(N/3) total line arrangements
     P = list(itertools.product(*perm))
@@ -129,52 +147,61 @@ def optimize_phasing(xc):
         P[i] = [item for sublist in P[i] for item in sublist]
     #turn P into an array
     P = np.array(P, dtype = int)
+    print P
     #notifications, remove later
-    print('Optimizing phasing of CrossSection "%s", with %d hot conductors'
-        % (xc.name, len(xc.hot)))
-    print('Number of permutations to test = 6^(%d/3) = %d'
-        % (len(xc.hot), P.shape[0]))
+    print("""
+    Optimizing phasing of CrossSection "%s":
+        Permuting %d total conductors in %d circuits
+        Number of permutations to test at ROW edges = %d"""
+        % (xc.name, P.shape[1], len(circuits), P.shape[0]))
     #variables to find the minima with respect to each field and ROW edge
     B_left_min, B_left_idx, B_right_min, B_right_idx = np.inf, -1, np.inf, -1
     E_left_min, E_left_idx, E_right_min, E_right_idx = np.inf, -1, np.inf, -1
     #make sure the necessary CrossSection variables are set
-    xc.update_data()
-    #loop through all possible combinations in P
+    xc.update_arrays()
+    #get coordinates of the ROW edges
     x_ROW = np.array([xc.x_sample[xc.lROWi], xc.x_sample[xc.rROWi]])
     y_ROW = np.array([xc.y_sample[xc.lROWi], xc.y_sample[xc.rROWi]])
     #array for swapping phases, zeros in the grounded slots
-    phase = np.zeros((N + len(xc.gnd),))
+    phasing = xc.phase.copy()
+    #store a flattened version of the conductor indices for swapping
+    conds = np.array([item for sublist in circuits for item in sublist],
+        dtype = int)
+    print conds
+    #loop through all possible combinations in P
     for i in range(len(P)):
-        #get a row of indices from P
-        idx = P[i,:]
         #swap phases accordingly
-        phase[:N] = xc.phase[idx]
+        phasing[conds] = xc.phase[P[i,:]]
+        print phasing
         #calculate fields with index swapped data
         Ex, Ey = emf_calcs.E_field(xc.x, xc.y, xc.subconds, xc.d_cond,
-            xc.d_bund, xc.V, phase, x_ROW, y_ROW)
+                                    xc.d_bund, xc.V, phasing, x_ROW, y_ROW)
         Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
-        Bx, By = emf_calcs.B_field(xc.x, xc.y, xc.I, phase, x_ROW, y_ROW)
+        Bx, By = emf_calcs.B_field(xc.x, xc.y, xc.I, phasing, x_ROW, y_ROW)
         Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
         #test for minima
         if(Bmax[0] < B_left_min):
-            B_left_min = Bmax[0]
-            B_left_idx = i
+            B_left_min, B_left_idx = Bmax[0], i
         if(Bmax[1] < B_right_min):
-            B_right_min = Bmax[1]
-            B_right_idx = i
+            B_right_min, B_right_idx = Bmax[1], i
         if(Emax[0] < E_left_min):
-            E_left_min = Emax[0]
-            E_left_idx = i
+            E_left_min, E_left_idx = Emax[0], i
         if(Emax[1] < E_right_min):
-            E_right_min = Emax[1]
-            E_right_idx = i
+            E_right_min, E_right_idx = Emax[1], i
     #return results in a DataFrame
     results = pd.DataFrame(data = {
-        'Conductor Tag' : [c.tag for c in xc.hot],
+        'Conductor Tag' : [xc.hot[i].tag for i in conds],
         'Optimal Phasing - Bmax Left ROW Edge' : xc.phase[P[B_left_idx,:]],
         'Optimal Phasing - Bmax Right ROW Edge' : xc.phase[P[B_right_idx,:]],
         'Optimal Phasing - Emax Left ROW Edge' : xc.phase[P[E_left_idx,:]],
         'Optimal Phasing - Emax Right ROW Edge' : xc.phase[P[E_right_idx,:]]})
+    #deal with saving
+    if('path' in kwargs):
+        kwargs['save'] = True
+    if('save' in kwargs):
+        if(kwargs['save']):
+            fn = path_manage(xc.name + '_phase_optimization', 'xlsx', **kwargs)
+            results.to_excel(fn, index = False)
 
     return(results)
 
@@ -191,10 +218,10 @@ def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
         hot - indices of hot conductors in self.hot to raise, accepts 'all'
         gnd - indices of ground conductors in self.gnd to raise, accepts 'all'
     returns:
-        h_B_l - height adjustment necessary for left magnetic field
-        h_B_r - height adjustment necessary for right magnetic field
-        h_E_l - height adjustment necessary for left electric field
-        h_E_r - height adjustment necessary for right electric field"""
+        h_B_l - height adjustment necessary for left ROW edge magnetic field
+        h_B_r - height adjustment necessary for right ROW edge magnetic field
+        h_E_l - height adjustment necessary for left ROW edge electric field
+        h_E_r - height adjustment necessary for right ROW edge electric field"""
     if(hot == 'all'):
         hot = list(range(len(xc.hot)))
     if(gnd == 'all'):
@@ -206,7 +233,7 @@ def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
     #flattened indices
     conds = np.array(list(hot) + [len(xc.hot) + i for i in gnd])
     #make sure the necessary CrossSection variables are set
-    xc.update_data()
+    xc.update_arrays()
     #run secant method to find adjustments for each target
     h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
     if(B_l):

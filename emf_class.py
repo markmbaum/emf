@@ -87,7 +87,7 @@ class CrossSection:
         s += '\ninspect self.fields separately to see field simulation results\n'
         return(s)
 
-    def update_data(self):
+    def update_arrays(self):
         """Populate the CrossSection objects numpy array attributes"""
         #calculate sample point coordinates
         N = 1 + 2*self.max_dist/self.step
@@ -117,7 +117,7 @@ class CrossSection:
         many CrossSection variables, so it's wise to run it as soon as the
         all CrossSection data is entered or whenever it changes."""
         #populate flat array variables with all Conductor data
-        self.update_data()
+        self.update_arrays()
         #calculate magnetic field
         Bx, By = emf_calcs.B_field(self.x, self.y, self.I, self.phase,
             self.x_sample, self.y_sample)

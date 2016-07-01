@@ -67,8 +67,8 @@ def to_FLD(xc, **kwargs):
         write_entry(ofile, c.d_cond)
         write_entry(ofile, c.d_bund)
         write_entry(ofile, 'ED!(I)')
-        write_entry(ofile, c.V)
         write_entry(ofile, c.I)
+        write_entry(ofile, c.V)
         write_entry(ofile, c.phase)
     #write the ground wire data a second time, in a different format
     for c in xc.gnd:
@@ -80,9 +80,9 @@ def to_FLD(xc, **kwargs):
     ofile.close()
     print('FLD file generated: "%s"' % fn)
 
-def create_FLDs(*args, **kwargs):
-    """Load a template workbook of CrossSections and convert them all to
-    FLD files...
+def to_FLDs(*args, **kwargs):
+    """Load or recieve a template workbook of CrossSections and convert them
+    all to FLD files
     args:
         can either be a path string to a target template workbook or an
         existing SectionBook object
@@ -113,7 +113,7 @@ def create_FLDs(*args, **kwargs):
         #write the FLD
         to_FLD(xc, **kwargs)
 
-def create_FLDs_crawl(dir_name, **kwargs):
+def to_FLDs_crawl(dir_name, **kwargs):
     """crawl a directory and all of its subdirectories for excel workbooks
     that can be passed to create_FLDs(). The same keyword arguments that
     apply to create_FLDs() can be passed to this function."""

@@ -330,8 +330,8 @@ def plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hw, lw):
     #set error axes legend
     ax_abs.legend(h_abs + h_per, ['Absolute Difference','Percent Difference'])
     #plot results
-    h_fld = ax_mag.plot(pan['FIELDS_output'][field], 'k')
-    h_nm = ax_mag.plot(pan['New_model_output'][field], 'b')
+    h_fld = ax_mag.plot(pan['FIELDS_DAT_results'][field], 'k')
+    h_nm = ax_mag.plot(pan['emf_results'][field], 'b')
     ax_mag.set_xlabel('Distance from ROW Center (ft)')
     #set results legend
     ax_mag.legend(h_fld + h_nm + hw, ['FIELDS','New Code'] + lw, numpoints = 1)
@@ -353,8 +353,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Bmax
-
-    hw, lw = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Bmax'])
+    hw, lw = plot_wires(ax_mag, xc.hot, xc.gnd, pan['emf_results']['Bmax'])
     plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax', hw, lw)
     ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
     ax_mag.set_ylabel('Bmax (mG)')
@@ -362,7 +361,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     format_axes_legends(ax_abs)
     plt.tight_layout()
-    format_axes_legends(ax_abs, ax_per, ax_mag)
+    #format_axes_legends(ax_abs, ax_per, ax_mag)
     save_fig(xc.name + '-DAT_comparison_Bmax', fig, **kwargs)
     plt.close(fig)
 
@@ -372,14 +371,14 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Emax
-    hw, lw = plot_wires(ax_mag, xc.hot, xc.gnd, pan['New_model_output']['Emax'])
+    hw, lw = plot_wires(ax_mag, xc.hot, xc.gnd, pan['emf_results']['Emax'])
     plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax', hw, lw)
     ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
     ax_mag.set_ylabel('Emax (kV/m)')
     ax_mag.set_title('Model Results, Electric Field')
     color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     plt.tight_layout()
-    format_axes_legends(ax_abs, ax_per, ax_mag)
+    #format_axes_legends(ax_abs, ax_per, ax_mag)
     save_fig(xc.name + '-DAT_comparison_Emax', fig, **kwargs)
     plt.close(fig)
 
