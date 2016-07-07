@@ -2,12 +2,11 @@ import emf
 import cProfile
 import pstats
 
-sb = emf.load_template('practice_xcs.xlsx')
+sb = emf.load_template(r"G:\Projects\215030_Millbury EMF NGrid\Models\FIELDS\Updated FIELDS 070716\Millbury_Average_Loading.xlsx")
 
-xc = sb['HL_P']
+xc = sb.i(0)
 
-emf.optimize_phasing(xc, 'all', path = 'ophasing/')
-
+emf.target_fields(xc,.01,.01,.01,.01,'all','all',path = r"G:\Projects\215030_Millbury EMF NGrid\Models\FIELDS\Updated FIELDS 070716\New folder")
 """
 cProfile.run('emf.optimize_phasing(xc)',
 filename = 'profile')

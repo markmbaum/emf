@@ -45,8 +45,8 @@ class CrossSection:
     for the fields results and exporting methods for the results."""
 
     def __init__(self, name):
-        self.name = name #mandatory, short, generally template sheet name
-        self.title = '' #shorter form, quick ID
+        self.name = name #mandatory, short, usually template sheet name
+        self.title = '' #must be short, used as FLD file names
         self.tag = None #identifier linking multiple CrossSection objects
         self.subtitle = '' #longer form, used for plotting text
         self.soil_resistivity = 100. #?
@@ -293,32 +293,35 @@ class SectionBook:
         an excel or csv file. Default is csv.
         kwargs:
             file_type - string, accepts 'csv' or 'excel'
-            path - string, destination/filename for saved file"""
+            path - string, destination/filename for saved file
+            xl - pandas ExcelWriter object, takes precedence over 'path'"""
         #be sure ROW_edge_results are current
         #self.compile_ROW_edge_results()
         #export
         c = ['name','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
-        h = ['Name','Title','Bmax - Left ROW Edge','Bmax - Right ROW Edge',
-                'Emax - Left ROW Edge','Emax - Right ROW Edge']
-        excel = False
-        if('file_type' in kwargs):
+        h = ['Cross-Section Name','Cross-Section Title','Bmax - Left ROW Edge',
+                'Bmax - Right ROW Edge', 'Emax - Left ROW Edge',
+                'Emax - Right ROW Edge']
+        wo = False
+        if('xl' in kwargs):
+            wo = kwargs['xl']
+        elif('file_type' in kwargs):
             file_type = kwargs['file_type']
             if(file_type[0] == '.'):
                 file_type = file_type[1:]
             if(file_type == 'excel'):
-                excel = True
-        if(excel):
-            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.xlsx',
-                **kwargs)
-            self.ROW_edge_max.to_excel(fn, index = False, columns = c,
+                wo = emf_funks.path_manage(self.name + '-ROW_edge_results',
+                    '.xlsx', **kwargs)
+        if(wo):
+            self.ROW_edge_max.to_excel(wo, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
-            fn = emf_funks.path_manage(self.name + '-ROW_edge_results', '.csv',
-                **kwargs)
-            self.ROW_edge_max.to_csv(fn, index = False, columns = c, header = h)
-        print('Maximum fields at ROW edges written to: "%s"' % fn)
+            wo = emf_funks.path_manage(self.name + '-ROW_edge_results',
+                '.csv', **kwargs)
+            self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
+        print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
 
-    def full_export(self, **kwargs):
+    def results_export(self, **kwargs):
         """Write all of the cross section results to an excel workbook"""
         #path management
         fn = emf_funks.path_manage(self.name + '-full_results', '.xlsx', **kwargs)

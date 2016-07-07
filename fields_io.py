@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 import emf_funks
+import emf_class
 
 #-------------------------------------------------------------------------------
 #FUNCTIONS FOR GENERATING INPUT .FLD FILES
@@ -87,36 +88,38 @@ def to_FLDs(*args, **kwargs):
         can either be a path string to a target template workbook or an
         existing SectionBook object
     kwargs:
-        path - output destination for FLD files"""
+        path - output destination for FLD files, default is the same directory
+               as the template book if a path string is passed or the current
+               directory if a SectionBook is passed."""
     if(type(args[0]) == str):
         #load the template
         sb = emf_funks.load_template(args[0])
+        kwargs['path'] = os.path.dirname(args[0]) + '/'
     else:
         sb = args[0]
-    #generate FLD files
-    titles = []
-    subtitles = []
+    #check for duplicate titles and subtitles
+    titles, subtitles = [], []
     for xc in sb:
-        #check duplicate naming fields
         if(xc.title in titles):
             raise(emf_class.EMFError("""
-            Cannot create FLD files because of duplicate CrossSection titles.
+            Can't create FLD files because of duplicate CrossSection titles.
             Title "%s" is used at least twice.""" % xc.title))
         else:
             titles.append(xc.title)
-        if(xc.subtitle in titles):
+        if(xc.subtitle in subtitles):
             raise(emf_class.EMFError("""
-            Cannot create FLD files because of duplicate CrossSection subtitles.
+            Can't create FLD files because of duplicate CrossSection subtitles.
             Subtitle "%s" is used at least twice.""" % xc.subtitle))
         else:
             subtitles.append(xc.subtitle)
-        #write the FLD
+    #generate FLD files
+    for xc in sb:
         to_FLD(xc, **kwargs)
 
 def to_FLDs_crawl(dir_name, **kwargs):
     """crawl a directory and all of its subdirectories for excel workbooks
-    that can be passed to create_FLDs(). The same keyword arguments that
-    apply to create_FLDs() can be passed to this function."""
+    that can be passed to create_FLDs(). The FLD files are generated in the
+    same directory as the template book they come from."""
 
     #get input directory's file and subdir names
     dir_contents = glob.glob(dir_name)
@@ -128,13 +131,13 @@ def to_FLDs_crawl(dir_name, **kwargs):
         if(dir_element[-5:] == '.xlsx'):
             #operate on the file
             try:
-                create_FLDs(dir_element, path = os.path.dirname(dir_element))
-            except(KeyError):
+                to_FLDs(dir_element, path = os.path.dirname(dir_element) + '/')
+            except(KeyError, ValueError, IOError):
                 print('failure to write FLD files from:\n\t%s' % dir_element)
         else:
             #if there's a period in the dir_element, it's not a directory
             if(not ('.' in dir_element)):
-                create_FLDs_crawl(dir_element + '\\*')
+                to_FLDs_crawl(dir_element + '\\*')
 
 #------------------------------------------------------------------------------
 #FUNCTIONS FOR CONVERTING OUTPUT .DAT FILES TO CSV FILE AND PLOTTING
@@ -142,6 +145,8 @@ def to_FLDs_crawl(dir_name, **kwargs):
 def read_DAT(file_path):
     """Read a DAT file, which can have some funky extra characters if the
     numbers are too large (percent signs)"""
+
+    #check that the target file is a DAT
     emf_funks.check_extention(file_path, 'DAT', """
         Input file must have a '.DAT' extension.""")
     #load data
@@ -183,7 +188,7 @@ def read_DAT(file_path):
         'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
         'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax}, index = x))
 
-def DAT_to_csv(file_path, **kwargs):
+def convert_DAT(file_path, **kwargs):
     """read a DAT file and write it to a csv
     args:
         file_path - target DAT file
@@ -198,23 +203,52 @@ def DAT_to_csv(file_path, **kwargs):
         df.to_csv(ofile)
         print('DAT converted to csv: "%s"' % fn)
 
-def DAT_to_csv_crawl(dir_name, **kwargs):
+def convert_DAT_crawl(dir_name, **kwargs):
     """crawl a directory and all of its subdirectories for .DAT files that
     can be passed to DAT_to_csv() for output re-formatting and optional
-    plotting. The same keyword arguments that apply to DAT_to_csv() can
-    be passed to this function."""
+    plotting.
+    args:
+        dir_name - the directory to initiate the crawl in. To designate the
+                   current directory, use '*'
+    kwargs:
+        bundle - bool, if True, all DAT files found in the same directory are
+                 written to a common excel workbook. If False or absent,
+                 the DAT files are simply written to csv files."""
 
     #get input directory's file and subdir names
     dir_contents = glob.glob(dir_name)
-    dir_name = dir_name.rstrip('\\/*').lstrip('\\/*')
 
-    #loop over the dir_contents, extracting if .LST is at the end and attempting
-    #find subdirectories if not
+    #get the bundling option
+    if('bundle' in kwargs):
+        bundle = kwargs['bundle']
+    else:
+        bundle = False
+    #if bundle is True, set a flag for the existence of an ExcelWriter object
+    if(bundle):
+        xl_flag = False
+
+    #loop over the dir_contents
     for dir_element in dir_contents:
+        #if the file is a .DAT, convert it
         if(dir_element[-4:] == '.DAT'):
-            #perform a task using the filename represented by dir_element
-            DAT_to_csv(dir_element, path = os.path.dirname(dir_element))
+            #if bundling is on, read the DAT and write it to the excel book
+            if(bundle):
+                #if an ExcelWriter doesn't exist, initialize one and set flag
+                if(not xl_flag):
+                    xl_flag = True
+                    fn = os.path.dirname(dir_element) + '/converted_DATs.xlsx'
+                    xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+                #use the DAT's filename as the sheet name, without extension
+                sn = os.path.basename(dir_element)[:-4]
+                #read the DAT into a DataFrame and send it to the ExcelWriter
+                read_DAT(dir_element).to_excel(xl, sheet_name = sn)
+            else:
+                #without bundling, write an individual csv file
+                convert_DAT(dir_element, path = dir_name + '/')
         else:
             #if there's a period in the dir_element, it's not a directory
-            if(not ('.' in dir_element)):
-                DAT_to_csv_crawl(dir_element + '\\*')
+            if(os.path.isdir(dir_element)):
+                convert_DAT_crawl(dir_element + '\\*', **kwargs)
+    if(bundle and xl_flag):
+        xl.save()
+        print('Converted DAT files written to "%s"' % fn)

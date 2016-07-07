@@ -116,7 +116,9 @@ def optimize_phasing(xc, circuits, **kwargs):
                even if no 'save' keyword is used.
     returns:
         results - DataFrame listing conductor phasings that optimize
-                  electric and magnetic fields at both ROW edges."""
+                  electric and magnetic fields at both ROW edges.
+        sb - a new SectionBook object containing the permuted phasings that
+             optimize the E and B fields at the left and right ROW edges."""
 
     if(circuits == 'all'):
         #number of hot wires
@@ -147,13 +149,12 @@ def optimize_phasing(xc, circuits, **kwargs):
         P[i] = [item for sublist in P[i] for item in sublist]
     #turn P into an array
     P = np.array(P, dtype = int)
-    print P
     #notifications, remove later
     print("""
     Optimizing phasing of CrossSection "%s":
         Permuting %d total conductors in %d circuits
         Number of permutations to test at ROW edges = %d"""
-        % (xc.name, P.shape[1], len(circuits), P.shape[0]))
+        % (xc.title, P.shape[1], len(circuits), P.shape[0]))
     #variables to find the minima with respect to each field and ROW edge
     B_left_min, B_left_idx, B_right_min, B_right_idx = np.inf, -1, np.inf, -1
     E_left_min, E_left_idx, E_right_min, E_right_idx = np.inf, -1, np.inf, -1
@@ -167,12 +168,10 @@ def optimize_phasing(xc, circuits, **kwargs):
     #store a flattened version of the conductor indices for swapping
     conds = np.array([item for sublist in circuits for item in sublist],
         dtype = int)
-    print conds
     #loop through all possible combinations in P
     for i in range(len(P)):
         #swap phases accordingly
         phasing[conds] = xc.phase[P[i,:]]
-        print phasing
         #calculate fields with index swapped data
         Ex, Ey = emf_calcs.E_field(xc.x, xc.y, xc.subconds, xc.d_cond,
                                     xc.d_bund, xc.V, phasing, x_ROW, y_ROW)
@@ -190,22 +189,49 @@ def optimize_phasing(xc, circuits, **kwargs):
             E_right_min, E_right_idx = Emax[1], i
     #return results in a DataFrame
     results = pd.DataFrame(data = {
-        'Conductor Tag' : [xc.hot[i].tag for i in conds],
         'Optimal Phasing - Bmax Left ROW Edge' : xc.phase[P[B_left_idx,:]],
         'Optimal Phasing - Bmax Right ROW Edge' : xc.phase[P[B_right_idx,:]],
         'Optimal Phasing - Emax Left ROW Edge' : xc.phase[P[E_left_idx,:]],
-        'Optimal Phasing - Emax Right ROW Edge' : xc.phase[P[E_right_idx,:]]})
+        'Optimal Phasing - Emax Right ROW Edge' : xc.phase[P[E_right_idx,:]]},
+        index = [xc.hot[i].tag for i in conds])
+    #compile a new sectionbook with the optimal phasings
+    sb = emf_class.SectionBook('%s-optimal_phasing' % xc.title)
+    names = ['Bmax - left edge','Bmax - right edge',
+            'Emax - left edge','Emax - right edge']
+    titles = ['Bmax_l','Bmax_r','Emax_l','Emax_r']
+    subtitles = results.columns
+    for n, t, s in zip(names, titles, subtitles):
+        #copy the input XC
+        new_xc = copy.deepcopy(xc)
+        #change the identification fields
+        new_xc.name, new_xc.title, new_xc.subtitle = n, t, s
+        #swap the conductor phasings
+        for c in new_xc.hot:
+            t = c.tag
+            if(t in results.index):
+                c.phase = results.at[t, s]
+        #store new_xc in the SectionBook
+        sb.add_section(new_xc)
+    #update everythin in the SectionBook
+    sb.update()
     #deal with saving
     if('path' in kwargs):
         kwargs['save'] = True
     if('save' in kwargs):
         if(kwargs['save']):
             fn = path_manage(xc.name + '_phase_optimization', 'xlsx', **kwargs)
-            results.to_excel(fn, index = False)
+            xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+            results.to_excel(xl, index_label = 'Conductor Tag',
+                sheet_name = 'phase_assignments')
+            sb.ROW_edge_export(xl = xl)
+            for xc in sb:
+                xc.fields.to_excel(xl, sheet_name = xc.name)
+            xl.save()
+            print('Optimal phasing results written to "%s"' % fn)
 
-    return(results)
+    return(results, sb)
 
-def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
+def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd, **kwargs):
     """Increase conductor y coordinates until fields at ROW edges are below
     thresholds. All selected conductors are adjusted by the same amount.
     If any of the thresholds are empty or false, None is returned for their
@@ -217,17 +243,22 @@ def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
         E_r - electric field threshold at right ROW edge
         hot - indices of hot conductors in self.hot to raise, accepts 'all'
         gnd - indices of ground conductors in self.gnd to raise, accepts 'all'
+    kwargs:
+        save - toggle saving of the results DataFrame to an excel book
+        path - location/filename for saved results workbook, forces saving
+               even if no 'save' keyword is used.
     returns:
-        h_B_l - height adjustment necessary for left ROW edge magnetic field
-        h_B_r - height adjustment necessary for right ROW edge magnetic field
-        h_E_l - height adjustment necessary for left ROW edge electric field
-        h_E_r - height adjustment necessary for right ROW edge electric field"""
+        h - height adjustments necessary for E and B fields at left and right
+            ROW edges. The ordering is: (B_left, B_right, E_left, E_right)
+        sb - a new SectionBook object with the adjusted conductor heights
+             for each scenario in a CrossSection"""
+    #convert 'all' inputs to numeric indices
     if(hot == 'all'):
         hot = list(range(len(xc.hot)))
     if(gnd == 'all'):
         gnd = list(range(len(xc.gnd)))
     #maximum number of iterations, lots of breathing room
-    max_iter = 1e4
+    max_iter = 1e6
     hlow = 0.0
     hhigh = 1.0e6
     #flattened indices
@@ -244,7 +275,48 @@ def target_fields(xc, B_l, B_r, E_l, E_r, hot, gnd):
         h_E_l = bisect(xc, conds, xc.lROWi, E_funk, E_l, hlow, hhigh, max_iter)
     if(E_r):
         h_E_r = bisect(xc, conds, xc.rROWi, E_funk, E_r, hlow, hhigh, max_iter)
-    return(h_B_l, h_B_r, h_E_l, h_E_r)
+    #create return variables
+    h = (h_B_l, h_B_r, h_E_l, h_E_r)
+    sb = emf_class.SectionBook('%s-height_adjusted' % xc.title)
+    names = ['Bmax - left edge','Bmax - right edge',
+            'Emax - left edge','Emax - right edge']
+    titles = ['Bmax_l','Bmax_r','Emax_l','Emax_r']
+    subtitles = ['Height Adjusted for %f mG at left ROW edge' % B_l,
+                'Height Adjusted for %f mG at left ROW edge' % B_r,
+                'Height Adjusted for %f kV/m at left ROW edge' % E_l,
+                'Height Adjusted for %f kV/m at left ROW edge' % E_r]
+    for n, t, s, a in zip(names, titles, subtitles, h):
+        if(a != None):
+            #copy the input XC
+            new_xc = copy.deepcopy(xc)
+            #change the identification fields
+            new_xc.name, new_xc.title, new_xc.subtitle = n, t, s
+            #adjust conductor heights
+            for idx in hot:
+                new_xc.hot[idx].y += a
+            for idx in gnd:
+                new_xc.gnd[idx].y += a
+            #store new_xc in the SectionBook
+            sb.add_section(new_xc)
+    #update everythin in the SectionBook
+    sb.update()
+    #deal with saving
+    if('path' in kwargs):
+        kwargs['save'] = True
+    if('save' in kwargs):
+        if(kwargs['save']):
+            fn = path_manage(xc.name + '_height_adjustments', 'xlsx', **kwargs)
+            xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+            pd.DataFrame(data = list(h), index = names,
+                columns = ['Height Addition (ft)']).to_excel(xl,
+                sheet_name = 'Adjustments', index_label = 'Field - ROW Edge')
+            sb.ROW_edge_export(xl = xl)
+            for xc in sb:
+                xc.fields.to_excel(xl, sheet_name = xc.name)
+            xl.save()
+            print('Optimal phasing results written to "%s"' % fn)
+
+    return(h, sb)
 
 def bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter):
     #evaluate at the bracketing values
@@ -252,34 +324,40 @@ def bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter):
     fhigh = funk(hhigh, target, xc, conds, sample_idx)
     #check that the root is bracketed
     if(flow*fhigh > 0.):
-        print("""
+        raise(emf_class.EMFError("""
         The root is not bracketed. Rootfinding with bisection will fail.
             f(h_0 = %g) = %g
-            f(h_1 = %g) = %g
-        Returning 'out of range'""" % (hlow, flow, hhigh, fhigh))
-        return('out of range')
+            f(h_1 = %g) = %g""" % (hlow, flow, hhigh, fhigh)))
     #evaluate at a midpoint
     hmid = (hhigh + hlow)/2.0
     fmid = funk(hmid, target, xc, conds, sample_idx)
     count = 1
     #iterate
-    while((abs((hhigh - hlow)/target) > 1.0e-9) and (count < max_iter)):
+    print target
+    while((abs(fmid/target) > 5.0e-2) and (count < max_iter)):
         #test and throw half out
         if(fmid*flow > 0.):
             hlow = hmid
-        elif(fmid*fhigh > 0.):
+        else:
             hhigh = hmid
         #evaluate at middle
         hmid = (hhigh + hlow)/2.0
         fmid = funk(hmid, target, xc, conds, sample_idx)
         #increment
         count += 1
+    #check if the iteration limit was hit
     if(count == max_iter):
         raise(emf_class.EMFError("""
         Divergence in bisection method. Iteration limit of %d was exceeded.
-        Likely cause is a target field value that is too low. Line adjustments
-        would have to be extreme or """
-        % max_iter))
+        Likely causes:
+            - a target field value that is too low, in which case line
+                adjustments would have to be astronomical
+            - some conductors are not being adjusted and it's possible that
+                even the complete removal of target conductors (infinitely
+                large height adjustment) wouldn't achieve the target field
+                magnitudes
+            - underground lines aren't supported
+            - the precision target is too high""" % max_iter))
     return(hmid)
 
 def B_funk(h, target, xc, conds, sample_idx):
@@ -325,7 +403,7 @@ def run(template_path, **kwargs):
     #import templates
     sb = load_template(template_path)
     #export the full results workbook
-    sb.full_export(**kwargs)
+    sb.results_export(**kwargs)
     #export ROW edge results
     sb.ROW_edge_export(**kwargs)
     #export single CrossSection plots

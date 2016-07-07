@@ -49,7 +49,7 @@ def format_axes_legends(*args):
         ax.set_frame_on(emf_plots_ax_frameon)
         if(not emf_plots_ax_ticks_on):
             ax.tick_params(axis = 'both', which = 'both',
-                    bottom = 'off', top = 'off', left = 'off', right = 'off')
+                bottom = 'off', top = 'off', left = 'off', right = 'off')
         #apply legend formatting
         leg = ax.get_legend()
         if(leg):
