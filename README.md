@@ -14,7 +14,7 @@ the conceptual guidelines laid out in the Electric Power Research Institute's
 code isn't released, so a line-by-line replication of the calculations isn't
 possible. However, this version of the code has been able to reproduce FIELDS results to a very high degree of accuracy.
 
-Some testing has shown error between this code and FIELDS results up to 3 %. I've been told that the FIELDS program runs 16-bit BASIC, lower precision than modern languages, and that BASIC has known accuracy issues with the sine and cosine functions. Additionally, the results of FIELDS simulations are saved to output files with the values rounded or truncated to the thousandths digit. These factors might explain the error. However, most testing has shown extremely small error, on the order of actual computational roundoff.
+Some testing has shown error between this code and FIELDS results up to 3 %. I've been told that the FIELDS program runs 16-bit BASIC, lower precision than modern languages, and that BASIC has known accuracy issues with the sine and cosine functions. Additionally, the results of FIELDS simulations are saved to output files with the values rounded or truncated to the thousandths digit. These factors might explain the error. However, most testing has shown extremely small error, on the order of computational roundoff.
 
 The FIELDS method of calculating EMF near transmission lines is not improved by
 this code. It seems like the FIELDS approach has a lot of inertia and people
@@ -25,7 +25,7 @@ functions that calculate electric and magnetic fields accessible. This code reli
 and [I/O methods](http://pandas.pydata.org/pandas-docs/stable/io.html) from the [pandas library](http://pandas.pydata.org/pandas-docs/stable/index.html) to interface with excel templates, store the results of fields simulations, and write results to output files
 * fast, explicit, low-level [numpy](http://www.numpy.org/) arrays and functions to perform the actual fields calculations
 * the [matplotlib](http://matplotlib.org/) plotting package to automatically generate useful plots of the simulation results
-* three custom classes (Conductor, CrossSection, and SectionBook) to organize the imported data and the EMF results in a flexible, hierarchical, system that has room for expansion.
+* three classes (Conductor, CrossSection, and SectionBook) to organize the imported data and the EMF results.
 
 For the most routine modeling scenarios, this code enables a one line effort (after filling in template excel sheets) to generate full sets of electric and magnetic field results, double-axis plots of both electric and
 magnetic fields, plots comparing the electric and magnetic fields of grouped
@@ -34,11 +34,12 @@ cross sections, and a table of maximum field magnitudes at the right-of-way
 the path of the excel workbook of templates.
 
 In addition to being quicker to use and more flexible than FIELDS, this code
-can automatically optimize the phasing arrangement of all three-line circuits in
-a cross section by brute force testing every possible phasing combination at
-the ROW edges. Not a scalable feature, but a potentially useful one. I'd also
-like to write a method for calculating what conductor height adjustments would
-be necessary to achieve specified field magnitudes at ROW edges.
+supplements the analytical capabilities of FIELDS with two methods.
+* One method automatically optimizes the phasing arrangement of selected conductors in a cross section by calculating fields for every possible phasing permutation at
+the ROW edges. Conductors can be grouped into circuits of any size. Because it performs brute force testing of the ROW edge fields for all possible permutations
+(and scales with a factorial), this method chokes when optimizing more than about five circuits at a time.
+* The second new method finds any additional conductor height needed to bring maximum fields down to target levels. This method also allows for selection of specific
+conductors and uses a simple root finding method.
 
 ######EPRI's "Red Book"
 

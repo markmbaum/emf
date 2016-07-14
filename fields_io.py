@@ -41,7 +41,7 @@ def to_FLD(xc, **kwargs):
     kwargs:
         path - output file destination"""
     #get a filename
-    fn = emf_funks.path_manage(xc.title, 'FLD', **kwargs)
+    fn = emf_funks.path_manage(xc.name, 'FLD', **kwargs)
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
@@ -98,20 +98,14 @@ def to_FLDs(*args, **kwargs):
     else:
         sb = args[0]
     #check for duplicate titles and subtitles
-    titles, subtitles = [], []
+    names = []
     for xc in sb:
-        if(xc.title in titles):
+        if(xc.name in names):
             raise(emf_class.EMFError("""
-            Can't create FLD files because of duplicate CrossSection titles.
-            Title "%s" is used at least twice.""" % xc.title))
+            Can't create FLD files because of duplicate CrossSection names.
+            Name "%s" is used at least twice.""" % xc.name))
         else:
-            titles.append(xc.title)
-        if(xc.subtitle in subtitles):
-            raise(emf_class.EMFError("""
-            Can't create FLD files because of duplicate CrossSection subtitles.
-            Subtitle "%s" is used at least twice.""" % xc.subtitle))
-        else:
-            subtitles.append(xc.subtitle)
+            names.append(xc.name)
     #generate FLD files
     for xc in sb:
         to_FLD(xc, **kwargs)
@@ -244,7 +238,7 @@ def convert_DAT_crawl(dir_name, **kwargs):
                 read_DAT(dir_element).to_excel(xl, sheet_name = sn)
             else:
                 #without bundling, write an individual csv file
-                convert_DAT(dir_element, path = dir_name + '/')
+                convert_DAT(dir_element, path = os.path.dirname(dir_name) + '/')
         else:
             #if there's a period in the dir_element, it's not a directory
             if(os.path.isdir(dir_element)):

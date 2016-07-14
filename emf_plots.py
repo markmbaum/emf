@@ -43,9 +43,10 @@ def show():
 
 def format_axes_legends(*args):
     """Apply axis formatting commands to axes objects
-    args: some number of axis objects"""
+    args: some number of axis objects with twin x axes"""
     for ax in args:
         #apply axis formatting
+        ax.margins(0.025)
         ax.set_frame_on(emf_plots_ax_frameon)
         if(not emf_plots_ax_ticks_on):
             ax.tick_params(axis = 'both', which = 'both',
@@ -498,6 +499,7 @@ def plot_group_ROW_edges(ax, xcs):
         ax - target axis
         xcs - list of CrossSection objects to plot results from"""
     h, l = [], []
+    #if there are only two CrossSections, handle ROW edges independently
     if(len(xcs) == 2):
         yl = ax.get_ylim()
         #check if the left ROW edges are in the same place for both sections
@@ -532,8 +534,14 @@ def plot_group_ROW_edges(ax, xcs):
         h = [lines.Line2D([], [], linestyle = '--',color = emf_plots_colormap[0]),
             lines.Line2D([], [], linestyle = '--', color = emf_plots_colormap[1])]
         l = ['ROW Edges - ' + xcs[0].title, 'ROW Edges - ' + xcs[1].title]
-
+    elif(len(xcs) > 2):
+        #if there are more than two CrossSections and they all have the same
+        #ROW edges, plot the single set of edge lines
+        l, r = [xc.lROW for xc in xcs], [xc.rROW for xc in xcs]
+        if(all([i == l[0] for i in l[1:]]) and all([i == r[0] for i in r[1:]])):
+            h, l = plot_ROW_edges(ax, l[0], r[0])
     return(h, l)
+
 
 def plot_groups(sb, **kwargs):
     """Plot the fields of grouped CrossSections in the same axis, a plot for

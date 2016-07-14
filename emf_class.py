@@ -60,7 +60,7 @@ class CrossSection:
         self.hot = [] #list of Conductor objects with nonzero voltage
         self.gnd = [] #list of Conductor objects with zero voltage
         #arrays with unlabeled conductor data for fast passing to emf_calcs
-        #needs to be updated with calculate_fields() if conductors change
+        #need to be updated with update_arrays() if conductors change
         #these arrays store hot conductor info first, then the grounded lines
         self.x = np.empty((0,)) #x coordinates
         self.y = np.empty((0,)) #y coordinates
@@ -92,7 +92,7 @@ class CrossSection:
         #calculate sample point coordinates
         N = 1 + 2*self.max_dist/self.step
         self.x_sample = np.linspace(-self.max_dist, self.max_dist, num = N)
-        self.y_sample = self.sample_height*np.ones((N,))
+        self.y_sample = self.sample_height*np.ones((N,), dtype = float)
         #update ROW edge index variables
         #if ROW edge lies between two sample points, use the one closer to zero
         d = np.absolute(self.x_sample - self.lROW)
@@ -102,14 +102,14 @@ class CrossSection:
         self.rROWi = min(np.where(d == np.min(d))[0])
         #assemble all the conductor data in arrays for calculations
         conds = self.hot + self.gnd
-        self.x = np.array([c.x for c in conds])
-        self.y = np.array([c.y for c in conds])
-        self.subconds = np.array([c.subconds for c in conds])
-        self.d_cond = np.array([c.d_cond for c in conds])
-        self.d_bund = np.array([c.d_bund for c in conds])
-        self.V = np.array([c.V for c in conds])
-        self.I = np.array([c.I for c in conds])
-        self.phase = np.array([c.phase for c in conds])
+        self.x = np.array([c.x for c in conds], dtype = float)
+        self.y = np.array([c.y for c in conds], dtype = float)
+        self.subconds = np.array([c.subconds for c in conds], dtype = float)
+        self.d_cond = np.array([c.d_cond for c in conds], dtype = float)
+        self.d_bund = np.array([c.d_bund for c in conds], dtype = float)
+        self.V = np.array([c.V for c in conds], dtype = float)
+        self.I = np.array([c.I for c in conds], dtype = float)
+        self.phase = np.array([c.phase for c in conds], dtype = float)
 
     def calculate_fields(self):
         """Calculate electric and magnetic fields across the ROW and store the
@@ -145,10 +145,7 @@ class CrossSection:
 
     def compare_DAT(self, DAT_path, **kwargs):
         """Load a FIELDS output file (.DAT), find absolute and percentage
-        differences between it and the CrossSection objects results,
-        write them to an excel file and generate comparative plots. The
-        default excel file name is the CrossSection's title with
-        '-DAT_comparison' appended to it.
+        differences between it and the CrossSection object's results.
         args:
             DAT_path - path of FIELDS results file
         kwargs:
