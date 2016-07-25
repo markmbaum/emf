@@ -40,6 +40,12 @@ def to_FLD(xc, **kwargs):
         xc - CrossSection object
     kwargs:
         path - output file destination"""
+    #check input
+    if(not isinstance(xc, emf_class.CrossSection)):
+        raise(emf_class.EMFError("""
+        Input argument to to_FLD() must be a CrossSection object, not an
+        input of type: %s
+        Use to_FLDs() for a SectionBook object.""" % str(type(xc))))
     #get a filename
     fn = emf_funks.path_manage(xc.name, 'FLD', **kwargs)
     #write the .FLD file
@@ -95,8 +101,11 @@ def to_FLDs(*args, **kwargs):
         #load the template
         sb = emf_funks.load_template(args[0])
         kwargs['path'] = os.path.dirname(args[0]) + '/'
-    else:
+    elif(isinstance(args[0], emf_class.SectionBook)):
         sb = args[0]
+    else:
+        raise(emf_class.EMFError("""
+        Input argument to to_FLDs() must be a filepath or a SectionBook."""))
     #check for duplicate titles and subtitles
     names = []
     for xc in sb:
@@ -154,33 +163,26 @@ def read_DAT(file_path):
             if(und_message in line):
                 und_only = True
         #get the data
-        x,Bx,By,Bprod,Bmax,Ex,Ey,Eprod,Emax = [],[],[],[],[],[],[],[],[]
+        data = [[] for i in range(9)]
         line = ifile.readline()
         while(line):
             if(line):
                 if(line[0][0] == '%'):
                     line += ifile.readline()
-            temp = [i.replace('%','') for i in line.split()]
-            if(temp and all([emf_funks.is_number(i) for i in temp])):
-                x.append(float(temp[0]))
-                Bx.append(float(temp[1]))
-                By.append(float(temp[2]))
-                Bprod.append(float(temp[3]))
-                Bmax.append(float(temp[4]))
+            l = [i.replace('%','') for i in line.split()]
+            if(l and all([emf_funks.is_number(i) for i in l])):
+                for i in range(5):
+                    data[i].append(float(l[i]))
                 if(not (und_only)):
-                    Ex.append(float(temp[5]))
-                    Ey.append(float(temp[6]))
-                    Eprod.append(float(temp[7]))
-                    Emax.append(float(temp[8]))
+                    for i in range(5,9):
+                        data[i].append(float(l[i]))
                 else:
-                    Ex.append(0.)
-                    Ey.append(0.)
-                    Eprod.append(0.)
-                    Emax.append(0.)
+                    for i in range(5,9):
+                        data[i].append(0.)
             line = ifile.readline()
-    return(pd.DataFrame(data = {
-        'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
-        'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax}, index = x))
+    return(pd.DataFrame(data =
+        dict(zip(['Bx','By','Bprod','Bmax','Ex','Ey','Eprod','Emax'],data[1:])),
+        index = data[0]))
 
 def convert_DAT(file_path, **kwargs):
     """read a DAT file and write it to a csv
@@ -194,7 +196,7 @@ def convert_DAT(file_path, **kwargs):
     fn = emf_funks.path_manage(os.path.basename(file_path)[:file_path.index('.')],
         'csv', **kwargs)
     with open(fn, 'w') as ofile:
-        df.to_csv(ofile)
+        df.to_csv(ofile, index_label = 'dist (ft)')
         print('DAT converted to csv: "%s"' % fn)
 
 def convert_DAT_crawl(dir_name, **kwargs):
@@ -233,16 +235,18 @@ def convert_DAT_crawl(dir_name, **kwargs):
                     fn = os.path.dirname(dir_element) + '/converted_DATs.xlsx'
                     xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
                 #use the DAT's filename as the sheet name, without extension
-                sn = os.path.basename(dir_element)[:-4]
+                sn = os.path.basename(dir_element).replace('.DAT','')
                 #read the DAT into a DataFrame and send it to the ExcelWriter
-                read_DAT(dir_element).to_excel(xl, sheet_name = sn)
+                read_DAT(dir_element).to_excel(xl, sheet_name = sn,
+                    index_label = 'dist (ft)')
             else:
                 #without bundling, write an individual csv file
                 convert_DAT(dir_element, path = os.path.dirname(dir_name) + '/')
         else:
             #if there's a period in the dir_element, it's not a directory
             if(os.path.isdir(dir_element)):
-                convert_DAT_crawl(dir_element + '\\*', **kwargs)
+                convert_DAT_crawl(dir_element + '/*', **kwargs)
+    #close/save the excel bundles DAT results
     if(bundle and xl_flag):
         xl.save()
         print('Converted DAT files written to "%s"' % fn)
