@@ -139,9 +139,7 @@ class CrossSection:
         returns:
             left - pandas Series with left ROW edge results
             right - pandas Series with right ROW edge results"""
-        left = self.fields.iloc[self.lROWi]
-        right = self.fields.iloc[self.rROWi]
-        return(left, right)
+        return(self.fields.iloc[[self.lROWi, self.rROWi]])
 
     def compare_DAT(self, DAT_path, **kwargs):
         """Load a FIELDS output file (.DAT), find absolute and percentage
@@ -193,7 +191,7 @@ class CrossSection:
             kwargs['save'] = True
         if('save' in kwargs):
             if(kwargs['save']):
-                fn = emf_funks.path_manage(self.name + '-DAT_comparison',
+                fn = emf_funks._path_manage(self.name + '-DAT_comparison',
                     '.xlsx', **kwargs)
                 pan.to_excel(fn, index_label = 'x')
                 print('DAT comparison book saved to: "%s"' % fn)
@@ -307,26 +305,34 @@ class SectionBook:
             if(file_type[0] == '.'):
                 file_type = file_type[1:]
             if(file_type == 'excel'):
-                wo = emf_funks.path_manage(self.name + '-ROW_edge_results',
-                    '.xlsx', **kwargs)
+                wo = emf_funks._path_manage(self.name + '-ROW_edge_results',
+                        '.xlsx', **kwargs)
         if(wo):
             self.ROW_edge_max.to_excel(wo, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
-            wo = emf_funks.path_manage(self.name + '-ROW_edge_results',
+            wo = emf_funks._path_manage(self.name + '-ROW_edge_results',
                 '.csv', **kwargs)
             self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
-        print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
+        if(not ('xl' in kwargs)):
+            print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
 
     def results_export(self, **kwargs):
         """Write all of the cross section results to an excel workbook"""
         #path management
-        fn = emf_funks.path_manage(self.name + '-full_results', '.xlsx', **kwargs)
-        #data management
+        fn = emf_funks._path_manage(self.name + '-all_results', '.xlsx',
+                **kwargs)
+        #write results
         xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
         for xc in self:
             xc.fields.to_excel(xlwriter, sheet_name = xc.name)
         print('Full SectionBook results written to: "%s"' % fn)
+
+    def update(self):
+        """Executes all of the update functions"""
+        self._update_fields()
+        self._update_ROW_edge_max()
+        self._update_tag_groups()
 
     def ion(self):
         emf_plots.ion()
@@ -334,23 +340,17 @@ class SectionBook:
     def show(self):
         emf_plots.show()
 
-    #---------------------------------------------------------------------------
+    #----------------------------------
     #functions that update SectionBook variables when CrossSections are done
     #being added or when CrossSection data changes
 
-    def update(self):
-        """Executes all of the update functions"""
-        self.update_fields()
-        self.update_ROW_edge_max()
-        self.update_tag_groups()
-
-    def update_fields(self):
+    def _update_fields(self):
         """run the fields calculations for each CrossSection in the
         SectionBook"""
         for xc in self:
             xc.calculate_fields()
 
-    def update_ROW_edge_max(self):
+    def _update_ROW_edge_max(self):
         """Execution populates the self.ROW_edge_max DataFrame with
         the most current results of the fields calculation in each
         CrossSection."""
@@ -367,10 +367,10 @@ class SectionBook:
             titles.append(xc.title)
         #construct DataFrame
         self.ROW_edge_max = pd.DataFrame(data = {
-            'name' : self.names, 'title' : titles, 'Bmaxl' : Bl, 'Emaxl' : El,
-            'Bmaxr' : Br, 'Emaxr' : Er}).sort_values('name')
+            'name': self.names, 'title': titles, 'Bmaxl': Bl, 'Emaxl': El,
+            'Bmaxr': Br, 'Emaxr': Er}).sort_values('name')
 
-    def update_tag_groups(self):
+    def _update_tag_groups(self):
         """Generate a list of lists of CrossSection indices with the same tag"""
         u = list(set(self.tags)) #get unique CrossSection tags
         self.tag_groups = [[] for i in range(len(u))]

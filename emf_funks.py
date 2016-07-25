@@ -20,7 +20,7 @@ def load_template(file_path, **kwargs):
         sheets - a list of sheet names to load, default is all sheets"""
     #import the cross sections as a dictionary of pandas DataFrames, also
     #getting a list of the ordered sheets
-    file_path = check_extention(file_path, 'xlsx', """
+    file_path = _check_extension(file_path, 'xlsx', """
         Templates must be excel workbooks. The input target path
             "%s"
         is not recognized as an excel file""" % file_path)
@@ -159,10 +159,10 @@ def optimize_phasing(xc, circuits, **kwargs):
         path - location/filename for saved results workbook, forces saving
                even if no 'save' keyword is used.
     returns:
-        results - DataFrame listing conductor phasings that optimize
-                  electric and magnetic fields at both ROW edges.
+        res - DataFrame listing conductor phasings that optimize electric
+              and magnetic fields at both ROW edges.
         opt - a new SectionBook object containing the permuted phasings that
-             optimize the E and B fields at the left and right ROW edges."""
+              optimize the E and B fields at the left and right ROW edges."""
 
     if(circuits == 'all'):
         #number of hot wires
@@ -175,33 +175,29 @@ def optimize_phasing(xc, circuits, **kwargs):
             assumed to be three-phase and conductors comprising each circuit
             are assumed to be consecutive groups of three, in the order that
             they appear in the template. The number of hot conductors is not a
-            multiple of three in CrossSection "%s" """ % xc.name))
+            multiple of three in the CrossSection named: "%s" """ % xc.name))
         #number of circuits, groups of 3 hot conductors
         G = int(N/3)
         #circuits, consecutive groups of three conductors
         circuits = [range(i*3,i*3 + 3) for i in range(G)]
-
+    else:
+        #check that all conductor indices are integers
+        for circ in range(len(circuits)):
+            for idx in circ:
+                if(type(idx) is not int):
+                    raise(emf_class.EMFError("""
+                    Conductor indices in circuits must be integers."""))
     #all permutations of the phases of each circuit
     perm = []
     for c in circuits:
         perm.append(list(itertools.permutations(c)))
     #all possible arrangements of line phasings, 6 permutations for each circuit
-    #so 6^(N/3) total line arrangements
-    P = list(itertools.product(*perm))
-    #flatten the elements of P
-    for i in range(len(P)):
-        P[i] = [item for sublist in P[i] for item in sublist]
-    #turn P into an array
-    P = np.array(P, dtype = int)
-    #notifications, remove later
-    print("""
-    Optimizing phasing of CrossSection "%s":
-        Permuting %d total conductors in %d circuits
-        Number of permutations to test at ROW edges = %d"""
-        % (xc.title, P.shape[1], len(circuits), P.shape[0]))
+    #so 6^(N/3) total line arrangements. Leave P as a generator to avoid storing
+    #a huge, factorial sized array of indices
+    P = itertools.product(*perm)
     #variables to find the minima with respect to each field and ROW edge
-    B_left_min, B_left_idx, B_right_min, B_right_idx = np.inf, -1, np.inf, -1
-    E_left_min, E_left_idx, E_right_min, E_right_idx = np.inf, -1, np.inf, -1
+    B_left_min, B_left_arr, B_right_min, B_right_arr = np.inf, [], np.inf, []
+    E_left_min, E_left_arr, E_right_min, E_right_arr = np.inf, [], np.inf, []
     #make sure the necessary CrossSection variables are set
     xc.update_arrays()
     #get coordinates of the ROW edges
@@ -211,44 +207,39 @@ def optimize_phasing(xc, circuits, **kwargs):
     phasing = xc.phase.copy()
     #store a flattened version of the conductor indices for swapping
     conds = np.array([item for sublist in circuits for item in sublist],
-        dtype = int)
-    #loop through all possible combinations in P
-    for i in range(len(P)):
-        #swap phases accordingly
-        phasing[conds] = xc.phase[P[i,:]]
-        #calculate fields with index swapped data
-        Ex, Ey = emf_calcs.E_field(xc.x, xc.y, xc.subconds, xc.d_cond,
-                                    xc.d_bund, xc.V, phasing, x_ROW, y_ROW)
-        Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
-        Bx, By = emf_calcs.B_field(xc.x, xc.y, xc.I, phasing, x_ROW, y_ROW)
-        Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
+                dtype = int)
+    #loop through all possible arrangements in P
+    for arr in P:
+        #calculate fields at ROW edges with the new arrangement
+        Bmax,Emax,new_arr = _phasing_test(xc, x_ROW, y_ROW, conds, phasing, arr)
         #test for minima
         if(Bmax[0] < B_left_min):
-            B_left_min, B_left_idx = Bmax[0], i
+            B_left_min, B_left_arr = Bmax[0], new_arr
         if(Bmax[1] < B_right_min):
-            B_right_min, B_right_idx = Bmax[1], i
+            B_right_min, B_right_arr = Bmax[1], new_arr
         if(Emax[0] < E_left_min):
-            E_left_min, E_left_idx = Emax[0], i
+            E_left_min, E_left_arr = Emax[0], new_arr
         if(Emax[1] < E_right_min):
-            E_right_min, E_right_idx = Emax[1], i
+            E_right_min, E_right_arr = Emax[1], new_arr
     #return results in a DataFrame
     results = pd.DataFrame(data = {
-        'Optimal Phasing - Bmax Left ROW Edge' : xc.phase[P[B_left_idx,:]],
-        'Optimal Phasing - Bmax Right ROW Edge' : xc.phase[P[B_right_idx,:]],
-        'Optimal Phasing - Emax Left ROW Edge' : xc.phase[P[E_left_idx,:]],
-        'Optimal Phasing - Emax Right ROW Edge' : xc.phase[P[E_right_idx,:]]},
+        'Optimal Phasing - Bmax Left ROW Edge' : xc.phase[B_left_arr],
+        'Optimal Phasing - Bmax Right ROW Edge' : xc.phase[B_right_arr],
+        'Optimal Phasing - Emax Left ROW Edge' : xc.phase[E_left_arr],
+        'Optimal Phasing - Emax Right ROW Edge' : xc.phase[E_right_arr]},
         index = [xc.hot[i].tag for i in conds])
     #compile a new sectionbook with the optimal phasings
     opt = emf_class.SectionBook('%s-optimal_phasing' % xc.title)
     names = ['Optimized_for_Bmax_left','Optimized_for_Bmax_right',
             'Optimized_for_Emax_left','Optimized_for_Emax_right']
     titles = ['Bmax_l','Bmax_r','Emax_l','Emax_r']
+    tags = ['Optimized for Magnetic Field']*2+['Optimized for Electric Field']*2
     subtitles = results.columns
-    for n, t, s in zip(names, titles, subtitles):
+    for n,ti,s,ta in zip(names, titles, subtitles, tags):
         #copy the input XC
         new_xc = copy.deepcopy(xc)
         #change the identification fields
-        new_xc.name, new_xc.title, new_xc.subtitle = n, t, s
+        new_xc.name, new_xc.title, new_xc.subtitle, new_xc.tag = n, ti, s, ta
         #swap the conductor phasings
         for c in new_xc.hot:
             t = c.tag
@@ -263,7 +254,7 @@ def optimize_phasing(xc, circuits, **kwargs):
         kwargs['save'] = True
     if('save' in kwargs):
         if(kwargs['save']):
-            fn = path_manage(xc.name + '_phase_optimization', 'xlsx', **kwargs)
+            fn = _path_manage(xc.name + '_phase_optimization', 'xlsx', **kwargs)
             xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
             results.to_excel(xl, index_label = 'Conductor Tag',
                 sheet_name = 'phase_assignments')
@@ -271,9 +262,45 @@ def optimize_phasing(xc, circuits, **kwargs):
             for xc in opt:
                 xc.fields.to_excel(xl, sheet_name = xc.name)
             xl.save()
-            print('Optimal phasing results written to "%s"' % fn)
+            print('Phase optimization results written to "%s"' % fn)
 
     return(results, opt)
+
+def _phasing_test(xc, x_ROW, y_ROW, conds, phasing, arr):
+    """Calculate fields at the ROW edges for a given phasing arrangement,
+    called by optimize_phasing()
+    args:
+        xc - CrossSection object with phases to test
+        x_ROW - array of the ROW edge x coordinates, to avoid repeated
+                creation of this array for emf_calcs to work on
+        y_ROW - array of the ROW edge y coordinates, to avoid repeated
+                creation of this array for emf_calcs to work on
+        conds - indices of conductors in xc.hot under consideration
+        phasing - a copy of xc.phase to mess with
+        arr - permuted phases for the conductors indexed by conds,
+              list of lists that will be flattened
+    returns:
+        Bmax - array of two B field values, the 0th being the field at the
+               left ROW edge, 1st is at right ROW edge
+        Emax - array of two E field values, the 0th being the field at the
+               left ROW edge, 1st is at right ROW edge
+        new_arr - flattened version of arr in case it needs to be stored"""
+    #flatten the new arrangement
+    new_arr = _flatten(arr)
+    #swap phases according to the new phasing arrangement
+    phasing[conds] = xc.phase[new_arr]
+    #calculate fields with index swapped phases
+    Ex, Ey = emf_calcs.E_field(xc.x, xc.y, xc.subconds, xc.d_cond,
+                                xc.d_bund, xc.V, phasing, x_ROW, y_ROW)
+    Ex, Ey, Eprod, Emax = emf_calcs.phasors_to_magnitudes(Ex, Ey)
+    Bx, By = emf_calcs.B_field(xc.x, xc.y, xc.I, phasing, x_ROW, y_ROW)
+    Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
+    #return results
+    return(Bmax, Emax, new_arr)
+
+#Flatten a list of lists. Only works on a list and the first level of
+#sublists, not recursively on all levels
+_flatten = lambda L: [item for sublist in L for item in sublist]
 
 def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
     """Increase conductor y coordinates until fields at ROW edges are below
@@ -295,7 +322,7 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
              cause the returned SectionBook to omit that field-edge combo.
 
     kwargs:
-        max_iter - maximum number of bisection iterations allowed
+        max_iter - maximum number of _bisection iterations allowed
                    default is 1e3
         rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %)
                   default is 1e-6.
@@ -335,16 +362,16 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
     #run secant method to find adjustments for each target
     h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
     if(B_l):
-        h_B_l = bisect(xc, conds, xc.lROWi, B_funk, B_l, hlow, hhigh,
+        h_B_l = _bisect(xc, conds, xc.lROWi, _B_funk, B_l, hlow, hhigh,
             max_iter, rel_err)
     if(B_r):
-        h_B_r = bisect(xc, conds, xc.rROWi, B_funk, B_r, hlow, hhigh,
+        h_B_r = _bisect(xc, conds, xc.rROWi, _B_funk, B_r, hlow, hhigh,
             max_iter, rel_err)
     if(E_l):
-        h_E_l = bisect(xc, conds, xc.lROWi, E_funk, E_l, hlow, hhigh,
+        h_E_l = _bisect(xc, conds, xc.lROWi, _E_funk, E_l, hlow, hhigh,
             max_iter, rel_err)
     if(E_r):
-        h_E_r = bisect(xc, conds, xc.rROWi, E_funk, E_r, hlow, hhigh,
+        h_E_r = _bisect(xc, conds, xc.rROWi, _E_funk, E_r, hlow, hhigh,
             max_iter, rel_err)
     #create return variables
     h = (h_B_l, h_B_r, h_E_l, h_E_r)
@@ -357,7 +384,7 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
                 'Height Adjusted for %f kV/m at left ROW edge' % E_l,
                 'Height Adjusted for %f kV/m at left ROW edge' % E_r]
     for n, t, s, a in zip(names, titles, subtitles, h):
-        if(a != None):
+        if(a is not None):
             #copy the input XC
             new_xc = copy.deepcopy(xc)
             #change the identification fields
@@ -376,7 +403,7 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
         kwargs['save'] = True
     if('save' in kwargs):
         if(kwargs['save']):
-            fn = path_manage(xc.name + '_height_adjustments', 'xlsx', **kwargs)
+            fn = _path_manage(xc.name + '_height_adjustments', 'xlsx', **kwargs)
             xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
             pd.DataFrame(data = list(h), index = names,
                 columns = ['Height Addition (ft)']).to_excel(xl,
@@ -389,7 +416,7 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
 
     return(h, adj)
 
-def bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter, rel_err):
+def _bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter, rel_err):
     #get sample x and y arrays with a single element in each
     x_sample = np.array([xc.x_sample[sample_idx]], dtype = float)
     y_sample = np.array([xc.y_sample[sample_idx]], dtype = float)
@@ -424,12 +451,12 @@ def bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter, rel_err):
     #check if the iteration limit was hit
     if(count == max_iter):
         raise(emf_class.EMFError("""
-        Failure in bisection method. The iteration limit of %d was exceeded
+        Failure in _bisection method. The iteration limit of %d was exceeded
         with a relative error threshold of %g. The final estimate was
         %g""" % (max_iter, rel_err, fmid)))
     return(hmid)
 
-def B_funk(h, target, xc, conds, x_sample, y_sample):
+def _B_funk(h, target, xc, conds, x_sample, y_sample):
     #adjust conductor heights
     y = xc.y.astype(float, copy = True)
     y[conds] += h
@@ -439,7 +466,7 @@ def B_funk(h, target, xc, conds, x_sample, y_sample):
     Bx, By, Bprod, Bmax = emf_calcs.phasors_to_magnitudes(Bx, By)
     return(Bmax[0] - target)
 
-def E_funk(h, target, xc, conds, x_sample, y_sample):
+def _E_funk(h, target, xc, conds, x_sample, y_sample):
     #adjust conductor heights
     y = xc.y.astype(float, copy = True)
     y[conds] += h
@@ -481,7 +508,7 @@ def run(template_path, **kwargs):
     emf_plots.plot_groups(sb, **kwargs)
     return(sb)
 
-def path_manage(filename_if_needed, extension, **kwargs):
+def _path_manage(filename_if_needed, extension, **kwargs):
     """This function takes a path string through the kwarg 'path' and
     returns a path string with a file name at it's end, to save a file
     at that location. If the path string is a directory (ends with a slash
@@ -507,40 +534,25 @@ def path_manage(filename_if_needed, extension, **kwargs):
     if(extension):
         if(extension[0] != '.'):
             extension = '.' + extension
-    #construct the path
+    #check if there is a path kwarg
     if('path' in kwargs):
-        p = os.path.normcase(kwargs['path'])
-        #if there's a filename_if_needed argument and a 'path' keyword, assume
-        #the 'path' argument is a directory. Append a slash if it has no
-        #leading director(y/ies)
-        if(filename_if_needed and p):
-            if(os.path.split(p)[1] == ''):
-                p += '/'
-        #split the path
-        head,tail = os.path.split(p)
-        #check that head describes an existing directory if it isn't empty
-        if(head and not(os.path.isdir(head))):
-            raise(emf_class.EMFError("""
-            The path string:
-              '%s'
-            was not recognized as an existing directory, invalid
-            path string""" % head))
-        #if a file name lies at the end of p, replace its extension
-        if(tail):
-            if('.' in tail):
-                tail = tail[:tail.index('.')]
-            if(head):
-                return(head + '/' + tail + extension)
-            else:
-                return(tail + extension)
-        #if no file name, but a directory
-        elif(head):
-            return(head + '/' + filename_if_needed + extension)
-    #if 'path' kwarg is empty or missing
-    return(filename_if_needed + extension)
+        path = kwargs['path']
+        #check if the input path is a directory
+        if(os.path.isdir(path)):
+            #join the directory string, file string, and extension string
+            return(os.path.join(path, filename_if_needed + extension))
+        else:
+            #path string interpreted as path to a file, not directory
+            #strip any extensions
+            if('.' in path):
+                path = path[1:path.rfind('.')]
+            #put intended extension on the end and return
+            return(path + extension)
+    else: #otherwise just use filename_if_needed and extension
+        return(filename_if_needed + extension)
 
-def check_extention(file_path, correct_ext, message):
-    """Check that a file path has the desired extention, raising an error if
+def _check_extension(file_path, correct_ext, message):
+    """Check that a file path has the desired extension, raising an error if
     not and appending the correct extension if no extension is present.
     args:
         file_path - a target file path
@@ -559,10 +571,10 @@ def check_extention(file_path, correct_ext, message):
         file_path += '.' + correct_ext
     return(file_path)
 
-def is_number(s):
+def _is_number(s):
     """Check if an element can be converted to a float, returning `True`
     if it can and `False` if it can't"""
-    if(s == None):
+    if(s is None):
         return(False)
     else:
         try:

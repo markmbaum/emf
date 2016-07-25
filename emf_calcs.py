@@ -15,10 +15,10 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     d_cond = d_cond[ohd]*0.0254         #convert to meters
     d_bund = d_bund[ohd]*0.0254         #convert to meters
     V_cond = V_cond[ohd]/np.sqrt(3)     #convert to ground reference from
-                                        #line-line reference, leave in kV
+                                            #line-line reference, leave in kV
     p_cond = p_cond[ohd]*2*np.pi/360.   #convert to radians
-    x      = x*0.3048                   #convert to meters
-    y      = y*0.3048                   #convert to meters
+    x = x*0.3048                        #convert to meters
+    y = y*0.3048                        #convert to meters
 
     #convenient variables/constants
     epsilon = 8.854e-12
@@ -30,13 +30,13 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     d_cond  = d_bund*((subconds*d_cond/d_bund)**(1./subconds))
 
     #compute the matrix of potential coefficients
+    range_N = range(N)
     P = np.empty((N,N))
     #diagonals
-    for i in range(N):
-        P[i,i] = C*np.log(4*y_cond[i]/d_cond[i])
+    P[range_N, range_N] = C*np.log(4*y_cond/d_cond)
     #other elements
-    for a in range(N):
-        for b in range(N):
+    for a in range_N:
+        for b in range_N:
             if(a != b):
                 n = (x_cond[a] - x_cond[b])**2 + (y_cond[a] + y_cond[b])**2
                 d = (x_cond[a] - x_cond[b])**2 + (y_cond[a] - y_cond[b])**2
@@ -99,11 +99,11 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
     x_cond = x_cond*0.3048          #convert to meters
     y_cond = y_cond*0.3048          #convert to meters
     p_cond = p_cond*2*np.pi/360.    #convert to radians
-    x      = x*0.3048               #convert to meters
-    y      = y*0.3048               #convert to meters
+    x = x*0.3048                    #convert to meters
+    y = y*0.3048                    #convert to meters
 
     #initialize complex current phasors
-    I = I_cond*(np.cos(p_cond) + complex(1j)*np.sin(p_cond))
+    I = I_cond*(np.cos(p_cond) + complex(0,1)*np.sin(p_cond))
 
     #compute magnetic field component phasors for each x,y point
     Bx = np.zeros((Z,), dtype = complex)
@@ -158,11 +158,6 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
     term2 = mag_y_sq*(np.cos(t2 + phase_y))**2
     ax_mag2 = np.sqrt(term1 + term2)
     #pick out the semi-major axis magnitude from the two semi-axis results
-    maximum = np.zeros((len(Ph_x),))
-    for i in range(len(maximum)):
-        if(ax_mag1[i] > ax_mag2[i]):
-            maximum[i] = ax_mag1[i]
-        else:
-            maximum[i] = ax_mag2[i]
+    maximum = np.maximum(ax_mag1, ax_mag2)
     #return the 4 output colums
     return(mag_x, mag_y, prod, maximum)

@@ -9,7 +9,7 @@ import emf_class
 #-------------------------------------------------------------------------------
 #FUNCTIONS FOR GENERATING INPUT .FLD FILES
 
-def is_int(x):
+def _is_int(x):
     """check if a number is an integer, will break on non-numeric entries"""
     if(int(x) == x):
         return True
@@ -17,22 +17,23 @@ def is_int(x):
         return False
 
 #function formats entries and writes them into a .FLD file targeted by ofile
-def write_entry(ofile, entry):
+def _write_entries(ofile, *entries):
     """format entries and writes them into a .FLD file targeted by ofile"""
-    if(emf_funks.is_number(entry)):
-        if(is_int(entry)):
-            w = '{:< d} \n'.format(int(entry))
+    for entry in entries:
+        if(emf_funks._is_number(entry)):
+            if(_is_int(entry)):
+                w = '{:< d} \n'.format(int(entry))
+            else:
+                w = '{:< .2f} \n'.format(float(entry))
+            if('.' in w):
+                idx = w.index('.')
+                if('0' in w[:idx]):
+                    idx = w.index('0')
+                    if(not emf_funks._is_number(w[idx-1])):
+                        w = w[:idx] + w[idx+1:]
         else:
-            w = '{:< .2f} \n'.format(float(entry))
-        if('.' in w):
-            idx = w.index('.')
-            if('0' in w[:idx]):
-                idx = w.index('0')
-                if(not emf_funks.is_number(w[idx-1])):
-                    w = w[:idx] + w[idx+1:]
-    else:
-        w = str(entry) + '\n'
-    ofile.write(w)
+            w = str(entry) + '\n'
+        ofile.write(w)
 
 def to_FLD(xc, **kwargs):
     """Create an FLD input file for FIELDS out of a CrossSection object
@@ -47,42 +48,24 @@ def to_FLD(xc, **kwargs):
         input of type: %s
         Use to_FLDs() for a SectionBook object.""" % str(type(xc))))
     #get a filename
-    fn = emf_funks.path_manage(xc.name, 'FLD', **kwargs)
+    fn = emf_funks._path_manage(xc.name, 'FLD', **kwargs)
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
-    write_entry(ofile, xc.title)
-    write_entry(ofile, xc.subtitle)
-    write_entry(ofile, 60)
-    write_entry(ofile, xc.soil_resistivity)
-    write_entry(ofile, xc.max_dist)
-    write_entry(ofile, xc.step)
-    write_entry(ofile, xc.sample_height)
-    write_entry(ofile, xc.lROW)
-    write_entry(ofile, xc.rROW)
+    _write_entries(ofile, xc.title, xc.subtitle, 60, xc.soil_resistivity,
+            xc.max_dist, xc.step, xc.sample_height, xc.lROW, xc.rROW)
     #number of conductors and ground wires
     Lconds = len(xc.hot)
-    write_entry(ofile, Lconds)
+    _write_entries(ofile, Lconds)
     Lgrounds = len(xc.gnd)
-    write_entry(ofile, Lgrounds)
+    _write_entries(ofile, Lgrounds)
     #write the hot and gnd conductor data in the same format
     for c in xc.hot + xc.gnd:
-        write_entry(ofile, c.tag)
-        write_entry(ofile, c.x)
-        write_entry(ofile, c.y)
-        write_entry(ofile, c.subconds)
-        write_entry(ofile, c.d_cond)
-        write_entry(ofile, c.d_bund)
-        write_entry(ofile, 'ED!(I)')
-        write_entry(ofile, c.I)
-        write_entry(ofile, c.V)
-        write_entry(ofile, c.phase)
+        _write_entries(ofile, c.tag, c.x, c.y, c.subconds, c.d_cond, c.d_bund,
+                'ED!(I)', c.I, c.V, c.phase)
     #write the ground wire data a second time, in a different format
     for c in xc.gnd:
-        write_entry(ofile, c.tag)
-        write_entry(ofile, c.x)
-        write_entry(ofile, c.y)
-        write_entry(ofile, c.d_cond)
+        _write_entries(ofile, c.tag, c.x, c.y, c.d_cond)
     #close/save
     ofile.close()
     print('FLD file generated: "%s"' % fn)
@@ -150,7 +133,7 @@ def read_DAT(file_path):
     numbers are too large (percent signs)"""
 
     #check that the target file is a DAT
-    emf_funks.check_extention(file_path, 'DAT', """
+    emf_funks._check_extension(file_path, 'DAT', """
         Input file must have a '.DAT' extension.""")
     #load data
     und_message = 'Electric Field cannot be computed for underground circuit'
@@ -170,7 +153,7 @@ def read_DAT(file_path):
                 if(line[0][0] == '%'):
                     line += ifile.readline()
             l = [i.replace('%','') for i in line.split()]
-            if(l and all([emf_funks.is_number(i) for i in l])):
+            if(l and all([emf_funks._is_number(i) for i in l])):
                 for i in range(5):
                     data[i].append(float(l[i]))
                 if(not (und_only)):
@@ -193,7 +176,7 @@ def convert_DAT(file_path, **kwargs):
     #get the DAT data
     df = read_DAT(file_path)
     #write it to a csv
-    fn = emf_funks.path_manage(os.path.basename(file_path)[:file_path.index('.')],
+    fn = emf_funks._path_manage(os.path.basename(file_path)[:file_path.index('.')],
         'csv', **kwargs)
     with open(fn, 'w') as ofile:
         df.to_csv(ofile, index_label = 'dist (ft)')
