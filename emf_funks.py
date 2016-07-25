@@ -559,8 +559,6 @@ def check_extention(file_path, correct_ext, message):
         file_path += '.' + correct_ext
     return(file_path)
 
-
-
 def is_number(s):
     """Check if an element can be converted to a float, returning `True`
     if it can and `False` if it can't"""

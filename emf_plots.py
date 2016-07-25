@@ -552,7 +552,19 @@ def plot_groups(sb, **kwargs):
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
         format - string, saved plot format/extension (default 'png')
-        xmax - cutoff distance from ROW center"""
+        xmax - cutoff distance from ROW center
+        return_figs - toggle whether a list of figure objects is returned
+                      instead of closing the figures to clear memory,
+                      default is False
+    returns:
+        figs - list of figure objects created for each group, only returned
+               if the kwarg 'return_figs' is True"""
+    #check return kwarg
+    return_figs = False
+    if('return_figs' in kwargs):
+        if(kwargs['return_figs']):
+            return_figs = True
+            figs = []
     #iterate over groups with more than 1 CrossSection
     for g in [group for group in sb.tag_groups if len(group) > 1]:
         xcs = [sb.xcs[i] for i in g]
@@ -577,7 +589,11 @@ def plot_groups(sb, **kwargs):
         format_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
         save_fig('group_%s-Bmax' % str(xcs[0].tag), fig, **kwargs)
-        plt.close(fig)
+        #store the fig or close it
+        if(return_figs):
+            figs.append(fig)
+        else:
+            plt.close(fig)
 
         #EMAX
         #get plotting objects
@@ -598,6 +614,13 @@ def plot_groups(sb, **kwargs):
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
         format_axes_legends(ax)
+
         #save the figure if keyword 'save' == True, and append fig to figs
         save_fig('group_%s-Emax' % str(xcs[0].tag), fig, **kwargs)
-        plt.close(fig)
+        #store the fig or close it
+        if(return_figs):
+            figs.append(fig)
+        else:
+            plt.close(fig)
+    if(return_figs):
+        return(figs)
