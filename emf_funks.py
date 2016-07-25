@@ -497,7 +497,9 @@ def path_manage(filename_if_needed, extension, **kwargs):
         filename_if_needed - name of file if not in path string
         extension - file extension
     kwargs:
-        path - string, destination/filename for saved file(s)"""
+        path - string, destination/filename for saved file(s)
+    returns:
+        conditioned path string"""
     #remove extensions from filename_if_needed
     if('.' in filename_if_needed):
         filename_if_needed = filename_if_needed[:filename_if_needed.index('.')]
@@ -512,16 +514,17 @@ def path_manage(filename_if_needed, extension, **kwargs):
         #the 'path' argument is a directory. Append a slash if it has no
         #leading director(y/ies)
         if(filename_if_needed and p):
-            if(all(os.path.split(p))):
+            if(os.path.split(p)[1] == ''):
                 p += '/'
         #split the path
         head,tail = os.path.split(p)
         #check that head describes an existing directory if it isn't empty
-        if(head and (not os.path.isdir(head))):
+        if(head and not(os.path.isdir(head))):
             raise(emf_class.EMFError("""
-            "%s"
-            was not recognized as an existing directory, invalid path string"""
-            % head))
+            The path string:
+              '%s'
+            was not recognized as an existing directory, invalid
+            path string""" % head))
         #if a file name lies at the end of p, replace its extension
         if(tail):
             if('.' in tail):
