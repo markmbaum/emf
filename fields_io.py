@@ -126,7 +126,7 @@ def to_FLDs_crawl(dir_name, **kwargs):
                 to_FLDs_crawl(dir_element + '\\*')
 
 #------------------------------------------------------------------------------
-#FUNCTIONS FOR CONVERTING OUTPUT .DAT FILES TO CSV FILE AND PLOTTING
+#FUNCTIONS FOR CONVERTING OUTPUT .DAT FILES TO CSV/EXCEL FILES
 
 def read_DAT(file_path):
     """Read a DAT file, which can have some funky extra characters if the
