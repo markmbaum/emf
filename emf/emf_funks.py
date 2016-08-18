@@ -3,7 +3,6 @@ import copy
 import itertools
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 import emf_class
 import emf_calcs
@@ -503,7 +502,7 @@ def run(template_path, **kwargs):
     #export single CrossSection plots
     for xc in sb:
         fig = emf_plots.plot_max_fields(xc, **kwargs)
-        plt.close(fig)
+        emf_plots.plt.close(fig)
     #export group comparison plots
     emf_plots.plot_groups(sb, **kwargs)
     return(sb)
@@ -574,12 +573,11 @@ def _check_extension(file_path, correct_ext, message):
 def _is_number(s):
     """Check if an element can be converted to a float, returning `True`
     if it can and `False` if it can't"""
-    if(s is None):
+    if((s is False) or (s is True)):
+        return(False)
+    try:
+        float(s)
+    except(ValueError, TypeError):
         return(False)
     else:
-        try:
-            float(s)
-        except ValueError:
-            return(False)
-        else:
-            return(True)
+        return(True)
