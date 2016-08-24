@@ -545,7 +545,7 @@ def _path_manage(filename_if_needed, extension, **kwargs):
             #path string interpreted as path to a file, not directory
             #strip any extensions
             if('.' in path):
-                path = path[1:path.rfind('.')]
+                path = path[:path.rfind('.')]
             #put intended extension on the end and return
             return(path + extension)
     else: #otherwise just use filename_if_needed and extension
