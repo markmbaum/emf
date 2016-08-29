@@ -1,10 +1,10 @@
 import numpy as np
 
-emf_calcs_epsilon = 8.854e-12   #electric permeability constant, in SI units
-emf_calcs_C_E = 1./(2.*np.pi*emf_calcs_epsilon  #convenient constant
+_fields_calcs_epsilon = 8.854e-12   #electric permeability constant, in SI units
+_fields_calcs_C_E = 1./(2.*np.pi*_fields_calcs_epsilon)  #convenient constant
 
-emf_calcs_mu = 4*np.pi*1e-7     #magnetic permeability constant, in SI units
-emf_calcs_C_B = 1.0e7*emf_calcs_mu/(2.*np.pi)   #convenient constant
+_fields_calcs_mu = 4*np.pi*1e-7     #magnetic permeability constant, in SI units
+_fields_calcs_C_B = 1.0e7*_fields_calcs_mu/(2.*np.pi)   #convenient constant
                                                 #converted for mG
 
 def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
@@ -38,14 +38,14 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
     range_N = range(N)
     P = np.empty((N,N))
     #diagonals
-    P[range_N, range_N] = emf_calcs_C_E*np.log(4*y_cond/d_cond)
+    P[range_N, range_N] = _fields_calcs_C_E*np.log(4*y_cond/d_cond)
     #other elements
     for a in range_N:
         for b in range_N:
             if(a != b):
                 n = (x_cond[a] - x_cond[b])**2 + (y_cond[a] + y_cond[b])**2
                 d = (x_cond[a] - x_cond[b])**2 + (y_cond[a] - y_cond[b])**2
-                P[a,b] = emf_calcs_C_E*np.log(np.sqrt(n/d))
+                P[a,b] = _fields_calcs_C_E*np.log(np.sqrt(n/d))
 
     #initialize complex voltage phasors
     V = V_cond*(np.cos(p_cond) + complex(0,1)*np.sin(p_cond))
@@ -64,10 +64,10 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
         d1 = (x[a] - x_cond)**2 + (y[a] - y_cond)**2
         d2 = (x[a] - x_cond)**2 + (y[a] + y_cond)**2
         #x component numerator, the same for the conductor and its image
-        nx = emf_calcs_C_E*(x[a] - x_cond)
+        nx = _fields_calcs_C_E*(x[a] - x_cond)
         #y component numerators, different for the conductor and its image
-        ny1 = emf_calcs_C_E*(y[a] - y_cond)
-        ny2 = emf_calcs_C_E*(y[a] + y_cond)
+        ny1 = _fields_calcs_C_E*(y[a] - y_cond)
+        ny2 = _fields_calcs_C_E*(y[a] + y_cond)
         #evaluate
         Ex[:,a] = nx/d1 - nx/d2
         Ey[:,a] = ny1/d1 - ny2/d2
@@ -116,7 +116,7 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
             dx = x[a] - x_cond[b]
             dy = y[a] - y_cond[b]
             #magnitude phasor
-            B = emf_calcs_C_B*I[b]/np.sqrt(dx**2 + dy**2)
+            B = _fields_calcs_C_B*I[b]/np.sqrt(dx**2 + dy**2)
             #break it up into components
             theta = np.arctan(abs(dy/dx))
             #x component calculated with sine and y component with cosine

@@ -3,12 +3,12 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 lines = mpl.lines
 
-import emf_funks
+import fields_funks
 
 #rcparams for more static global formatting changes
 mpl.rcParams['figure.facecolor'] = 'white'
 mpl.rcParams['figure.figsize'] = (12, 6)
-mpl.rcParams['font.family'] = 'calibri'
+mpl.rcParams['font.family'] = 'Times New Roman'
 mpl.rcParams['text.color'] = (.2, .2, .2)
 mpl.rcParams['axes.labelcolor'] = (.2, .2, .2)
 mpl.rcParams['axes.titlesize'] = 16
@@ -19,15 +19,15 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_emf_plots_B_color = 'darkgreen'
-_emf_plots_E_color = 'midnightblue'
-_emf_plots_fields_linewidth = 2
-_emf_plots_ROW_linewidth = 0.75
-_emf_plots_ROW_color = 'gray'
-_emf_plots_ax_frameon = False
-_emf_plots_ax_ticks_on = False
-_emf_plots_leg_edge_on = False
-_emf_plots_colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
+_fields_plots_B_color = 'darkgreen'
+_fields_plots_E_color = 'midnightblue'
+_fields_plots_fields_linewidth = 2
+_fields_plots_ROW_linewidth = 0.75
+_fields_plots_ROW_color = 'gray'
+_fields_plots_ax_frameon = False
+_fields_plots_ax_ticks_on = False
+_fields_plots_leg_edge_on = False
+_fields_plots_colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
                     (0.9290, 0.6940, 0.1250),(0.4940, 0.1840, 0.5560),
                     (0.4660, 0.6740, 0.1880),(0.3010, 0.7450, 0.9330),
                     (0.6350, 0.0780, 0.1840)]
@@ -49,11 +49,11 @@ def _format_axes_legends(*args):
         leg = ax.get_legend()
         if(leg):
             rec = leg.get_frame()
-            if(not _emf_plots_leg_edge_on):
+            if(not _fields_plots_leg_edge_on):
                 rec.set_edgecolor('white')
         #apply axis formatting
-        ax.set_frame_on(_emf_plots_ax_frameon)
-        if(not _emf_plots_ax_ticks_on):
+        ax.set_frame_on(_fields_plots_ax_frameon)
+        if(not _fields_plots_ax_ticks_on):
             ax.tick_params(axis = 'both', which = 'both',
                 bottom = 'off', top = 'off', left = 'off', right = 'off')
     #take care of scaling problems caused by underground lines
@@ -88,7 +88,7 @@ def _save_fig(filename_if_needed, fig, **kwargs):
     if('save' in kwargs):
         if(kwargs['save']):
             #get filename
-            fn = emf_funks._path_manage(filename_if_needed, '', **kwargs)
+            fn = fields_funks._path_manage(filename_if_needed, '', **kwargs)
             #get format/extension
             if('format' in kwargs):
                 fmt = kwargs['format']
@@ -120,8 +120,8 @@ def _color_twin_axes(ax1, color1, ax2, color2):
 
 #useful globals for the CrossSection plotting routines, unlikely to collide
 #with other variables of the same name
-_emf_plots_xc_headspace = 0.4 #space at the top of plots for legend
-_emf_plots_xc_wireperc = 0.3 #percent of max field value to scale wire heights
+_fields_plots_xc_headspace = 0.4 #space at the top of plots for legend
+_fields_plots_xc_wireperc = 0.3 #percent of max field value to scale wire heights
 
 def _prepare_fig(xc, **kwargs):
     """Snippet executed at the beginning of plotting methods to handle figure
@@ -162,7 +162,7 @@ def _plot_wires(ax, hot, gnd, v):
     x = np.array([c.x for c in hot + gnd])
     y = np.array([c.y for c in hot + gnd])
     #calculate the scaling factor
-    scale = _emf_plots_xc_wireperc*np.max(v)/np.max(np.absolute(y))
+    scale = _fields_plots_xc_wireperc*np.max(v)/np.max(np.absolute(y))
     #plot
     h, l = [], []
     if(hot):
@@ -183,10 +183,10 @@ def _plot_ROW_edges(ax, lROW, rROW):
         lROW - x value of the left edge of the ROW
         rROW - x value of the right edge of the ROW"""
     yl = ax.get_ylim()
-    hROW = ax.plot([lROW]*2, yl, '--', color = _emf_plots_ROW_color,
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1)
-    ax.plot([rROW]*2, yl, '--', color = _emf_plots_ROW_color,
-                linewidth = _emf_plots_ROW_linewidth, zorder = -1)
+    hROW = ax.plot([lROW]*2, yl, '--', color = _fields_plots_ROW_color,
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1)
+    ax.plot([rROW]*2, yl, '--', color = _fields_plots_ROW_color,
+                linewidth = _fields_plots_ROW_linewidth, zorder = -1)
     l = ['ROW Edges']
     xl = ax.get_xlim()
     if((xl[0] == lROW) or (xl[1] == rROW)):
@@ -208,13 +208,13 @@ def plot_Bmax(xc, **kwargs):
     (fig, ax, xmax, linesym) = _prepare_fig(xc, **kwargs)
     #plot the field curve
     hB = ax.plot(xc.fields['Bmax'][-xmax:xmax], linesym,
-                color = _emf_plots_B_color,
-                linewidth = _emf_plots_fields_linewidth)
+                color = _fields_plots_B_color,
+                linewidth = _fields_plots_fields_linewidth)
     lB = ['Magnetic Field (mG)']
     #plot wires
     hw, lw = _plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'])
     #adjust axis limits
-    #ax.set_ylim(0, (1 + _emf_plots_xc_headspace)*max(xc.fields['Bmax']))
+    #ax.set_ylim(0, (1 + _fields_plots_xc_headspace)*max(xc.fields['Bmax']))
     #plot ROW lines
     hROW, lROW = _plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
@@ -247,8 +247,8 @@ def plot_Emax(xc, **kwargs):
     (fig, ax, xmax, linesym) = _prepare_fig(xc, **kwargs)
     #plot the field curve
     hE = ax.plot(xc.fields['Emax'][-xmax:xmax], linesym,
-                color = _emf_plots_E_color,
-                linewidth = _emf_plots_fields_linewidth)
+                color = _fields_plots_E_color,
+                linewidth = _fields_plots_fields_linewidth)
     lE = ['Electric Field (kV/m)']
     #plot wires
     hw, lw = _plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'])
@@ -285,11 +285,11 @@ def plot_max_fields(xc, **kwargs):
     ax_E = ax_B.twinx()
     #plot the field curves
     hf = [ax_B.plot(xc.fields['Bmax'][-xmax:xmax], linesym,
-                color = _emf_plots_B_color,
-                linewidth = _emf_plots_fields_linewidth)[0],
+                color = _fields_plots_B_color,
+                linewidth = _fields_plots_fields_linewidth)[0],
             ax_E.plot(xc.fields['Emax'][-xmax:xmax], linesym,
-                color = _emf_plots_E_color,
-                linewidth = _emf_plots_fields_linewidth)[0]]
+                color = _fields_plots_E_color,
+                linewidth = _fields_plots_fields_linewidth)[0]]
     lf = ['Magnetic Field (mG)', 'Electric Field (kV/m)']
     #plot wires
     hw, lw = _plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'])
@@ -297,15 +297,15 @@ def plot_max_fields(xc, **kwargs):
     hROW, lROW = _plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
     ax_B.set_xlabel('Distance from Center of ROW (ft)')
-    ax_B.set_ylabel('Maximum Magnetic Field (mG)', color = _emf_plots_B_color)
-    ax_E.set_ylabel('Maximum Electric Field (kV/m)', color = _emf_plots_E_color)
+    ax_B.set_ylabel('Maximum Magnetic Field (mG)', color = _fields_plots_B_color)
+    ax_E.set_ylabel('Maximum Electric Field (kV/m)', color = _fields_plots_E_color)
     if('title' in kwargs):
         t = kwargs['title']
     else:
         t = 'Maximum Magnetic and Electric Fields - %s' % xc.subtitle
     ax_B.set_title(t)
     #set color of axis spines and ticklabels
-    _color_twin_axes(ax_B, _emf_plots_B_color, ax_E, _emf_plots_E_color)
+    _color_twin_axes(ax_B, _fields_plots_B_color, ax_E, _fields_plots_E_color)
     #legend
     ax_B.legend(hf + hw + hROW, lf + lw + lROW, numpoints = 1)
     _format_axes_legends(ax_B, ax_E)
@@ -392,8 +392,8 @@ def plot_DAT_comparison(xc, pan, **kwargs):
 
 #useful globals for the section book plotting routine(s), unlikely to collide
 #with other variables of the same name
-_emf_plots_sb_headspace = 0.4 #space at the top of plots for legend
-_emf_plots_sb_wireperc = 0.3 #percent of max field value to scale wire heights
+_fields_plots_sb_headspace = 0.4 #space at the top of plots for legend
+_fields_plots_sb_wireperc = 0.3 #percent of max field value to scale wire heights
 
 def _plot_group_fields(ax, xcs, field, **kwargs):
     """Plot the results of fields calculations
@@ -417,11 +417,11 @@ def _plot_group_fields(ax, xcs, field, **kwargs):
         #plot
         if(xmax):
             h.append(ax.plot(fields_list[i][-xmax:xmax],
-                        color = _emf_plots_colormap[i%7],
-                        linewidth = _emf_plots_fields_linewidth)[0])
+                        color = _fields_plots_colormap[i%7],
+                        linewidth = _fields_plots_fields_linewidth)[0])
         else:
-            h.append(ax.plot(fields_list[i], color = _emf_plots_colormap[i%7],
-                        linewidth = _emf_plots_fields_linewidth)[0])
+            h.append(ax.plot(fields_list[i], color = _fields_plots_colormap[i%7],
+                        linewidth = _fields_plots_fields_linewidth)[0])
         l.append(field + ' - ' + xcs[i].title)
         #find max
         if(max(fields_list[i]) > max_field):
@@ -465,33 +465,33 @@ def _plot_group_wires(ax, xcs, max_field):
         #plot shared conductors
         h = []
         l = []
-        scale = _emf_plots_xc_wireperc*max_field/np.max(np.absolute(all_y))
+        scale = _fields_plots_xc_wireperc*max_field/np.max(np.absolute(all_y))
         #cross section 0 conductors only
         if(len(xy_0) > 0):
             x,y = zip(*xy_0)
             h.append(ax.plot(x, scale*np.array(y), 'd',
-                            color = _emf_plots_colormap[0])[0])
+                            color = _fields_plots_colormap[0])[0])
         else:
             #still need a handle for the legend
             h.append(lines.Line2D([], [], marker = 'd', linestyle = '',
-                            color = _emf_plots_colormap[0]))
+                            color = _fields_plots_colormap[0]))
         l.append('Conductors - ' + xcs[0].title)
         #cross section 1 conductors only
         if(len(xy_1) > 0):
             x,y = zip(*xy_1)
             h.append(ax.plot(x, scale*np.array(y), 'd',
-                            color = _emf_plots_colormap[1])[0])
+                            color = _fields_plots_colormap[1])[0])
         else:
             #still need a handle for the legend
             h.append(lines.Line2D([], [], marker = 'd', linestyle = '',
-                            color = _emf_plots_colormap[1]))
+                            color = _fields_plots_colormap[1]))
         l.append('Conductors - ' + xcs[1].title)
         #shared conductors
         if(len(shared) > 0):
             x,y = zip(*shared)
-            ax.plot(x, scale*np.array(y), 'd', color = _emf_plots_colormap[0],
+            ax.plot(x, scale*np.array(y), 'd', color = _fields_plots_colormap[0],
                         fillstyle = 'left')
-            ax.plot(x, scale*np.array(y), 'd', color = _emf_plots_colormap[1],
+            ax.plot(x, scale*np.array(y), 'd', color = _fields_plots_colormap[1],
                         fillstyle = 'right')
     #return handles and labels
     return(h, l)
@@ -508,34 +508,34 @@ def _plot_group_ROW_edges(ax, xcs):
         #check if the left ROW edges are in the same place for both sections
         if(xcs[0].lROW == xcs[1].lROW):
             #plot overlapping dashed lines to create double colored dashes
-            ax.plot([xcs[0].lROW]*2, yl, '--', color = _emf_plots_colormap[0],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1,
+            ax.plot([xcs[0].lROW]*2, yl, '--', color = _fields_plots_colormap[0],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1,
                         dashes = [6,6,6,6])
-            ax.plot([xcs[1].lROW]*2, yl, '--', color = _emf_plots_colormap[1],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1,
+            ax.plot([xcs[1].lROW]*2, yl, '--', color = _fields_plots_colormap[1],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1,
                         dashes = [6,18,6,18])
         else:
-            ax.plot([xcs[0].lROW]*2, yl, '--', color = _emf_plots_colormap[0],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1)
-            ax.plot([xcs[1].lROW]*2, yl, '--', color = _emf_plots_colormap[1],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1)
+            ax.plot([xcs[0].lROW]*2, yl, '--', color = _fields_plots_colormap[0],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1)
+            ax.plot([xcs[1].lROW]*2, yl, '--', color = _fields_plots_colormap[1],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1)
         #check if the left ROW edges are in the same place for both sections
         if(xcs[0].rROW == xcs[1].rROW):
             #plot overlapping dashed lines to create double colored dashes
-            ax.plot([xcs[0].rROW]*2, yl, '--', color = _emf_plots_colormap[0],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1,
+            ax.plot([xcs[0].rROW]*2, yl, '--', color = _fields_plots_colormap[0],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1,
                         dashes = [6,6,6,6])
-            ax.plot([xcs[1].rROW]*2, yl, '--', color = _emf_plots_colormap[1],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1,
+            ax.plot([xcs[1].rROW]*2, yl, '--', color = _fields_plots_colormap[1],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1,
                         dashes = [6,18,6,18])
         else:
-            ax.plot([xcs[0].rROW]*2, yl, '--', color = _emf_plots_colormap[0],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1)
-            ax.plot([xcs[1].rROW]*2, yl, '--', color = _emf_plots_colormap[1],
-                        linewidth = _emf_plots_ROW_linewidth, zorder = -1)
+            ax.plot([xcs[0].rROW]*2, yl, '--', color = _fields_plots_colormap[0],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1)
+            ax.plot([xcs[1].rROW]*2, yl, '--', color = _fields_plots_colormap[1],
+                        linewidth = _fields_plots_ROW_linewidth, zorder = -1)
         #create a line handle and label for each color of the dashed line
-        h = [lines.Line2D([], [], linestyle = '--',color = _emf_plots_colormap[0]),
-            lines.Line2D([], [], linestyle = '--', color = _emf_plots_colormap[1])]
+        h = [lines.Line2D([], [], linestyle = '--',color = _fields_plots_colormap[0]),
+            lines.Line2D([], [], linestyle = '--', color = _fields_plots_colormap[1])]
         l = ['ROW Edges - ' + xcs[0].title, 'ROW Edges - ' + xcs[1].title]
     elif(len(xcs) > 2):
         #if there are more than two CrossSections and they all have the same
@@ -574,13 +574,13 @@ def plot_groups(sb, **kwargs):
         #BMAX
         #get plotting objects
         fig = plt.figure()
-        ax = fig.add_subplot(1,1,1, frameon = _emf_plots_ax_frameon)
+        ax = fig.add_subplot(1,1,1, frameon = _fields_plots_ax_frameon)
         #plot the Bmax results for each xc in the group
         h, l, max_field = _plot_group_fields(ax, xcs, 'Bmax', **kwargs)
         #plot wires
         hw, lw = _plot_group_wires(ax, xcs, max_field)
         #adjust axis limits
-        #ax.set_ylim(0, (1 + _emf_plots_xc_headspace)*max_field)
+        #ax.set_ylim(0, (1 + _fields_plots_xc_headspace)*max_field)
         #plot ROW lines
         hROW, lROW = _plot_group_ROW_edges(ax, xcs)
         #set axis text and legend
@@ -601,13 +601,13 @@ def plot_groups(sb, **kwargs):
         #EMAX
         #get plotting objects
         fig = plt.figure()
-        ax = fig.add_subplot(1,1,1, frameon = _emf_plots_ax_frameon)
+        ax = fig.add_subplot(1,1,1, frameon = _fields_plots_ax_frameon)
         #plot the Bmax results for each xc in the group
         h, l, max_field = _plot_group_fields(ax, xcs, 'Emax', **kwargs)
         #plot wires
         hw, lw = _plot_group_wires(ax, xcs, max_field)
         #adjust axis limits
-        #ax.set_ylim(0, (1 + _emf_plots_xc_headspace)*max_field)
+        #ax.set_ylim(0, (1 + _fields_plots_xc_headspace)*max_field)
         #plot ROW lines
         hROW, lROW = _plot_group_ROW_edges(ax, xcs)
         #set axis text and legendf
