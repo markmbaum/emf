@@ -1,4 +1,7 @@
 import os
+import numpy as np
+
+import emf_class
 
 def _path_manage(filename_if_needed, extension, **kwargs):
     """This function takes a path string through the kwarg 'path' and
@@ -47,25 +50,45 @@ def _check_extension(file_path, correct_ext, message):
     """Check that a file path has the desired extension, raising an error if
     not and appending the correct extension if no extension is present.
     args:
-        file_path - a target file path
-        correct_ext - the correct extension for the target path, with or
-                      without the period
-        message - error message if the extention is wrong
+        file_path - string, a target file path
+        correct_ext - string, the correct extension for the target path,
+                      with or without the period
+        message - string, error message if the extention is wrong
     returns:
-        file_path"""
-    if(correct_ext[0] == '.'):
-        correct_ext = correct_ext[1:]
-    if('.' in file_path):
-        ext = file_path[file_path.index('.')+1:]
-        if(not (correct_ext == ext)):
+        file_path - string, valid file path"""
+
+    #manage period in correct_ext
+    if(not (correct_ext[0] == '.')):
+        correct_ext = '.' + correct_ext
+
+    #if it has an extension, check it
+    if('.' in os.path.basename(file_path)):
+        #check that the file exists
+        if(not os.path.isfile(file_path)):
+            raise(emf_class.EMFError("""
+            The file path:
+                "%s"
+            is not recognized as an existing file.""" % file_path))
+        #get extension and check it against correct_ext
+        ext = file_path[file_path.rfind('.'):]
+        if(ext != correct_ext):
             raise(emf_class.EMFError(message))
+        else:
+            return(file_path)
+    #no extension, just append the correct extension and check file exists
     else:
-        file_path += '.' + correct_ext
-    return(file_path)
+        file_path += correct_ext
+        #check that the file exists
+        if(not os.path.isfile(file_path)):
+            raise(emf_class.EMFError("""
+            The file path:
+                "%s"
+            is not recognized as an existing file.""" % file_path))
+        return(file_path)
 
 def _is_number(s):
-    """Check if an element can be converted to a float, returning `True`
-    if it can and `False` if it can't"""
+    """Check if an element can be converted to a float, returning True
+    if it can and False if it can't"""
     if((s is False) or (s is True)):
         return(False)
     try:
@@ -74,6 +97,12 @@ def _is_number(s):
         return(False)
     else:
         return(True)
+
+def _sig_figs(v, figs):
+    w = round(v, int(figs - np.ceil(np.log10(v))))
+    if(w == round(w)):
+        return(int(w))
+    return(w)
 
 def _check_intable(f):
     """If a float is a whole number, convert it to an integer"""
