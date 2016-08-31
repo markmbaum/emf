@@ -4,7 +4,7 @@ import numpy as np
 from ..emf_funks import (_path_manage, _check_extension, _is_number,
                         _check_intable, _flatten, _sig_figs)
 
-from subcalc_class import Model, Footprint
+import subcalc_class
 
 def load_model(*args):
     """Read a .REF output file and load the data into a Model object
@@ -16,7 +16,7 @@ def load_model(*args):
 
     #load field results into a model
     data, grid_info = read_REF(args[0])
-    mod = Model(data, grid_info)
+    mod = subcalc_class.Model(data, grid_info)
 
     if(len(args) > 1):
         #load footprints into the model
@@ -88,8 +88,8 @@ def _bilinear_interp(mod, x, y):
         B_interp - float, interpolated field value"""
     #first find the 4 point grid cell containing x,y
     #   (the point is assumed to lie inside the grid)
-    xidx = np.arange(len(mod.x))[(mod.x - x) > 0.][:2] - 1
-    yidx = np.arange(len(mod.y))[(mod.y - y) < 0.][:2] - 1
+    _, xidx = _double_min(np.abs(mod.x - x))
+    _, yidx = _double_min(np.abs(mod.y - y))
     #get coordinates and values
     x1, x2 = mod.x[xidx]
     y1, y2 = mod.y[yidx]
@@ -121,3 +121,31 @@ def _2Dmax(G):
                 imax = i
                 jmax = j
     return(m, imax, jmax)
+
+def _double_min(v):
+    """Find the lowest two values in an array and their indices
+    args:
+        v - iterable
+    returns:
+        mins - array of minima, the first one being the smallest
+        idxs - array of indices of minima"""
+    if(len(v) < 2):
+        raise(subcalc_class.EMFError("""
+        Cannot find lowest two values in an array of length less than 2."""))
+    m = max(v) #store the max for initialization
+    mins = np.array([m, m], dtype = float)
+    idxs = np.zeros((2,), dtype = int)
+    for i in range(len(v)):
+        if(v[i] < mins[0]):
+            #swap first minimum to second
+            mins[1] = mins[0]
+            idxs[1] = idxs[0]
+            #store new first minimum
+            mins[0] = v[i]
+            idxs[0] = i
+        elif(v[i] < mins[1]):
+            #store new second minimum
+            mins[1] = v[i]
+            idxs[1] = i
+
+    return(mins, idxs)

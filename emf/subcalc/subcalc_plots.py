@@ -2,25 +2,27 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from subcalc_funks import _flatten, _2Dmax, _sig_figs, _check_intable
+import subcalc_funks
 
 #rcparams for more static global formatting changes
 mpl.rcParams['figure.facecolor'] = 'white'
 mpl.rcParams['figure.figsize'] = (12, 6)
-mpl.rcParams['font.family'] = 'Times New Roman'
+mpl.rcParams['font.family'] = 'Calibri'
 mpl.rcParams['text.color'] = (.2, .2, .2)
 mpl.rcParams['axes.labelcolor'] = (.2, .2, .2)
 mpl.rcParams['axes.titlesize'] = 16
 mpl.rcParams['axes.labelsize'] = 14
-mpl.rcParams['legend.fontsize'] = 10
+mpl.rcParams['legend.fontsize'] = 14
 mpl.rcParams['legend.borderaxespad'] = 0 #mpl default is None
 mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_subcalc_plots_footprint_alpha = .75
-_subcalc_plots_footprint_zorder = -1
-_subcalc_plots_field_marker_size = 8
+_footprint_alpha = .75
+_footprint_zorder = -1
+_footprint_label_fontsize = 12
+_POPC_label_fontsize = 12 #points of potential concern on footprints
+_field_marker_size = 8
 
 def _label_footprint_group(ax, fps):
     """Put text into ax for the footprint group fps
@@ -28,11 +30,12 @@ def _label_footprint_group(ax, fps):
         ax - Axes object to plot in
         fps - list of footprints"""
     if(len(fps) > 1):
-        x = _flatten([fp.x for fp in fps])
-        y = _flatten([fp.y for fp in fps])
+        x = subcalc_funks._flatten([fp.x for fp in fps])
+        y = subcalc_funks._flatten([fp.y for fp in fps])
         x = (min(x) + max(x))/2.0
         y = (min(y) + max(y))/2.0
-        ax.text(x, y, fps[0].group, ha = 'center', va = 'center')
+        ax.text(x, y, fps[0].group, ha = 'center', va = 'center',
+                fontsize = _footprint_label_fontsize + 2)
     elif(len(fps) == 1):
         fp = fps[0]
         x = fp.x
@@ -43,7 +46,7 @@ def _label_footprint_group(ax, fps):
         else:
              x = x[0]
              y = y[0]
-        ax.text(x, y, fp.group)
+        ax.text(x, y, fp.group, fontsize = _footprint_label_fontsize)
 
 def contour_plot(mod):
     """Generate a contour plot from the magnetic field results and
@@ -63,7 +66,7 @@ def contour_plot(mod):
     aspect_ratio = (ymax - ymin)/(xmax - xmin)
     xmarg, ymarg = (xmax - xmin)*0.005, (ymax - ymin)*0.005
     #generate the figure
-    fig = plt.figure(figsize = (12 + 4, 12*aspect_ratio))
+    fig = plt.figure(figsize = (14 + 4, 14*aspect_ratio))
     ax = fig.add_subplot(1,1,1)
     #adjust axis dimensions by transforming between figure and display coords
     box = ax.get_position()
@@ -72,16 +75,16 @@ def contour_plot(mod):
     width = I((T((0., box.height))[1]/aspect_ratio, 0.))[0]
     ax.set_position([box.x0, box.y0, width, box.height])
     #plot contours
-    CS = ax.contour(mod.X, mod.Y, mod.B, lindwidth = 5,
+    CS = ax.contour(mod.X, mod.Y, mod.B, lindwidths = 5.0,
             levels = [.1,.5,1.,5.,10.,25.,50.],
             locator = mpl.ticker.LogLocator(), zorder = -1)
     #plot location of maximum field
     handles, labels = [], []
-    peak_B, yidx, xidx = _2Dmax(mod.B)
-    peak_B = str(_sig_figs(peak_B, 3))
+    peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
+    peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
     handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'ro',
-            markersize = _subcalc_plots_field_marker_size)[0])
-    labels.append('Maximum Modeled\nMagnetic Field')
+            markersize = _field_marker_size)[0])
+    labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
     ax.text(mod.x[xidx] + xmarg, mod.y[yidx] + ymarg, peak_B)
     #plot footprints
     for g in mod.footprint_groups:
@@ -95,8 +98,8 @@ def contour_plot(mod):
             idx = power_line_check.index(True)
             fp = fps[idx]
             handles.append(ax.plot(fp.x, fp.y, 'k--', linewidth = 2,
-                    alpha = _subcalc_plots_footprint_alpha,
-                    zorder = _subcalc_plots_footprint_zorder)[0])
+                    alpha = _footprint_alpha,
+                    zorder = _footprint_zorder)[0])
             labels.append(fp.name)
             #remove the power line footprint
             fps.pop(idx)
@@ -104,18 +107,19 @@ def contour_plot(mod):
         of_concern = False
         for fp in fps:
             ax.plot(fp.x, fp.y, 'k',
-                    alpha = _subcalc_plots_footprint_alpha,
-                    zorder = _subcalc_plots_footprint_zorder)
+                    alpha = _footprint_alpha,
+                    zorder = _footprint_zorder)
             #mark maximum field if the footprint is 'of concern'
             if(fp.of_concern):
                 x = fp.x
                 y = fp.y
                 B_interp = mod.interp(x, y)
                 idx = np.argmax(B_interp)
-                m = str(_sig_figs(B_interp[idx], 3))
+                m = str(subcalc_funks._sig_figs(B_interp[idx], 3))
                 h = ax.plot(x[idx], y[idx], 'yo',
-                        markersize = _subcalc_plots_field_marker_size)[0]
-                ax.text(x[idx] + xmarg, y[idx] + ymarg, m)
+                        markersize = _field_marker_size)[0]
+                ax.text(x[idx] + xmarg, y[idx] + ymarg, m,
+                        fontsize = _POPC_label_fontsize)
                 if(of_concern is False):
                     handles.append(h)
                     labels.append('Points of Potential\nConcern')
@@ -125,10 +129,10 @@ def contour_plot(mod):
         _label_footprint_group(ax, fps)
 
     #legend
-    cvalues = [str(_check_intable(i)) + ' mG' for i in CS.cvalues]
+    cvalues = [str(subcalc_funks._check_intable(i)) + ' mG' for i in CS.cvalues]
     ax.legend(CS.collections + handles, cvalues + labels,
             loc = 'center left', bbox_to_anchor = (1.025, 0.5),
-            fontsize = 12, numpoints = 1)
+            numpoints = 1)
     #text
     ax.set_xlabel('X (ft)')
     ax.set_ylabel('Y (ft)')

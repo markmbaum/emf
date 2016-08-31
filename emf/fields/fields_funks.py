@@ -7,9 +7,9 @@ import pandas as pd
 from ..emf_funks import (_path_manage, _check_extension, _is_number,
                             _check_intable, _flatten)
 
-from fields_class import SectionBook, CrossSection, EMFError, Conductor
-from fields_calcs import E_field, B_fields, phasors_to_magnitudes
-from fields_plots import plt, plot_max_fields, plot_groups
+import fields_class
+import fields_calcs
+import fields_plots
 
 def load_template(file_path, **kwargs):
     """Import conductor data from an excel template, loading each conductor
@@ -37,19 +37,24 @@ def load_template(file_path, **kwargs):
         include = kwargs['sheets']
         sheets = [sh for sh in sheets if sh in include]
     #create a SectionBook object to store the CrossSection objects
-    xcs = SectionBook(os.path.basename(file_path[:file_path.index('.')]))
+    basename = os.path.basename(file_path)
+    if('.' in basename):
+        name = basename[:basename.index('.')]
+    else:
+        name = basename
+    sb = fields_class.SectionBook(name)
     #convert the dataframes into a list of CrossSection objects
     titles = []
     for k in sheets:
-        #load miscellaneous information applicable for the whole CrossSection
+        #load miscellaneous information applicable to the whole CrossSection
         df = frames[k]
-        xc = CrossSection(k)
+        xc = fields_class.CrossSection(k)
         misc = df[1]
         xc.title = misc[0]
         xc.tag = misc[1]
         #check for duplicate title inputs
         if(xc.title in titles):
-            raise(EMFError("""
+            raise(fields_class.EMFError("""
             Cross-sections should have unique Main Title entries.
             Main Title: "%s"
             in sheet: "%s"
@@ -66,11 +71,11 @@ def load_template(file_path, **kwargs):
         #load hot conductors
         tags, x, y = [], [], []
         for i in range(df[3].dropna().shape[0]):
-            cond = Conductor()
+            cond = fields_class.Conductor()
             cond.tag = df[2].iat[i]
             #check for conductors with identical tags (names/labels)
             if(cond.tag in tags):
-                raise(EMFError("""
+                raise(fields_class.EMFError("""
                 Conductors in a Cross Section must have unique tags.
                 The conductor tag "%s" in sheet:
                     "%s"
@@ -85,7 +90,7 @@ def load_template(file_path, **kwargs):
             if(cond.x in x):
                 idx = x.index(cond.x)
                 if(cond.y == y[idx]):
-                    raise(EMFError("""
+                    raise(fields_class.EMFError("""
                 Conductors cannot have identical x,y coordinates. Conductor
                 "%s" is in the exact same place as conductor "%s"."""
                 % (cond.tag, tags[idx])))
@@ -102,11 +107,11 @@ def load_template(file_path, **kwargs):
         #load grounded conductors
         tags, x, y = [], [], []
         for i in range(df[12].dropna().shape[0]):
-            cond = Conductor()
+            cond = fields_class.Conductor()
             cond.tag = df[11].iat[i]
             #check for conductors with identical tags (names/labels)
             if(cond.tag in tags):
-                raise(EMFError("""
+                raise(fields_class.EMFError("""
                 Conductors in a Cross Section must have unique tags.
                 The conductor tag "%s" in sheet:
                     "%s"
@@ -121,7 +126,7 @@ def load_template(file_path, **kwargs):
             if(cond.x in x):
                 idx = x.index(cond.x)
                 if(cond.y == y[idx]):
-                    raise(EMFError("""
+                    raise(fields_class.EMFError("""
                 Conductors cannot have identical x,y coordinates. Conductor
                 "%s" is in the exact same place as conductor "%s"."""
                 % (cond.tag, tags[idx])))
@@ -136,13 +141,13 @@ def load_template(file_path, **kwargs):
             cond.phase = 0.
             xc.gnd.append(cond)
         #add the CrossSection object to the SectionBook
-        xcs.add_section(xc)
+        sb.add_section(xc)
     #update the SectionBook, which initiates fields calculations and
     #population of lots of other variables in the CrossSection and SectionBook
     #objects
-    xcs.update()
+    sb.update()
     #return the SectionBook object
-    return(xcs)
+    return(sb)
 
 def optimize_phasing(xc, circuits, **kwargs):
     """Permute the phasing of non-grounded conductors and find the
@@ -173,7 +178,7 @@ def optimize_phasing(xc, circuits, **kwargs):
         N = len(xc.hot)
         #check the number of hot lines
         if(N % 3 != 0):
-            raise(EMFError("""
+            raise(fields_class.EMFError("""
             The number of hot (not grounded) conductors must be a multiple
             of three for phase optimization with 'all' circuits. Circuits are
             assumed to be three-phase and conductors comprising each circuit
@@ -189,7 +194,7 @@ def optimize_phasing(xc, circuits, **kwargs):
         for circ in range(len(circuits)):
             for idx in circ:
                 if(type(idx) is not int):
-                    raise(EMFError("""
+                    raise(fields_class.EMFError("""
                     Conductor indices in circuits must be integers."""))
     #all permutations of the phases of each circuit
     perm = []
@@ -233,7 +238,7 @@ def optimize_phasing(xc, circuits, **kwargs):
         'Optimal Phasing - Emax Right ROW Edge' : xc.phase[E_right_arr]},
         index = [xc.hot[i].tag for i in conds])
     #compile a new sectionbook with the optimal phasings
-    opt = SectionBook('%s-optimal_phasing' % xc.title)
+    opt = fields_class.SectionBook('%s-optimal_phasing' % xc.title)
     names = ['Optimized_for_Bmax_left','Optimized_for_Bmax_right',
             'Optimized_for_Emax_left','Optimized_for_Emax_right']
     titles = ['Bmax_l','Bmax_r','Emax_l','Emax_r']
@@ -295,11 +300,11 @@ def _phasing_test(xc, x_ROW, y_ROW, conds, phasing, arr):
     #swap phases according to the new phasing arrangement
     phasing[conds] = xc.phase[new_arr]
     #calculate fields with index swapped phases
-    Ex, Ey = E_field(xc.x, xc.y, xc.subconds, xc.d_cond,
+    Ex, Ey = fields_calcs.E_field(xc.x, xc.y, xc.subconds, xc.d_cond,
                                 xc.d_bund, xc.V, phasing, x_ROW, y_ROW)
-    Ex, Ey, Eprod, Emax = phasors_to_magnitudes(Ex, Ey)
-    Bx, By = B_field(xc.x, xc.y, xc.I, phasing, x_ROW, y_ROW)
-    Bx, By, Bprod, Bmax = phasors_to_magnitudes(Bx, By)
+    Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
+    Bx, By = fields_calcs.B_field(xc.x, xc.y, xc.I, phasing, x_ROW, y_ROW)
+    Bx, By, Bprod, Bmax = fields_calcs.phasors_to_magnitudes(Bx, By)
     #return results
     return(Bmax, Emax, new_arr)
 
@@ -426,7 +431,7 @@ def _bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter, rel_err)
     fhigh = funk(hhigh, target, xc, conds, x_sample, y_sample)
     #check that the root is bracketed
     if(flow*fhigh > 0.):
-        raise(EMFError("""
+        raise(fields_class.EMFError("""
         The root is not bracketed with an upper height adjustment limit
         of %g. Rootfinding with bisection can't be performed.
             f(h_0 = %g) = %g
@@ -451,7 +456,7 @@ def _bisect(xc, conds, sample_idx, funk, target, hlow, hhigh, max_iter, rel_err)
         count += 1
     #check if the iteration limit was hit
     if(count == max_iter):
-        raise(EMFError("""
+        raise(fields_class.EMFError("""
         Failure in _bisection method. The iteration limit of %d was exceeded
         with a relative error threshold of %g. The final estimate was
         %g""" % (max_iter, rel_err, fmid)))
@@ -462,9 +467,9 @@ def _B_funk(h, target, xc, conds, x_sample, y_sample):
     y = xc.y.astype(float, copy = True)
     y[conds] += h
     #calculate B field at ROW edge
-    Bx, By = B_field(xc.x, y, xc.I, xc.phase,
+    Bx, By = fields_calcs.B_field(xc.x, y, xc.I, xc.phase,
         x_sample, y_sample)
-    Bx, By, Bprod, Bmax = phasors_to_magnitudes(Bx, By)
+    Bx, By, Bprod, Bmax = fields_calcs.phasors_to_magnitudes(Bx, By)
     return(Bmax[0] - target)
 
 def _E_funk(h, target, xc, conds, x_sample, y_sample):
@@ -472,9 +477,9 @@ def _E_funk(h, target, xc, conds, x_sample, y_sample):
     y = xc.y.astype(float, copy = True)
     y[conds] += h
     #calculate E field at ROW edge
-    Ex, Ey = E_field(xc.x, y, xc.subconds, xc.d_cond,
+    Ex, Ey = fields_calcs.E_field(xc.x, y, xc.subconds, xc.d_cond,
         xc.d_bund, xc.V, xc.phase, x_sample, y_sample)
-    Ex, Ey, Eprod, Emax = phasors_to_magnitudes(Ex, Ey)
+    Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
     return(Emax[0] - target)
 
 def run(template_path, **kwargs):
@@ -503,8 +508,8 @@ def run(template_path, **kwargs):
     sb.ROW_edge_export(**kwargs)
     #export single CrossSection plots
     for xc in sb:
-        fig = plot_max_fields(xc, **kwargs)
-        plt.close(fig)
+        fig = fields_plots.plot_max_fields(xc, **kwargs)
+        fields_plots.plt.close(fig)
     #export group comparison plots
-    plot_groups(sb, **kwargs)
+    fields_plots.plot_groups(sb, **kwargs)
     return(sb)

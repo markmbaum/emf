@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 
 from ..emf_class import EMFError
 
-from fields_funks import _path_manage
-from fields_plots import plot_DAT_comparison
-from fields_calcs import B_field, E_field, phasors_to_magnitudes
-from FIELDS_io import read_DAT
+import fields_funks
+import fields_plots
+import fields_calcs
+import FIELDS_io
 
 class Conductor(object):
     """Class representing a single conductor or power line."""
@@ -113,13 +113,13 @@ class CrossSection(object):
         #populate flat array variables with all Conductor data
         self.update_arrays()
         #calculate magnetic field
-        Bx, By = B_field(self.x, self.y, self.I, self.phase,
+        Bx, By = fields_calcs.B_field(self.x, self.y, self.I, self.phase,
             self.x_sample, self.y_sample)
-        Bx, By, Bprod, Bmax = phasors_to_magnitudes(Bx, By)
+        Bx, By, Bprod, Bmax = fields_calcs.phasors_to_magnitudes(Bx, By)
         #calculate electric field
-        Ex, Ey = E_field(self.x, self.y, self.subconds, self.d_cond,
+        Ex, Ey = fields_calcs.E_field(self.x, self.y, self.subconds, self.d_cond,
             self.d_bund, self.V, self.phase, self.x_sample, self.y_sample)
-        Ex, Ey, Eprod, Emax = phasors_to_magnitudes(Ex, Ey)
+        Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
         #store the values
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
@@ -152,7 +152,7 @@ class CrossSection(object):
             pan - pandas Panel with DAT results, results of this code,
                   the absolute error between, and the relative error between"""
         #load the .DAT file into a dataframe
-        df = read_DAT(DAT_path)
+        df = FIELDS_io.read_DAT(DAT_path)
         #check dataframe shape compatibility
         if(df.shape != self.fields.shape):
             raise(EMFError("""
@@ -185,12 +185,12 @@ class CrossSection(object):
             kwargs['save'] = True
         if('save' in kwargs):
             if(kwargs['save']):
-                fn = _path_manage(self.name + '-DAT_comparison',
+                fn = fields_funks._path_manage(self.name + '-DAT_comparison',
                     '.xlsx', **kwargs)
                 pan.to_excel(fn, index_label = 'x')
                 print('DAT comparison book saved to: "%s"' % fn)
                 #make plots of the absolute and percent error
-                figs = plot_DAT_comparison(self, pan, **kwargs)
+                figs = fields_plots.plot_DAT_comparison(self, pan, **kwargs)
         #return the Panel
         return(pan)
 
@@ -271,11 +271,30 @@ class SectionBook(object):
             self.names.append(xc.name)
             self.tags.append(xc.tag)
 
+
+    def export(self, **kwargs):
+        """Write results to an excel workbook and ROW edge results to a csv
+        kwargs:
+            path - string, destination/filename for saved file"""
+        self.results_export(**kwargs)
+        self.ROW_edge_export(**kwargs)
+
+    def results_export(self, **kwargs):
+        """Write all of the cross section results to an excel workbook"""
+        #path management
+        fn = fields_funks._path_manage(self.name + '-all_results', '.xlsx',
+                **kwargs)
+        #write results
+        xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+        for xc in self:
+            xc.fields.to_excel(xlwriter, sheet_name = xc.name)
+        print('Full SectionBook results written to: "%s"' % fn)
+
     def ROW_edge_export(self, **kwargs):
         """Write max field results at ROW edges for each cross section to
         an excel or csv file. Default is csv.
         kwargs:
-            file_type - string, accepts 'csv' or 'excel'
+            file_type - string, accepts 'csv' or 'excel' (default csv)
             path - string, destination/filename for saved file
             xl - pandas ExcelWriter object, takes precedence over 'path'"""
         #be sure ROW_edge_results are current
@@ -293,28 +312,17 @@ class SectionBook(object):
             if(file_type[0] == '.'):
                 file_type = file_type[1:]
             if(file_type == 'excel'):
-                wo = _path_manage(self.name + '-ROW_edge_results',
+                wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
                         '.xlsx', **kwargs)
         if(wo):
             self.ROW_edge_max.to_excel(wo, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
-            wo = _path_manage(self.name + '-ROW_edge_results',
+            wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
                 '.csv', **kwargs)
             self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
         if(not ('xl' in kwargs)):
             print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
-
-    def results_export(self, **kwargs):
-        """Write all of the cross section results to an excel workbook"""
-        #path management
-        fn = _path_manage(self.name + '-all_results', '.xlsx',
-                **kwargs)
-        #write results
-        xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
-        for xc in self:
-            xc.fields.to_excel(xlwriter, sheet_name = xc.name)
-        print('Full SectionBook results written to: "%s"' % fn)
 
     def update(self):
         """Executes all of the update functions"""

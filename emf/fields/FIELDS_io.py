@@ -3,9 +3,8 @@ import glob
 import numpy as np
 import pandas as pd
 
-from fields_funks import (_is_number, _path_manage, load_template,
-                        _check_extension)
-import fields_class import CrossSection, EMFError, SectionBook
+import fields_funks
+import fields_class
 
 #-------------------------------------------------------------------------------
 #FUNCTIONS FOR GENERATING INPUT .FLD FILES
@@ -21,7 +20,7 @@ def _is_int(x):
 def _write_entries(ofile, *entries):
     """format entries and writes them into a .FLD file targeted by ofile"""
     for entry in entries:
-        if(_is_number(entry)):
+        if(fields_funks._is_number(entry)):
             if(_is_int(entry)):
                 w = '{:< d} \n'.format(int(entry))
             else:
@@ -30,7 +29,7 @@ def _write_entries(ofile, *entries):
                 idx = w.index('.')
                 if('0' in w[:idx]):
                     idx = w.index('0')
-                    if(not _is_number(w[idx-1])):
+                    if(not fields_funks._is_number(w[idx-1])):
                         w = w[:idx] + w[idx+1:]
         else:
             w = str(entry) + '\n'
@@ -43,13 +42,13 @@ def to_FLD(xc, **kwargs):
     kwargs:
         path - output file destination"""
     #check input
-    if(not isinstance(xc, CrossSection)):
-        raise(EMFError("""
+    if(not isinstance(xc, fields_class.CrossSection)):
+        raise(fields_class.EMFError("""
         Input argument to to_FLD() must be a CrossSection object, not an
         input of type: %s
         Use to_FLDs() for a SectionBook object.""" % str(type(xc))))
     #get a filename
-    fn = _path_manage(xc.name, 'FLD', **kwargs)
+    fn = fields_funks._path_manage(xc.name, 'FLD', **kwargs)
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
@@ -83,18 +82,18 @@ def to_FLDs(*args, **kwargs):
                directory if a SectionBook is passed."""
     if(type(args[0]) == str):
         #load the template
-        sb = load_template(args[0])
+        sb = fields_funks.load_template(args[0])
         kwargs['path'] = os.path.dirname(args[0]) + '/'
-    elif(isinstance(args[0], SectionBook)):
+    elif(isinstance(args[0], fields_class.SectionBook)):
         sb = args[0]
     else:
-        raise(EMFError("""
+        raise(fields_class.EMFError("""
         Input argument to to_FLDs() must be a filepath or a SectionBook."""))
     #check for duplicate titles and subtitles
     names = []
     for xc in sb:
         if(xc.name in names):
-            raise(EMFError("""
+            raise(fields_class.EMFError("""
             Can't create FLD files because of duplicate CrossSection names.
             Name "%s" is used at least twice.""" % xc.name))
         else:
@@ -134,7 +133,7 @@ def read_DAT(file_path):
     numbers are too large (percent signs)"""
 
     #check that the target file is a DAT
-    _check_extension(file_path, 'DAT', """
+    fields_funks._check_extension(file_path, 'DAT', """
         Input file must have a '.DAT' extension.""")
     #load data
     und_message = 'Electric Field cannot be computed for underground circuit'
@@ -154,7 +153,7 @@ def read_DAT(file_path):
                 if(line[0][0] == '%'):
                     line += ifile.readline()
             l = [i.replace('%','') for i in line.split()]
-            if(l and all([_is_number(i) for i in l])):
+            if(l and all([fields_funks._is_number(i) for i in l])):
                 for i in range(5):
                     data[i].append(float(l[i]))
                 if(not (und_only)):
@@ -177,7 +176,7 @@ def convert_DAT(file_path, **kwargs):
     #get the DAT data
     df = read_DAT(file_path)
     #write it to a csv
-    fn = _path_manage(os.path.basename(file_path)[:file_path.index('.')],
+    fn = fields_funks._path_manage(os.path.basename(file_path)[:file_path.index('.')],
         'csv', **kwargs)
     with open(fn, 'w') as ofile:
         df.to_csv(ofile, index_label = 'dist (ft)')

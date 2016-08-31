@@ -14,6 +14,4 @@ mod = subcalc.load_model(fn_data, fn_footprints)
 
 fig,ax,CS = subcalc.contour_plot(mod)
 
-ax.grid(b = True)
-
 subcalc.show()

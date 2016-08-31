@@ -5,11 +5,11 @@ import sys
 sys.path.append("/Volumes/BAUMPRIMARY/Code/Python/")
 sys.path.append("/Volumes/BAUMPRIMARY/Code/Python/emf/")
 
-import emf
+from emf import fields
 
 cProfile.run("""
-xc = emf.load_template('/Volumes/BAUMPRIMARY/Code/Python/emf/working_files/practice_xcs.xlsx').sample()
-res, opt = emf.optimize_phasing(xc, 'all')
+xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()
+res, opt = fields.optimize_phasing(xc, 'all')
 """,
 filename = 'profile')
 
