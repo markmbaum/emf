@@ -3,7 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 lines = mpl.lines
 
-import fields_funks
+from fields_funks import _path_manage
 
 #rcparams for more static global formatting changes
 mpl.rcParams['figure.facecolor'] = 'white'
@@ -88,7 +88,7 @@ def _save_fig(filename_if_needed, fig, **kwargs):
     if('save' in kwargs):
         if(kwargs['save']):
             #get filename
-            fn = fields_funks._path_manage(filename_if_needed, '', **kwargs)
+            fn = _path_manage(filename_if_needed, '', **kwargs)
             #get format/extension
             if('format' in kwargs):
                 fmt = kwargs['format']

@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-import subcalc_funks
-
 from ..emf_class import EMFError
+
+from subcalc_funks import _check_extension, _bilinear_interp
 
 class Footprint(object):
 
@@ -68,7 +68,7 @@ class Model(object):
         args:
             footprint_path - string, path to the footprint csv data"""
         #check extension
-        footprint_path = subcalc_funks._check_extension(footprint_path, 'csv',
+        footprint_path = _check_extension(footprint_path, 'csv',
             """Footprint files must be csv files.""")
         #load data
         df = pd.read_csv(footprint_path)
@@ -134,7 +134,7 @@ class Model(object):
             raise(EMFError("""
             x,y coordinates must fall inside the reference grid"""))
         #interpolate
-        B_interp = np.array([subcalc_funks._bilinear_interp(self, x[i], y[i])
+        B_interp = np.array([_bilinear_interp(self, x[i], y[i])
                                 for i in range(len(x))])
         #return
         if(scalar):

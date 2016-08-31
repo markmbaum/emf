@@ -1,10 +1,10 @@
 import os
 import numpy as np
 
-import subcalc_class
-
 from ..emf_funks import (_path_manage, _check_extension, _is_number,
                         _check_intable, _flatten, _sig_figs)
+
+from subcalc_class import Model, Footprint
 
 def load_model(*args):
     """Read a .REF output file and load the data into a Model object
@@ -16,7 +16,7 @@ def load_model(*args):
 
     #load field results into a model
     data, grid_info = read_REF(args[0])
-    mod = subcalc_class.Model(data, grid_info)
+    mod = Model(data, grid_info)
 
     if(len(args) > 1):
         #load footprints into the model

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-import subcalc_funks
+from subcalc_funks import _flatten, _2Dmax, _sig_figs, _check_intable
 
 #rcparams for more static global formatting changes
 mpl.rcParams['figure.facecolor'] = 'white'
@@ -28,8 +28,8 @@ def _label_footprint_group(ax, fps):
         ax - Axes object to plot in
         fps - list of footprints"""
     if(len(fps) > 1):
-        x = subcalc_funks._flatten([fp.x for fp in fps])
-        y = subcalc_funks._flatten([fp.y for fp in fps])
+        x = _flatten([fp.x for fp in fps])
+        y = _flatten([fp.y for fp in fps])
         x = (min(x) + max(x))/2.0
         y = (min(y) + max(y))/2.0
         ax.text(x, y, fps[0].group, ha = 'center', va = 'center')
@@ -77,8 +77,8 @@ def contour_plot(mod):
             locator = mpl.ticker.LogLocator(), zorder = -1)
     #plot location of maximum field
     handles, labels = [], []
-    peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
-    peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
+    peak_B, yidx, xidx = _2Dmax(mod.B)
+    peak_B = str(_sig_figs(peak_B, 3))
     handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'ro',
             markersize = _subcalc_plots_field_marker_size)[0])
     labels.append('Maximum Modeled\nMagnetic Field')
@@ -112,7 +112,7 @@ def contour_plot(mod):
                 y = fp.y
                 B_interp = mod.interp(x, y)
                 idx = np.argmax(B_interp)
-                m = str(subcalc_funks._sig_figs(B_interp[idx], 3))
+                m = str(_sig_figs(B_interp[idx], 3))
                 h = ax.plot(x[idx], y[idx], 'yo',
                         markersize = _subcalc_plots_field_marker_size)[0]
                 ax.text(x[idx] + xmarg, y[idx] + ymarg, m)
@@ -125,7 +125,7 @@ def contour_plot(mod):
         _label_footprint_group(ax, fps)
 
     #legend
-    cvalues = [str(subcalc_funks._check_intable(i)) + ' mG' for i in CS.cvalues]
+    cvalues = [str(_check_intable(i)) + ' mG' for i in CS.cvalues]
     ax.legend(CS.collections + handles, cvalues + labels,
             loc = 'center left', bbox_to_anchor = (1.025, 0.5),
             fontsize = 12, numpoints = 1)
