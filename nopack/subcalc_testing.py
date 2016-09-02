@@ -12,6 +12,8 @@ fn_footprints = '../working_files/footprints'
 
 mod = subcalc.load_model(fn_data, fn_footprints)
 
+mod.north_angle = 5
+
 fig,ax,CS = subcalc.contour_plot(mod)
 
 subcalc.show()

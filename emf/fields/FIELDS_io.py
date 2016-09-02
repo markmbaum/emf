@@ -65,7 +65,7 @@ def to_FLD(xc, **kwargs):
                 'ED!(I)', c.I, c.V, c.phase)
     #write the ground wire data a second time, in a different format
     for c in xc.gnd:
-        _write_entries(ofile, c.tag, c.x, c.y, c.d_cond)
+        _write_entries(ofile, c.tag, c.x, c.y, c.d_cond, 0, 0)
     #close/save
     ofile.close()
     print('FLD file generated: "%s"' % fn)
@@ -130,7 +130,12 @@ def to_FLDs_crawl(dir_name, **kwargs):
 
 def read_DAT(file_path):
     """Read a DAT file, which can have some funky extra characters if the
-    numbers are too large (percent signs)"""
+    numbers are too large (percent signs)
+    args:
+        file_path - string, path to DAT file
+    returns:
+        pandas DataFrame with 'Bx','By','Bprod','Bmax','Ex','Ey','Eprod',
+        and 'Emax' columns, and the distance ('x') in the index"""
 
     #check that the target file is a DAT
     fields_funks._check_extension(file_path, 'DAT', """

@@ -3,6 +3,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 lines = mpl.lines
 
+from ..emf_plots import _save_fig
+
 import fields_funks
 
 #rcparams for more static global formatting changes
@@ -41,6 +43,17 @@ def ion():
 def show():
     plt.show()
 
+def close(*args):
+    if(args):
+        for a in args:
+            if(hasattr(a, '__len__')):
+                for b in a:
+                    plt.close(b.number)
+            else:
+                plt.close(a.number)
+    else:
+        plt.close('all')
+
 def _format_axes_legends(*args):
     """Apply axis formatting commands to axes objects
     args: some number of axis objects with twin x axes"""
@@ -71,35 +84,6 @@ def _format_axes_legends(*args):
             for ax in args:
                 yl = ax.get_ylim()
                 ax.set_ylim(frac*yl[1], yl[1])
-
-def _save_fig(filename_if_needed, fig, **kwargs):
-    """Snippet executed at the end of plotting methods to handle saving
-    args:
-        filename_if_needed - string used for filename if it's not in 'path'
-        fig - figure to save
-    kwargs:
-        save - bool, toggle plot saving
-        path - string, destination/filename for saved figure
-        format - string, saved plot format/extension (default 'png')"""
-    #force saving if a path is passed in
-    if('path' in kwargs):
-        kwargs['save'] = True
-    #condition filename and format strings for saving
-    if('save' in kwargs):
-        if(kwargs['save']):
-            #get filename
-            fn = fields_funks._path_manage(filename_if_needed, '', **kwargs)
-            #get format/extension
-            if('format' in kwargs):
-                fmt = kwargs['format']
-                if('.' in fmt):
-                    fmt = fmt[fmt.index('.')+1:]
-            else:
-                fmt = 'png'
-            #save the plot
-            fn += '.' + fmt
-            plt.savefig(fn, format = fmt)
-            print('plot saved to: "%s"' % fn)
 
 def _color_twin_axes(ax1, color1, ax2, color2):
     """Assign colors to split y axes"""
@@ -203,14 +187,16 @@ def plot_Bmax(xc, **kwargs):
         title - string, exact plot title
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
-        format - string, saved plot format/extension (default 'png')"""
+        format - string, saved plot format/extension (default 'png')
+    returns:
+        fig - Figure object"""
     #get axes and x cutoff
     (fig, ax, xmax, linesym) = _prepare_fig(xc, **kwargs)
     #plot the field curve
     hB = ax.plot(xc.fields['Bmax'][-xmax:xmax], linesym,
                 color = _B_color,
                 linewidth = _fields_linewidth)
-    lB = ['Magnetic Field (mG)']
+    lB = [r'Magnetic Field $\left(mG\right)$']
     #plot wires
     hw, lw = _plot_wires(ax, xc.hot, xc.gnd, xc.fields['Bmax'])
     #adjust axis limits
@@ -219,7 +205,7 @@ def plot_Bmax(xc, **kwargs):
     hROW, lROW = _plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)')
-    ax.set_ylabel('Maximum Magnetic Field (mG)')
+    ax.set_ylabel(r'Maximum Magnetic Field $\left(mG\right)$')
     if('title' in kwargs):
         t = kwargs['title']
     else:
@@ -242,21 +228,23 @@ def plot_Emax(xc, **kwargs):
         title - string, exact plot title
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
-        format - string, saved plot format/extension (default 'png')"""
+        format - string, saved plot format/extension (default 'png')
+    returns:
+        fig - Figure object"""
     #get axes and x cutoff
     (fig, ax, xmax, linesym) = _prepare_fig(xc, **kwargs)
     #plot the field curve
     hE = ax.plot(xc.fields['Emax'][-xmax:xmax], linesym,
                 color = _E_color,
                 linewidth = _fields_linewidth)
-    lE = ['Electric Field (kV/m)']
+    lE = [r'Electric Field $\left(kV/m\right)$']
     #plot wires
     hw, lw = _plot_wires(ax, xc.hot, xc.gnd, xc.fields['Emax'])
     #plot ROW lines
     hROW, lROW = _plot_ROW_edges(ax, xc.lROW, xc.rROW)
     #set axis text and legend
     ax.set_xlabel('Distance from Center of ROW (ft)')
-    ax.set_ylabel('Maximum Electric Field (kV/m)')
+    ax.set_ylabel(r'Maximum Electric Field $\left(kV/m\right)$')
     if('title' in kwargs):
         t = kwargs['title']
     else:
@@ -279,7 +267,9 @@ def plot_max_fields(xc, **kwargs):
         title - string, exact plot title
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
-        format - string, saved plot format/extension (default 'png')"""
+        format - string, saved plot format/extension (default 'png')
+    returns:
+        fig - Figure object"""
     #get axes and x cutoff
     (fig, ax_B, xmax, linesym) = _prepare_fig(xc, **kwargs)
     ax_E = ax_B.twinx()
@@ -290,15 +280,18 @@ def plot_max_fields(xc, **kwargs):
             ax_E.plot(xc.fields['Emax'][-xmax:xmax], linesym,
                 color = _E_color,
                 linewidth = _fields_linewidth)[0]]
-    lf = ['Magnetic Field (mG)', 'Electric Field (kV/m)']
+    lf = [r'Magnetic Field $\left(mG\right)$',
+            r'Electric Field $\left(kV/m\right)$']
     #plot wires
     hw, lw = _plot_wires(ax_B, xc.hot, xc.gnd, xc.fields['Bmax'])
     #plot ROW lines
     hROW, lROW = _plot_ROW_edges(ax_B, xc.lROW, xc.rROW)
     #set axis text
     ax_B.set_xlabel('Distance from Center of ROW (ft)')
-    ax_B.set_ylabel('Maximum Magnetic Field (mG)', color = _B_color)
-    ax_E.set_ylabel('Maximum Electric Field (kV/m)', color = _E_color)
+    ax_B.set_ylabel(r'Maximum Magnetic Field $\left(mG\right)$',
+            color = _B_color)
+    ax_E.set_ylabel(r'Maximum Electric Field $\left(kV/m\right)$',
+            color = _E_color)
     if('title' in kwargs):
         t = kwargs['title']
     else:
@@ -327,7 +320,7 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hw, lw):
         lw - labels for conductor symbols"""
     #plot absolute error
     h_abs = ax_abs.plot(pan['Absolute Difference'][field], 'k')
-    ax_abs.set_ylabel('Absolute Difference (kV/m)')
+    ax_abs.set_ylabel(r'Absolute Difference $\left(kV/m\right)$')
     #plot percentage error
     h_per = ax_per.plot(pan['Percent Difference'][field], 'r')
     ax_per.set_ylabel('Percent Difference', color = 'r')
@@ -335,7 +328,7 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hw, lw):
     ax_abs.legend(h_abs + h_per, ['Absolute Difference','Percent Difference'])
     #plot results
     h_fld = ax_mag.plot(pan['FIELDS_DAT_results'][field], 'k')
-    h_nm = ax_mag.plot(pan['emf_results'][field], 'b')
+    h_nm = ax_mag.plot(pan['python_results'][field], 'b')
     ax_mag.set_xlabel('Distance from ROW Center (ft)')
     #set results legend
     ax_mag.legend(h_fld + h_nm + hw, ['FIELDS','New Code'] + lw, numpoints = 1)
@@ -357,10 +350,10 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Bmax
-    hw, lw = _plot_wires(ax_mag, xc.hot, xc.gnd, pan['emf_results']['Bmax'])
+    hw, lw = _plot_wires(ax_mag, xc.hot, xc.gnd, pan['python_results']['Bmax'])
     _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax', hw, lw)
     ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
-    ax_mag.set_ylabel('Bmax (mG)')
+    ax_mag.set_ylabel(r'Bmax $\left(mG\right)$')
     ax_mag.set_title('Model Results, Magnetic Field')
     _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     _format_axes_legends(ax_abs)
@@ -375,10 +368,10 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     ax_per = ax_abs.twinx()
     ax_mag = fig.add_subplot(2,1,2)
     #Emax
-    hw, lw = _plot_wires(ax_mag, xc.hot, xc.gnd, pan['emf_results']['Emax'])
+    hw, lw = _plot_wires(ax_mag, xc.hot, xc.gnd, pan['python_results']['Emax'])
     _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax', hw, lw)
     ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
-    ax_mag.set_ylabel('Emax (kV/m)')
+    ax_mag.set_ylabel(r'Emax $\left(kV/m\right)$')
     ax_mag.set_title('Model Results, Electric Field')
     _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     plt.tight_layout()
@@ -585,7 +578,7 @@ def plot_groups(sb, **kwargs):
         hROW, lROW = _plot_group_ROW_edges(ax, xcs)
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)')
-        ax.set_ylabel('Maximum Magnetic Field (mG)')
+        ax.set_ylabel(r'Maximum Magnetic Field $\left(mG\right)$')
         t = 'Maximum Magnetic Field - Cross-Section Group %s' % str(xcs[0].tag)
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
@@ -612,7 +605,7 @@ def plot_groups(sb, **kwargs):
         hROW, lROW = _plot_group_ROW_edges(ax, xcs)
         #set axis text and legendf
         ax.set_xlabel('Distance from Center of ROW (ft)')
-        ax.set_ylabel('Maximum Electric Field (kV/m)')
+        ax.set_ylabel(r'Maximum Electric Field $\left(kV/m\right)$')
         t = 'Maximum Electric Field - Conductor Group %s' % str(xcs[0].tag)
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)

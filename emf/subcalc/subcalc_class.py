@@ -26,12 +26,29 @@ class Model(object):
         #stored in a list of Footprint objects
         self.footprints = []
         self.footprint_groups = [] #list of lists of integers for grouping
+        #angle of the northern direction with respect to the grid
+        #   where 0 degrees is the positive y axis and clockwise is increasing
+        self._north_angle = None
 
-    def load_footprints(self, footprint_path):
+    #north angle property
+    def _get_north_angle(self):
+        return(self._north_angle)
+    def _set_north_angle(self, angle):
+        if(not subcalc_funks._is_number(angle)):
+            raise(EMFError("""
+            The 'north_angle' attribute of a Model object must be a number."""))
+        else:
+            self._north_angle = float(angle)*(2*np.pi/360) #convert to radians
+    north_angle = property(_get_north_angle, _set_north_angle)
+
+    def load_footprints(self, footprint_path, **kwargs):
         """Read footprint data from a csv file and organize it in
         Footprint objects stored in self.footprints
         args:
-            footprint_path - string, path to the footprint csv data"""
+            footprint_path - string, path to the footprint csv/excel data.
+                            If footprint data is in an excel workbook with,
+                            multiple sheets, the sheet name must be passed
+                            to the kwarg 'sheet'"""
         #check extension
         footprint_path = subcalc_funks._check_extension(footprint_path, 'csv',
             """Footprint files must be csv files.""")

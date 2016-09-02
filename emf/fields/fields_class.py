@@ -84,7 +84,7 @@ class CrossSection(object):
     def update_arrays(self):
         """Populate the CrossSection objects numpy array attributes"""
         #calculate sample point coordinates
-        N = 1 + 2*self.max_dist/self.step
+        N = 1 + int(np.ceil(2*self.max_dist/self.step))
         self.x_sample = np.linspace(-self.max_dist, self.max_dist, num = N)
         self.y_sample = self.sample_height*np.ones((N,), dtype = float)
         #update ROW edge index variables
@@ -174,12 +174,12 @@ class CrossSection(object):
                         f[c].loc[i] = float('%.3f' % f[c].loc[i])
         else:
             f = self.fields
-        comp = {'FIELDS_DAT_results' : df,
-                'emf_results' : f,
-                'Absolute Difference' : f - df,
-                'Percent Difference' : 100*(f - df)/f}
-        #wrap comparison DataFrames in a Panel
-        pan = pd.Panel(data = comp)
+        frames = ['FIELDS_DAT_results', 'python_results',
+                'Absolute Difference', 'Percent Difference']
+        pan = pd.Panel(data = {frames[0] : df,
+                frames[1] : f,
+                frames[2] : f - df,
+                frames[3] : 100*(f - df)/f})
         #write data and save figures if called for
         if('path' in kwargs):
             kwargs['save'] = True
@@ -187,7 +187,10 @@ class CrossSection(object):
             if(kwargs['save']):
                 fn = fields_funks._path_manage(self.name + '-DAT_comparison',
                     '.xlsx', **kwargs)
-                pan.to_excel(fn, index_label = 'x')
+                xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+                for f in frames:
+                    pan[f].to_excel(xl, index_label = 'x', sheet_name = f)
+                xl.save()
                 print('DAT comparison book saved to: "%s"' % fn)
                 #make plots of the absolute and percent error
                 figs = fields_plots.plot_DAT_comparison(self, pan, **kwargs)
@@ -271,7 +274,6 @@ class SectionBook(object):
             self.names.append(xc.name)
             self.tags.append(xc.tag)
 
-
     def export(self, **kwargs):
         """Write results to an excel workbook and ROW edge results to a csv
         kwargs:
@@ -320,6 +322,7 @@ class SectionBook(object):
         else:
             wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
                 '.csv', **kwargs)
+            print wo
             self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
         if(not ('xl' in kwargs)):
             print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
