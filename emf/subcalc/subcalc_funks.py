@@ -10,7 +10,8 @@ def load_model(*args):
     """Read a .REF output file and load the data into a Model object
     args:
         REF_path - string, path to the output .REF file of field results
-        footprint_path - string, path to the csv file of footprints
+        footprint_path - string, optional, path to the csv file of
+                         footprint data
     returns
         mod - Model object containing results"""
 
@@ -32,7 +33,7 @@ def read_REF(file_path):
         file_path - string, path to saved .REF output file
     returns:
         data - dict, keys are 'x', 'y', 'Bmax', 'Bres', 'Bx', and 'By'
-        grid - dict, reference grid information"""
+        info - dict, reference grid and other information"""
 
     #check the extension
     file_path = _check_extension(file_path, 'REF', """
@@ -42,31 +43,29 @@ def read_REF(file_path):
         does not have the correct extension.""" % file_path)
 
     #allocate dictionaries
-    grid_info = {} #dictionary storing reference grid information
+    info = {} #dictionary storing reference grid information
     keys = ['X Coord', 'Y Coord', 'X Mag', 'Y Mag', 'Max', 'Res']
     return_keys = ['x', 'y', 'Bx', 'By', 'Bmax', 'Bres']
     data = dict(zip(keys, [[] for i in range(len(keys))]))
 
     #pull data out
     with open(file_path, 'r') as ifile:
-        #read through unwanted lines
-        for i in range(9):
-            ifile.readline()
         #store information about the grid
-        for i in range(13):
+        for i in range(24):
             line = ifile.readline().strip()
-            if(line):
-                line = line.split(':')
+            if(':' in line):
+                idx = line.find(':')
+                line = [line[:idx], line[idx+1:]]
                 if(_is_number(line[1])):
-                    grid_info[line[0]] = float(line[1])
+                    info[line[0]] = float(line[1])
                 else:
-                    grid_info[line[0]] = line[1].strip()
+                    info[line[0]] = line[1].strip()
         #read through the rest of the data
         for line in ifile:
             for k in keys:
                 if(k == line[:len(k)]):
-                    L = line[line.index(':') + 1:]
-                    data[k].append([float(i) for i in L.split()[2:]])
+                    L = line[line.index(':')+1:]
+                    data[k].append([float(i) for i in L.split()])
 
     #flatten the lists in data
     for k in data:
@@ -75,7 +74,7 @@ def read_REF(file_path):
     #switch the keys
     data = dict(zip(return_keys, [data[k] for k in keys]))
 
-    return(data, grid_info)
+    return(data, info)
 
 def _bilinear_interp(mod, x, y):
     """Use Model results to interpolate linearly in two dimensions for an
@@ -105,7 +104,7 @@ def _bilinear_interp(mod, x, y):
     return(B_interp)
 
 def _2Dmax(G):
-    """Find the indices of the maximum value in an 2 dimensional array
+    """Find the indices of the maximum value in a 2 dimensional array
     args:
         G - 2D numpy array
     returns:

@@ -30,6 +30,23 @@ _ax_frameon = True
 _ax_ticks_on = False
 _leg_edge_on = False
 
+def ion():
+    plt.ion()
+
+def show():
+    plt.show()
+
+def close(*args):
+    if(args):
+        for a in args:
+            if(hasattr(a, '__len__')):
+                for b in a:
+                    plt.close(b.number)
+            else:
+                plt.close(a.number)
+    else:
+        plt.close('all')
+
 def _format_ax(ax):
     #apply legend formatting
     leg = ax.get_legend()
@@ -67,7 +84,7 @@ def _label_footprint_group(ax, fps):
              y = y[0]
         ax.text(x, y, fp.group, fontsize = _footprint_label_fontsize)
 
-def contour_plot(mod, **kwargs):
+def plot_contours(mod, **kwargs):
     """Generate a contour plot from the magnetic field results and
     Footprint objects stored in a Model object
     args:
@@ -165,7 +182,7 @@ def contour_plot(mod, **kwargs):
         #size of box for North arrow, in axes fraction
         scale = 0.15
         #get figure pixel coordinates of axes
-        X, Y = mod.grid_boundaries['xmax'], mod.grid_boundaries['ymax']
+        X, Y = mod.grid_limits['xmax'], mod.grid_limits['ymax']
         #use "smaller" dimension for arrow magnitude
         if(X <= Y):
             mag = X*0.05
@@ -201,20 +218,3 @@ def contour_plot(mod, **kwargs):
     _save_fig('contour_plot', fig, **kwargs)
 
     return(fig, ax, CS)
-
-def ion():
-    plt.ion()
-
-def show():
-    plt.show()
-
-def close(*args):
-    if(args):
-        for a in args:
-            if(hasattr(a, '__len__')):
-                for b in a:
-                    plt.close(b.number)
-            else:
-                plt.close(a.number)
-    else:
-        plt.close('all')

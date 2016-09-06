@@ -7,9 +7,9 @@ import subcalc_funks
 
 class Model(object):
 
-    def __init__(self, data, grid_info):
+    def __init__(self, data, info):
         #dictionary of reference grid information from the SubCalc model
-        self.grid_info = grid_info
+        self.info = info
         #string, can be 'Bx', 'By', 'Bmax', or 'Bres' and is used to select which
         #component of the magnetic field results are stored by the model
         self.B_key = 'Bmax'
@@ -19,8 +19,8 @@ class Model(object):
         #1D grid row and column coordinates
         self.x = self.X[0,:]
         self.y = self.Y[:,0]
-        #grid dimensions for reference (info in grid_info isn't always right...)
-        self.grid_boundaries = {'xmax': np.max(self.x), 'xmin': np.min(self.x),
+        #grid dimensions for reference
+        self.grid_limits = {'xmax': np.max(self.x), 'xmin': np.min(self.x),
                                 'ymax': np.max(self.y), 'ymin': np.min(self.y)}
         #other reference objects in the model, like substation boundaries,
         #stored in a list of Footprint objects
@@ -75,7 +75,7 @@ class Model(object):
                     bool(s['Draw as Loop?'].unique()[0]),
                     s['Group'].unique()[0])
             self.footprints.append(fp)
-        #update things
+        #update things (footprint_groups)
         self.update()
 
     def cross_section(self, p1, p2, **kwargs):
@@ -91,7 +91,7 @@ class Model(object):
             B_interp - array, interpolated field values"""
         #check point lengths
         if((len(p1) != 2) or (len(p2) != 2)):
-            raise(EMFError('Points must consist of two values, being xy pairs.'))
+            raise(EMFError('Points must consist of two values, xy pairs.'))
         #check kwargs
         if('n' in kwargs):
             n = kwargs['n']
@@ -137,10 +137,10 @@ class Model(object):
             y - float, y coordinate
         returns:
             b - bool, True if x,y is in the grid, False if it's not"""
-        if((x > self.grid_boundaries['xmax']) or
-            (x < self.grid_boundaries['xmin']) or
-                (y > self.grid_boundaries['ymax']) or
-                    (y < self.grid_boundaries['ymin'])):
+        if((x > self.grid_limits['xmax']) or
+            (x < self.grid_limits['xmin']) or
+                (y > self.grid_limits['ymax']) or
+                    (y < self.grid_limits['ymin'])):
             return(False)
         else:
             return(True)
@@ -150,8 +150,8 @@ class Model(object):
         (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates
         and their corresponding B field values
         args:
-            data - dict, keyed by 'x', 'y', and 'B' with 1D arrays in
-                    each, of equal length
+            data - dict, keyed by 'x', 'y', and self.B_key with 1D arrays
+                    in each, of equal length
         returns:
             X - 2D array, x coordinates
             Y - 2D array, y coordinates
@@ -232,3 +232,12 @@ class Footprint(object):
         self.of_concern = of_concern #bool
         self.draw_as_loop = draw_as_loop #bool
         self.group = group #string
+
+    def __str__(self):
+        """quick and dirty printing"""
+        v = vars(self)
+        keys = v.keys()
+        s = '\n'
+        for k in keys:
+            s += str(k) + ': ' + str(v[k]) + '\n'
+        return(s)
