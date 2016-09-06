@@ -1,6 +1,6 @@
-import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
+from .. import np
+from .. import mpl
+from .. import plt
 
 from ..emf_plots import _save_fig
 
@@ -31,12 +31,17 @@ _ax_ticks_on = False
 _leg_edge_on = False
 
 def ion():
+    """Call plt.ion() to toggle interactive plotting on"""
     plt.ion()
 
 def show():
+    """Call plt.show() to display open figures"""
     plt.show()
 
 def close(*args):
+    """Call plt.close() on any Figure objects or lists of Figure objects
+    passed in. If nothing is passed, all Figure objects are closed with
+    plt.close('all')"""
     if(args):
         for a in args:
             if(hasattr(a, '__len__')):
@@ -191,8 +196,8 @@ def plot_contours(mod, **kwargs):
         #center of arrow
         x, y = X - 2*mag, Y - 2*mag
         #calculate offsets from angle
-        x_offset = mag*np.sin(mod.north_angle)
-        y_offset = mag*np.cos(mod.north_angle)
+        x_offset = mag*np.sin(mod.north_angle*(2*np.pi/360.))
+        y_offset = mag*np.cos(mod.north_angle*(2*np.pi/360.))
         #draw arrow
         ax.annotate('', xy = (x + x_offset, y + y_offset),
                 xycoords = 'data',

@@ -1,5 +1,5 @@
-import os
-import numpy as np
+from . import os
+from . import np
 
 import emf_class
 

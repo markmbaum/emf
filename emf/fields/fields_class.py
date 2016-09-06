@@ -1,6 +1,5 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+from .. import np
+from .. import pd
 
 from ..emf_class import EMFError
 
@@ -38,8 +37,8 @@ class CrossSection(object):
     information for a power line cross section. Includes plotting methods
     for the fields results and exporting methods for the results."""
 
-    def __init__(self, name):
-        self.name = name #mandatory, short, usually template sheet name
+    def __init__(self, sheet):
+        self.sheet = sheet #mandatory, short, usually template sheet name
         self.title = '' #must be short, used as FLD file names
         self.tag = None #identifier linking multiple CrossSection objects
         self.subtitle = '' #longer form, used for plotting text
@@ -141,7 +140,7 @@ class CrossSection(object):
         args:
             DAT_path - path of FIELDS results file
         kwargs:
-            save - boolean, toggle whether output panel and figures are saved
+            save - boolean, toggle whether output Panel and figures are saved
             path - string, destination of saved files, will force save == True
             round - int, round the results in self.fields to a certain
                     number of digits in an attempt to exactly match the
@@ -158,7 +157,7 @@ class CrossSection(object):
             raise(EMFError("""
             self.fields in CrossSection named "%s" and the imported .DAT
             DataFrame have different shapes. Be sure to target the correct
-            .DAT file and that it has compatible DIST values.""" % self.name))
+            .DAT file and that it has compatible DIST values.""" % self.sheet))
         #prepare a dictionary to create a Panel
         if(('round' in kwargs) and ('truncate' in kwargs)):
             raise(FLDError("""
@@ -185,7 +184,7 @@ class CrossSection(object):
             kwargs['save'] = True
         if('save' in kwargs):
             if(kwargs['save']):
-                fn = fields_funks._path_manage(self.name + '-DAT_comparison',
+                fn = fields_funks._path_manage(self.sheet + '-DAT_comparison',
                     '.xlsx', **kwargs)
                 xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
                 for f in frames:
@@ -193,7 +192,7 @@ class CrossSection(object):
                 xl.save()
                 print('DAT comparison book saved to: "%s"' % fn)
                 #make plots of the absolute and percent error
-                figs = fields_plots.plot_DAT_comparison(self, pan, **kwargs)
+                figs = fields_plots._plot_DAT_comparison(self, pan, **kwargs)
         #return the Panel
         return(pan)
 
@@ -208,8 +207,8 @@ class SectionBook(object):
     def __init__(self, name):
         self.name = name #mandatory identification field
         self.xcs = [] #list of cross section objects
-        self.name2idx = dict() #mapping dictionary for CrossSection retrieval
-        self.names = [] #list of CrossSection names
+        self.sheet2idx = dict() #mapping dictionary for CrossSection retrieval
+        self.sheets = [] #list of CrossSection names
         self.tags = [] #collection of CrossSection tags
         self.tag_groups = [[]] #groups of CrossSection indices with identical tags
         #DataFrame of maximum fields at ROW edges
@@ -219,7 +218,7 @@ class SectionBook(object):
     def __getitem__(self, key):
         """Index the SectionBook by CrossSection names"""
         try:
-            idx = self.name2idx[key]
+            idx = self.sheet2idx[key]
         except(KeyError):
             return(False)
         else:
@@ -260,18 +259,18 @@ class SectionBook(object):
     def add_section(self, xc):
         """Add a CrossSection to the book. Doing so by directly altering
         self.xcs will make the CrossSections inaccessible by __getitem__
-        and make the group plotting functions impossible, so don't do that
-        and use this method instead."""
+        and make the group plotting functions impossible, so don't do that.
+        Use this method instead."""
         #Prevent adding CrossSections with the same names
-        if(xc.name in self.names):
+        if(xc.sheet in self.sheets):
             raise(EMFError("""
             CrossSection name "%s" already exists in the SectionBook.
             Duplicate names would cause collisions in the lookup dictionary
-            (self.name2idx). Use a different name.""" % xc.name))
+            (self.sheet2idx). Use a different name.""" % xc.sheet))
         else:
-            self.name2idx[xc.name] = len(self.xcs)
+            self.sheet2idx[xc.sheet] = len(self.xcs)
             self.xcs.append(xc)
-            self.names.append(xc.name)
+            self.sheets.append(xc.sheet)
             self.tags.append(xc.tag)
 
     def export(self, **kwargs):
@@ -289,7 +288,7 @@ class SectionBook(object):
         #write results
         xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
         for xc in self:
-            xc.fields.to_excel(xlwriter, sheet_name = xc.name)
+            xc.fields.to_excel(xlwriter, sheet_name = xc.sheet)
         print('Full SectionBook results written to: "%s"' % fn)
 
     def ROW_edge_export(self, **kwargs):
@@ -360,7 +359,7 @@ class SectionBook(object):
             titles.append(xc.title)
         #construct DataFrame
         self.ROW_edge_max = pd.DataFrame(data = {
-            'name': self.names, 'title': titles, 'Bmaxl': Bl, 'Emaxl': El,
+            'name': self.sheets, 'title': titles, 'Bmaxl': Bl, 'Emaxl': El,
             'Bmaxr': Br, 'Emaxr': Er}).sort_values('name')
 
     def _update_tag_groups(self):

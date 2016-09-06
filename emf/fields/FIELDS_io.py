@@ -1,7 +1,6 @@
-import os
-import glob
-import numpy as np
-import pandas as pd
+from .. import os
+from .. import glob
+from .. import pd
 
 import fields_funks
 import fields_class
@@ -48,7 +47,7 @@ def to_FLD(xc, **kwargs):
         input of type: %s
         Use to_FLDs() for a SectionBook object.""" % str(type(xc))))
     #get a filename
-    fn = fields_funks._path_manage(xc.name, 'FLD', **kwargs)
+    fn = fields_funks._path_manage(xc.sheet, 'FLD', **kwargs)
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
@@ -90,14 +89,14 @@ def to_FLDs(*args, **kwargs):
         raise(fields_class.EMFError("""
         Input argument to to_FLDs() must be a filepath or a SectionBook."""))
     #check for duplicate titles and subtitles
-    names = []
+    sheets = []
     for xc in sb:
-        if(xc.name in names):
+        if(xc.sheet in sheets):
             raise(fields_class.EMFError("""
             Can't create FLD files because of duplicate CrossSection names.
-            Name "%s" is used at least twice.""" % xc.name))
+            Name "%s" is used at least twice.""" % xc.sheet))
         else:
-            names.append(xc.name)
+            sheets.append(xc.sheet)
     #generate FLD files
     for xc in sb:
         to_FLD(xc, **kwargs)

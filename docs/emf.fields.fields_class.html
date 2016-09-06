@@ -1,0 +1,180 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module emf.fields.fields_class</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="emf.html"><font color="#ffffff">emf</font></a>.<a href="emf.fields.html"><font color="#ffffff">fields</font></a>.fields_class</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:///P:/mbaum/programming/python/python_code/emf/emf/fields/fields_class.py">p:\mbaum\programming\python\python_code\emf\emf\fields\fields_class.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="emf.fields.FIELDS_io.html">emf.fields.FIELDS_io</a><br>
+<a href="emf.fields.fields_calcs.html">emf.fields.fields_calcs</a><br>
+</td><td width="25%" valign=top><a href="emf.fields.fields_funks.html">emf.fields.fields_funks</a><br>
+<a href="emf.fields.fields_plots.html">emf.fields.fields_plots</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+</td><td width="25%" valign=top><a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="__builtin__.html#object">__builtin__.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="emf.fields.fields_class.html#Conductor">Conductor</a>
+</font></dt><dt><font face="helvetica, arial"><a href="emf.fields.fields_class.html#CrossSection">CrossSection</a>
+</font></dt><dt><font face="helvetica, arial"><a href="emf.fields.fields_class.html#SectionBook">SectionBook</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Conductor">class <strong>Conductor</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;representing&nbsp;a&nbsp;single&nbsp;conductor&nbsp;or&nbsp;power&nbsp;line.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Conductor-__init__"><strong>__init__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Conductor-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>quick&nbsp;and&nbsp;dirty&nbsp;printing</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="CrossSection">class <strong>CrossSection</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Class&nbsp;that&nbsp;organizes&nbsp;<a href="#Conductor">Conductor</a>&nbsp;objects&nbsp;and&nbsp;stores&nbsp;other&nbsp;input<br>
+information&nbsp;for&nbsp;a&nbsp;power&nbsp;line&nbsp;cross&nbsp;section.&nbsp;Includes&nbsp;plotting&nbsp;methods<br>
+for&nbsp;the&nbsp;fields&nbsp;results&nbsp;and&nbsp;exporting&nbsp;methods&nbsp;for&nbsp;the&nbsp;results.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="CrossSection-ROW_edge_fields"><strong>ROW_edge_fields</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;values&nbsp;of&nbsp;fields&nbsp;calculations&nbsp;at&nbsp;the&nbsp;left&nbsp;and&nbsp;right<br>
+ROW&nbsp;edges&nbsp;of&nbsp;the&nbsp;cross-section.<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;left&nbsp;-&nbsp;pandas&nbsp;Series&nbsp;with&nbsp;left&nbsp;ROW&nbsp;edge&nbsp;results<br>
+&nbsp;&nbsp;&nbsp;&nbsp;right&nbsp;-&nbsp;pandas&nbsp;Series&nbsp;with&nbsp;right&nbsp;ROW&nbsp;edge&nbsp;results</tt></dd></dl>
+
+<dl><dt><a name="CrossSection-__init__"><strong>__init__</strong></a>(self, sheet)</dt></dl>
+
+<dl><dt><a name="CrossSection-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>quick&nbsp;and&nbsp;dirty&nbsp;printing</tt></dd></dl>
+
+<dl><dt><a name="CrossSection-calculate_fields"><strong>calculate_fields</strong></a>(self)</dt><dd><tt>Calculate&nbsp;electric&nbsp;and&nbsp;magnetic&nbsp;fields&nbsp;across&nbsp;the&nbsp;ROW&nbsp;and&nbsp;store&nbsp;the<br>
+results&nbsp;in&nbsp;the&nbsp;self.<strong>fields</strong>&nbsp;DataFrame.&nbsp;This&nbsp;function&nbsp;also&nbsp;initializes<br>
+many&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;variables,&nbsp;so&nbsp;it's&nbsp;wise&nbsp;to&nbsp;run&nbsp;it&nbsp;as&nbsp;soon&nbsp;as&nbsp;the<br>
+all&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;data&nbsp;is&nbsp;entered&nbsp;or&nbsp;whenever&nbsp;it&nbsp;changes.</tt></dd></dl>
+
+<dl><dt><a name="CrossSection-compare_DAT"><strong>compare_DAT</strong></a>(self, DAT_path, **kwargs)</dt><dd><tt>Load&nbsp;a&nbsp;FIELDS&nbsp;output&nbsp;file&nbsp;(.DAT),&nbsp;find&nbsp;absolute&nbsp;and&nbsp;percentage<br>
+differences&nbsp;between&nbsp;it&nbsp;and&nbsp;the&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;<a href="__builtin__.html#object">object</a>'s&nbsp;results.<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;DAT_path&nbsp;-&nbsp;path&nbsp;of&nbsp;FIELDS&nbsp;results&nbsp;file<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;save&nbsp;-&nbsp;boolean,&nbsp;toggle&nbsp;whether&nbsp;output&nbsp;panel&nbsp;and&nbsp;figures&nbsp;are&nbsp;saved<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;-&nbsp;string,&nbsp;destination&nbsp;of&nbsp;saved&nbsp;files,&nbsp;will&nbsp;force&nbsp;save&nbsp;==&nbsp;True<br>
+&nbsp;&nbsp;&nbsp;&nbsp;round&nbsp;-&nbsp;int,&nbsp;round&nbsp;the&nbsp;results&nbsp;in&nbsp;self.<strong>fields</strong>&nbsp;to&nbsp;a&nbsp;certain<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;of&nbsp;digits&nbsp;in&nbsp;an&nbsp;attempt&nbsp;to&nbsp;exactly&nbsp;match&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELDS&nbsp;results,&nbsp;which&nbsp;are&nbsp;printed&nbsp;only&nbsp;to&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;thousandths&nbsp;digit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;truncate&nbsp;-&nbsp;bool,&nbsp;truncate&nbsp;results&nbsp;after&nbsp;the&nbsp;thousandths&nbsp;digit<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pan&nbsp;-&nbsp;pandas&nbsp;Panel&nbsp;with&nbsp;DAT&nbsp;results,&nbsp;results&nbsp;of&nbsp;this&nbsp;code,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;absolute&nbsp;error&nbsp;between,&nbsp;and&nbsp;the&nbsp;relative&nbsp;error&nbsp;between</tt></dd></dl>
+
+<dl><dt><a name="CrossSection-update_arrays"><strong>update_arrays</strong></a>(self)</dt><dd><tt>Populate&nbsp;the&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;objects&nbsp;numpy&nbsp;array&nbsp;attributes</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SectionBook">class <strong>SectionBook</strong></a>(<a href="__builtin__.html#object">__builtin__.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Top&nbsp;level&nbsp;class&nbsp;organizing&nbsp;a&nbsp;group&nbsp;of&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;objects.&nbsp;Uses&nbsp;a<br>
+dictionary&nbsp;to&nbsp;track&nbsp;CrossSections&nbsp;in&nbsp;a&nbsp;list&nbsp;and&nbsp;provide&nbsp;a&nbsp;convenient<br>
+__getitem__&nbsp;method&nbsp;than&nbsp;gets&nbsp;CrossSections&nbsp;by&nbsp;their&nbsp;name.&nbsp;Also&nbsp;tracks<br>
+maximum&nbsp;field&nbsp;results&nbsp;at&nbsp;the&nbsp;ROW&nbsp;edges&nbsp;of&nbsp;each&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;added,<br>
+provides&nbsp;a&nbsp;plotting&nbsp;method&nbsp;for&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;groups,&nbsp;and&nbsp;provides<br>
+exporting&nbsp;methods.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SectionBook-ROW_edge_export"><strong>ROW_edge_export</strong></a>(self, **kwargs)</dt><dd><tt>Write&nbsp;max&nbsp;field&nbsp;results&nbsp;at&nbsp;ROW&nbsp;edges&nbsp;for&nbsp;each&nbsp;cross&nbsp;section&nbsp;to<br>
+an&nbsp;excel&nbsp;or&nbsp;csv&nbsp;file.&nbsp;Default&nbsp;is&nbsp;csv.<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;file_type&nbsp;-&nbsp;string,&nbsp;accepts&nbsp;'csv'&nbsp;or&nbsp;'excel'&nbsp;(default&nbsp;csv)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;-&nbsp;string,&nbsp;destination/filename&nbsp;for&nbsp;saved&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xl&nbsp;-&nbsp;pandas&nbsp;ExcelWriter&nbsp;<a href="__builtin__.html#object">object</a>,&nbsp;takes&nbsp;precedence&nbsp;over&nbsp;'path'</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-__getitem__"><strong>__getitem__</strong></a>(self, key)</dt><dd><tt>Index&nbsp;the&nbsp;<a href="#SectionBook">SectionBook</a>&nbsp;by&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;names</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-__init__"><strong>__init__</strong></a>(self, name)</dt></dl>
+
+<dl><dt><a name="SectionBook-__iter__"><strong>__iter__</strong></a>(self)</dt><dd><tt>Iteration&nbsp;over&nbsp;all&nbsp;CrossSections&nbsp;in&nbsp;the&nbsp;<a href="#SectionBook">SectionBook</a></tt></dd></dl>
+
+<dl><dt><a name="SectionBook-__len__"><strong>__len__</strong></a>(self)</dt><dd><tt>Length&nbsp;of&nbsp;<a href="#SectionBook">SectionBook</a>&nbsp;is&nbsp;the&nbsp;number&nbsp;of&nbsp;CrossSections&nbsp;in&nbsp;it</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>quick&nbsp;and&nbsp;dirty&nbsp;printing</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-add_section"><strong>add_section</strong></a>(self, xc)</dt><dd><tt>Add&nbsp;a&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;to&nbsp;the&nbsp;book.&nbsp;Doing&nbsp;so&nbsp;by&nbsp;directly&nbsp;altering<br>
+self.<strong>xcs</strong>&nbsp;will&nbsp;make&nbsp;the&nbsp;CrossSections&nbsp;inaccessible&nbsp;by&nbsp;__getitem__<br>
+and&nbsp;make&nbsp;the&nbsp;group&nbsp;plotting&nbsp;functions&nbsp;impossible,&nbsp;so&nbsp;don't&nbsp;do&nbsp;that<br>
+and&nbsp;use&nbsp;this&nbsp;method&nbsp;instead.</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-export"><strong>export</strong></a>(self, **kwargs)</dt><dd><tt>Write&nbsp;results&nbsp;to&nbsp;an&nbsp;excel&nbsp;workbook&nbsp;and&nbsp;ROW&nbsp;edge&nbsp;results&nbsp;to&nbsp;a&nbsp;csv<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;-&nbsp;string,&nbsp;destination/filename&nbsp;for&nbsp;saved&nbsp;file</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-i"><strong>i</strong></a>(self, idx)</dt><dd><tt>Get&nbsp;a&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;<a href="__builtin__.html#object">object</a>&nbsp;by&nbsp;it's&nbsp;numeric&nbsp;index&nbsp;in&nbsp;self.<strong>xcs</strong></tt></dd></dl>
+
+<dl><dt><a name="SectionBook-results_export"><strong>results_export</strong></a>(self, **kwargs)</dt><dd><tt>Write&nbsp;all&nbsp;of&nbsp;the&nbsp;cross&nbsp;section&nbsp;results&nbsp;to&nbsp;an&nbsp;excel&nbsp;workbook</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-sample"><strong>sample</strong></a>(self, *args)</dt><dd><tt>Get&nbsp;a&nbsp;random&nbsp;<a href="#CrossSection">CrossSection</a>&nbsp;from&nbsp;the&nbsp;<a href="#SectionBook">SectionBook</a><br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;any&nbsp;input&nbsp;integer&nbsp;determines&nbsp;the&nbsp;number&nbsp;of&nbsp;random&nbsp;xcs&nbsp;fetched</tt></dd></dl>
+
+<dl><dt><a name="SectionBook-update"><strong>update</strong></a>(self)</dt><dd><tt>Executes&nbsp;all&nbsp;of&nbsp;the&nbsp;update&nbsp;functions</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>

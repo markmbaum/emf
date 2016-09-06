@@ -1,7 +1,6 @@
-import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-lines = mpl.lines
+from .. import np
+from .. import mpl
+from .. import plt
 
 from ..emf_plots import _save_fig
 
@@ -38,12 +37,17 @@ _colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
 #general plotting support functions
 
 def ion():
+    """Call plt.ion() to toggle interactive plotting on"""
     plt.ion()
 
 def show():
+    """Call plt.show() to display open figures"""
     plt.show()
 
 def close(*args):
+    """Call plt.close() on any Figure objects or lists of Figure objects
+    passed in. If nothing is passed, all Figure objects are closed with
+    plt.close('all')"""
     if(args):
         for a in args:
             if(hasattr(a, '__len__')):
@@ -214,7 +218,7 @@ def plot_Bmax(xc, **kwargs):
     ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
     _format_axes_legends(ax)
     #save the fig or don't, depending on keywords
-    _save_fig(xc.name, fig, **kwargs)
+    _save_fig(xc.sheet, fig, **kwargs)
     #return
     return(fig)
 
@@ -253,7 +257,7 @@ def plot_Emax(xc, **kwargs):
     ax.legend(hE + hw + hROW, lE + lw + lROW, numpoints = 1)
     _format_axes_legends(ax)
     #save the fig or don't, depending on keywords
-    _save_fig(xc.name, fig, **kwargs)
+    _save_fig(xc.sheet, fig, **kwargs)
     #return
     return(fig)
 
@@ -303,7 +307,7 @@ def plot_max_fields(xc, **kwargs):
     ax_B.legend(hf + hw + hROW, lf + lw + lROW, numpoints = 1)
     _format_axes_legends(ax_B, ax_E)
     #save the fig or don't, depending on keywords
-    _save_fig(xc.name, fig, **kwargs)
+    _save_fig(xc.sheet, fig, **kwargs)
     #return
     return(fig)
 
@@ -333,7 +337,7 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, hw, lw):
     #set results legend
     ax_mag.legend(h_fld + h_nm + hw, ['FIELDS','New Code'] + lw, numpoints = 1)
 
-def plot_DAT_comparison(xc, pan, **kwargs):
+def _plot_DAT_comparison(xc, pan, **kwargs):
     """Generate 2 subplots showing the FIELDS results (from a .DAT file)
     compared to the results of this code and the error.
     args:
@@ -359,7 +363,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     _format_axes_legends(ax_abs)
     plt.tight_layout()
     #_format_axes_legends(ax_abs, ax_per, ax_mag)
-    _save_fig(xc.name + '-DAT_comparison_Bmax', fig, **kwargs)
+    _save_fig(xc.sheet + '-DAT_comparison_Bmax', fig, **kwargs)
     plt.close(fig)
 
     #figure object and axes
@@ -376,7 +380,7 @@ def plot_DAT_comparison(xc, pan, **kwargs):
     _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     plt.tight_layout()
     #_format_axes_legends(ax_abs, ax_per, ax_mag)
-    _save_fig(xc.name + '-DAT_comparison_Emax', fig, **kwargs)
+    _save_fig(xc.sheet + '-DAT_comparison_Emax', fig, **kwargs)
     plt.close(fig)
 
 
@@ -466,7 +470,7 @@ def _plot_group_wires(ax, xcs, max_field):
                             color = _colormap[0])[0])
         else:
             #still need a handle for the legend
-            h.append(lines.Line2D([], [], marker = 'd', linestyle = '',
+            h.append(mpl.lines.Line2D([], [], marker = 'd', linestyle = '',
                             color = _colormap[0]))
         l.append('Conductors - ' + xcs[0].title)
         #cross section 1 conductors only
@@ -476,7 +480,7 @@ def _plot_group_wires(ax, xcs, max_field):
                             color = _colormap[1])[0])
         else:
             #still need a handle for the legend
-            h.append(lines.Line2D([], [], marker = 'd', linestyle = '',
+            h.append(mpl.lines.Line2D([], [], marker = 'd', linestyle = '',
                             color = _colormap[1]))
         l.append('Conductors - ' + xcs[1].title)
         #shared conductors
@@ -527,8 +531,8 @@ def _plot_group_ROW_edges(ax, xcs):
             ax.plot([xcs[1].rROW]*2, yl, '--', color = _colormap[1],
                         linewidth = _ROW_linewidth, zorder = -1)
         #create a line handle and label for each color of the dashed line
-        h = [lines.Line2D([], [], linestyle = '--',color = _colormap[0]),
-            lines.Line2D([], [], linestyle = '--', color = _colormap[1])]
+        h = [mpl.lines.Line2D([], [], linestyle = '--',color = _colormap[0]),
+            mpl.lines.Line2D([], [], linestyle = '--', color = _colormap[1])]
         l = ['ROW Edges - ' + xcs[0].title, 'ROW Edges - ' + xcs[1].title]
     elif(len(xcs) > 2):
         #if there are more than two CrossSections and they all have the same

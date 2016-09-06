@@ -1,5 +1,5 @@
-import numpy as np
-import pandas as pd
+from .. import np
+from .. import pd
 
 from ..emf_class import EMFError
 
@@ -38,8 +38,13 @@ class Model(object):
             raise(EMFError("""
             The 'north_angle' attribute of a Model object must be a number."""))
         else:
-            self._north_angle = float(angle)*(2*np.pi/360) #convert to radians
-    north_angle = property(_get_north_angle, _set_north_angle)
+            self._north_angle = float(angle)
+    def _del_north_angle(self):
+        del(self._north_angle)
+    north_angle = property(_get_north_angle, _set_north_angle, _del_north_angle,
+            """Angle of the Northern direction in degrees, where 0 represents
+            the vertical or Y direction and clockwise represents increasing
+            angle""")
 
     def load_footprints(self, footprint_path, **kwargs):
         """Read footprint data from a csv file and organize it in
@@ -194,19 +199,27 @@ class Model(object):
 
 class Footprint(object):
 
-    def get_x(self):
+    def _get_x(self):
         if(self.draw_as_loop):
             return(self._x + [self._x[0]])
         else:
             return(self._x)
-    x = property(get_x)
+    def _set_x(self, value):
+        self._x = value
+    def _del_x(self):
+        del(self._x)
+    x = property(_get_x, _set_x, _del_x, 'x coordinates of Footprint vertices')
 
-    def get_y(self):
+    def _get_y(self):
         if(self.draw_as_loop):
             return(self._y + [self._y[0]])
         else:
             return(self._y)
-    y = property(get_y)
+    def _set_y(self, value):
+        self._y = value
+    def _del_y(self):
+        del(self._y)
+    y = property(_get_y, _set_y, _del_y, 'y coordinates of Footprint vertices')
 
     def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
         """

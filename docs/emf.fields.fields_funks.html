@@ -1,0 +1,114 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module emf.fields.fields_funks</title>
+<meta charset="utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="emf.html"><font color="#ffffff">emf</font></a>.<a href="emf.fields.html"><font color="#ffffff">fields</font></a>.fields_funks</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:///P:/mbaum/programming/python/python_code/emf/emf/fields/fields_funks.py">p:\mbaum\programming\python\python_code\emf\emf\fields\fields_funks.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="copy.html">copy</a><br>
+<a href="emf.fields.fields_calcs.html">emf.fields.fields_calcs</a><br>
+</td><td width="25%" valign=top><a href="emf.fields.fields_class.html">emf.fields.fields_class</a><br>
+<a href="emf.fields.fields_plots.html">emf.fields.fields_plots</a><br>
+</td><td width="25%" valign=top><a href="itertools.html">itertools</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="pandas.html">pandas</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-load_template"><strong>load_template</strong></a>(file_path, **kwargs)</dt><dd><tt>Import&nbsp;conductor&nbsp;data&nbsp;from&nbsp;an&nbsp;excel&nbsp;template,&nbsp;loading&nbsp;each&nbsp;conductor<br>
+into&nbsp;a&nbsp;Conductor&nbsp;object,&nbsp;each&nbsp;Conductor&nbsp;into&nbsp;a&nbsp;CrossSection&nbsp;object,&nbsp;and<br>
+each&nbsp;CrossSection&nbsp;object&nbsp;into&nbsp;a&nbsp;SectionBook&nbsp;object.&nbsp;The&nbsp;SectionBook<br>
+object&nbsp;is&nbsp;returned.<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;template_path&nbsp;-&nbsp;string,&nbsp;path&nbsp;to&nbsp;cross&nbsp;section&nbsp;template&nbsp;excel<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;workbook<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sheets&nbsp;-&nbsp;list&nbsp;of&nbsp;strings,&nbsp;a&nbsp;list&nbsp;of&nbsp;sheet&nbsp;names&nbsp;to&nbsp;load,&nbsp;default&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all&nbsp;sheets</tt></dd></dl>
+ <dl><dt><a name="-optimize_phasing"><strong>optimize_phasing</strong></a>(xc, circuits, **kwargs)</dt><dd><tt>Permute&nbsp;the&nbsp;phasing&nbsp;of&nbsp;non-grounded&nbsp;conductors&nbsp;and&nbsp;find&nbsp;the<br>
+arrangement&nbsp;that&nbsp;results&nbsp;in&nbsp;the&nbsp;lowest&nbsp;fields&nbsp;at&nbsp;the&nbsp;left&nbsp;and&nbsp;right<br>
+edge&nbsp;of&nbsp;the&nbsp;ROW.&nbsp;The&nbsp;number&nbsp;of&nbsp;hot&nbsp;conductors&nbsp;must&nbsp;be&nbsp;a&nbsp;multiple&nbsp;of<br>
+three.&nbsp;The&nbsp;phases&nbsp;of&nbsp;consecutive&nbsp;groups&nbsp;of&nbsp;three&nbsp;conductors&nbsp;are<br>
+swapped&nbsp;around,&nbsp;assuming&nbsp;that&nbsp;those&nbsp;groups&nbsp;represent&nbsp;a&nbsp;single<br>
+three-phase&nbsp;transfer&nbsp;circuit.<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xc&nbsp;-&nbsp;target&nbsp;CrossSection&nbsp;object<br>
+&nbsp;&nbsp;&nbsp;&nbsp;circuits&nbsp;-&nbsp;list&nbsp;of&nbsp;lists&nbsp;of&nbsp;ints,&nbsp;or&nbsp;'all'.&nbsp;If&nbsp;a&nbsp;list&nbsp;of&nbsp;lists,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;each&nbsp;sublist&nbsp;contains&nbsp;the&nbsp;integer&nbsp;indices&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conductors&nbsp;that&nbsp;belong&nbsp;to&nbsp;a&nbsp;circuit,&nbsp;indexed&nbsp;from&nbsp;zero.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;'all',&nbsp;circuits&nbsp;are&nbsp;assumed&nbsp;to&nbsp;be&nbsp;consecutive&nbsp;groups<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;of&nbsp;three&nbsp;conductors.<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;save&nbsp;-&nbsp;bool,&nbsp;toggle&nbsp;saving&nbsp;of&nbsp;the&nbsp;results&nbsp;DataFrame&nbsp;to&nbsp;an&nbsp;excel&nbsp;book<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;-&nbsp;string,&nbsp;location/filename&nbsp;for&nbsp;saved&nbsp;results&nbsp;workbook,&nbsp;forces<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;saving&nbsp;even&nbsp;if&nbsp;no&nbsp;'save'&nbsp;keyword&nbsp;is&nbsp;used.<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;-&nbsp;pandas&nbsp;DataFrame&nbsp;listing&nbsp;conductor&nbsp;phasings&nbsp;that&nbsp;optimize<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;electric&nbsp;and&nbsp;magnetic&nbsp;fields&nbsp;at&nbsp;both&nbsp;ROW&nbsp;edges.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;opt&nbsp;-&nbsp;new&nbsp;SectionBook&nbsp;object&nbsp;containing&nbsp;the&nbsp;permuted&nbsp;phasings&nbsp;that<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optimize&nbsp;the&nbsp;E&nbsp;and&nbsp;B&nbsp;fields&nbsp;at&nbsp;the&nbsp;left&nbsp;and&nbsp;right&nbsp;ROW&nbsp;edges.</tt></dd></dl>
+ <dl><dt><a name="-run"><strong>run</strong></a>(template_path, **kwargs)</dt><dd><tt>Import&nbsp;the&nbsp;templates&nbsp;in&nbsp;an&nbsp;excel&nbsp;file&nbsp;with&nbsp;the&nbsp;path&nbsp;'template_path'<br>
+then&nbsp;generate&nbsp;a&nbsp;workbook&nbsp;of&nbsp;all&nbsp;fields&nbsp;results&nbsp;and&nbsp;lots&nbsp;of&nbsp;plots.<br>
+Use&nbsp;the&nbsp;'path'&nbsp;keyword&nbsp;argument&nbsp;to&nbsp;specify&nbsp;a&nbsp;destination&nbsp;for&nbsp;the&nbsp;output,<br>
+otherwise&nbsp;it&nbsp;will&nbsp;be&nbsp;saved&nbsp;to&nbsp;the&nbsp;template's&nbsp;directory.&nbsp;Returns<br>
+a&nbsp;SectionBook&nbsp;object.<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;template_path&nbsp;-&nbsp;path&nbsp;to&nbsp;cross&nbsp;section&nbsp;template&nbsp;excel&nbsp;workbook<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sheets&nbsp;-&nbsp;a&nbsp;list&nbsp;of&nbsp;sheet&nbsp;names&nbsp;to&nbsp;load,&nbsp;default&nbsp;is&nbsp;all&nbsp;sheets<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;-&nbsp;string,&nbsp;destination/filename&nbsp;for&nbsp;saved&nbsp;files<br>
+&nbsp;&nbsp;&nbsp;&nbsp;format&nbsp;-&nbsp;string,&nbsp;saved&nbsp;plot&nbsp;format&nbsp;(usually&nbsp;'png'&nbsp;or&nbsp;'pdf')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xmax&nbsp;-&nbsp;cutoff&nbsp;distance&nbsp;from&nbsp;ROW&nbsp;center&nbsp;in&nbsp;plots</tt></dd></dl>
+ <dl><dt><a name="-target_fields"><strong>target_fields</strong></a>(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs)</dt><dd><tt>Increase&nbsp;conductor&nbsp;y&nbsp;coordinates&nbsp;until&nbsp;fields&nbsp;at&nbsp;ROW&nbsp;edges&nbsp;are&nbsp;below<br>
+thresholds.&nbsp;All&nbsp;selected&nbsp;conductors&nbsp;are&nbsp;adjusted&nbsp;by&nbsp;the&nbsp;same&nbsp;amount.<br>
+If&nbsp;any&nbsp;of&nbsp;the&nbsp;thresholds&nbsp;are&nbsp;empty&nbsp;or&nbsp;false,&nbsp;None&nbsp;is&nbsp;returned&nbsp;for&nbsp;their<br>
+adjustment&nbsp;result.<br>
+args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xc&nbsp;-&nbsp;CrossSection&nbsp;object&nbsp;to&nbsp;perform&nbsp;adjustments&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;hot&nbsp;-&nbsp;indices&nbsp;of&nbsp;hot&nbsp;conductors&nbsp;in&nbsp;self.<strong>hot</strong>&nbsp;to&nbsp;raise,&nbsp;accepts&nbsp;'all'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;gnd&nbsp;-&nbsp;indices&nbsp;of&nbsp;ground&nbsp;conductors&nbsp;in&nbsp;self.<strong>gnd</strong>&nbsp;to&nbsp;raise,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accepts&nbsp;'all'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;B_l&nbsp;-&nbsp;magnetic&nbsp;field&nbsp;threshold&nbsp;at&nbsp;left&nbsp;ROW&nbsp;edge*<br>
+&nbsp;&nbsp;&nbsp;&nbsp;B_r&nbsp;-&nbsp;magnetic&nbsp;field&nbsp;threshold&nbsp;at&nbsp;right&nbsp;ROW&nbsp;edge*<br>
+&nbsp;&nbsp;&nbsp;&nbsp;E_l&nbsp;-&nbsp;electric&nbsp;field&nbsp;threshold&nbsp;at&nbsp;left&nbsp;ROW&nbsp;edge*<br>
+&nbsp;&nbsp;&nbsp;&nbsp;E_r&nbsp;-&nbsp;electric&nbsp;field&nbsp;threshold&nbsp;at&nbsp;right&nbsp;ROW&nbsp;edge*<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*an&nbsp;implicitly&nbsp;False&nbsp;input&nbsp;will&nbsp;ignore&nbsp;that&nbsp;field-edge<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;combination,&nbsp;return&nbsp;None&nbsp;in&nbsp;the&nbsp;return&nbsp;variable&nbsp;'h',&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cause&nbsp;the&nbsp;returned&nbsp;SectionBook&nbsp;to&nbsp;omit&nbsp;that&nbsp;field-edge&nbsp;combo.<br>
+&nbsp;<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;max_iter&nbsp;-&nbsp;maximum&nbsp;number&nbsp;of&nbsp;_bisection&nbsp;iterations&nbsp;allowed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default&nbsp;is&nbsp;1e3<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rel_err&nbsp;-&nbsp;tolerance&nbsp;threshold&nbsp;for&nbsp;relative&nbsp;error&nbsp;(e.g.&nbsp;0.01&nbsp;is&nbsp;1&nbsp;%)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default&nbsp;is&nbsp;1e-6.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;hhigh&nbsp;-&nbsp;upper&nbsp;limit&nbsp;of&nbsp;the&nbsp;height&nbsp;adjustment,&nbsp;default&nbsp;is&nbsp;1.0e6<br>
+&nbsp;&nbsp;&nbsp;&nbsp;save&nbsp;-&nbsp;toggle&nbsp;saving&nbsp;of&nbsp;the&nbsp;results&nbsp;DataFrame&nbsp;to&nbsp;an&nbsp;excel&nbsp;book<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;-&nbsp;location/filename&nbsp;for&nbsp;saved&nbsp;results&nbsp;workbook,&nbsp;forces&nbsp;saving<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;even&nbsp;if&nbsp;no&nbsp;'save'&nbsp;keyword&nbsp;is&nbsp;used.<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;h&nbsp;-&nbsp;height&nbsp;adjustments&nbsp;necessary&nbsp;for&nbsp;E&nbsp;and&nbsp;B&nbsp;fields&nbsp;at&nbsp;left&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;right&nbsp;ROW&nbsp;edges.&nbsp;The&nbsp;ordering&nbsp;is:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(B_left,&nbsp;B_right,&nbsp;E_left,&nbsp;E_right)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;adj&nbsp;-&nbsp;a&nbsp;new&nbsp;SectionBook&nbsp;object&nbsp;with&nbsp;the&nbsp;adjusted&nbsp;conductor&nbsp;heights<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;each&nbsp;scenario&nbsp;in&nbsp;a&nbsp;CrossSection</tt></dd></dl>
+</td></tr></table>
+</body></html>

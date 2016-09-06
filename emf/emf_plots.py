@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+from . import plt
 
 import emf_funks
 
