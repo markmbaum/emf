@@ -1,17 +1,18 @@
 `emf`
 
 The `emf` package contains two subpackages:
-* `emf.fields` - Originally meant to streamline input/output and analysis of data used by the FIELDS program (discussed below), this package is now a wholesale replacement and extension of FIELDS. The package:
+* `emf.fields` - Originally meant to streamline input/output and analysis of data used by the FIELDS program (discussed below), this package is now a wholesale replacement and extension of FIELDS. The `emf.fields` package:
   * reads data from excel templates and calculates theoretical electric and magnetic fields in the vicinity of parallel sets of power lines.
-  * has functions to optimize the phasing of power line cross sections, generate plots of results, and find the additional power line height required to reduce fields to target values
-  * extends the capabilities of the old FIELDS program while still providing tools to make working with FIELDS faster, if necessary.
-* `emf.subcalc` - This package provides tools to manage and analyze the results of emf simulations performed by the SubCalc program, which calculates fields near non-parallel sets of power lines.
+  * has functions to optimize the phasing of power line cross sections, generate plots of results, and calculate any additional power line height required to reduce fields to target values like regulatory thresholds
+  * extends the capabilities of the old FIELDS program but still provides tools to make working with FIELDS faster
+* `emf.subcalc` - This package manages the results of emf simulations performed by the SubCalc program (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)), which calculates fields near non-parallel sets of power lines like substations.
   * It uses bilinear interpolation to approximate fields anywhere inside the grid of SubCalc results.
-  * Reading from csv files, it keeps the coordinates of footprints in the model domain like nearby structures, roads, or the power lines, and uses those coordinates to generate contour plots of the results with the footprints underlain.
+  * Reading from csv files, it stores the coordinates of footprints in the model domain like nearby structures, roads, or the power lines, and uses those coordinates to generate contour plots of the results with the footprints underlain and the maximum fields within the footprints shown
 
 ### More on `emf.fields`: Computing Electric and Magnetic Fields Near Parallel Sets of High Voltage Transmission Lines
 
 This repo contains code for the approximation of electric and magnetic fields near parallel groups of power lines. It's meant to replace the old and difficult program called FIELDS, originally developed by Southern California Edison Co., which has been a standard tool for these simple modeling efforts. The FIELDS software runs through a DOSBOX application and is long out of date.
+
 Using FIELDS requires manually entering cross section data into menus and tables of the DOSBOX app without even the ability to copy and paste, which is the slowest, most tedious, and most error-prone scenario possible. Once data is entered for a cross section, one navigates through several menus to run the calculations,which are output in files with .DAT extensions that often have formatting.FIELDS gives you the option to write the cross section data to an inscrutabletext file with a .FLD extension for later retrieval, so the data can be storedbut not in an editable form. FIELDS is only useful for performing thecalculations, but the rest of the program is an impediment.
 
 This code is intended to exactly replicate the results of FIELDS calculations
@@ -28,10 +29,10 @@ The FIELDS method of calculating EMF near transmission lines is not improved by 
 For the most routine modeling scenarios, this code enables a one line effort (after filling in template excel sheets) to generate full sets of electric and magnetic field results, double-axis plots of both electric and magnetic fields, plots comparing the electric and magnetic fields of grouped cross sections, and a table of maximum field magnitudes at the right-of-way (ROW) edges of each cross-section. The `run()` function does all this and only requires the path of the excel workbook of templates.
 
 In addition to being quicker to use and more flexible than FIELDS, this code supplements the analytical capabilities of FIELDS with two methods.
-* One function - `emf.fields.optimize_phasing()` - optimizes the phasing arrangement of selected conductors in a cross section by calculating fields for every possible phasing permutation at
+* `emf.fields.optimize_phasing()` optimizes the phasing arrangement of selected conductors in a cross section by calculating fields for every possible phasing permutation at
 the ROW edges. Conductors can be grouped into circuits of any size. Because it performs brute force testing of the ROW edge fields for all possible permutations
 (and scales with a factorial), this method is slow when optimizing more than about five (three phase) circuits at a time.
-* The second new function - `emf.fields.target_fields()` - finds any additional conductor height needed to bring maximum fields down to target levels. This method also allows for selection of specific conductors and uses a simple root finding method.
+* `emf.fields.target_fields()` finds any additional conductor height needed to bring maximum fields down to target levels. This method also allows for selection of specific conductors and uses a simple root finding method.
 
 #### example plots
 
