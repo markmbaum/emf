@@ -1,18 +1,4 @@
-# (GitHub-Flavored) Markdown Editor
-
-Basic useful feature list:
-
- * Ctrl+S / Cmd+S to save the file
- * Ctrl+Shift+S / Cmd+Shift+S to choose to save as Markdown or HTML
- * Drag and drop a file into here to load it
- * File contents are saved in the URL so you can share files
-
-
-I'm no good at writing sample / filler text, so go write something yourself.
-
-Look, a list!
-
- * foo# `emf`
+`emf`
 
 The `emf` package contains two subpackages:
 * `emf.fields` - Originally meant to streamline input/output and analysis of data used by the FIELDS program (discussed below), this package is now a wholesale replacement and extension of FIELDS. The package:
@@ -50,13 +36,13 @@ the ROW edges. Conductors can be grouped into circuits of any size. Because it p
 #### example plots
 
 `emf.fields.plot_max_fields()`:
-![plot_max_fields()](docs/images/HL_P.png)
+![plot_max_fields()](docs/images/HL_P.png "Sample Plot")
 
 `emf.fields.plot_groups()`:
-![plot_groups()](docs/images/group_hl-Bmax.png)
+![plot_groups()](docs/images/group_hl-Bmax.png "Sample Plot")
 
 `emf.fields.plot_max_fields()`:
-![plot_contours()](Canal-Station-Contours.png)
+![plot_contours()](docs/images/Canal-Station-Contours.png "Sample Plot")
 
 ###### EPRI's "Red Book"
 
