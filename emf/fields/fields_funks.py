@@ -4,8 +4,8 @@ from .. import itertools
 from .. import np
 from .. import pd
 
-from ..emf_funks import (_path_manage, _check_extension, _is_number, _check_intable,
-                _flatten)
+from ..emf_funks import (_path_manage, _check_extension, _is_number,
+                        _check_intable, _flatten)
 
 import fields_class
 import fields_calcs
@@ -61,9 +61,9 @@ def load_template(file_path, **kwargs):
             is used by at least one other sheet.""" % (xc.title, k)))
         else:
             titles.append(xc.title)
-        xc.subtitle = misc[2]
+        xc.subtitle = str(misc[2])
         xc.soil_resistivity = float(misc[4])
-        xc.max_dist = misc[5]
+        xc.max_dist = float(misc[5])
         xc.step = float(misc[6])
         xc.sample_height = float(misc[7])
         xc.lROW = float(misc[8])
@@ -519,7 +519,7 @@ def _xc_sb_compare(xc, sb):
         'name': sb.sheets, 'title': titles, 'Bmaxl': Bl, 'Emaxl': El,
         'Bmaxr': Br, 'Emaxr': Er})
     c = ['name','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
-    h = ['Cross-Section Name','Cross-Section Title','Bmax Diff - Left ROW Edge',
+    h = ['Cross-Section Sheet','Cross-Section Title','Bmax Diff - Left ROW Edge',
             'Bmax Diff - Right ROW Edge', 'Emax Diff - Left ROW Edge',
             'Emax Diff - Right ROW Edge']
     return(df, c, h)

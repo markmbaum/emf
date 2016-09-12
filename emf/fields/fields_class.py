@@ -38,7 +38,7 @@ class CrossSection(object):
     for the fields results and exporting methods for the results."""
 
     def __init__(self, sheet):
-        self.sheet = sheet #mandatory, short, usually template sheet name
+        self.sheet = sheet #mandatory, short, template worksheet name
         self.title = '' #must be short, used as FLD file names
         self.tag = None #identifier linking multiple CrossSection objects
         self.subtitle = '' #longer form, used for plotting text
@@ -87,10 +87,9 @@ class CrossSection(object):
         self.x_sample = np.linspace(-self.max_dist, self.max_dist, num = N)
         self.y_sample = self.sample_height*np.ones((N,), dtype = float)
         #update ROW edge index variables
-        #if ROW edge lies between two sample points, use the one closer to zero
+        #if ROW edges lie between two sample points, use the one closer to zero
         d = np.absolute(self.x_sample - self.lROW)
         self.lROWi = max(np.where(d == np.min(d))[0])
-        #if ROW edge lies between two sample points, use the one closer to zero
         d = np.absolute(self.x_sample - self.rROW)
         self.rROWi = min(np.where(d == np.min(d))[0])
         #assemble all the conductor data in arrays for calculations
@@ -249,7 +248,7 @@ class SectionBook(object):
     def sample(self, *args):
         """Get a random CrossSection from the SectionBook
         args:
-            any input integer determines the number of random xcs fetched"""
+            an input integer determines the number of random xcs fetched"""
         if(len(args) == 0):
             return(self.xcs[np.random.randint(len(self))])
         else:
@@ -283,7 +282,7 @@ class SectionBook(object):
     def results_export(self, **kwargs):
         """Write all of the cross section results to an excel workbook"""
         #path management
-        fn = fields_funks._path_manage(self.name + '-all_results', '.xlsx',
+        fn = fields_funks._path_manage('all_results', '.xlsx',
                 **kwargs)
         #write results
         xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
@@ -302,7 +301,7 @@ class SectionBook(object):
         #self.compile_ROW_edge_results()
         #export
         c = ['name','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
-        h = ['Cross-Section Name','Cross-Section Title','Bmax - Left ROW Edge',
+        h = ['Cross-Section Sheet','Cross-Section Title','Bmax - Left ROW Edge',
                 'Bmax - Right ROW Edge', 'Emax - Left ROW Edge',
                 'Emax - Right ROW Edge']
         wo = False
@@ -313,14 +312,13 @@ class SectionBook(object):
             if(file_type[0] == '.'):
                 file_type = file_type[1:]
             if(file_type == 'excel'):
-                wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
+                wo = fields_funks._path_manage('ROW_edge_results',
                         '.xlsx', **kwargs)
         if(wo):
             self.ROW_edge_max.to_excel(wo, index = False, columns = c,
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
-            wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
-                '.csv', **kwargs)
+            wo = fields_funks._path_manage('ROW_edge_results', '.csv', **kwargs)
             print wo
             self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
         if(not ('xl' in kwargs)):

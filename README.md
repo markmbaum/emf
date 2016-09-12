@@ -1,4 +1,18 @@
-# `emf`
+# (GitHub-Flavored) Markdown Editor
+
+Basic useful feature list:
+
+ * Ctrl+S / Cmd+S to save the file
+ * Ctrl+Shift+S / Cmd+Shift+S to choose to save as Markdown or HTML
+ * Drag and drop a file into here to load it
+ * File contents are saved in the URL so you can share files
+
+
+I'm no good at writing sample / filler text, so go write something yourself.
+
+Look, a list!
+
+ * foo# `emf`
 
 The `emf` package contains two subpackages:
 * `emf.fields` - Originally meant to streamline input/output and analysis of data used by the FIELDS program (discussed below), this package is now a wholesale replacement and extension of FIELDS. The package:
@@ -32,6 +46,17 @@ In addition to being quicker to use and more flexible than FIELDS, this code sup
 the ROW edges. Conductors can be grouped into circuits of any size. Because it performs brute force testing of the ROW edge fields for all possible permutations
 (and scales with a factorial), this method is slow when optimizing more than about five (three phase) circuits at a time.
 * The second new function - `emf.fields.target_fields()` - finds any additional conductor height needed to bring maximum fields down to target levels. This method also allows for selection of specific conductors and uses a simple root finding method.
+
+#### example plots
+
+`emf.fields.plot_max_fields()`:
+![plot_max_fields()](docs/images/HL_P.png)
+
+`emf.fields.plot_groups()`:
+![plot_groups()](docs/images/group_hl-Bmax.png)
+
+`emf.fields.plot_max_fields()`:
+![plot_contours()](Canal-Station-Contours.png)
 
 ###### EPRI's "Red Book"
 
