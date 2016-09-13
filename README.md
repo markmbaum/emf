@@ -4,7 +4,7 @@ The `emf` package contains two subpackages:
 * `emf.fields` - Originally meant to streamline input/output and analysis of data used by the FIELDS program (discussed below), this package is now a wholesale replacement and extension of FIELDS. The `emf.fields` package:
   * reads data from excel templates and calculates theoretical electric and magnetic fields in the vicinity of parallel sets of power lines.
   * has functions to optimize the phasing of power line cross sections, generate plots of results, and calculate any additional power line height required to reduce fields to target values like regulatory thresholds
-  * extends the capabilities of the old FIELDS program but still provides tools to make working with FIELDS faster
+  * extends the capabilities of the old FIELDS program but still provides tools to make working with FIELDS faster and less error prone
 * `emf.subcalc` - This package manages the results of emf simulations performed by the SubCalc program (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)), which calculates fields near non-parallel sets of power lines like substations.
   * It uses bilinear interpolation to approximate fields anywhere inside the grid of SubCalc results.
   * Reading from csv files, it stores the coordinates of footprints in the model domain like nearby structures, roads, or the power lines, and uses those coordinates to generate contour plots of the results with the footprints underlain and the maximum fields within the footprints shown
