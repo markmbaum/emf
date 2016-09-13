@@ -65,7 +65,8 @@ class Model(object):
             must contain only one repeated value for each footprint.
             It contained multiple values for footprint name:
                 "%s" """
-        fields = ['Power Line?', 'Of Concern?', 'Draw as Loop?', 'Group']
+        fields = ['Power Line?', 'Of Concern?', 'Draw as Loop?', 'Group',
+                'Label Horizontal Alignment', 'Label Vertical Alignment']
         #create a footprint for unique entries in the 'Name' field
         for n in df['Name'].unique():
             s = df[df['Name'] == n]
@@ -78,7 +79,9 @@ class Model(object):
                     bool(s['Power Line?'].unique()[0]),
                     bool(s['Of Concern?'].unique()[0]),
                     bool(s['Draw as Loop?'].unique()[0]),
-                    s['Group'].unique()[0])
+                    s['Group'].unique()[0],
+                    str(s['Label Horizontal Alignment'].unique()[0]),
+                    str(s['Label Vertical Alignment'].unique()[0]))
             self.footprints.append(fp)
         #update things (footprint_groups)
         self.update()
@@ -221,7 +224,8 @@ class Footprint(object):
         del(self._y)
     y = property(_get_y, _set_y, _del_y, 'y coordinates of Footprint vertices')
 
-    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
+    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group,
+            label_ha, label_va):
         """
         args:
             name - string, the name of the Footprint, i.e. "Substation"
@@ -231,7 +235,9 @@ class Footprint(object):
                         that is potentially concerned about EMF (homes)
             draw_as_loop - bool, True if the footprint should be plotted
                             as a closed loop
-            tag - anything, identifier used to group footprints"""
+            tag - anything, identifier used to group footprints
+            label_ha - string
+            label_va - string"""
         #check x and y are the same length
         if(len(x) != len(y)):
             raise(EMFError("""
@@ -245,6 +251,16 @@ class Footprint(object):
         self.of_concern = of_concern #bool
         self.draw_as_loop = draw_as_loop #bool
         self.group = group #string
+        if((not label_ha) or (label_ha == 'nan')):
+            self.label_ha = 'left'
+        else:
+            #string, designates max field label horizontal alignment
+            self.label_ha = label_ha
+        if((not label_va) or (label_va == 'nan')):
+            self.label_va = 'bottom'
+        else:
+            #string, designates max field label horizontal alignment
+            self.label_va = label_va
 
     def __str__(self):
         """quick and dirty printing"""

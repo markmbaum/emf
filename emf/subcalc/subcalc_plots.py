@@ -25,7 +25,7 @@ _footprint_alpha = .75
 _footprint_zorder = -1
 _footprint_label_fontsize = 12
 _POPC_label_fontsize = 12 #points of potential concern on footprints
-_field_marker_size = 8 #marker size for points of potential concern
+_field_marker_size = 6 #marker size for points of potential concern
 _ax_frameon = True
 _ax_ticks_on = False
 _leg_edge_on = False
@@ -167,10 +167,11 @@ def plot_contours(mod, **kwargs):
                         markeredgewidth = 1.5,
                         markersize = _field_marker_size)[0]
                 ax.text(x[idx] + xmarg, y[idx] + ymarg, m,
-                        fontsize = _POPC_label_fontsize)
+                        fontsize = _POPC_label_fontsize,
+                        ha = fp.label_ha, va = fp.label_va)
                 if(of_concern is False):
                     handles.append(h)
-                    labels.append('Nearest Points of\nNeighboring Buildings')
+                    labels.append('Nearest Points of\nNeighboring Lots and Buildings')
                     of_concern = True
 
         #deal with labeling
