@@ -20,15 +20,26 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_contour_linewidths = 1.5
+_contour_cmap_name = 'plasma_r' #http://matplotlib.org/examples/color/colormaps_reference.html
+_contour_linewidths = 2
+_contour_alpha = 0.8
 _footprint_alpha = .75
 _footprint_zorder = -1
-_footprint_label_fontsize = 12
-_POPC_label_fontsize = 12 #points of potential concern on footprints
-_field_marker_size = 6 #marker size for points of potential concern
+_footprint_label_fontsize = 15
+_POPC_label_fontsize = 13 #points of potential concern on footprints
+_field_marker_size = 8 #marker size for points of potential concern
+_field_marker_edgewidth = 1.5
 _ax_frameon = True
 _ax_ticks_on = False
 _leg_edge_on = False
+
+#deal with colormapping
+_contour_cmap = mpl.cm.get_cmap(_contour_cmap_name)
+if(not hasattr(_contour_cmap, 'colors')):
+    _contour_cmap = mpl.colors.ListedColormap(
+            mpl.colors.makeMappingArray(256, _contour_cmap),
+            name=_contour_cmap_name,
+            N=256)
 
 def ion():
     """Call plt.ion() to toggle interactive plotting on"""
@@ -89,12 +100,34 @@ def _label_footprint_group(ax, fps):
              y = y[0]
         ax.text(x, y, fp.group, fontsize = _footprint_label_fontsize)
 
+def _make_log_color_indexer(Bmin, Bmax, L_cmap):
+    """Decorator function to make a lambda function that will map field
+    magnitudes to color indices in a colormap object
+    args:
+        Bmin - the minimum field value, is mapped to 0
+        Bmax - the maximum field value, is mapped to the last color in the cmap
+        L_cmap - the length of the cmap, or the number of colors in it
+    returns:
+        f - a lambda function mapping field to cmap index"""
+    m = L_cmap/(np.log10(Bmax) - np.log10(Bmin))
+    b = - m*np.log10(Bmin)
+    def mlci(x):
+        idx = int(round(m*np.log10(x) + b))
+        if(idx < 0):
+            idx = 0
+        elif(idx >= L_cmap):
+            idx = L_cmap - 1
+        return(idx)
+    return(mlci)
+
 def plot_contours(mod, **kwargs):
     """Generate a contour plot from the magnetic field results and
     Footprint objects stored in a Model object
     args:
         mod - Model object
     kwargs:
+        levels - iterable, determines contour level values
+                    (automatically determined by matplotlib if not used)
         save - bool, toggle whether the figure is saved
         path - string, path to directory for saved figure. If set, overrides
                 the 'save' keyword
@@ -119,9 +152,17 @@ def plot_contours(mod, **kwargs):
     width = I((T((0., box.height))[1]/aspect_ratio, 0.))[0]
     ax.set_position([box.x0, box.y0, width, box.height])
     #plot contours
-    CS = ax.contour(mod.X, mod.Y, mod.B,
-            levels = [.1,.5,1.,5.,10.,25.,50.],
-            locator = mpl.ticker.LogLocator(), zorder = -1)
+    if('levels' in kwargs):
+        CS = ax.contour(mod.X, mod.Y, mod.B,
+                cmap=_contour_cmap,
+                levels=np.array(kwargs['levels'], dtype = float),
+                locator=mpl.ticker.LogLocator(),
+                zorder=-1, alpha=_contour_alpha)
+    else:
+        CS = ax.contour(mod.X, mod.Y, mod.B,
+                cmap=_contour_cmap,
+                locator=mpl.ticker.LogLocator(),
+                zorder=-1, alpha=_contour_alpha)
     #set the contour linewidths private variable...
     for c in ax.collections:
         c._linewidths = (_contour_linewidths,)
@@ -129,10 +170,12 @@ def plot_contours(mod, **kwargs):
     handles, labels = [], []
     peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
     peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
-    handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'ro',
-            markersize = _field_marker_size)[0])
+    handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
+            markersize = _field_marker_size,
+            markerfacecolor=_contour_cmap.colors[-1],
+            markeredgewidth=_field_marker_edgewidth,
+            markeredgecolor='r')[0])
     labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
-    ax.text(mod.x[xidx] + xmarg, mod.y[yidx] + ymarg, peak_B)
     #plot footprints
     for g in mod.footprint_groups:
         #get footprints in the group and the group name
@@ -152,6 +195,8 @@ def plot_contours(mod, **kwargs):
             fps.pop(idx)
         #plot the other footprints
         of_concern = False
+        mlci = _make_log_color_indexer(min(CS.cvalues),
+                max(CS.cvalues), len(_contour_cmap.colors))
         for fp in fps:
             ax.plot(fp.x, fp.y, 'k',
                     alpha = _footprint_alpha,
@@ -160,18 +205,25 @@ def plot_contours(mod, **kwargs):
             if(fp.of_concern):
                 x = fp.x
                 y = fp.y
+                #interpolate
                 B_interp = mod.interp(x, y)
+                #store index of max value on footprint
                 idx = np.argmax(B_interp)
+                #get associated color for marker
+                cidx = mlci(B_interp[idx])
+                #stringify the max value
                 m = str(subcalc_funks._sig_figs(B_interp[idx], 3))
-                h = ax.plot(x[idx], y[idx], 'ko', markerfacecolor = 'None',
-                        markeredgewidth = 1.5,
+                #plot
+                h = ax.plot(x[idx], y[idx], 'o',
+                        markeredgecolor='k',
+                        markerfacecolor=_contour_cmap.colors[cidx],
+                        markeredgewidth = _field_marker_edgewidth,
                         markersize = _field_marker_size)[0]
                 ax.text(x[idx] + xmarg, y[idx] + ymarg, m,
-                        fontsize = _POPC_label_fontsize,
-                        ha = fp.label_ha, va = fp.label_va)
+                        fontsize = _POPC_label_fontsize)
                 if(of_concern is False):
                     handles.append(h)
-                    labels.append('Nearest Points of\nNeighboring Lots and Buildings')
+                    labels.append('Nearest Points of Neighboring\nLots and Buildings')
                     of_concern = True
 
         #deal with labeling
@@ -205,13 +257,14 @@ def plot_contours(mod, **kwargs):
                 xytext = (x - x_offset, y - y_offset),
                 textcoords = 'data',
                 zorder = 2,
-                arrowprops = {'arrowstyle': 'fancy',
+                arrowprops = {'arrowstyle': 'simple',
                                 'facecolor': 'gray',
                                 'edgecolor': 'gray',
-                                'shrinkB': 10})
+                                'shrinkB': 10,
+                                'alpha': 0.8})
         #write N for north
         ax.annotate('$N$', xy = (x + x_offset, y + y_offset),
-                xycoords = 'data', zorder = 2,
+                xycoords = 'data', zorder = 2, color = 'gray',
                 ha = 'center', va = 'center', fontsize = 16)
 
     #text

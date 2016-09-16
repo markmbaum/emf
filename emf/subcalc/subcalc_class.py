@@ -10,15 +10,11 @@ class Model(object):
     def __init__(self, data, info):
         #dictionary of reference grid information from the SubCalc model
         self.info = info
-        #string, can be 'Bx', 'By', 'Bmax', or 'Bres' and is used to select which
-        #component of the magnetic field results are stored by the model
+        #sets the 'component' of the magnetic field results stored by the model
+        #   can be 'Bx', 'By', 'Bmax', or 'Bres'
         self.B_key = 'Bmax'
         #2D reference grid arrays
         self.X, self.Y, self.B = self._meshgrid(data)
-        #    Sets which component of the results are used ^^^
-        #1D grid row and column coordinates
-        self.x = self.X[0,:]
-        self.y = self.Y[:,0]
         #grid dimensions for reference
         self.grid_limits = {'xmax': np.max(self.x), 'xmin': np.min(self.x),
                                 'ymax': np.max(self.y), 'ymin': np.min(self.y)}
@@ -31,6 +27,15 @@ class Model(object):
         self._north_angle = None
 
     #north angle property
+    #properties
+    def _get_x(self):
+        return(self.X[0,:])
+    x = property(_get_x, None, None, 'Unique x values in model grid')
+
+    def _get_y(self):
+        return(self.Y[:,0])
+    y = property(_get_y, None, None, 'Unique y values in model grid')
+
     def _get_north_angle(self):
         return(self._north_angle)
     def _set_north_angle(self, angle):
@@ -59,14 +64,25 @@ class Model(object):
             """Footprint files must be csv files.""")
         #load data
         df = pd.read_csv(footprint_path)
+        #check all columns are present
+        cols = ['Group', 'Name', 'X', 'Y', 'Power Line?', 'Of Concern?',
+                'Draw as Loop?', 'Group']
+        if(set(cols) - set(df.columns)):
+            raise(EMFError("""
+            Footprint csv files must have the following column names:
+            %s
+            The footprint csv file with path:
+            %s
+            is missing or misspells these columns:
+            %s""" % (str(cols), footprint_path,
+                    str(list(set(cols) - set(df.columns))))))
         message = """
             The column:
                 "%s"
             must contain only one repeated value for each footprint.
             It contained multiple values for footprint name:
                 "%s" """
-        fields = ['Power Line?', 'Of Concern?', 'Draw as Loop?', 'Group',
-                'Label Horizontal Alignment', 'Label Vertical Alignment']
+        fields = cols[4:]
         #create a footprint for unique entries in the 'Name' field
         for n in df['Name'].unique():
             s = df[df['Name'] == n]
@@ -79,9 +95,7 @@ class Model(object):
                     bool(s['Power Line?'].unique()[0]),
                     bool(s['Of Concern?'].unique()[0]),
                     bool(s['Draw as Loop?'].unique()[0]),
-                    s['Group'].unique()[0],
-                    str(s['Label Horizontal Alignment'].unique()[0]),
-                    str(s['Label Vertical Alignment'].unique()[0]))
+                    s['Group'].unique()[0])
             self.footprints.append(fp)
         #update things (footprint_groups)
         self.update()
@@ -152,6 +166,62 @@ class Model(object):
             return(False)
         else:
             return(True)
+
+    def resample(self, **kwargs):
+        """Resample the model grid along a new number of x,y values, a new
+        selection of x,y values, or a new number of total values
+        kwargs:
+            x - int or iterable, new number of x samples or new selection of
+                x samples
+            y - int or iterable, new number of y samples or new selection of
+                y samples
+            N - int, new approximate number of total samples
+                    - overrides x and y kwargs
+                    - preserves approx ratio of number of x and y values
+                    - rounds up to nearest possible whole number of points
+        returns:
+            X - 2D numpy array with resampled x coordinates
+            Y - 2D numpy array with resampled y coordinates
+            B_resample - 2D numpy array with resampled field values"""
+        #get x and y coordinates to resample from arguments
+        if('N' in kwargs):
+            N = kwargs['N']
+            if(type(N) is not int):
+                raise(EMFError('Keyword argument "N" must be an integer'))
+            N = float(N)
+            aspect = float(self.B.shape[0])/self.B.shape[1]
+            N_y = np.ceil(np.sqrt(N/aspect))
+            N_x = np.ceil(N/N_y)
+            x = np.linspace(self.grid_limits['xmin'],
+                            self.grid_limits['xmax'], N_x)
+            y = np.linspace(self.grid_limits['ymin'],
+                            self.grid_limits['ymax'], N_y)
+        else:
+            if('x' in kwargs):
+                x = kwargs['x']
+                if(type(x) is int):
+                    x = np.linspace(self.grid_limits['xmin'],
+                                    self.grid_limits['xmax'], x)
+                else:
+                    x = self.x
+            if('y' in kwargs):
+                y = kwargs['y']
+                if(type(y) is int):
+                    y = np.linspace(self.grid_limits['ymin'],
+                                    self.grid_limits['ymax'], y)
+                else:
+                    y = self.y
+        #flip y coordinates so that Y prints intuitively
+        y = y[::-1]
+        #resample the grid
+        X, Y = np.meshgrid(x, y)
+        if(False):
+            B_resample = np.empty((len(y), len(x)))
+            for i in range(len(y)):
+                for j in range(len(x)):
+                    B_resample[i,j] = subcalc_funks._bilinear_interp(self,
+                            x[j], y[i])
+        return(X, Y, B_resample)
 
     def _meshgrid(self, data):
         """Convert raw grid data read from a SubCalc output file
@@ -224,8 +294,7 @@ class Footprint(object):
         del(self._y)
     y = property(_get_y, _set_y, _del_y, 'y coordinates of Footprint vertices')
 
-    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group,
-            label_ha, label_va):
+    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
         """
         args:
             name - string, the name of the Footprint, i.e. "Substation"
@@ -251,16 +320,6 @@ class Footprint(object):
         self.of_concern = of_concern #bool
         self.draw_as_loop = draw_as_loop #bool
         self.group = group #string
-        if((not label_ha) or (label_ha == 'nan')):
-            self.label_ha = 'left'
-        else:
-            #string, designates max field label horizontal alignment
-            self.label_ha = label_ha
-        if((not label_va) or (label_va == 'nan')):
-            self.label_va = 'bottom'
-        else:
-            #string, designates max field label horizontal alignment
-            self.label_va = label_va
 
     def __str__(self):
         """quick and dirty printing"""
