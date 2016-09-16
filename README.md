@@ -48,7 +48,7 @@ In addition to being quicker to use and more flexible than FIELDS, this code sup
 `emf.fields.plot_groups()`:
 ![plot_groups()](docs/images/group_hl-Bmax.png "Sample Plot")
 
-`emf.fields.plot_max_fields()`:
+`emf.subcalc.plot_contours()`:
 ![plot_contours()](docs/images/Canal-Station-Contours.png "Sample Plot")
 
 ###### EPRI's "Red Book"

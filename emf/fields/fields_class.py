@@ -319,7 +319,6 @@ class SectionBook(object):
                                     header = h, sheet_name = 'ROW_edge_max')
         else:
             wo = fields_funks._path_manage('ROW_edge_results', '.csv', **kwargs)
-            print wo
             self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
         if(not ('xl' in kwargs)):
             print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
