@@ -1,8 +1,4 @@
-from .. import os
-from .. import copy
-from .. import itertools
-from .. import np
-from .. import pd
+from .. import os, np, pd, copy, itertools
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number,
                         _check_intable, _flatten)

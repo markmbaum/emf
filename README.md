@@ -7,7 +7,11 @@ The `emf` package contains two subpackages:
   * extends the capabilities of the old FIELDS program but still provides tools to make working with FIELDS faster and less error prone
 * `emf.subcalc` - This package manages the results of emf simulations performed by the SubCalc program (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)), which calculates fields near non-parallel sets of power lines like those that occur in electrical substations.
   * It uses bilinear interpolation to approximate fields anywhere inside the grid of SubCalc results.
-  * Reading from csv files, it stores the coordinates of footprints in the model domain like nearby structures, roads, or the power lines, and uses those coordinates to generate contour plots of the results with the footprints underlain and the maximum fields within the footprints shown
+  * Reading from csv files, it stores the coordinates of footprints in the model domain (like nearby structures, roads, or the power lines) and uses those coordinates to generate contour plots of the results with the footprints underlain and the maximum fields marked along specified footprints
+  * Once results are extracted from `.REF` files that SubCalc generates (using
+      `subcalc.load_model`) the result can be saved in excel format with significantly
+      smaller file size (one instance reduced the file size by a factor of 40)
+      using `subcalc.Model.export` or simply `subcalc.convert_REF`.
 
 ### More on `emf.fields`: Computing Electric and Magnetic Fields Near Parallel Sets of High Voltage Transmission Lines
 
@@ -59,11 +63,12 @@ The editon of [EPRI](http://www.epri.com)'s "Red Book" that I worked from to rep
 
 `emf` has mostly been used with Python 2.7, but has also been compatible with Python 3.
 
-**Python Package Dependencies**
+###### Python Package Dependencies
 * `os`
 * `copy`
 * `glob`
 * `itertools`
 * `numpy`
+* `scipy`
 * `pandas`
 * `matplotlib`

@@ -1,6 +1,4 @@
-from .. import np
-from .. import mpl
-from .. import plt
+from .. import np, mpl, plt
 
 from ..emf_plots import _save_fig
 

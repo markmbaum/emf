@@ -1,6 +1,4 @@
-from .. import os
-from .. import glob
-from .. import pd
+from .. import os, pd, glob
 
 import fields_funks
 import fields_class

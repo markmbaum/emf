@@ -1,4 +1,4 @@
-from .. import np, pd, interpn
+from .. import np, pd, os, interpn
 
 from ..emf_class import EMFError
 
@@ -6,19 +6,29 @@ import subcalc_funks
 
 class Model(object):
 
-    def __init__(self, data, info):
-        #dictionary of reference grid information from the SubCalc model
-        self.info = info
-        #sets the 'component' of the magnetic field results stored by the model
-        #   can be 'Bx', 'By', 'Bmax', or 'Bres'
-        self.B_key = 'Bmax'
+    def __init__(self, X, Y, B, *args):
+        """Grid data must be passed in
+        args:
+            X - 2D array of x coordinates
+            Y - 2D array of y coordinats
+            B - 2D array of magnetic field magnitudes
+            info - dictionary of model information"""
         #2D reference grid arrays
-        self.X, self.Y, self.B = self._meshgrid(data)
+        self.X, self.Y, self.B = X, Y, B
         #grid dimensions for reference
         self.grid_limits = {'xmax': np.max(self.x), 'xmin': np.min(self.x),
                                 'ymax': np.max(self.y), 'ymin': np.min(self.y)}
+        #dictionary of reference grid information from the SubCalc model
+        if(len(args) > 0):
+            info = args[0]
+            if(type(info) is not dict):
+                raise(EMFError("""
+                The fourth argument to Model.__init__ must be a dictionary
+                of model result information"""))
+            self.info = info
         #other reference objects in the model, like substation boundaries,
         #stored in a list of Footprint objects
+        self.footprint_df = None
         self.footprints = []
         self.footprint_groups = [] #list of lists of integers for grouping
         #angle of the northern direction with respect to the grid
@@ -50,19 +60,29 @@ class Model(object):
             the vertical or Y direction and clockwise represents increasing
             angle""")
 
-    def load_footprints(self, footprint_path, **kwargs):
+    def load_footprints(self, footprint_info, **kwargs):
         """Read footprint data from a csv file and organize it in
         Footprint objects stored in self.footprints
         args:
-            footprint_path - string, path to the footprint csv/excel data.
+            footprint_info - string, path to the footprint csv/excel data.
                             If footprint data is in an excel workbook with,
                             multiple sheets, the sheet name must be passed
-                            to the kwarg 'sheet'"""
-        #check extension
-        footprint_path = subcalc_funks._check_extension(footprint_path, 'csv',
-            """Footprint files must be csv files.""")
-        #load data
-        df = pd.read_csv(footprint_path)
+                            to the kwarg 'sheet'
+
+                                or
+
+                            an existing DataFrame with footprint data"""
+        #load file if footprint_info is not a DataFrame
+        if(not (type(footprint_info) is pd.DataFrame)):
+            #check extension
+            footprint_info = subcalc_funks._check_extension(footprint_info,
+                'csv', 'Footprint files must be csv files.')
+            #load data
+            df = pd.read_csv(footprint_info)
+        else:
+            df = footprint_info
+        #store the DataFrame
+        self.footprint_df = df
         #check all columns are present
         cols = ['Group', 'Name', 'X', 'Y', 'Power Line?', 'Of Concern?',
                 'Draw as Loop?', 'Group']
@@ -73,7 +93,7 @@ class Model(object):
             The footprint csv file with path:
             %s
             is missing or misspells these columns:
-            %s""" % (str(cols), footprint_path,
+            %s""" % (str(cols), footprint_info,
                     str(list(set(cols) - set(df.columns))))))
         message = """
             The column:
@@ -182,79 +202,68 @@ class Model(object):
             X - 2D numpy array with resampled x coordinates
             Y - 2D numpy array with resampled y coordinates
             B_resample - 2D numpy array with resampled field values"""
-        #get x and y coordinates to resample from arguments
+        #store grid x,y extents
+        xmin, xmax = self.grid_limits['xmin'], self.grid_limits['xmax']
+        ymin, ymax = self.grid_limits['ymin'], self.grid_limits['ymax']
+        #get 1D vectors of x and y coordinates to resample at, from kwargs
         if('N' in kwargs):
             N = kwargs['N']
             if(not subcalc_funks._is_int(N)):
-                raise(EMFError('Keyword argument "N" must be an integer'))
+                raise(EMFError('Keyword argument "N" must be a whole number'))
             N = float(N)
             aspect = float(self.B.shape[0])/self.B.shape[1]
             N_y = np.ceil(np.sqrt(N/aspect))
             N_x = np.ceil(N/N_y)
-            x = np.linspace(self.grid_limits['xmin'],
-                            self.grid_limits['xmax'], N_x)
-            y = np.linspace(self.grid_limits['ymin'],
-                            self.grid_limits['ymax'], N_y)
+            x = np.linspace(xmin, xmax, N_x)
+            y = np.linspace(ymin, ymax, N_y)
         else:
             if('x' in kwargs):
                 x = kwargs['x']
-                if(type(x) is int):
-                    x = np.linspace(self.grid_limits['xmin'],
-                                    self.grid_limits['xmax'], x)
-                else:
-                    x = self.x
+                if(subcalc_funks._is_int(x)):
+                    x = np.linspace(xmin, xmax, x)
+            else:
+                x = self.x
             if('y' in kwargs):
                 y = kwargs['y']
-                if(type(y) is int):
-                    y = np.linspace(self.grid_limits['ymin'],
-                                    self.grid_limits['ymax'], y)
-                else:
-                    y = self.y
+                if(subcalc_funks._is_int(y)):
+                    y = np.linspace(ymin, ymax, y)
+            else:
+                y = self.y
         #flip y coordinates so that Y prints intuitively
         y = y[::-1]
         #resample the grid
         X, Y = np.meshgrid(x, y)
+        #some arrays have to be flipped to conform to conventions of interpn
         B_resample = interpn((self.y[::-1], self.x),
                                 self.B[::-1,:],
                                 (Y[::-1,:], X))
 
+        #return with re-flipped results
         return(X, Y, B_resample[::-1,:])
 
-    def _meshgrid(self, data):
-        """Convert raw grid data read from a SubCalc output file
-        (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates
-        and their corresponding B field values
-        args:
-            data - dict, keyed by 'x', 'y', and self.B_key with 1D arrays
-                    in each, of equal length
-        returns:
-            X - 2D array, x coordinates
-            Y - 2D array, y coordinates
-            B - 2D array, magnetic field values"""
-
-        #find the number of points in a row
-        x = data['x']
-        y = data['y']
-        b = data[self.B_key]
-        count = 0
-        v = y[count]
-        while(y[count+1] == y[count]):
-            count += 1
-        count += 1
-        #get ncols and nrows
-        L = len(x)
-        ncols = count
-        nrows = L/ncols
-        #fill 2D arrays
-        X, Y, B = [np.empty((nrows,ncols)) for i in range(3)]
-        count = 0
-        for i in range(nrows):
-            X[i,:] = x[count:count+ncols]
-            Y[i,:] = y[count:count+ncols]
-            B[i,:] = b[count:count+ncols]
-            count += ncols
-
-        return(X, Y, B)
+    def export(self, **kwargs):
+        """Export the grid data and accompanying info to an excel file with
+        two tabs, one for the grid and a second for the info
+        kwargs:
+            path - string, output destination/filename for workbook"""
+        #get appropriate export filename
+        fn = os.path.basename(self.info['REF_path'])
+        fn = subcalc_funks._path_manage(fn, '.xlsx', **kwargs)
+        #create excel writing object
+        xl = pd.ExcelWriter(fn, engine='xlsxwriter')
+        #write grid data
+        pd.DataFrame(self.B, columns=self.x, index=self.y).to_excel(
+                xl, sheet_name='grid')
+        #write model information
+        pd.DataFrame([self.info[k] for k in self.info], index=self.info.keys(),
+                columns=['Parameter Value']).sort_index().to_excel(
+                        xl, sheet_name='info', index_label='Parameter Name')
+        #write footprint DataFrame if present
+        if(self.footprint_df is not None):
+            self.footprint_df.to_excel(xl, sheet_name='footprints', index=False)
+        #save and print
+        xl.save()
+        print('model saved to: %s' % fn)
 
     def update(self):
         """Execute all update methods"""

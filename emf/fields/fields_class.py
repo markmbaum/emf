@@ -1,5 +1,4 @@
-from .. import np
-from .. import pd
+from .. import np, pd
 
 from ..emf_class import EMFError
 
