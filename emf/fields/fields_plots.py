@@ -213,7 +213,7 @@ def plot_Bmax(xc, **kwargs):
     if('title' in kwargs):
         t = kwargs['title']
     else:
-        t = 'Maximum Magnetic Field - %s' % xc.subtitle
+        t = 'Maximum Magnetic Field - %s' % xc.title
     ax.set_title(t)
     ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
     _format_axes_legends(ax)
@@ -252,7 +252,7 @@ def plot_Emax(xc, **kwargs):
     if('title' in kwargs):
         t = kwargs['title']
     else:
-        t = 'Maximum Electric Field - %s' % xc.subtitle
+        t = 'Maximum Electric Field - %s' % xc.title
     ax.set_title(t)
     ax.legend(hE + hw + hROW, lE + lw + lROW, numpoints = 1)
     _format_axes_legends(ax)
@@ -299,7 +299,7 @@ def plot_max_fields(xc, **kwargs):
     if('title' in kwargs):
         t = kwargs['title']
     else:
-        t = 'Maximum Magnetic and Electric Fields - %s' % xc.subtitle
+        t = 'Maximum Magnetic and Electric Fields - %s' % xc.title
     ax_B.set_title(t)
     #set color of axis spines and ticklabels
     _color_twin_axes(ax_B, _B_color, ax_E, _E_color)
@@ -419,7 +419,7 @@ def _plot_group_fields(ax, xcs, field, **kwargs):
         else:
             h.append(ax.plot(fields_list[i], color = _colormap[i%7],
                         linewidth = _fields_linewidth)[0])
-        l.append(field + ' - ' + xcs[i].title)
+        l.append(field + ' - ' + xcs[i].sheet)
         #find max
         if(max(fields_list[i]) > max_field):
             max_field = max(fields_list[i])
@@ -472,7 +472,7 @@ def _plot_group_wires(ax, xcs, max_field):
             #still need a handle for the legend
             h.append(mpl.lines.Line2D([], [], marker = 'd', linestyle = '',
                             color = _colormap[0]))
-        l.append('Conductors - ' + xcs[0].title)
+        l.append('Conductors - ' + xcs[0].sheet)
         #cross section 1 conductors only
         if(len(xy_1) > 0):
             x,y = zip(*xy_1)
@@ -482,7 +482,7 @@ def _plot_group_wires(ax, xcs, max_field):
             #still need a handle for the legend
             h.append(mpl.lines.Line2D([], [], marker = 'd', linestyle = '',
                             color = _colormap[1]))
-        l.append('Conductors - ' + xcs[1].title)
+        l.append('Conductors - ' + xcs[1].sheet)
         #shared conductors
         if(len(shared) > 0):
             x,y = zip(*shared)
@@ -533,7 +533,7 @@ def _plot_group_ROW_edges(ax, xcs):
         #create a line handle and label for each color of the dashed line
         h = [mpl.lines.Line2D([], [], linestyle = '--',color = _colormap[0]),
             mpl.lines.Line2D([], [], linestyle = '--', color = _colormap[1])]
-        l = ['ROW Edges - ' + xcs[0].title, 'ROW Edges - ' + xcs[1].title]
+        l = ['ROW Edges - ' + xcs[0].sheet, 'ROW Edges - ' + xcs[1].sheet]
     elif(len(xcs) > 2):
         #if there are more than two CrossSections and they all have the same
         #ROW edges, plot the single set of edge lines

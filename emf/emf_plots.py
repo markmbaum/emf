@@ -33,4 +33,4 @@ def _save_fig(filename_if_needed, fig, **kwargs):
             #save the plot
             fn += '.' + fmt
             plt.savefig(fn, format = fmt)
-            print('plot saved to: "%s"' % fn)
+            print('plot saved to: %s' % fn)

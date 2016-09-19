@@ -49,25 +49,24 @@ def load_template(file_path, **kwargs):
         #load miscellaneous information applicable to the whole CrossSection
         df = frames[k]
         xc = fields_class.CrossSection(k)
-        misc = df[1]
-        xc.title = misc[0]
-        xc.tag = misc[1]
+        misc = df[1].values
+        xc.tag = misc[0]
+        xc.title = str(misc[1])
         #check for duplicate title inputs
         if(xc.title in titles):
             raise(fields_class.EMFError("""
-            Cross-sections should have unique Main Title entries.
-            Main Title: "%s"
+            Cross-sections should have unique title entries.
+            title: "%s"
             in sheet: "%s"
             is used by at least one other sheet.""" % (xc.title, k)))
         else:
             titles.append(xc.title)
-        xc.subtitle = str(misc[2])
-        xc.soil_resistivity = float(misc[4])
-        xc.max_dist = float(misc[5])
-        xc.step = float(misc[6])
-        xc.sample_height = float(misc[7])
-        xc.lROW = float(misc[8])
-        xc.rROW = float(misc[9])
+        xc.soil_resistivity = float(misc[3])
+        xc.max_dist = float(misc[4])
+        xc.step = float(misc[5])
+        xc.sample_height = float(misc[6])
+        xc.lROW = float(misc[7])
+        xc.rROW = float(misc[8])
         #load hot conductors
         tags, x, y = [], [], []
         for i in range(df[3].dropna().shape[0]):
@@ -238,22 +237,21 @@ def optimize_phasing(xc, circuits, **kwargs):
         'Optimal Phasing - Emax Right ROW Edge' : xc.phase[E_right_arr]},
         index = [xc.hot[i].tag for i in conds])
     #compile a new sectionbook with the optimal phasings
-    opt = fields_class.SectionBook('%s-optimal_phasing' % xc.title)
+    opt = fields_class.SectionBook('%s-optimal_phasing' % xc.sheet)
     names = ['Optimized_for_Bmax_left','Optimized_for_Bmax_right',
             'Optimized_for_Emax_left','Optimized_for_Emax_right']
-    titles = ['Bmax_l','Bmax_r','Emax_l','Emax_r']
     tags = ['Optimized for Magnetic Field']*2+['Optimized for Electric Field']*2
-    subtitles = results.columns
-    for n,ti,s,ta in zip(names, titles, subtitles, tags):
+    titles = results.columns
+    for n, ti, ta in zip(names, titles, tags):
         #copy the input XC
         new_xc = copy.deepcopy(xc)
         #change the identification fields
-        new_xc.sheet, new_xc.title, new_xc.subtitle, new_xc.tag = n, ti, s, ta
+        new_xc.sheet, new_xc.title, new_xc.tag = n, ti, ta
         #swap the conductor phasings
         for c in new_xc.hot:
             t = c.tag
             if(t in results.index):
-                c.phase = results.at[t, s]
+                c.phase = results.at[t, ti]
         #store new_xc in the SectionBook
         opt.add_section(new_xc)
     #update everything in the SectionBook
@@ -384,20 +382,19 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
             max_iter, rel_err)
     #create return variables
     h = (h_B_l, h_B_r, h_E_l, h_E_r)
-    adj = fields_class.SectionBook('%s-height_adjusted' % xc.title)
+    adj = fields_class.SectionBook('%s-height_adjusted' % xc.sheet)
     names = ['Adjusted_for_Bmax_left','Adjusted_for_Bmax_right',
             'Adjusted_for_Emax_left','Adjusted_for_Emax_right']
-    titles = ['Bmax_l','Bmax_r','Emax_l','Emax_r']
-    subtitles = ['Height Adjusted for %f mG at left ROW edge' % B_l,
-                'Height Adjusted for %f mG at left ROW edge' % B_r,
-                'Height Adjusted for %f kV/m at left ROW edge' % E_l,
-                'Height Adjusted for %f kV/m at left ROW edge' % E_r]
-    for n, t, s, a in zip(names, titles, subtitles, h):
+    titles = ['Height Adjusted for %g mG at left ROW edge' % B_l,
+                'Height Adjusted for %g mG at left ROW edge' % B_r,
+                'Height Adjusted for %g kV/m at left ROW edge' % E_l,
+                'Height Adjusted for %g kV/m at left ROW edge' % E_r]
+    for n, s, a in zip(names, titles, h):
         if(a is not None):
             #copy the input XC
             new_xc = copy.deepcopy(xc)
             #change the identification fields
-            new_xc.sheet, new_xc.title, new_xc.subtitle = n, t, s
+            new_xc.sheet, new_xc.title = n, s
             #adjust conductor heights
             for idx in hot:
                 new_xc.hot[idx].y += a
@@ -503,7 +500,6 @@ def _xc_sb_compare(xc, sb):
     #gather ROW edge differences
     L = len(sb)
     El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
-    titles = []
     for i in range(L):
         Bl[i] = (sb.i(i).fields['Bmax'].iat[sb.i(i).lROWi]
                     - xc.fields['Bmax'].iat[xc.lROWi])
@@ -513,15 +509,15 @@ def _xc_sb_compare(xc, sb):
                     - xc.fields['Emax'].iat[xc.lROWi])
         Er[i] = (sb.i(i).fields['Emax'].iat[sb.i(i).rROWi]
                     - xc.fields['Emax'].iat[xc.rROWi])
-        titles.append(sb.i(i).title)
     #create and return DataFrame
     df = pd.DataFrame(data = {
-        'name': sb.sheets, 'title': titles, 'Bmaxl': Bl, 'Emaxl': El,
-        'Bmaxr': Br, 'Emaxr': Er})
-    c = ['name','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
-    h = ['Cross-Section Sheet','Cross-Section Title','Bmax Diff - Left ROW Edge',
-            'Bmax Diff - Right ROW Edge', 'Emax Diff - Left ROW Edge',
-            'Emax Diff - Right ROW Edge']
+        'sheet': sb.sheets, 'title': [xc.title for xc in sb],
+        'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
+                ).sort_values('sheet')
+    c = ['sheet','title', 'Bmaxl','Bmaxr','Emaxl','Emaxr']
+    h = ['Cross-Section Sheet', 'Cross-Section Title',
+            'Bmax Diff - Left ROW Edge', 'Bmax Diff - Right ROW Edge',
+            'Emax Diff - Left ROW Edge', 'Emax Diff - Right ROW Edge']
     return(df, c, h)
 
 def run(template_path, **kwargs):

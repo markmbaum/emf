@@ -39,9 +39,8 @@ class CrossSection(object):
 
     def __init__(self, sheet):
         self.sheet = sheet #mandatory, short, template worksheet name
-        self.title = '' #must be short, used as FLD file names
         self.tag = None #identifier linking multiple CrossSection objects
-        self.subtitle = '' #longer form, used for plotting text
+        self.title = '' #longer form, used for plotting text
         self.soil_resistivity = 100. #?
         self.max_dist = None #maximum simulated distance from the ROW center
         self.step = None #step size for calculations
@@ -288,7 +287,7 @@ class SectionBook(object):
         xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
         for xc in self:
             xc.fields.to_excel(xlwriter, sheet_name = xc.sheet)
-        print('Full SectionBook results written to: "%s"' % fn)
+        print('Full SectionBook results written to: %s' % fn)
 
     def ROW_edge_export(self, **kwargs):
         """Write max field results at ROW edges for each cross section to
@@ -300,10 +299,10 @@ class SectionBook(object):
         #be sure ROW_edge_results are current
         #self.compile_ROW_edge_results()
         #export
-        c = ['name','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
-        h = ['Cross-Section Sheet','Cross-Section Title','Bmax - Left ROW Edge',
-                'Bmax - Right ROW Edge', 'Emax - Left ROW Edge',
-                'Emax - Right ROW Edge']
+        c = ['sheet','title','Bmaxl','Bmaxr','Emaxl','Emaxr']
+        h = ['Cross-Section Sheet','Cross-Section Title',
+                'Bmax - Left ROW Edge', 'Bmax - Right ROW Edge',
+                'Emax - Left ROW Edge', 'Emax - Right ROW Edge']
         wo = False
         if('xl' in kwargs):
             wo = kwargs['xl']
@@ -321,7 +320,7 @@ class SectionBook(object):
             wo = fields_funks._path_manage('ROW_edge_results', '.csv', **kwargs)
             self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
         if(not ('xl' in kwargs)):
-            print('Maximum fields at ROW edges written to: "%s"' % repr(wo))
+            print('Maximum fields at ROW edges written to: %s' % wo)
 
     def update(self):
         """Executes all of the update functions"""
@@ -346,18 +345,17 @@ class SectionBook(object):
         #gather ROW edge results
         L = len(self.xcs)
         El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
-        titles = []
         for i in range(L):
             xc = self.i(i)
             Bl[i] = xc.fields['Bmax'].iat[xc.lROWi]
             Br[i] = xc.fields['Bmax'].iat[xc.rROWi]
             El[i] = xc.fields['Emax'].iat[xc.lROWi]
             Er[i] = xc.fields['Emax'].iat[xc.rROWi]
-            titles.append(xc.title)
         #construct DataFrame
         self.ROW_edge_max = pd.DataFrame(data = {
-            'name': self.sheets, 'title': titles, 'Bmaxl': Bl, 'Emaxl': El,
-            'Bmaxr': Br, 'Emaxr': Er}).sort_values('name')
+            'sheet': self.sheets, 'title': [xc.title for xc in self],
+            'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
+                    ).sort_values('sheet')
 
     def _update_tag_groups(self):
         """Generate a list of lists of CrossSection indices with the same tag"""

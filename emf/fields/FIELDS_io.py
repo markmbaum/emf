@@ -51,7 +51,7 @@ def to_FLD(xc, **kwargs):
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
-    _write_entries(ofile, xc.title, xc.subtitle, 60, xc.soil_resistivity,
+    _write_entries(ofile, xc.sheet, xc.title, 60, xc.soil_resistivity,
             xc.max_dist, xc.step, xc.sample_height, xc.lROW, xc.rROW)
     #number of conductors and ground wires
     Lconds = len(xc.hot)
@@ -67,7 +67,7 @@ def to_FLD(xc, **kwargs):
         _write_entries(ofile, c.tag, c.x, c.y, c.d_cond, 0, 0)
     #close/save
     ofile.close()
-    print('FLD file generated: "%s"' % fn)
+    print('FLD file generated: %s' % fn)
 
 def to_FLDs(*args, **kwargs):
     """Load or recieve a template workbook of CrossSections and convert them
@@ -88,7 +88,7 @@ def to_FLDs(*args, **kwargs):
     else:
         raise(fields_class.EMFError("""
         Input argument to to_FLDs() must be a filepath or a SectionBook."""))
-    #check for duplicate titles and subtitles
+    #check for duplicate sheets
     sheets = []
     for xc in sb:
         if(xc.sheet in sheets):
@@ -110,15 +110,16 @@ def to_FLDs_crawl(dir_name, **kwargs):
     dir_contents = glob.glob(dir_name)
     dir_name = dir_name.rstrip('\\/*').lstrip('\\/*')
 
-    #loop over the dir_contents, extracting if .LST is at the end and attempting
-    #find subdirectories if not
+    #loop over the dir_contents
     for dir_element in dir_contents:
         if(dir_element[-5:] == '.xlsx'):
             #operate on the file
             try:
                 to_FLDs(dir_element, path = os.path.dirname(dir_element) + '/')
-            except(KeyError, ValueError, IOError):
+            except(KeyError, ValueError, IOError, fields_class.EMFError) as e:
                 print('failure to write FLD files from:\n\t%s' % dir_element)
+                if(type(e) is fields_class.EMFError):
+                    print('\n\tBecause of EMFError:' + str(e))
         else:
             #if there's a period in the dir_element, it's not a directory
             if(not ('.' in dir_element)):
