@@ -1,5 +1,4 @@
-from .. import np
-from .. import pd
+from .. import np, pd, interpn
 
 from ..emf_class import EMFError
 
@@ -186,7 +185,7 @@ class Model(object):
         #get x and y coordinates to resample from arguments
         if('N' in kwargs):
             N = kwargs['N']
-            if(type(N) is not int):
+            if(not subcalc_funks._is_int(N)):
                 raise(EMFError('Keyword argument "N" must be an integer'))
             N = float(N)
             aspect = float(self.B.shape[0])/self.B.shape[1]
@@ -215,13 +214,11 @@ class Model(object):
         y = y[::-1]
         #resample the grid
         X, Y = np.meshgrid(x, y)
-        if(False):
-            B_resample = np.empty((len(y), len(x)))
-            for i in range(len(y)):
-                for j in range(len(x)):
-                    B_resample[i,j] = subcalc_funks._bilinear_interp(self,
-                            x[j], y[i])
-        return(X, Y, B_resample)
+        B_resample = interpn((self.y[::-1], self.x),
+                                self.B[::-1,:],
+                                (Y[::-1,:], X))
+
+        return(X, Y, B_resample[::-1,:])
 
     def _meshgrid(self, data):
         """Convert raw grid data read from a SubCalc output file

@@ -49,7 +49,7 @@ In addition to being quicker to use and more flexible than FIELDS, this code sup
 ![plot_groups()](docs/images/group_hl-Bmax.png "Sample Plot")
 
 `emf.subcalc.plot_contours()`:
-![plot_contours()](docs/images/Canal-Station-Contours.png "Sample Plot")
+![plot_contours()](docs/images/contour_plot.png "Sample Plot")
 
 ###### EPRI's "Red Book"
 

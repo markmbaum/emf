@@ -1,6 +1,4 @@
-from .. import np
-from .. import mpl
-from .. import plt
+from .. import np, mpl, plt
 
 from ..emf_plots import _save_fig
 
@@ -20,7 +18,7 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_contour_cmap_name = 'plasma_r' #http://matplotlib.org/examples/color/colormaps_reference.html
+_contour_cmap_name = 'viridis_r' #http://matplotlib.org/examples/color/colormaps_reference.html
 _contour_linewidths = 2
 _contour_alpha = 0.8
 _footprint_alpha = .75

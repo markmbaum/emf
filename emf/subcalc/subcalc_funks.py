@@ -1,7 +1,7 @@
 from .. import np
 
-from ..emf_funks import (_path_manage, _check_extension, _is_number, _check_intable,
-                _flatten, _sig_figs)
+from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
+                        _check_intable, _flatten, _sig_figs)
 
 import subcalc_class
 

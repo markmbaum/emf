@@ -1,5 +1,4 @@
-from . import os
-from . import np
+from . import os, np
 
 import emf_class
 
@@ -98,6 +97,12 @@ def _is_number(s):
     else:
         return(True)
 
+def _is_int(x):
+    if(_is_number(x)):
+        if(float(x) == int(x)):
+            return(True)
+    return(False)
+
 def _sig_figs(v, figs):
     w = round(v, int(figs - np.ceil(np.log10(v))))
     if(w == round(w)):
@@ -106,7 +111,7 @@ def _sig_figs(v, figs):
 
 def _check_intable(f):
     """If a float is a whole number, convert it to an integer"""
-    if(float(f) == int(f)):
+    if(_is_int(f)):
         return(int(f))
     else:
         return(float(f))
