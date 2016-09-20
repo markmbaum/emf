@@ -53,9 +53,7 @@ class Model(object):
             The 'north_angle' attribute of a Model object must be a number."""))
         else:
             self._north_angle = float(angle)
-    def _del_north_angle(self):
-        del(self._north_angle)
-    north_angle = property(_get_north_angle, _set_north_angle, _del_north_angle,
+    north_angle = property(_get_north_angle, _set_north_angle, None,
             """Angle of the Northern direction in degrees, where 0 represents
             the vertical or Y direction and clockwise represents increasing
             angle""")
