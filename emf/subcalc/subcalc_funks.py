@@ -8,14 +8,16 @@ import subcalc_class
 def load_model(*args, **kwargs):
     """Read a .REF output file and load the data into a Model object
     args:
-        path - string, path to the output .REF file of field results or to
+        results_path - string, path to the output .REF file of field results or to
                 the excel file exported by a Model object
         footprint_path - string, optional, path to the csv file of
                          footprint data
     kwargs:
-        Bkey - string, sets 'component' of magnetic field results returned
+        Bkey - string, sets 'component' of magnetic field results that the
+               returned Model object accesses by default
                      - can be 'Bx', 'By', 'Bz', 'Bmax', or 'Bres'
                      - default is 'Bmax'
+                     - all components are stored, none are lost
     returns
         mod - Model object containing results"""
 
