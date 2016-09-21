@@ -101,10 +101,13 @@ class Model(object):
     def _get_Bkey(self):
         return(self._Bkey)
     def _set_Bkey(self, value):
-        if(not (value in self._grid)):
+        if((not (value in self._grid)) or (value == 'X') or (value == 'Y')):
+            k = self._grid.keys()
+            k.remove('X')
+            k.remove('Y')
             raise(EMFError("""
             Bkey must be set to one of the following elements:
-                %s""" % str(self._grid.keys())))
+                %s""" % str(k)))
         else:
             self._Bkey = value
     Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field in self.B')

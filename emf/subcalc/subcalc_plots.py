@@ -18,10 +18,10 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_cmap_name = 'viridis_r' #http://matplotlib.org/examples/color/colormaps_reference.html
+_default_cmap_name = 'viridis_r' #http://matplotlib.org/examples/color/colormaps_reference.html
 _contour_linewidths = 2
 _contour_alpha = 0.8
-_pcolor_alpha = 0.5
+_pcolor_alpha = 0.35
 _footprint_alpha = .75
 _footprint_zorder = -1
 _footprint_label_fontsize = 15
@@ -34,12 +34,17 @@ _leg_edge_on = False
 _be_concerned = True
 
 #get the colormap
-_cmap = mpl.cm.get_cmap(_cmap_name)
-if(not hasattr(_cmap, 'colors')):
-    _cmap = mpl.colors.ListedColormap(
-            mpl.colors.makeMappingArray(256, _cmap),
-            name=_cmap_name,
-            N=256)
+def get_cmap(cmap_name):
+    """Set the global colormap by passing the name of a matplotlib cmap, see:
+    http://matplotlib.org/examples/color/colormaps_reference.html"""
+
+    cmap = mpl.cm.get_cmap(cmap_name)
+    if(not hasattr(cmap, 'colors')):
+        cmap = mpl.colors.ListedColormap(
+                mpl.colors.makeMappingArray(256, cmap),
+                name=cmap_name,
+                N=256)
+    return(cmap)
 
 def ion():
     """Call plt.ion() to toggle interactive plotting on"""
@@ -89,11 +94,12 @@ def _set_ax_aspect(fig, ax, aspect):
     width = I((T((0., box.height))[1]/aspect, 0.))[0]
     ax.set_position([box.x0, box.y0, width, box.height])
 
-def _plot_footprints(ax, mod, mlci):
+def _plot_footprints(ax, mod, cmap, mlci):
     """Plot and label footprint outlines
     args:
         ax - Axes object to plot in
         mod - Model object containing the Footprint objects
+        cmap - Colormap object for coloring points of concern
         mlci - function for indexing colormap
                (from _make_linear_color_indexer or _make_log_color_indexer)
     returns:
@@ -143,7 +149,7 @@ def _plot_footprints(ax, mod, mlci):
                 #plot
                 h = ax.plot(x[idx], y[idx], 'o',
                         markeredgecolor='k',
-                        markerfacecolor=_cmap.colors[cidx],
+                        markerfacecolor=cmap.colors[cidx],
                         markeredgewidth=_field_marker_edgewidth,
                         markersize=_field_marker_size)[0]
                 ax.text(x[idx] + xmarg, y[idx] + ymarg, m,
@@ -282,6 +288,8 @@ def plot_contour(mod, **kwargs):
                     (automatically determined by matplotlib if not used)
         north_angle - number, direction of north arrow
                         (0 is along +y axis and clockwise is increasing)
+        cmap - str, name of matplotlib colormap, see:
+                http://matplotlib.org/examples/color/colormaps_reference.html
         save - bool, toggle whether the figure is saved
         path - string, path to directory for saved figure. If set, overrides
                 the 'save' keyword
@@ -296,6 +304,10 @@ def plot_contour(mod, **kwargs):
         scale = kwargs['scale']
     else:
         scale = 'linear'
+    if('cmap' in kwargs):
+        _cmap = get_cmap(kwargs['cmap'])
+    else:
+        _cmap = get_cmap(_default_cmap_name)
 
     #assess dimensions of grid
     xmax, xmin = np.max(mod.x), np.min(mod.x)
@@ -347,7 +359,7 @@ def plot_contour(mod, **kwargs):
     labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, mod, mlci)
+    H, L = _plot_footprints(ax, mod, _cmap, mlci)
     handles += H
     labels += L
 
@@ -386,6 +398,8 @@ def plot_pcolormesh(mod, **kwargs):
     kwargs:
         north_angle - number, direction of north arrow
                         (0 is along +y axis and clockwise is increasing)
+        cmap - str, name of matplotlib colormap, see:
+                http://matplotlib.org/examples/color/colormaps_reference.html
         save - bool, toggle whether the figure is saved
         path - string, path to directory for saved figure. If set, overrides
                 the 'save' keyword
@@ -394,6 +408,12 @@ def plot_pcolormesh(mod, **kwargs):
         fig - matplotlib figure object
         ax - matplotlib axes object
         QM - matplotlib QuadMesh object"""
+
+    #check kwargs
+    if('cmap' in kwargs):
+        _cmap = get_cmap(kwargs['cmap'])
+    else:
+        _cmap = get_cmap(_default_cmap_name)
 
     #assess dimensions of grid
     xmax, xmin = np.max(mod.x), np.min(mod.x)
@@ -408,7 +428,8 @@ def plot_pcolormesh(mod, **kwargs):
     _set_ax_aspect(fig, ax, aspect_ratio)
 
     #get plotting keyword arguments
-    pcolor_kwargs = {'cmap': _cmap, 'alpha': _pcolor_alpha, 'zorder': -1}
+    pcolor_kwargs = {'cmap': _cmap, 'alpha': _pcolor_alpha, 'zorder': -1,
+                    'shading': 'gouraud'}
 
     #plot
     QM = ax.pcolormesh(mod.X, mod.Y, mod.B, **pcolor_kwargs)
@@ -429,7 +450,7 @@ def plot_pcolormesh(mod, **kwargs):
     labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, mod, mlci)
+    H, L = _plot_footprints(ax, mod, _cmap, mlci)
     handles += H
     labels += L
 

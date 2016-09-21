@@ -11,7 +11,6 @@ mod = subcalc.load_model(fn_grid, fn_foot)
 
 mod.north_angle = 5
 
-subcalc.plot_contour(mod, scale='log', levels=[.1,.5,1,5,10,25,50],
-        path='../docs/images/contour_plot_log')
+subcalc.plot_pcolormesh(mod, path='../docs/images/pcolormesh_plot')
 
 subcalc.show()
