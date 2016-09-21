@@ -193,5 +193,5 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
     ax_mag2 = np.sqrt(term1 + term2)
     #pick out the semi-major axis magnitude from the two semi-axis results
     maximum = np.maximum(ax_mag1, ax_mag2)
-    #return the 4 output colums
+    #return the 4 output columns
     return(mag_x, mag_y, prod, maximum)

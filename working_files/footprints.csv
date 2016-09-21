@@ -1,42 +1,48 @@
-Group,Name,X,Y,Power Line?,Of Concern?,Draw as Loop?,other col
-Pole Path,Pole Path,602,486,1,0,0,0
-Pole Path,Pole Path,590,430,1,0,0,0
-Pole Path,Pole Path,890,357,1,0,0,0
-Pole Path,Pole Path,1430,717,1,0,0,0
-Pole Path,Pole Path,1860,717,1,0,0,0
-Pole Path,Pole Path,1860,912,1,0,0,0
-Pole Path,Pole Path,1800,1015,1,0,0,0
-Pole Path,Pole Path,1655,998,1,0,0,0
-Railway,Railway,730,820,0,0,0,0
-Railway,Railway,1290,676,0,0,0,0
-Railway,Railway,1640,576,0,0,0,0
-Railway,Railway,1970,456,0,0,0,0
-Switchyard,Switchyard,235,799,0,0,1,0
-Switchyard,Switchyard,340,625,0,0,1,0
-Switchyard,Switchyard,310,488,0,0,1,0
-Switchyard,Switchyard,890,332,0,0,1,0
-Switchyard,Switchyard,970,377,0,0,1,0
-Switchyard,Switchyard,910,728,0,0,1,0
-Switchyard,Switchyard,259,897,0,0,1,0
-Plant,Plant,1230,780,0,0,1,0
-Plant,Plant,1180,1330,0,0,1,0
-Plant,Plant,690,1300,0,0,1,0
-Plant,Plant,710,904,0,0,1,0
-Houses,house 1,1261.26,171.5823,0,1,1,0
-Houses,house 1,1270.43,205.125,0,1,1,0
-Houses,house 1,1297.2,198.4228,0,1,1,0
-Houses,house 1,1288.69,167.5633,0,1,1,0
-Houses,house 2,1824.06,401.794,0,1,1,0
-Houses,house 2,1834.57,432.654,0,1,1,0
-Houses,house 2,1885.44,419.91,0,1,1,0
-Houses,house 2,1883.53,402.82,0,1,1,0
-Houses,house 2,1846.07,408.507,0,1,1,0
-Houses,house 2,1842.12,397.773,0,1,1,0
-Houses,house 3,1937.3,234.785,0,1,1,0
-Houses,house 3,1942.39,279.06,0,1,1,0
-Houses,house 3,1982.52,275.044,0,1,1,0
-Houses,house 3,1976.75,231.439,0,1,1,0
-Houses,house 4,2114.74,295.197,0,1,1,0
-Houses,house 4,2119.76,236.166,0,1,1,0
-Houses,house 4,2155.18,236.173,0,1,1,0
-Houses,house 4,2147.49,296.545,0,1,1,0
+Group,Name,X,Y,Power Line?,Of Concern?,Draw as Loop?
+Line Connecting Pole Locations,Pole Path,602,486,1,0,0
+Line Connecting Pole Locations,Pole Path,590,430,1,0,0
+Line Connecting Pole Locations,Pole Path,890,357,1,0,0
+Line Connecting Pole Locations,Pole Path,1430,717,1,0,0
+Line Connecting Pole Locations,Pole Path,1860,717,1,0,0
+Line Connecting Pole Locations,Pole Path,1860,912,1,0,0
+Line Connecting Pole Locations,Pole Path,1800,1015,1,0,0
+Line Connecting Pole Locations,Pole Path,1655,998,1,0,0
+Railway,Railway,730,820,0,0,0
+Railway,Railway,1290,676,0,0,0
+Railway,Railway,1640,576,0,0,0
+Railway,Railway,1970,456,0,0,0
+Switchyard,Switchyard,235,799,0,0,1
+Switchyard,Switchyard,340,625,0,0,1
+Switchyard,Switchyard,310,488,0,0,1
+Switchyard,Switchyard,890,332,0,0,1
+Switchyard,Switchyard,970,377,0,0,1
+Switchyard,Switchyard,910,728,0,0,1
+Switchyard,Switchyard,259,897,0,0,1
+Plant,Plant,1230,780,0,0,1
+Plant,Plant,1180,1330,0,0,1
+Plant,Plant,690,1300,0,0,1
+Plant,Plant,710,904,0,0,1
+Nearby Homes,house 1,1261.26,171.5823,0,1,1
+Nearby Homes,house 1,1270.43,205.125,0,1,1
+Nearby Homes,house 1,1297.2,198.4228,0,1,1
+Nearby Homes,house 1,1288.69,167.5633,0,1,1
+Nearby Homes,house 2,1824.06,401.794,0,1,1
+Nearby Homes,house 2,1834.57,432.654,0,1,1
+Nearby Homes,house 2,1885.44,419.91,0,1,1
+Nearby Homes,house 2,1883.53,402.82,0,1,1
+Nearby Homes,house 2,1846.07,408.507,0,1,1
+Nearby Homes,house 2,1842.12,397.773,0,1,1
+Nearby Homes,house 3,1937.3,234.785,0,1,1
+Nearby Homes,house 3,1942.39,279.06,0,1,1
+Nearby Homes,house 3,1982.52,275.044,0,1,1
+Nearby Homes,house 3,1976.75,231.439,0,1,1
+Nearby Homes,house 4,2114.74,295.197,0,1,1
+Nearby Homes,house 4,2119.76,236.166,0,1,1
+Nearby Homes,house 4,2155.18,236.173,0,1,1
+Nearby Homes,house 4,2147.49,296.545,0,1,1
+Nearby Homes,house 5,1366.44,142.035,0,1,1
+Nearby Homes,house 5,1381,134.697,0,1,1
+Nearby Homes,house 5,1373.06,123.322,0,1,1
+Nearby Homes,house 5,1390.93,111.977,0,1,1
+Nearby Homes,house 5,1373.06,89.2253,0,1,1
+Nearby Homes,house 5,1343.27,105.907,0,1,1

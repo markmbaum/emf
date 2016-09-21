@@ -46,18 +46,24 @@ In addition to being quicker to use and more flexible than FIELDS, this code sup
 
 #### Example Plots
 
-`emf.fields.plot_max_fields()`:
+Simulated maximum electric and magnetic fields across a right-of-way (ROW), with the field magnitudes on split vertical axes, using `emf.fields.plot_max_fields()`. Conductor positions are shown in true horizontal units but false horizontal units (clearly):
 ![plot_max_fields()](docs/images/HL_P.png "Sample Plot")
 
-`emf.fields.plot_groups()`:
+Comparison of simulated magnetic field profiles, essentially a before-after plot, using `emf.fields.plot_groups()`. Switching the rightmost circuit to a "delta" configuration reduces fields significantly:
 ![plot_groups()](docs/images/group_hl-Bmax.png "Sample Plot")
 
-`emf.subcalc.plot_contours()`:
-![plot_contours()](docs/images/contour_plot.png "Sample Plot")
+Contour plot of SubCalc results and structures of interest using `emf.subcalc.plot_contours()`, where the contours are colored on a logarithmic scale using the "viridis" colormap:
+![plot_contours() 1](docs/images/contour_plot_log.png "Sample Plot")
+
+Contour plot of the same SubCalc results from above, using `emf.subcalc.plot_contours()`, but with contours colored on a linear scale using the "viridis" colormap again:
+![plot_contours() 2](docs/images/contour_plot_linear.png "Sample Plot")
+
+A heatmap or colormesh plot of the same SubCalc results again, using `emf.subcalc.plot_pcolormesh()`:
+![plot_pcolormesh()](docs/images/pcolormesh_plot.png "Sample Plot")
 
 ###### EPRI's "Red Book"
 
-The editon of [EPRI](http://www.epri.com)'s "Red Book" that I worked from to replicate FIELDS calculations is titled "Transmission Line Reference Book: 345 kV and Above/Second Edition." Section 8.3 outlines the calculation of electric fields. Section 8.4 outlines the calculation of magnetic fields. Appendix 8.1 details how to calculate the maximum field magnitude from horizontal and vertical component phasors, which might sound almost trivial but is more involved than expected.
+The editon of [EPRI](http://www.epri.com)'s "Red Book" that I worked from to replicate FIELDS calculations is titled "Transmission Line Reference Book: 345 kV and Above, Second Edition." Section 8.3 outlines the calculation of electric fields. Section 8.4 outlines the calculation of magnetic fields. Appendix 8.1 details how to calculate the maximum field magnitude from horizontal and vertical component phasors, which might sound almost trivial but is more involved than expected.
 
 ###### Other Things
 

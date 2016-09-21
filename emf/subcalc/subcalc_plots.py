@@ -18,9 +18,10 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_contour_cmap_name = 'plasma_r' #http://matplotlib.org/examples/color/colormaps_reference.html
+_cmap_name = 'viridis_r' #http://matplotlib.org/examples/color/colormaps_reference.html
 _contour_linewidths = 2
 _contour_alpha = 0.8
+_pcolor_alpha = 0.5
 _footprint_alpha = .75
 _footprint_zorder = -1
 _footprint_label_fontsize = 15
@@ -30,13 +31,14 @@ _field_marker_edgewidth = 1.5
 _ax_frameon = True
 _ax_ticks_on = False
 _leg_edge_on = False
+_be_concerned = True
 
 #get the colormap
-_contour_cmap = mpl.cm.get_cmap(_contour_cmap_name)
-if(not hasattr(_contour_cmap, 'colors')):
-    _contour_cmap = mpl.colors.ListedColormap(
-            mpl.colors.makeMappingArray(256, _contour_cmap),
-            name=_contour_cmap_name,
+_cmap = mpl.cm.get_cmap(_cmap_name)
+if(not hasattr(_cmap, 'colors')):
+    _cmap = mpl.colors.ListedColormap(
+            mpl.colors.makeMappingArray(256, _cmap),
+            name=_cmap_name,
             N=256)
 
 def ion():
@@ -127,7 +129,7 @@ def _plot_footprints(ax, mod, mlci):
                     alpha=_footprint_alpha,
                     zorder=_footprint_zorder)
             #mark maximum field if the footprint is 'of concern'
-            if(fp.of_concern):
+            if(fp.of_concern and _be_concerned):
                 x = fp.x
                 y = fp.y
                 #interpolate
@@ -141,7 +143,7 @@ def _plot_footprints(ax, mod, mlci):
                 #plot
                 h = ax.plot(x[idx], y[idx], 'o',
                         markeredgecolor='k',
-                        markerfacecolor=_contour_cmap.colors[cidx],
+                        markerfacecolor=_cmap.colors[cidx],
                         markeredgewidth=_field_marker_edgewidth,
                         markersize=_field_marker_size)[0]
                 ax.text(x[idx] + xmarg, y[idx] + ymarg, m,
@@ -154,6 +156,30 @@ def _plot_footprints(ax, mod, mlci):
         _label_footprint_group(ax, fps)
     #return the legend items
     return(handles, labels)
+
+def _label_footprint_group(ax, fps):
+    """Put text into ax for the footprint group fps
+    args:
+        ax - Axes object to plot in
+        fps - list of footprints"""
+    if(len(fps) > 1):
+        x = subcalc_funks._flatten([fp.x for fp in fps])
+        y = subcalc_funks._flatten([fp.y for fp in fps])
+        x = (min(x) + max(x))/2.0
+        y = (min(y) + max(y))/2.0
+        ax.text(x, y, fps[0].group, ha='center', va='center',
+                fontsize=_footprint_label_fontsize + 2)
+    elif(len(fps) == 1):
+        fp = fps[0]
+        x = fp.x
+        y = fp.y
+        if(fp.draw_as_loop):
+            x = (min(x) + max(x))/2.0
+            y = (min(y) + max(y))/2.0
+        else:
+             x = x[0]
+             y = y[0]
+        ax.text(x, y, fp.group, fontsize=_footprint_label_fontsize)
 
 def _draw_north_arrow(ax, angle):
     """Draw a north arrow in the upper right corner of the axes
@@ -182,38 +208,27 @@ def _draw_north_arrow(ax, angle):
             textcoords='data',
             zorder=2,
             arrowprops={'arrowstyle': 'simple',
-                            'facecolor': 'gray',
-                            'edgecolor': 'gray',
+                            'facecolor': 'none',
+                            'edgecolor': 'black',
                             'shrinkB': 10,
                             'alpha': 0.8})
     #write N for north
     ax.annotate('$N$', xy=(x + x_offset, y + y_offset),
-            xycoords='data', zorder=2, color='gray',
+            xycoords='data', zorder=2, color='black',
             ha='center', va='center', fontsize=16)
 
-def _label_footprint_group(ax, fps):
-    """Put text into ax for the footprint group fps
+def _write_Bkey(ax, mod):
+    """Place a small text object just outside the upper right corner of the
+    axes indicating the component of the magnetic field represented by
+    the results
     args:
-        ax - Axes object to plot in
-        fps - list of footprints"""
-    if(len(fps) > 1):
-        x = subcalc_funks._flatten([fp.x for fp in fps])
-        y = subcalc_funks._flatten([fp.y for fp in fps])
-        x = (min(x) + max(x))/2.0
-        y = (min(y) + max(y))/2.0
-        ax.text(x, y, fps[0].group, ha='center', va='center',
-                fontsize=_footprint_label_fontsize + 2)
-    elif(len(fps) == 1):
-        fp = fps[0]
-        x = fp.x
-        y = fp.y
-        if(fp.draw_as_loop):
-            x = (min(x) + max(x))/2.0
-            y = (min(y) + max(y))/2.0
-        else:
-             x = x[0]
-             y = y[0]
-        ax.text(x, y, fp.group, fontsize=_footprint_label_fontsize)
+        ax - Axes to plot in
+        mod - Model object"""
+    xl, yl = ax.get_xlim(), ax.get_ylim()
+    #xmarg, ymarg = 0.005*(xl[1] - xl[0]), 0.005*(yl[1] - yl[0])
+    ax.text(xl[1], yl[1],
+            'Field Component: %s' % mod.Bkey,
+            fontsize=9, ha='right', va='bottom')
 
 def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
     """Decorator function to make a lambda function that will map field
@@ -228,6 +243,7 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
     if(scale == 'linear'):
         m = float(L_cmap)/(Bmax - Bmin)
         b = - m*Bmin
+
         def mlci(x):
             idx = int(round(m*x + b))
             if(idx < 0):
@@ -235,10 +251,11 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
             elif(idx >= L_cmap):
                 idx = L_cmap - 1
             return(idx)
-        return(mlci)
+
     elif(scale == 'log'):
         m = L_cmap/(np.log10(Bmax) - np.log10(Bmin))
         b = - m*np.log10(Bmin)
+
         def mlci(x):
             idx = int(round(m*np.log10(x) + b))
             if(idx < 0):
@@ -246,13 +263,15 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
             elif(idx >= L_cmap):
                 idx = L_cmap - 1
             return(idx)
-        return(mlci)
+
     else:
         raise(EMFError("""
         Illegal scale string "%s" passed to _make_color_indexer.
         Must be 'log' or 'linear'."""))
 
-def plot_contours(mod, **kwargs):
+    return(mlci)
+
+def plot_contour(mod, **kwargs):
     """Generate a contour plot from the magnetic field results and
     Footprint objects stored in a Model object
     args:
@@ -291,11 +310,11 @@ def plot_contours(mod, **kwargs):
     _set_ax_aspect(fig, ax, aspect_ratio)
 
     #get contour plotting keyword arguments
-    contour_kwargs = {'cmap':_contour_cmap, 'zorder':-1, 'alpha':_contour_alpha}
+    contour_kwargs = {'cmap': _cmap, 'zorder': -1, 'alpha': _contour_alpha}
     #get levels if passed in
     if('levels' in kwargs):
         contour_kwargs['levels'] = np.array(kwargs['levels'], dtype=float)
-    #determine contour scaling
+    #determine contour scaling kwarg
     if(scale == 'log'):
         contour_kwargs['locator'] = mpl.ticker.LogLocator()
     elif(scale == 'linear'):
@@ -309,8 +328,8 @@ def plot_contours(mod, **kwargs):
     CS = ax.contour(mod.X, mod.Y, mod.B, **contour_kwargs)
 
     #get color indexer from decorator along the way
-    mlci = _make_color_indexer(min(CS.cvalues),
-                max(CS.cvalues), len(_contour_cmap.colors), scale)
+    mlci = _make_color_indexer(np.min(CS.cvalues), np.max(CS.cvalues),
+                            len(_cmap.colors), scale)
 
     #set the contour linewidths private variable...
     for c in ax.collections:
@@ -322,7 +341,7 @@ def plot_contours(mod, **kwargs):
     peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
     handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
             markersize=_field_marker_size,
-            markerfacecolor=_contour_cmap.colors[-1],
+            markerfacecolor=_cmap.colors[-1],
             markeredgewidth=_field_marker_edgewidth,
             markeredgecolor='r')[0])
     labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
@@ -344,9 +363,13 @@ def plot_contours(mod, **kwargs):
     elif('north_angle' in kwargs):
         _draw_north_arrow(ax, kwargs['north_angle'])
 
-    #text
+    #write Bkey note
+    _write_Bkey(ax, mod)
+
+    #axes text
     ax.set_xlabel('X (ft)')
     ax.set_ylabel('Y (ft)')
+
     #final formatting
     _format_ax(ax)
 
@@ -354,3 +377,86 @@ def plot_contours(mod, **kwargs):
     _save_fig('contour_plot', fig, **kwargs)
 
     return(fig, ax, CS)
+
+def plot_pcolormesh(mod, **kwargs):
+    """Generate a color mesh plot of the magnetic field results and
+    Footprint objects stored in a Model object
+    args:
+        mod - Model object
+    kwargs:
+        north_angle - number, direction of north arrow
+                        (0 is along +y axis and clockwise is increasing)
+        save - bool, toggle whether the figure is saved
+        path - string, path to directory for saved figure. If set, overrides
+                the 'save' keyword
+        format - string, saved plot format/extension (default 'png')
+    returns:
+        fig - matplotlib figure object
+        ax - matplotlib axes object
+        QM - matplotlib QuadMesh object"""
+
+    #assess dimensions of grid
+    xmax, xmin = np.max(mod.x), np.min(mod.x)
+    ymax, ymin = np.max(mod.y), np.min(mod.y)
+    aspect_ratio = (ymax - ymin)/(xmax - xmin)
+
+    #generate the figure
+    fig = plt.figure(figsize=(14 + 6, 14*aspect_ratio))
+    ax = fig.add_subplot(1,1,1)
+
+    #adjust axis dimensions by transforming between figure and display coords
+    _set_ax_aspect(fig, ax, aspect_ratio)
+
+    #get plotting keyword arguments
+    pcolor_kwargs = {'cmap': _cmap, 'alpha': _pcolor_alpha, 'zorder': -1}
+
+    #plot
+    QM = ax.pcolormesh(mod.X, mod.Y, mod.B, **pcolor_kwargs)
+
+    #get color indexer from decorator along the way
+    mlci = _make_color_indexer(np.min(mod.B), np.max(mod.B),
+                            len(_cmap.colors), 'linear')
+
+    #plot location of maximum field
+    handles, labels = [], []
+    peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
+    peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
+    handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
+            markersize=_field_marker_size,
+            markerfacecolor=_cmap.colors[-1],
+            markeredgewidth=_field_marker_edgewidth,
+            markeredgecolor='r')[0])
+    labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
+
+    #plot footprints
+    H, L = _plot_footprints(ax, mod, mlci)
+    handles += H
+    labels += L
+
+    #colorbar and legend
+    cbar = fig.colorbar(QM)
+    cbar.ax.legend(handles, labels,
+            loc='center left', bbox_to_anchor=(3, 0.5),
+            numpoints=1)
+    _format_ax(cbar.ax)
+
+    #north arrow
+    if(mod.north_angle is not None):
+        _draw_north_arrow(ax, mod.north_angle)
+    elif('north_angle' in kwargs):
+        _draw_north_arrow(ax, kwargs['north_angle'])
+
+    #write Bkey note
+    _write_Bkey(ax, mod)
+
+    #axes text
+    ax.set_xlabel('X (ft)')
+    ax.set_ylabel('Y (ft)')
+
+    #final formatting
+    _format_ax(ax)
+
+    #saving
+    _save_fig('contour_plot', fig, **kwargs)
+
+    return(fig, ax, QM, cbar)

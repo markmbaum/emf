@@ -22,8 +22,8 @@ def _path_manage(filename_if_needed, extension, **kwargs):
     returns:
         conditioned path string"""
     #remove extensions from filename_if_needed
-    if('.' in filename_if_needed):
-        filename_if_needed = filename_if_needed[:filename_if_needed.index('.')]
+    if('.' in os.path.basename(filename_if_needed)):
+        filename_if_needed = filename_if_needed[:filename_if_needed.rfind('.')]
     #make sure the extension has a period at its beginning
     if(extension):
         if(extension[0] != '.'):
@@ -38,7 +38,7 @@ def _path_manage(filename_if_needed, extension, **kwargs):
         else:
             #path string interpreted as path to a file, not directory
             #strip any extensions
-            if('.' in path):
+            if('.' in os.path.basename(path)):
                 path = path[:path.rfind('.')]
             #put intended extension on the end and return
             return(path + extension)

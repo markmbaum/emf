@@ -6,37 +6,117 @@ import subcalc_funks
 
 class Model(object):
 
-    def __init__(self, X, Y, B, *args):
+    def __init__(self, *args, **kwargs):
         """Grid data must be passed in
         args:
-            X - 2D array of x coordinates
-            Y - 2D array of y coordinats
-            B - 2D array of magnetic field magnitudes
-            info - dictionary of model information"""
-        #2D reference grid arrays
-        self.X, self.Y, self.B = X, Y, B
+            either:
+                X - 2D array of x coordinates
+                Y - 2D array of y coordinats
+                B - 2D array of magnetic field magnitudes
+                info - dict, optional dictionary of model information
+            or:
+                data - dict, dictionary with X, Y, and B grids, should be
+                            keyed by 'X','Y','Bmax','Bres','Bx','By','Bz'
+                info - dict, optional dictionary of model information
+        kwargs:
+            Bkey - str, selects which component of field results to use
+                    (Bmax, Bres, Bx, etc.). Only valid if data and info are
+                    passed, not if grid data are passed directly"""
+
+        largs = len(args)
+        if(largs <= 2):
+            #check args[0]
+            if(type(args[0]) is not dict):
+                raise(EMFError("""
+                The first argument to Model() must be a dictionary of
+                model result information when passing 1 or 2 arguments to
+                initialize the Model, not type %s""" % type(info)))
+            #check keys
+            s = ['X','Y','Bmax','Bres','Bx','By','Bz']
+            if(set(args[0].keys()) != set(s)):
+                print args[0].keys()
+                raise(EMFError("""
+                If passing a dictionary to initialize a Model object, the
+                dict must be keyed by:
+                    %s""" % str(s)))
+            #store data
+            self._grid = args[0]
+            #deal with Bkey
+            if('Bkey' in kwargs):
+                self.Bkey = kwargs['Bkey']
+            else:
+                self.Bkey = 'Bmax'
+            #store the info dict if present
+            if(largs == 2):
+                if(type(args[1]) is not dict):
+                    raise(EMFError("""
+                    The fourth argument to Model() must be a dictionary of
+                    model result information, not type %s""" % type(args[1])))
+                self.info = args[1]
+            else:
+                self.info = None
+        elif(largs <= 4):
+            #check input types
+            mgs = """
+            If passing three or more arguments to initialize a Model, the first
+            three arguments must be 2D numpy arrays representing X, Y, and B
+            results"""
+            for a in args[:3]:
+                if(type(a) is not np.ndarray):
+                    raise(EMFError(msg))
+                elif(len(a.shape) != 2):
+                    raise(EMFError(msg))
+            #2D reference grid arrays
+            self._grid = {'X': args[0], 'Y': args[1], 'unknown': args[2]}
+            self._Bkey = 'unknown'
+            #store the info dict if present
+            if(largs == 4):
+                if(type(args[3]) is not dict):
+                    raise(EMFError("""
+                    The fourth argument to Model() must be a dictionary of
+                    model result information, not type %s""" % type(args[3])))
+                self.info = args[3]
+            else:
+                self.info = None
+
         #grid dimensions for reference
         self.grid_limits = {'xmax': np.max(self.x), 'xmin': np.min(self.x),
-                                'ymax': np.max(self.y), 'ymin': np.min(self.y)}
-        #dictionary of reference grid information from the SubCalc model
-        if(len(args) > 0):
-            info = args[0]
-            if(type(info) is not dict):
-                raise(EMFError("""
-                The fourth argument to Model.__init__ must be a dictionary
-                of model result information"""))
-            self.info = info
+                            'ymax': np.max(self.y), 'ymin': np.min(self.y)}
+
         #other reference objects in the model, like substation boundaries,
         #stored in a list of Footprint objects
-        self.footprint_df = None
+        self.footprint_df = None #DataFrame of Footprint information
         self.footprints = []
         self.footprint_groups = [] #list of lists of integers for grouping
+
         #angle of the northern direction with respect to the grid
         #   where 0 degrees is the positive y axis and clockwise is increasing
         self._north_angle = None
 
-    #north angle property
     #properties
+    def _get_B(self):
+        return(self._grid[self._Bkey])
+    B = property(_get_B, None, None, '2D grid of magnetic field results')
+
+    def _get_Bkey(self):
+        return(self._Bkey)
+    def _set_Bkey(self, value):
+        if(not (value in self._grid)):
+            raise(EMFError("""
+            Bkey must be set to one of the following elements:
+                %s""" % str(self._grid.keys())))
+        else:
+            self._Bkey = value
+    Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field in self.B')
+
+    def _get_X(self):
+        return(self._grid['X'])
+    X = property(_get_X, None, None, '2D grid of reference grid x coordinates')
+
+    def _get_Y(self):
+        return(self._grid['Y'])
+    Y = property(_get_Y, None, None, '2D grid of reference grid y coordinates')
+
     def _get_x(self):
         return(self.X[0,:])
     x = property(_get_x, None, None, 'Unique x values in model grid')
@@ -241,7 +321,8 @@ class Model(object):
 
     def export(self, **kwargs):
         """Export the grid data and accompanying info to an excel file with
-        two tabs, one for the grid and a second for the info
+        tabs for each Bfield component, another for the info dict, and a
+        final one for footprints if they're present
         kwargs:
             path - string, output destination/filename for workbook"""
         #get appropriate export filename
@@ -250,12 +331,15 @@ class Model(object):
         #create excel writing object
         xl = pd.ExcelWriter(fn, engine='xlsxwriter')
         #write grid data
-        pd.DataFrame(self.B, columns=self.x, index=self.y).to_excel(
-                xl, sheet_name='grid')
-        #write model information
-        pd.DataFrame([self.info[k] for k in self.info], index=self.info.keys(),
-                columns=['Parameter Value']).sort_index().to_excel(
-                        xl, sheet_name='info', index_label='Parameter Name')
+        for k in self._grid:
+            if((k != 'X') and (k != 'Y')):
+                pd.DataFrame(self._grid[k], columns=self.x, index=self.y
+                        ).to_excel(xl, sheet_name=k)
+        #write model information if present
+        if(self.info is not None):
+            pd.DataFrame([self.info[k] for k in self.info], index=self.info.keys(),
+                    columns=['Parameter Value']).sort_index().to_excel(
+                            xl, sheet_name='info', index_label='Parameter Name')
         #write footprint DataFrame if present
         if(self.footprint_df is not None):
             self.footprint_df.to_excel(xl, sheet_name='footprints', index=False)

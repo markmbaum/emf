@@ -13,28 +13,26 @@ def load_model(*args, **kwargs):
         footprint_path - string, optional, path to the csv file of
                          footprint data
     kwargs:
-        B_key - string, sets the 'component' of the magnetic field results
-                    returned
-                     - can be 'Bx', 'By', 'Bmax', or 'Bres')
+        Bkey - string, sets 'component' of magnetic field results returned
+                     - can be 'Bx', 'By', 'Bz', 'Bmax', or 'Bres'
                      - default is 'Bmax'
-                     - only applies if loading from a REF file
     returns
         mod - Model object containing results"""
 
+    #check for a Bkey kwarg
+    if('Bkey' in kwargs):
+        Bkey = kwargs['Bkey']
+    else:
+        Bkey = 'Bmax'
+
     if('.ref' in args[0].lower()):
-        #check for a B_key kwarg
-        if('B_key' in kwargs):
-            B_key = kwargs['B_key']
-        else:
-            B_key = 'Bmax'
+
         #pull data from the REF file
         data, info = read_REF(args[0])
-        #add B_key to the info dict
-        info['B_key'] = B_key
-        #extract the grid from 'data'
-        X, Y, B = _meshgrid(data, B_key)
+        #get the gridded arrays
+        data = _meshgrid(data)
         #initialize Model object
-        mod = subcalc_class.Model(X, Y, B, info)
+        mod = subcalc_class.Model(data, info, Bkey=Bkey)
         #check for footprint file path and load if present
         if(len(args) > 1):
             mod.load_footprints(args[1])
@@ -42,19 +40,25 @@ def load_model(*args, **kwargs):
     elif('.xls' in args[0].lower()):
         #get a dict of all sheets in excel file
         dfs = pd.read_excel(args[0], sheetname=None)
+        bkeys = dfs.keys()
+        if('info' in bkeys):
+            bkeys.remove('info')
+        if('footprints' in bkeys):
+            bkeys.remove('footprints')
         #slice out grid data
-        grid = dfs['grid']
-        x = [float(i) for i in grid.columns]
-        y = [float(i) for i in grid.index]
+        x = [float(i) for i in dfs[bkeys[0]].columns]
+        y = [float(i) for i in dfs[bkeys[0]].index]
         X, Y = np.meshgrid(x, y)
-        B = grid.values
+        data = {'X': X, 'Y': Y}
+        for k in bkeys:
+            data[str(k)] = dfs[k].values
         #slice out info dictionary
         info = dfs['info']
         params = info[info.columns[0]].values
         values = info[info.columns[1]].values
         info = dict(zip(params, values))
         #initialize Model object
-        mod = subcalc_class.Model(X, Y, B, info)
+        mod = subcalc_class.Model(data, info, Bkey=Bkey)
         #check for footprints
         if('footprints' in dfs):
             mod.load_footprints(dfs['footprints'])
@@ -90,7 +94,7 @@ def read_REF(file_path):
     args:
         file_path - string, path to saved .REF output file
     returns:
-        data - dict, keys are 'x', 'y', 'Bmax', 'Bres', 'Bx', and 'By'
+        data - dict, keys are 'x', 'y', 'Bmax', 'Bres', 'Bx', 'By', and 'Bz'
         info - dict, reference grid and other information"""
 
     #check the extension
@@ -102,8 +106,8 @@ def read_REF(file_path):
 
     #allocate dictionaries
     info = {'REF_path': file_path} #dictionary storing reference grid information
-    keys = ['X Coord', 'Y Coord', 'X Mag', 'Y Mag', 'Max', 'Res']
-    return_keys = ['x', 'y', 'Bx', 'By', 'Bmax', 'Bres']
+    keys = ['X Coord', 'Y Coord', 'X Mag', 'Y Mag', 'Z Mag', 'Max', 'Res']
+    return_keys = ['x', 'y', 'bx', 'by', 'bz', 'bmax', 'bres']
     data = dict(zip(keys, [[] for i in range(len(keys))]))
 
     #pull data out
@@ -134,24 +138,19 @@ def read_REF(file_path):
 
     return(data, info)
 
-def _meshgrid(data, B_key):
+def _meshgrid(flat_data):
     """Convert raw grid data read from a SubCalc output file
     (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates
     and their corresponding B field values
     args:
-        data - dict, keyed by 'x', 'y', and self.B_key with 1D arrays
-                in each, of equal length
-        B_key - string, sets the 'component' of the magnetic field results
-                    returned (can be 'Bx', 'By', 'Bmax', or 'Bres')
+        flat_data - dict, keyed by 'x','y','bx','by','bz','bmax','bres'
     returns:
-        X - 2D array, x coordinates
-        Y - 2D array, y coordinates
-        B - 2D array, magnetic field values"""
+        grid_data - dict with gridded arrays keyed by
+                'X','Y','Bx','By','Bz','Bmax','Bres'"""
 
     #find the number of points in a row
-    x = data['x']
-    y = data['y']
-    b = data[B_key]
+    x = flat_data['x']
+    y = flat_data['y']
     count = 0
     v = y[count]
     while(y[count+1] == y[count]):
@@ -161,16 +160,14 @@ def _meshgrid(data, B_key):
     L = len(x)
     ncols = count
     nrows = L/ncols
-    #fill 2D arrays
-    X, Y, B = [np.empty((nrows,ncols)) for i in range(3)]
-    count = 0
-    for i in range(nrows):
-        X[i,:] = x[count:count+ncols]
-        Y[i,:] = y[count:count+ncols]
-        B[i,:] = b[count:count+ncols]
-        count += ncols
+    #map old to new keys
+    mapk = dict(zip(['x','y','bx','by','bz','bmax','bres'],
+                    ['X','Y','Bx','By','Bz','Bmax','Bres']))
+    #replace with 2D arrays
+    grid_data = dict(zip([mapk[k] for k in flat_data],
+                [np.reshape(flat_data[k], (nrows, ncols)) for k in flat_data]))
 
-    return(X, Y, B)
+    return(grid_data)
 
 def _bilinear_interp(mod, x, y):
     """Use Model results to interpolate linearly in two dimensions for an
