@@ -18,7 +18,8 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_default_cmap_name = 'viridis_r' #http://matplotlib.org/examples/color/colormaps_reference.html
+_default_contour_cmap_name = 'viridis_r' #http://matplotlib.org/examples/color/colormaps_reference.html
+_default_pcolormesh_cmap_name = 'magma_r'
 _contour_linewidths = 2
 _contour_alpha = 0.8
 _pcolor_alpha = 0.35
@@ -307,7 +308,7 @@ def plot_contour(mod, **kwargs):
     if('cmap' in kwargs):
         _cmap = get_cmap(kwargs['cmap'])
     else:
-        _cmap = get_cmap(_default_cmap_name)
+        _cmap = get_cmap(_default_contour_cmap_name)
 
     #assess dimensions of grid
     xmax, xmin = np.max(mod.x), np.min(mod.x)
@@ -407,13 +408,14 @@ def plot_pcolormesh(mod, **kwargs):
     returns:
         fig - matplotlib figure object
         ax - matplotlib axes object
-        QM - matplotlib QuadMesh object"""
+        QM - matplotlib QuadMesh object
+        cbar - matplotlib Colorbar object (to which legend is attached)"""
 
     #check kwargs
     if('cmap' in kwargs):
         _cmap = get_cmap(kwargs['cmap'])
     else:
-        _cmap = get_cmap(_default_cmap_name)
+        _cmap = get_cmap(_default_pcolormesh_cmap_name)
 
     #assess dimensions of grid
     xmax, xmin = np.max(mod.x), np.min(mod.x)

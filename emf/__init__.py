@@ -8,4 +8,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipy.interpolate import interpn
 
+import fields
+import subcalc
+
 __all__ = ['fields', 'subcalc']

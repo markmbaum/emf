@@ -30,7 +30,7 @@ class Model(object):
                 raise(EMFError("""
                 The first argument to Model() must be a dictionary of
                 model result information when passing 1 or 2 arguments to
-                initialize the Model, not type %s""" % type(info)))
+                initialize the Model, not %s""" % type(args[0])))
             #check keys
             s = ['X','Y','Bmax','Bres','Bx','By','Bz']
             if(set(args[0].keys()) != set(s)):

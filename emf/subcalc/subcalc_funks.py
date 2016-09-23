@@ -27,7 +27,15 @@ def load_model(*args, **kwargs):
     else:
         Bkey = 'Bmax'
 
-    if('.ref' in args[0].lower()):
+    #check extensions
+    try:
+        fn = _check_extension(args[0], '.REF', '')
+    except(subcalc_class.EMFError):
+        fn = _check_extension(args[0], '.xlsx', """
+        Can only load Models from .REF or .xlsx files""")
+
+
+    if(fn[-3:] == 'REF'):
 
         #pull data from the REF file
         data, info = read_REF(args[0])
@@ -39,7 +47,7 @@ def load_model(*args, **kwargs):
         if(len(args) > 1):
             mod.load_footprints(args[1])
 
-    elif('.xls' in args[0].lower()):
+    elif(fn[-4:] == 'xlsx'):
         #get a dict of all sheets in excel file
         dfs = pd.read_excel(args[0], sheetname=None)
         bkeys = dfs.keys()
