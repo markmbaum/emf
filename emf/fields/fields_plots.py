@@ -56,9 +56,40 @@ def close(*args):
     else:
         plt.close('all')
 
-def _format_axes_legends(*args):
+def _format_bar_axes_legends(*args):
     """Apply axis formatting commands to axes objects
-    args: some number of axis objects with twin x axes"""
+    args:
+        some number of axes objects"""
+    for i in range(len(args)):
+        ax = args[i]
+        #apply legend formatting
+        leg = ax.get_legend()
+        if(leg):
+            rec = leg.get_frame()
+            if(not _leg_edge_on):
+                rec.set_edgecolor('white')
+        #apply axis formatting
+        if(i != 0):
+            ax.set_yticks([])
+        _spines_off(ax, 'top', 'right', 'left')
+        if(not _ax_ticks_on):
+            ax.tick_params(axis = 'both', which = 'both',
+                bottom = 'off', top = 'off', left = 'off', right = 'off')
+    #make limits equal
+    minylim, maxylim = args[0].get_ylim()
+    for ax in args:
+        yl = ax.get_ylim()
+        if(yl[0] < minylim):
+            minylim = yl[0]
+        if(yl[1] > maxylim):
+            maxylim = yl[1]
+    for ax in args:
+        ax.set_ylim(minylim, maxylim)
+
+def _format_line_axes_legends(*args):
+    """Apply axis formatting commands to axes objects
+    args:
+        some number of axes objects with twin x axes"""
     for ax in args:
         #apply legend formatting
         leg = ax.get_legend()
@@ -86,6 +117,24 @@ def _format_axes_legends(*args):
             for ax in args:
                 yl = ax.get_ylim()
                 ax.set_ylim(frac*yl[1], yl[1])
+
+def _spines_on(ax, *args):
+    """Turn axes spines on by passing strings indicating which spines to
+    make visible, like 'left', 'bottom', 'top', 'right'
+    args:
+        ax - target Axes object
+        strings indicating spines to turn on"""
+    for s in args:
+        ax.spines[s].set_visible(True)
+
+def _spines_off(ax, *args):
+    """Turn axes spines on by passing strings indicating which spines to
+    make invisible, like 'left', 'bottom', 'top', 'right'
+    args:
+        ax - target Axes object
+        strings indicating spines to turn off"""
+    for s in args:
+        ax.spines[s].set_visible(False)
 
 def _color_twin_axes(ax1, color1, ax2, color2):
     """Assign colors to split y axes"""
@@ -214,7 +263,7 @@ def plot_Bmax(xc, **kwargs):
         t = 'Maximum Magnetic Field - %s' % xc.title
     ax.set_title(t)
     ax.legend(hB + hw + hROW, lB + lw + lROW, numpoints = 1)
-    _format_axes_legends(ax)
+    _format_line_axes_legends(ax)
     #save the fig or don't, depending on keywords
     _save_fig(xc.sheet, fig, **kwargs)
     #return
@@ -253,7 +302,7 @@ def plot_Emax(xc, **kwargs):
         t = 'Maximum Electric Field - %s' % xc.title
     ax.set_title(t)
     ax.legend(hE + hw + hROW, lE + lw + lROW, numpoints = 1)
-    _format_axes_legends(ax)
+    _format_line_axes_legends(ax)
     #save the fig or don't, depending on keywords
     _save_fig(xc.sheet, fig, **kwargs)
     #return
@@ -303,7 +352,7 @@ def plot_max_fields(xc, **kwargs):
     _color_twin_axes(ax_B, _B_color, ax_E, _E_color)
     #legend
     ax_B.legend(hf + hw + hROW, lf + lw + lROW, numpoints = 1)
-    _format_axes_legends(ax_B, ax_E)
+    _format_line_axes_legends(ax_B, ax_E)
     #save the fig or don't, depending on keywords
     _save_fig(xc.sheet, fig, **kwargs)
     #return
@@ -358,9 +407,9 @@ def _plot_DAT_comparison(xc, pan, **kwargs):
     ax_mag.set_ylabel(r'Bmax $\left(mG\right)$')
     ax_mag.set_title('Model Results, Magnetic Field')
     _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
-    _format_axes_legends(ax_abs)
+    _format_line_axes_legends(ax_abs)
     plt.tight_layout()
-    #_format_axes_legends(ax_abs, ax_per, ax_mag)
+    _format_line_axes_legends(ax_abs, ax_per, ax_mag)
     _save_fig(xc.sheet + '-DAT_comparison_Bmax', fig, **kwargs)
     plt.close(fig)
 
@@ -377,7 +426,7 @@ def _plot_DAT_comparison(xc, pan, **kwargs):
     ax_mag.set_title('Model Results, Electric Field')
     _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'r')
     plt.tight_layout()
-    #_format_axes_legends(ax_abs, ax_per, ax_mag)
+    _format_line_axes_legends(ax_abs, ax_per, ax_mag)
     _save_fig(xc.sheet + '-DAT_comparison_Emax', fig, **kwargs)
     plt.close(fig)
 
@@ -417,7 +466,7 @@ def _plot_group_fields(ax, xcs, field, **kwargs):
         else:
             h.append(ax.plot(fields_list[i], color = _colormap[i%7],
                         linewidth = _fields_linewidth)[0])
-        l.append(field + ' - ' + xcs[i].sheet)
+        l.append(xcs[i].sheet)
         #find max
         if(max(fields_list[i]) > max_field):
             max_field = max(fields_list[i])
@@ -569,7 +618,7 @@ def plot_groups(sb, **kwargs):
         #BMAX
         #get plotting objects
         fig = plt.figure()
-        ax = fig.add_subplot(1,1,1, frameon = _ax_frameon)
+        ax = fig.add_subplot(1,1,1)
         #plot the Bmax results for each xc in the group
         h, l, max_field = _plot_group_fields(ax, xcs, 'Bmax', **kwargs)
         #plot wires
@@ -581,10 +630,10 @@ def plot_groups(sb, **kwargs):
         #set axis text and legend
         ax.set_xlabel('Distance from Center of ROW (ft)')
         ax.set_ylabel(r'Maximum Magnetic Field $\left(mG\right)$')
-        t = 'Maximum Magnetic Field - Cross-Section Group %s' % str(xcs[0].tag)
+        t = 'Maximum Magnetic Field - %s' % str(xcs[0].tag)
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
-        _format_axes_legends(ax)
+        _format_line_axes_legends(ax)
         #save the figure if keyword 'save' == True, and append fig to figs
         _save_fig('group_%s-Bmax' % str(xcs[0].tag), fig, **kwargs)
         #store the fig or close it
@@ -596,7 +645,7 @@ def plot_groups(sb, **kwargs):
         #EMAX
         #get plotting objects
         fig = plt.figure()
-        ax = fig.add_subplot(1,1,1, frameon = _ax_frameon)
+        ax = fig.add_subplot(1,1,1)
         #plot the Bmax results for each xc in the group
         h, l, max_field = _plot_group_fields(ax, xcs, 'Emax', **kwargs)
         #plot wires
@@ -611,14 +660,175 @@ def plot_groups(sb, **kwargs):
         t = 'Maximum Electric Field - Conductor Group %s' % str(xcs[0].tag)
         ax.set_title(t)
         ax.legend(h + hw + hROW, l + lw + lROW, numpoints = 1)
-        _format_axes_legends(ax)
+        _format_line_axes_legends(ax)
 
-        #save the figure if keyword 'save' == True, and append fig to figs
+        #save the figure if keyword 'save' == True or a path string is passed
         _save_fig('group_%s-Emax' % str(xcs[0].tag), fig, **kwargs)
         #store the fig or close it
         if(return_figs):
             figs.append(fig)
         else:
             plt.close(fig)
+
+    if(return_figs):
+        return(figs)
+
+def _reorder_xcs(xcs, **kwargs):
+    """Use the xc_order kwargs, if it exists, to create a list of
+    CrossSection sheet strings that determines the order bars are plotted
+    in
+    args:
+        xcs - list of CrossSections corresponding to a group
+    kwargs:
+        xc_order - dict, if any keys are the same as the tag of the
+                   CrossSection group represented by xcs, they should
+                   map to a list of strings with CrossSection sheet names
+                   specifiying an order to plot in.
+    returns:
+        reorder - a reordered list of CrossSections"""
+
+    #see if there is an xc_order kwarg
+    if('xc_order' in kwargs):
+        xc_order = kwargs['xc_order']
+        tag = xcs[0].tag
+        #see if it corresponds to the group represented by xcs
+        if(tag in xc_order):
+            #get the order
+            order = xc_order[tag]
+            #compile xc sheet names
+            sheets = [xc.sheet for xc in xcs]
+            #make a dict for later
+            d = dict(zip(sheets, xcs))
+            #reorder the sheets
+            reorder = []
+            for sh in order:
+                if(sh in sheets):
+                    reorder.append(sheets.pop(sheets.index(sh)))
+                    print reorder, sheets
+            #put leftovers at the end of the list
+            reorder = reorder + sheets
+            #generate reodered list and return
+            return([d[k] for k in reorder])
+
+    #return the order of xcs
+    return(xcs)
+
+def _plot_group_bars(ax, xcs, field, side):
+    """Plot bars in ax for each xc in xcs
+    args:
+        ax - target Axes object
+        xcs - list of CrossSection objects corresponding to a group
+        field - string, field component to plot (Ex, Bx, Bprod, etc.)
+        side - string, 'left' or 'right', selects which ROW edge side"""
+
+    #translate side to index
+    if(side == 'left'):
+        side = 0
+    else:
+        side = 1
+    #plot the bars
+    values = [xc.ROW_edge_fields[field].values[side] for xc in xcs]
+    ax.bar(range(len(xcs)), values, tick_label=[xc.sheet for xc in xcs],
+            color=[_colormap[i%7] for i in range(len(xcs))],
+            bottom=0.0, align='center', alpha=0.8, width=0.6)
+
+def _generate_ROW_value_plot_objects():
+    """generate figure and axes for plot_groups_at_ROW
+    returns:
+        fig - figure object
+        axl - left axes
+        axr - right axes"""
+
+    ax_y_up_frac = 0.9
+    ax_y_shrink_frac = 0.85
+
+    #get plotting objects
+    fig = plt.figure()
+    #left ROW axis
+    axl = fig.add_subplot(1,2,1)
+    axl.set_title('Left ROW Edge')
+    pos = axl.get_position()
+    axl.set_position([pos.x0,
+                    pos.y0 + pos.height*(1 - ax_y_up_frac),
+                    pos.width,
+                    pos.height*ax_y_shrink_frac])
+    #right ROW axis
+    axr = fig.add_subplot(1,2,2)
+    axr.set_title('Right ROW Edge')
+    pos = axr.get_position()
+    axr.set_position([pos.x0,
+                    pos.y0 + pos.height*(1 - ax_y_up_frac),
+                    pos.width,
+                    pos.height*ax_y_shrink_frac])
+    return(fig, axl, axr)
+
+def plot_groups_at_ROW(sb, **kwargs):
+    """Create bar charts showing the field values at ROW edges for each
+    CrossSection group in a SectionBook
+    args:
+        sb - SectionBook object to pull plotting groups from
+    kwargs"
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')
+        xc_order - dict, keys can be CrossSection group tags, which map to
+                   lists of strings specifying the order of the plotted
+                   CrossSection bars (left to right). Not all CrossSecitons
+                   in a group must be listed. Any/all can be left out.
+        return_figs - toggle whether a list of figure objects is returned
+                      instead of closing the figures to clear memory,
+                      default is False
+    returns:
+        figs - list of figure objects created for each group, only returned
+               if the kwarg 'return_figs' is True"""
+    #check return kwarg
+    return_figs = False
+    if('return_figs' in kwargs):
+        if(kwargs['return_figs']):
+            return_figs = True
+            figs = []
+
+    #iterate over groups with more than 1 CrossSection
+    for g in [group for group in sb.tag_groups if len(group) > 1]:
+
+        #get reordered CrossSection list
+        xcs = _reorder_xcs([sb.xcs[i] for i in g], **kwargs)
+
+        #plot Bmax
+        fig, axl, axr = _generate_ROW_value_plot_objects()
+        _plot_group_bars(axl, xcs, 'Bmax', 'left')
+        _plot_group_bars(axr, xcs, 'Bmax', 'right')
+        #format
+        _format_bar_axes_legends(axl, axr)
+        #apply text
+        axl.set_ylabel('Maximum Magnetic Field ($mG$)')
+        fig.suptitle('Maximum Magnetic Fields at ROW Edges',
+                fontsize=18)
+        #save?
+        _save_fig('group_%s-ROW-Bmax' % str(xcs[0].tag), fig, **kwargs)
+        #store the fig or close it
+        if(return_figs):
+            figs.append(fig)
+        else:
+            plt.close(fig)
+
+        #plot Emax
+        fig, axl, axr = _generate_ROW_value_plot_objects()
+        _plot_group_bars(axl, xcs, 'Emax', 'left')
+        _plot_group_bars(axr, xcs, 'Emax', 'right')
+        #format
+        _format_bar_axes_legends(axl, axr)
+        #apply text
+        axl.set_ylabel('Maximum Electric Field ($kV/m$)')
+        fig.suptitle('Maximum Electric Fields at ROW Edges',
+                fontsize=18)
+        #save?
+        _save_fig('group_%s-ROW-Emax' % str(xcs[0].tag), fig, **kwargs)
+        #store the fig or close it
+        if(return_figs):
+            figs.append(fig)
+        else:
+            plt.close(fig)
+
     if(return_figs):
         return(figs)

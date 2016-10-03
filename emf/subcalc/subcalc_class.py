@@ -1,10 +1,38 @@
-from .. import np, pd, os, interpn
+from .. import np, pd, os, copy, interpn
 
 from ..emf_class import EMFError
 
 import subcalc_funks
 
 class Model(object):
+    """Model objects store the results of magnetic field modeling generated
+    by the SubCalc program. A Model can be created by passing grid results
+    directly or by passing a dictionary of grid results. The function
+    subcalc.load_model is the best way to generate a Model object from
+    a .REF file containing SubCalc results. The Model object can be saved
+    to a more flexible (and smaller) excel file with Model.export(). Then
+    the excel file can be read back into a Model object using
+    subcalc.load_model again, but targeting the excel file.
+        Model objects have a 'Bkey' property that determines which component
+    of the magnetic field results is accessed by the Model.B property. For
+    example, when Model.Bkey == 'Bmax' all operations involving the grid
+    of magnetic field results accessed by Model.B will operate on the
+    'max' field component. When Bmax == 'Bz' all operations deal with the
+    vertical 'z' component of the field, and so on. This includes plotting.
+        Footprints of objets in the Model domain like buildings, the power
+    lines, fences, etc. can also be stored in Model objects. Data for these
+    objects must be saved in csv template files. The path of the footprint
+    csv files can be passed to subcalc.load_model for automatic inclusion in
+    a newly generated Model object or it can be passed to an existing Model
+    with Model.load_footprints. The footprint data is stored in Footprint
+    objects that have very little functionality and are mostly just
+    organizational objects.
+        Several methods are available for interpolating new values from
+    the grid of field results: Model.interp, Model.resample, and
+    Model.crosssection.
+        Contour plots of the results can be automatically generated with
+    subcalc.plot_contour(Model) and colormesh plots can be automatically
+    generated with subcalc.plot_pcolormesh(Model)."""
 
     def __init__(self, *args, **kwargs):
         """Grid data must be passed in
@@ -13,15 +41,15 @@ class Model(object):
                 X - 2D array of x coordinates
                 Y - 2D array of y coordinats
                 B - 2D array of magnetic field magnitudes
-                info - dict, optional dictionary of model information
+                info - dict, optional, dictionary of model metadata
             or:
                 data - dict, dictionary with X, Y, and B grids, should be
                             keyed by 'X','Y','Bmax','Bres','Bx','By','Bz'
-                info - dict, optional dictionary of model information
+                info - dict, optional, dictionary of model metadata
         kwargs:
             Bkey - str, selects which component of field results to use
-                    (Bmax, Bres, Bx, etc.). Only valid if data and info are
-                    passed, not if grid data are passed directly"""
+                    or defines which component is passed as a grid
+                    ('Bmax', 'Bres', 'Bx', 'By', 'Bz')."""
 
         largs = len(args)
         if(largs <= 2):
@@ -32,12 +60,12 @@ class Model(object):
                 model result information when passing 1 or 2 arguments to
                 initialize the Model, not %s""" % type(args[0])))
             #check keys
-            s = ['X','Y','Bmax','Bres','Bx','By','Bz']
-            if(set(args[0].keys()) != set(s)):
+            s = set(['X','Y','Bmax','Bres','Bx','By','Bz'])
+            if(any([(i not in s) for i in args[0].keys()])):
                 print args[0].keys()
                 raise(EMFError("""
                 If passing a dictionary to initialize a Model object, the
-                dict must be keyed by:
+                dict must have the following keys only:
                     %s""" % str(s)))
             #store data
             self._grid = args[0]
@@ -51,7 +79,7 @@ class Model(object):
                 if(type(args[1]) is not dict):
                     raise(EMFError("""
                     The fourth argument to Model() must be a dictionary of
-                    model result information, not type %s""" % type(args[1])))
+                    model result information, not %s""" % type(args[1])))
                 self.info = args[1]
             else:
                 self.info = None
@@ -60,15 +88,20 @@ class Model(object):
             mgs = """
             If passing three or more arguments to initialize a Model, the first
             three arguments must be 2D numpy arrays representing X, Y, and B
-            results"""
-            for a in args[:3]:
-                if(type(a) is not np.ndarray):
+            grids respectively, each with the same shape."""
+            for i in range(3):
+                if(type(args[i]) is not np.ndarray):
                     raise(EMFError(msg))
-                elif(len(a.shape) != 2):
+                elif(len(args[i].shape) != 2):
+                    raise(EMFError(msg))
+                elif(args[i].shape != args[1].shape):
                     raise(EMFError(msg))
             #2D reference grid arrays
-            self._grid = {'X': args[0], 'Y': args[1], 'unknown': args[2]}
-            self._Bkey = 'unknown'
+            if('Bkey' in kwargs):
+                self._Bkey = kwargs['Bkey']
+            else:
+                self._Bkey = 'unknown'
+            self._grid = {'X': args[0], 'Y': args[1], self._Bkey: args[2]}
             #store the info dict if present
             if(largs == 4):
                 if(type(args[3]) is not dict):
@@ -82,16 +115,15 @@ class Model(object):
         #grid dimensions for reference
         self.grid_limits = {'xmax': np.max(self.x), 'xmin': np.min(self.x),
                             'ymax': np.max(self.y), 'ymin': np.min(self.y)}
-
         #other reference objects in the model, like substation boundaries,
         #stored in a list of Footprint objects
         self.footprint_df = None #DataFrame of Footprint information
         self.footprints = []
         self.footprint_groups = [] #list of lists of integers for grouping
-
         #angle of the northern direction with respect to the grid
         #   where 0 degrees is the positive y axis and clockwise is increasing
         self._north_angle = None
+
 
     #properties
     def _get_B(self):
@@ -110,7 +142,8 @@ class Model(object):
                 %s""" % str(k)))
         else:
             self._Bkey = value
-    Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field in self.B')
+    Bkey = property(_get_Bkey, _set_Bkey, None,
+            'Component of magnetic field accessed by the B property')
 
     def _get_X(self):
         return(self._grid['X'])
@@ -122,11 +155,13 @@ class Model(object):
 
     def _get_x(self):
         return(self.X[0,:])
-    x = property(_get_x, None, None, 'Unique x values in model grid')
+    x = property(_get_x, None, None,
+            'Unique x values in model grid (column positions)')
 
     def _get_y(self):
         return(self.Y[:,0])
-    y = property(_get_y, None, None, 'Unique y values in model grid')
+    y = property(_get_y, None, None,
+            'Unique y values in model grid (row positions)')
 
     def _get_north_angle(self):
         return(self._north_angle)
@@ -140,6 +175,7 @@ class Model(object):
             """Angle of the Northern direction in degrees, where 0 represents
             the vertical or Y direction and clockwise represents increasing
             angle""")
+
 
     def load_footprints(self, footprint_info, **kwargs):
         """Read footprint data from a csv file and organize it in
@@ -213,14 +249,14 @@ class Model(object):
             B_interp - array, interpolated field values"""
         #check point lengths
         if((len(p1) != 2) or (len(p2) != 2)):
-            raise(EMFError('Points must consist of two values, xy pairs.'))
+            raise(EMFError('Points must consist of two values (xy pairs).'))
         #check kwargs
         if('n' in kwargs):
             n = kwargs['n']
         else:
             n = 1000
         #create x and y vectors
-        x, y = np.linspace(p1[0], p2[0], 1000), np.linspace(p1[1], p2[1], n)
+        x, y = np.linspace(p1[0], p2[0], n), np.linspace(p1[1], p2[1], n)
         B_interp = self.interp(x, y)
         return(x, y, B_interp)
 
@@ -235,14 +271,18 @@ class Model(object):
         #make x,y iterable if scalars are passed in
         if(not (hasattr(x, '__len__') and hasattr(y, '__len__'))):
             scalar = True
-            x = np.array([x], dtype = float)
-            y = np.array([y], dtype = float)
+            x = np.array([x], dtype=float)
+            y = np.array([y], dtype=float)
         else:
             scalar = False
         #check that all points are in the grid
         if(not all([self.in_grid(x[i],y[i]) for i in range(len(x))])):
             raise(EMFError("""
-            x,y coordinates must fall inside the reference grid"""))
+            x,y coordinates must fall inside the reference grid:
+                range of x coordinates: %g to %g
+                range of y coordinates: %g to %g""" %
+                (self.grid_limits['xmin'], self.grid_limits['xmax'],
+                    self.grid_limits['ymin'], self.grid_limits['ymax'])))
         #interpolate
         B_interp = np.array([subcalc_funks._bilinear_interp(self, x[i], y[i])
                                 for i in range(len(x))])
@@ -280,9 +320,7 @@ class Model(object):
                     - preserves approx ratio of number of x and y values
                     - rounds up to nearest possible whole number of points
         returns:
-            X - 2D numpy array with resampled x coordinates
-            Y - 2D numpy array with resampled y coordinates
-            B_resample - 2D numpy array with resampled field values"""
+            mod_resample - a new Model object containing the resampled grid"""
         #store grid x,y extents
         xmin, xmax = self.grid_limits['xmin'], self.grid_limits['xmax']
         ymin, ymax = self.grid_limits['ymin'], self.grid_limits['ymax']
@@ -320,7 +358,24 @@ class Model(object):
                                 (Y[::-1,:], X))
 
         #return with re-flipped results
-        return(X, Y, B_resample[::-1,:])
+        mod_resample = Model(X, Y, B_resample[::-1,:],
+                copy.deepcopy(self.info),
+                Bkey=self.Bkey)
+        mod_resample.load_footprints(self.footprint_df)
+        return(mod_resample)
+
+    def flatten(self):
+        """Create 1 dimensional versions of the gridded X, Y, and B arrays
+        returns:
+            x - 1D numpy array with x coordinates
+            y - 1D numpy array with y coordinates
+            b - 1D numpy array with magnetic field values"""
+        nrows, ncols = self.B.shape
+        n = nrows*ncols
+        x = np.reshape(self.X, n)
+        y = np.reshape(self.Y, n)
+        b = np.reshape(self.B, n)
+        return(x, y, b)
 
     def export(self, **kwargs):
         """Export the grid data and accompanying info to an excel file with
@@ -363,6 +418,35 @@ class Model(object):
 
 class Footprint(object):
 
+    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
+        """
+        args:
+            name - string, the name of the Footprint, i.e. "Substation"
+            x - iterable, x coordinates of Footprint
+            y - iterable, y coordinates of Footprint
+            power_line - bool, True indicates the footprint corresponds to
+                            modeled
+            of_concern - bool, True if the Footprint represents an area
+                        that is potentially concerned about EMF (homes)
+            draw_as_loop - bool, True if the footprint should be plotted
+                            as a closed loop
+            group - string, group strings that are identical between
+                    Footprint objects designate them as part of the same
+                    group for plotting"""
+        #check x and y are the same length
+        if(len(x) != len(y)):
+            raise(EMFError("""
+            Footprints must have the same number of x and y values to form
+            spatial coordinates"""))
+        #set attributes
+        self.name = name #string
+        self._x = [float(i) for i in x]
+        self._y = [float(i) for i in y]
+        self.power_line = power_line #bool
+        self.of_concern = of_concern #bool
+        self.draw_as_loop = draw_as_loop #bool
+        self._group = group #string
+
     def _get_x(self):
         if(self.draw_as_loop):
             return(self._x + [self._x[0]])
@@ -370,9 +454,7 @@ class Footprint(object):
             return(self._x)
     def _set_x(self, value):
         self._x = value
-    def _del_x(self):
-        del(self._x)
-    x = property(_get_x, _set_x, _del_x, 'x coordinates of Footprint vertices')
+    x = property(_get_x, _set_x, None, 'x coordinates of Footprint vertices')
 
     def _get_y(self):
         if(self.draw_as_loop):
@@ -381,36 +463,16 @@ class Footprint(object):
             return(self._y)
     def _set_y(self, value):
         self._y = value
-    def _del_y(self):
-        del(self._y)
-    y = property(_get_y, _set_y, _del_y, 'y coordinates of Footprint vertices')
+    y = property(_get_y, _set_y, None, 'y coordinates of Footprint vertices')
 
-    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
-        """
-        args:
-            name - string, the name of the Footprint, i.e. "Substation"
-            x - iterable, x coordinates of Footprint
-            y - iterable, y coordinates of Footprint
-            of_concern - bool, True if the Footprint represents an area
-                        that is potentially concerned about EMF (homes)
-            draw_as_loop - bool, True if the footprint should be plotted
-                            as a closed loop
-            tag - anything, identifier used to group footprints
-            label_ha - string
-            label_va - string"""
-        #check x and y are the same length
-        if(len(x) != len(y)):
-            raise(EMFError("""
-            Footprints must have the same number of x and y values to form
-            spatial coordinates"""))
-        #set attributes
-        self.name = name #string
-        self._x = list(x)
-        self._y = list(y)
-        self.power_line = power_line #bool
-        self.of_concern = of_concern #bool
-        self.draw_as_loop = draw_as_loop #bool
-        self.group = group #string
+    def _get_group(self):
+        if(pd.isnull(self._group) or (self._group is None)):
+            return('')
+        else:
+            return(self._group)
+    def _set_group(self, value):
+        self._group = value
+    group = property(_get_group, _set_group, None, 'Group name')
 
     def __str__(self):
         """quick and dirty printing"""

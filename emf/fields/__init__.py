@@ -11,10 +11,11 @@ from fields_plots import (plot_Bmax,
                         plot_Emax,
                         plot_max_fields,
                         plot_groups,
+                        plot_groups_at_ROW,
                         ion,
                         show,
                         close)
-                        
+
 from FIELDS_io import (to_FLD,
                         to_FLDs,
                         to_FLDs_crawl,

@@ -1,0 +1,96 @@
+Name,Group,X,Y,Power Line?,Of Concern?,Draw as Loop?
+Fence,,153.491,492.901,0,0,1
+Fence,,581.235,491.672,0,0,1
+Fence,,580.673,129.02,0,0,1
+Fence,,153.49,129.119,0,0,1
+345kV Building,345kV Building,292.647,464.441,0,0,1
+345kV Building,345kV Building,409.305,464.26,0,0,1
+345kV Building,345kV Building,409.229,415.115,0,0,1
+345kV Building,345kV Building,462.204,415.033,0,0,1
+345kV Building,345kV Building,462.108,353.461,0,0,1
+345kV Building,345kV Building,292.476,353.725,0,0,1
+115kV Building,115kV Building,285.547,246.974,0,0,1
+115kV Building,115kV Building,468.142,246.69,0,0,1
+115kV Building,115kV Building,467.482,184.554,0,0,1
+115kV Building,115kV Building,285.451,184.837,0,0,1
+345kV Line 339 Tewksbury,345kV Line 339 Tewksbury,-32.174,331.069,1,0,0
+345kV Line 339 Tewksbury,345kV Line 339 Tewksbury,153.349,401.391,1,0,0
+345kV Line 339 Tewksbury,345kV Line 339 Tewksbury,218.762,426.709,1,0,0
+345kV Line 339 Tewksbury,345kV Line 339 Tewksbury,243.572,435.709,1,0,0
+345kV Line 339 Tewksbury,345kV Line 339 Tewksbury,291.948,376.886,1,0,0
+345kV Line 349 Golden Hills,345kV Line 349 Golden Hills,762.859,228.72,1,0,0
+345kV Line 349 Golden Hills,345kV Line 349 Golden Hills,581.653,397.901,1,0,0
+345kV Line 349 Golden Hills,345kV Line 349 Golden Hills,552.958,427.884,1,0,0
+345kV Line 349 Golden Hills,345kV Line 349 Golden Hills,530.436,441.476,1,0,0
+345kV Line 349 Golden Hills,345kV Line 349 Golden Hills,462.127,365.324,1,0,0
+345kV Woburn UG,345kV Woburn UG,136.929,-11.51,1,0,0
+345kV Woburn UG,345kV Woburn UG,159.505,9.92,1,0,0
+345kV Woburn UG,345kV Woburn UG,172.499,30.8,1,0,0
+345kV Woburn UG,345kV Woburn UG,180.987,53.382,1,0,0
+345kV Woburn UG,345kV Woburn UG,181.605,88.404,1,0,0
+345kV Woburn UG,345kV Woburn UG,183.316,101.393,1,0,0
+345kV Woburn UG,345kV Woburn UG,187.278,112.12,1,0,0
+345kV Woburn UG,345kV Woburn UG,194.621,122.841,1,0,0
+345kV Woburn UG,345kV Woburn UG,203.085,129.607,1,0,0
+345kV Woburn UG,345kV Woburn UG,215.492,135.236,1,0,0
+345kV Woburn UG,345kV Woburn UG,234.657,138.031,1,0,0
+345kV Woburn UG,345kV Woburn UG,449.939,137.696,1,0,0
+345kV Woburn UG,345kV Woburn UG,464.033,140.499,1,0,0
+345kV Woburn UG,345kV Woburn UG,474.187,147.262,1,0,0
+345kV Woburn UG,345kV Woburn UG,544.177,216.633,1,0,0
+345kV Woburn UG,345kV Woburn UG,553.211,227.352,1,0,0
+345kV Woburn UG,345kV Woburn UG,555.487,241.47,1,0,0
+345kV Woburn UG,345kV Woburn UG,555.623,329.026,1,0,0
+345kV Woburn UG,345kV Woburn UG,525.257,372.004,1,0,0
+345kV Woburn UG,345kV Woburn UG,499.918,386.166,1,0,0
+345kV Woburn UG,345kV Woburn UG,462.127,365.324,1,0,0
+345kV to Transformer,345kV to Transformer,333.616,353.661,1,0,0
+345kV to Transformer,345kV to Transformer,303.728,341.28,1,0,0
+345kV to Transformer,345kV to Transformer,303.683,312.471,1,0,0
+345kV to Transformer,345kV to Transformer,377.01,353.661,1,0,0
+345kV to Transformer,345kV to Transformer,357.266,341.197,1,0,0
+345kV to Transformer,345kV to Transformer,357.222,312.388,1,0,0
+345kV to Transformer,345kV to Transformer,415.896,353.661,1,0,0
+345kV to Transformer,345kV to Transformer,410.805,341.114,1,0,0
+345kV to Transformer,345kV to Transformer,410.76,312.305,1,0,0
+345kV to Transformer,345kV to Transformer,424.35,353.661,1,0,0
+345kV to Transformer,345kV to Transformer,464.343,341.031,1,0,0
+345kV to Transformer,345kV to Transformer,464.299,312.222,1,0,0
+115kV from Transformer,115kV from Transformer,303.056,271.801,1,0,0
+115kV from Transformer,115kV from Transformer,303.033,256.549,1,0,0
+115kV from Transformer,115kV from Transformer,357.158,271.717,1,0,0
+115kV from Transformer,115kV from Transformer,357.133,255.335,1,0,0
+115kV from Transformer,115kV from Transformer,410.697,271.634,1,0,0
+115kV from Transformer,115kV from Transformer,410.673,256.382,1,0,0
+115kV from Transformer,115kV from Transformer,464.236,271.551,1,0,0
+115kV from Transformer,115kV from Transformer,464.21,255.169,1,0,0
+115kV S-145E Salem Harbor,115kV S-145E Salem Harbor,284.963,233.417,1,0,0
+115kV S-145E Salem Harbor,115kV S-145E Salem Harbor,265.801,233.447,1,0,0
+115kV S-145E Salem Harbor,115kV S-145E Salem Harbor,153.096,238.706,1,0,0
+115kV S-145E Salem Harbor,115kV S-145E Salem Harbor,114.212,239.896,1,0,0
+115kV S-145E Salem Harbor,115kV S-145E Salem Harbor,-11.862,345.725,1,0,0
+115kV T-146E Salem Harbor,115kV T-146E Salem Harbor,284.901,193.876,1,0,0
+115kV T-146E Salem Harbor,115kV T-146E Salem Harbor,265.741,194.47,1,0,0
+115kV T-146E Salem Harbor,115kV T-146E Salem Harbor,153.027,194.081,1,0,0
+115kV T-146E Salem Harbor,115kV T-146E Salem Harbor,113.014,194.143,1,0,0
+115kV T-146E Salem Harbor,115kV T-146E Salem Harbor,-4.057,291.484,1,0,0
+115kV T-146 Tewksbury,115kV T-146 Tewksbury,375.057,184.133,1,0,0
+115kV T-146 Tewksbury,115kV T-146 Tewksbury,337.843,172.328,1,0,0
+115kV T-146 Tewksbury,115kV T-146 Tewksbury,337.217,131.658,1,0,0
+115kV T-146 Tewksbury,115kV T-146 Tewksbury,337.75,112.451,1,0,0
+115kV T-146 Tewksbury,115kV T-146 Tewksbury,-6.588,112.986,1,0,0
+115kV S-145 Tewksbury,115kV S-145 Tewksbury,375.057,184.133,1,0,0
+115kV S-145 Tewksbury,115kV S-145 Tewksbury,376.166,172.269,1,0,0
+115kV S-145 Tewksbury,115kV S-145 Tewksbury,376.102,131.597,1,0,0
+115kV S-145 Tewksbury,115kV S-145 Tewksbury,376.542,51.384,1,0,0
+115kV S-145 Tewksbury,115kV S-145 Tewksbury,-7.246,51.98,1,0,0
+115kV F-158N Maplewood,115kV F-158N Maplewood,420.142,184.063,1,0,0
+115kV F-158N Maplewood,115kV F-158N Maplewood,415.616,172.772,1,0,0
+115kV F-158N Maplewood,115kV F-158N Maplewood,415.552,131.536,1,0,0
+115kV F-158N Maplewood,115kV F-158N Maplewood,415.426,50.194,1,0,0
+115kV F-158N Maplewood,115kV F-158N Maplewood,734.965,48.567,1,0,0
+115kV Q-169 Lynn,115kV Q-169 Lynn,420.142,184.063,1,0,0
+115kV Q-169 Lynn,115kV Q-169 Lynn,453.937,172.148,1,0,0
+115kV Q-169 Lynn,115kV Q-169 Lynn,453.874,131.476,1,0,0
+115kV Q-169 Lynn,115kV Q-169 Lynn,453.843,111.141,1,0,0
+115kV Q-169 Lynn,115kV Q-169 Lynn,735.061,110.139,1,0,0

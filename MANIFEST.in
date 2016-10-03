@@ -1,0 +1,10 @@
+include README.md
+include emf/templates/*.xlsx
+include docs/*
+
+prune nopack
+prune working_files
+
+global-exclude .git*
+global-exclude *.pyc
+global-exclude *.xlk

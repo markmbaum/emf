@@ -7,6 +7,40 @@ import fields_class
 import fields_calcs
 import fields_plots
 
+def run(template_path, **kwargs):
+    """Import the templates in an excel file with the path 'template_path'
+    then generate a workbook of all fields results and lots of plots.
+    Use the 'path' keyword argument to specify a destination for the output,
+    otherwise it will be saved to the template's directory. Returns
+    a SectionBook object.
+    args:
+        template_path - path to cross section template excel workbook
+    kwargs:
+        sheets - a list of sheet names to load, default is all sheets
+        path - string, destination/filename for saved files
+        format - string, saved plot format (usually 'png' or 'pdf')
+        xmax - cutoff distance from ROW center in plots"""
+    #force saving for the plotting functions if there is no 'path' keyword
+    if(not ('path' in kwargs)):
+        kwargs['save'] = True
+        #also direct output files to the same directory as the template
+        kwargs['path'] = os.path.dirname(template_path)
+    #import templates
+    sb = load_template(template_path)
+    #export the full results workbook
+    sb.results_export(**kwargs)
+    #export ROW edge results
+    sb.ROW_edge_export(**kwargs)
+    #export single CrossSection plots
+    for xc in sb:
+        fig = fields_plots.plot_max_fields(xc, **kwargs)
+        fields_plots.plt.close(fig)
+    #export group comparison line plots
+    fields_plots.plot_groups(sb, **kwargs)
+    #export group ROW comparison bar plots
+    fields_plots.plot_groups_at_ROW(sb, **kwargs)
+    return(sb)
+
 def load_template(file_path, **kwargs):
     """Import conductor data from an excel template, loading each conductor
     into a Conductor object, each Conductor into a CrossSection object, and
@@ -515,35 +549,3 @@ def _xc_sb_compare(xc, sb):
             'Bmax Diff - Left ROW Edge', 'Bmax Diff - Right ROW Edge',
             'Emax Diff - Left ROW Edge', 'Emax Diff - Right ROW Edge']
     return(df, c, h)
-
-def run(template_path, **kwargs):
-    """Import the templates in an excel file with the path 'template_path'
-    then generate a workbook of all fields results and lots of plots.
-    Use the 'path' keyword argument to specify a destination for the output,
-    otherwise it will be saved to the template's directory. Returns
-    a SectionBook object.
-    args:
-        template_path - path to cross section template excel workbook
-    kwargs:
-        sheets - a list of sheet names to load, default is all sheets
-        path - string, destination/filename for saved files
-        format - string, saved plot format (usually 'png' or 'pdf')
-        xmax - cutoff distance from ROW center in plots"""
-    #force saving for the plotting functions if there is no 'path' keyword
-    if(not ('path' in kwargs)):
-        kwargs['save'] = True
-        #also direct output files to the same directory as the template
-        kwargs['path'] = os.path.dirname(template_path)
-    #import templates
-    sb = load_template(template_path)
-    #export the full results workbook
-    sb.results_export(**kwargs)
-    #export ROW edge results
-    sb.ROW_edge_export(**kwargs)
-    #export single CrossSection plots
-    for xc in sb:
-        fig = fields_plots.plot_max_fields(xc, **kwargs)
-        fields_plots.plt.close(fig)
-    #export group comparison plots
-    fields_plots.plot_groups(sb, **kwargs)
-    return(sb)

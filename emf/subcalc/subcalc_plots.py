@@ -115,22 +115,31 @@ def _plot_footprints(ax, mod, cmap, mlci):
     handles, labels = [], []
     #plot footprints
     of_concern = False #flag for appending handles to legend list
+    power_line_handle_idx = False
     for g in mod.footprint_groups:
         #get footprints in the group and the group name
         fps = [mod.footprints[i] for i in g]
         group_name = fps[0].group
-        #plot individual footprints
-        #check for the power line
-        power_line_check = [fp.power_line for fp in fps]
-        if(True in power_line_check):
-            idx = power_line_check.index(True)
-            fp = fps[idx]
-            handles.append(ax.plot(fp.x, fp.y, 'k--', linewidth=2,
-                    alpha=_footprint_alpha,
-                    zorder=_footprint_zorder)[0])
-            labels.append(fp.group)
-            #remove the power line footprint
-            fps.pop(idx)
+        #plot powerline footprings
+        i = 0
+        L = len(fps)
+        while(i < L):
+            fp = fps[i]
+            if(fp.power_line):
+                h = ax.plot(fp.x, fp.y, 'k--', linewidth=2,
+                        alpha=_footprint_alpha,
+                        zorder=_footprint_zorder)[0]
+                if(power_line_handle_idx is False):
+                    handles.append(h)
+                    labels.append(fp.group)
+                    power_line_handle_idx = len(handles) - 1
+                else:
+                    labels[power_line_handle_idx] += ';\n' + fp.group
+                #remove the power line footprint
+                fps.pop(i)
+                L -= 1
+                i -= 1
+            i += 1
         for fp in fps:
             ax.plot(fp.x, fp.y, 'k',
                     alpha=_footprint_alpha,
@@ -186,7 +195,8 @@ def _label_footprint_group(ax, fps):
         else:
              x = x[0]
              y = y[0]
-        ax.text(x, y, fp.group, fontsize=_footprint_label_fontsize)
+        ax.text(x, y, fp.group, fontsize=_footprint_label_fontsize,
+                ha='center', va='center')
 
 def _draw_north_arrow(ax, angle):
     """Draw a north arrow in the upper right corner of the axes
@@ -428,6 +438,8 @@ def plot_pcolormesh(mod, **kwargs):
 
     #adjust axis dimensions by transforming between figure and display coords
     _set_ax_aspect(fig, ax, aspect_ratio)
+    ax.set_xlim(mod.grid_limits['xmin'], mod.grid_limits['xmax'])
+    ax.set_ylim(mod.grid_limits['ymin'], mod.grid_limits['ymax'])
 
     #get plotting keyword arguments
     pcolor_kwargs = {'cmap': _cmap, 'alpha': _pcolor_alpha, 'zorder': -1,

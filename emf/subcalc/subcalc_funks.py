@@ -1,7 +1,8 @@
-from .. import np, pd
+from .. import os, np, pd, shutil
+import pkg_resources
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
-                        _check_intable, _flatten, _sig_figs)
+                        _check_intable, _flatten, _sig_figs, _Levenshtein_group)
 
 import subcalc_class
 
@@ -148,6 +149,18 @@ def read_REF(file_path):
 
     return(data, info)
 
+def drop_template(**kwargs):
+    """Save a new footprint data template file
+    kwargs:
+        path - destination/filename of dropped template file"""
+    #get destination path
+    target_fn = os.path.abspath('../templates/')
+    print target_fn
+    output_fn = _path_manage('subcalc_footprint_template', '.xlsx', **kwargs)
+    #drop file
+    shutil.copyfile(target_fn, output_fn)
+    print('subcalc footprint template saved to: %s' % output_fn)
+
 def _meshgrid(flat_data):
     """Convert raw grid data read from a SubCalc output file
     (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates
@@ -235,8 +248,8 @@ def _double_min(v):
         raise(subcalc_class.EMFError("""
         Cannot find lowest two values in an array of length less than 2."""))
     m = max(v) #store the max for initialization
-    mins = np.array([m, m], dtype = float)
-    idxs = np.zeros((2,), dtype = int)
+    mins = np.array([m, m], dtype=float)
+    idxs = np.zeros((2,), dtype=int)
     for i in range(len(v)):
         if(v[i] < mins[0]):
             #swap first minimum to second

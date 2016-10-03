@@ -3,7 +3,8 @@ from subcalc_class import (Model,
 
 from subcalc_funks import (read_REF,
                             load_model,
-                            convert_REF)
+                            convert_REF,
+                            drop_template)
 
 from subcalc_plots import (plot_contour,
                             plot_pcolormesh,

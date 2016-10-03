@@ -119,3 +119,96 @@ def _check_intable(f):
 #Flatten a list of lists. Only works on a list and the first level of
 #sublists, not recursively on all levels
 _flatten = lambda L: [item for sublist in L for item in sublist]
+
+def _Levenshtein_group(V, W):
+    """Match each string in vector V to a string in vector W, using global
+    least Levenshtein distance for each match.
+        V - vector of strings
+        W - vector of strings, can be longer than V but not shorter
+    returns:
+        list of matches in the same order as V"""
+    print V, W
+    #set up some loop variables
+    vmask = np.ones((len(V),), dtype = bool)
+    vrange = np.arange(len(V))
+    wmask = np.ones((len(W),), dtype = bool)
+    wrange = np.arange(len(W))
+    matches = ['']*len(V)
+    #calculate distance between all pairs of words
+    M = np.zeros((len(V),len(W)))
+    for i in vrange:
+        for j in wrange:
+            M[i,j] = _Levenshtein_distance(V[i],W[j])
+    #find a match in W for each word in V with minimum global distances
+    for n in vrange:
+        vr = vrange[vmask]
+        wr = wrange[wmask]
+        #find the minimum distance of any pairs left
+        i_min = vr[0]
+        j_min = wr[0]
+        min_dist = M[i_min,j_min]
+        for i in vr:
+            for j in wr:
+                if(M[i,j] < min_dist):
+                    min_dist = M[i,j]
+                    i_min = i
+                    j_min = j
+        #store the match and update the masks
+        matches[i_min] = W[j_min]
+        vmask[i_min] = False
+        wmask[j_min] = False
+
+    return(matches)
+
+def _Levenshtein_find(s, V):
+    """find the string in V that most clostly resembles s, as measured by
+    the Levenshtein distance
+    args:
+        s - string
+        V - iterable of strings
+    returns:
+        string in V most similar to s
+        index of that string in V"""
+    d = np.zeros((len(V),))
+    for (i,t) in enumerate(V):
+        d[i] = _Levenshtein_distance(s,t)
+    idx = np.argmin(d)
+    return(V[idx], idx)
+
+def _Levenshtein_distance(s, t):
+    """Calculate string similarity metric with a basic edit distance
+    routine to find the Levenshtein Distance, without case sensitivity
+    args:
+        s - string 1
+        t - string 2
+    returns:
+        d - distance metric, count of edit operations required
+    information source:
+        http://web.archive.org/web/20081224234350/http://www.dcs.shef.ac.uk/~sam/stringmetrics.html#Levenshtein"""
+    #check empty strings
+    if(len(s) == 0):
+        return(len(t))
+    elif(len(t) == 0):
+        return(len(s))
+    #lower case
+    s = s.lower()
+    t = t.lower()
+    #initialize grid
+    ls = len(s)
+    lt = len(t)
+    D = np.zeros((ls,lt))
+    if(s[0] != t[0]):
+        D[0,0] = 1.0
+    D[:,0] = np.arange(D[0,0], ls + D[0,0])
+    D[0,:] = np.arange(D[0,0], lt + D[0,0])
+    #vector to store edit operation scores
+    e = np.zeros((3,))
+    for i in range(1,ls):
+        for j in range(1,lt):
+            e[0] = D[i-1,j-1]
+            if(s[i] != t[j]):
+                e[0] += 1
+            e[1] = D[i-1,j] + 1
+            e[2] = D[i,j-1] + 1
+            D[i,j] = np.min(e)
+    return(D[-1,-1])

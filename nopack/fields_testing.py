@@ -1,16 +1,16 @@
 import cProfile
 import pstats
-import sys
 
-sys.path.append("/Volumes/BAUMPRIMARY/Code/Python/")
-sys.path.append("/Volumes/BAUMPRIMARY/Code/Python/emf/")
+from emf import fields as fld
 
-from emf import fields
+sb = fld.load_template('../working_files/practice_xcs')
 
-cProfile.run("""
-xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()
-res, opt = fields.optimize_phasing(xc, 'all')
-""",
-filename = 'profile')
+fld.plot_ROW_values(sb, path='test')
 
-pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)
+#cProfile.run("""
+#xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()
+#res, opt = fields.optimize_phasing(xc, 'all')
+#""",
+#filename = 'profile')
+
+#pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

@@ -66,6 +66,8 @@ class CrossSection(object):
         #DataFrame storing results, populated with calculate_fields()
         self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
                                             'Ex','Ey','Eprod','Emax'])
+        self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
+                                            'Ex','Ey','Eprod','Emax'])
 
     def __str__(self):
         """quick and dirty printing"""
@@ -82,8 +84,8 @@ class CrossSection(object):
         """Populate the CrossSection objects numpy array attributes"""
         #calculate sample point coordinates
         N = 1 + int(np.ceil(2*self.max_dist/self.step))
-        self.x_sample = np.linspace(-self.max_dist, self.max_dist, num = N)
-        self.y_sample = self.sample_height*np.ones((N,), dtype = float)
+        self.x_sample = np.linspace(-self.max_dist, self.max_dist, num=N)
+        self.y_sample = self.sample_height*np.ones((N,), dtype=float)
         #update ROW edge index variables
         #if ROW edges lie between two sample points, use the one closer to zero
         d = np.absolute(self.x_sample - self.lROW)
@@ -92,14 +94,14 @@ class CrossSection(object):
         self.rROWi = min(np.where(d == np.min(d))[0])
         #assemble all the conductor data in arrays for calculations
         conds = self.hot + self.gnd
-        self.x = np.array([c.x for c in conds], dtype = float)
-        self.y = np.array([c.y for c in conds], dtype = float)
-        self.subconds = np.array([c.subconds for c in conds], dtype = float)
-        self.d_cond = np.array([c.d_cond for c in conds], dtype = float)
-        self.d_bund = np.array([c.d_bund for c in conds], dtype = float)
-        self.V = np.array([c.V for c in conds], dtype = float)
-        self.I = np.array([c.I for c in conds], dtype = float)
-        self.phase = np.array([c.phase for c in conds], dtype = float)
+        self.x = np.array([c.x for c in conds], dtype=float)
+        self.y = np.array([c.y for c in conds], dtype=float)
+        self.subconds = np.array([c.subconds for c in conds], dtype=float)
+        self.d_cond = np.array([c.d_cond for c in conds], dtype=float)
+        self.d_bund = np.array([c.d_bund for c in conds], dtype=float)
+        self.V = np.array([c.V for c in conds], dtype=float)
+        self.I = np.array([c.I for c in conds], dtype=float)
+        self.phase = np.array([c.phase for c in conds], dtype=float)
 
     def calculate_fields(self):
         """Calculate electric and magnetic fields across the ROW and store the
@@ -119,17 +121,10 @@ class CrossSection(object):
         #store the values
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
-                                    index = self.x_sample)
+                                    index=self.x_sample)
+        self.ROW_edge_fields = self.fields.iloc[[self.lROWi, self.rROWi]]
         #return the fields dataframe
         return(self.fields)
-
-    def ROW_edge_fields(self):
-        """Return the values of fields calculations at the left and right
-        ROW edges of the cross-section.
-        returns:
-            left - pandas Series with left ROW edge results
-            right - pandas Series with right ROW edge results"""
-        return(self.fields.iloc[[self.lROWi, self.rROWi]])
 
     def compare_DAT(self, DAT_path, **kwargs):
         """Load a FIELDS output file (.DAT), find absolute and percentage
@@ -164,7 +159,7 @@ class CrossSection(object):
             f = self.fields.round(kwargs['round'])
         elif('truncate' in kwargs):
             if(kwargs['truncate']):
-                f = self.fields.copy(deep = True)
+                f = self.fields.copy(deep=True)
                 for c in f.columns:
                     for i in f.index:
                         f[c].loc[i] = float('%.3f' % f[c].loc[i])
@@ -172,7 +167,7 @@ class CrossSection(object):
             f = self.fields
         frames = ['FIELDS_DAT_results', 'python_results',
                 'Absolute Difference', 'Percent Difference']
-        pan = pd.Panel(data = {frames[0] : df,
+        pan = pd.Panel(data={frames[0] : df,
                 frames[1] : f,
                 frames[2] : f - df,
                 frames[3] : 100*(f - df)/f})
@@ -183,9 +178,9 @@ class CrossSection(object):
             if(kwargs['save']):
                 fn = fields_funks._path_manage(self.sheet + '-DAT_comparison',
                     '.xlsx', **kwargs)
-                xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+                xl = pd.ExcelWriter(fn, engine='xlsxwriter')
                 for f in frames:
-                    pan[f].to_excel(xl, index_label = 'x', sheet_name = f)
+                    pan[f].to_excel(xl, index_label='x', sheet_name=f)
                 xl.save()
                 print('DAT comparison book saved to: "%s"' % fn)
                 #make plots of the absolute and percent error
@@ -209,7 +204,7 @@ class SectionBook(object):
         self.tags = [] #collection of CrossSection tags
         self.tag_groups = [[]] #groups of CrossSection indices with identical tags
         #DataFrame of maximum fields at ROW edges
-        self.ROW_edge_max = pd.DataFrame(columns = ['name','title',
+        self.ROW_edge_max = pd.DataFrame(columns=['name','title',
                                             'Bmaxl','Bmaxr','Emaxl','Emaxr'])
 
     def __getitem__(self, key):
@@ -250,7 +245,7 @@ class SectionBook(object):
         if(len(args) == 0):
             return(self.xcs[np.random.randint(len(self))])
         else:
-            r = np.random.randint(len(self), size = args[0])
+            r = np.random.randint(len(self), size=args[0])
             return([self.xcs[i] for i in r])
 
     def add_section(self, xc):
@@ -283,9 +278,9 @@ class SectionBook(object):
         fn = fields_funks._path_manage('all_results', '.xlsx',
                 **kwargs)
         #write results
-        xlwriter = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+        xlwriter = pd.ExcelWriter(fn, engine='xlsxwriter')
         for xc in self:
-            xc.fields.to_excel(xlwriter, sheet_name = xc.sheet)
+            xc.fields.to_excel(xlwriter, sheet_name=xc.sheet, index_label='x')
         print('Full SectionBook results written to: %s' % fn)
 
     def ROW_edge_export(self, **kwargs):
@@ -313,11 +308,11 @@ class SectionBook(object):
                 wo = fields_funks._path_manage('ROW_edge_results',
                         '.xlsx', **kwargs)
         if(wo):
-            self.ROW_edge_max.to_excel(wo, index = False, columns = c,
-                                    header = h, sheet_name = 'ROW_edge_max')
+            self.ROW_edge_max.to_excel(wo, index=False, columns=c,
+                                    header=h, sheet_name='ROW_edge_max')
         else:
             wo = fields_funks._path_manage('ROW_edge_results', '.csv', **kwargs)
-            self.ROW_edge_max.to_csv(wo, index = False, columns = c, header = h)
+            self.ROW_edge_max.to_csv(wo, index=False, columns=c, header=h)
         if(not ('xl' in kwargs)):
             print('Maximum fields at ROW edges written to: %s' % wo)
 
@@ -351,7 +346,7 @@ class SectionBook(object):
             El[i] = xc.fields['Emax'].iat[xc.lROWi]
             Er[i] = xc.fields['Emax'].iat[xc.rROWi]
         #construct DataFrame
-        self.ROW_edge_max = pd.DataFrame(data = {
+        self.ROW_edge_max = pd.DataFrame(data={
             'sheet': self.sheets, 'title': [xc.title for xc in self],
             'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
                     ).sort_values('sheet')
