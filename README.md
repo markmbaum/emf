@@ -54,6 +54,10 @@ Simulated maximum electric and magnetic fields across a ROW, with the field magn
 Comparison of simulated magnetic field profiles of two related cross sections, essentially a before-after plot, using `emf.fields.plot_groups()`. Switching the rightmost circuit to a "delta" configuration reduces fields significantly:
 ![plot_groups](docs/images/group_hl-Bmax.png)
 
+A plot showing how simulated magnetic fields at ROW edges decrease when the
+spacing between conductors in the "delta" configuration is decreased:
+![plot_groups_at_ROW](docs/images/group_Delta Spacing Decrementation-ROW-Bmax.png)
+
 Contour plot of SubCalc magnetic field results and structures of interest using `emf.subcalc.plot_contours()`, where the contours are colored on a logarithmic scale using the "viridis" colormap:
 ![plot_contours-1](docs/images/contour_plot_log.png)
 
