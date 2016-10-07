@@ -1,4 +1,4 @@
-from .. import np, pd
+from .. import np, pd, copy
 
 from ..emf_class import EMFError
 
@@ -10,17 +10,94 @@ import FIELDS_io
 class Conductor(object):
     """Class representing a single conductor or power line."""
 
-    def __init__(self):
-        self.tag = None #conductor label
-        self.freq = 60. #phase frequency
-        self.x = None #x coordinate
-        self.y = None #y coordinate
-        self.subconds = None #number of subconductors per bundle
-        self.d_cond = None #conductor diameter
-        self.d_bund = None #bundle diameter
-        self.V = None #line voltage
-        self.I = None #line current
-        self.phase = None #phase angle
+    def __init__(self, tag):
+        """
+        args:
+            tag - int or string, essentially just a name"""
+        self.tag = tag #conductor labels
+        self._freq = 60. #phase frequency
+        self._x = None #x coordinate
+        self._y = None #y coordinate
+        self._subconds = None #number of subconductors per bundle
+        self._d_cond = None #conductor diameter
+        self._d_bund = None #bundle diameter
+        self._V = None #line voltage
+        self._I = None #line current
+        self._phase = None #phase angle
+
+    #---------------------------------------------------------------------------
+    #PROPERTIES
+
+    def _check_complete(self):
+        """Check if all Conductor variables have been set"""
+        d = vars(self)
+        keys = d.keys()
+        for k in keys:
+            if(d[k] is None):
+                return(False, k)
+        return(True, None)
+    complete = property(_check_complete)
+
+    def _check_to_float(self, x, prop):
+        if(not fields_funks._is_number(x)):
+            raise(EMFError("""
+            Conductor property '%s' must be numeric.
+            It cannot be set to: %s""" % (prop, repr(x))))
+        return(float(x))
+
+    def _check_to_int(self, x, prop):
+        if(not fields_funks._is_number(x)):
+            raise(EMFError("""
+            Conductor property '%s' must be numeric.
+            It cannot be set to: %s""" % (prop, repr(x))))
+        elif(int(x) != float(x)):
+            raise(EMFError("""
+            Conductor property '%s' must be an integer.
+            It cannot be set to: %s""" % (prop, repr(x))))
+        return(int(x))
+
+    def _get_freq(self): return(self._freq)
+    def _set_freq(self, value):
+        self._freq = self._check_to_float(value, 'freq')
+    freq = property(_get_freq, _set_freq)
+
+    def _get_x(self): return(self._x)
+    def _set_x(self, value): self._x = self._check_to_float(value, 'x')
+    x = property(_get_x, _set_x)
+
+    def _get_y(self): return(self._y)
+    def _set_y(self, value): self._y = self._check_to_float(value, 'y')
+    y = property(_get_y, _set_y)
+
+    def _get_subconds(self): return(self._subconds)
+    def _set_subconds(self, value):
+        self._subconds = self._check_to_int(value, 'subconds')
+    subconds = property(_get_subconds, _set_subconds)
+
+    def _get_d_cond(self): return(self._d_cond)
+    def _set_d_cond(self, value):
+        self._d_cond = self._check_to_float(value, 'd_cond')
+    d_cond = property(_get_d_cond, _set_d_cond)
+
+    def _get_d_bund(self): return(self._d_bund)
+    def _set_d_bund(self, value):
+        self._d_bund = self._check_to_float(value, 'd_bund')
+    d_bund = property(_get_d_bund, _set_d_bund)
+
+    def _get_V(self): return(self._V)
+    def _set_V(self, value): self._V = self._check_to_float(value, 'V')
+    V = property(_get_V, _set_V)
+
+    def _get_I(self): return(self._I)
+    def _set_I(self, value): self._I = self._check_to_float(value, 'I')
+    I = property(_get_I, _set_I)
+
+    def _get_phase(self): return(self._phase)
+    def _set_phase(self, value):
+        self._phase = self._check_to_float(value, 'phase')
+    phase = property(_get_phase, _set_phase)
+
+    #---------------------------------------------------------------------------
 
     def __str__(self):
         """quick and dirty printing"""
@@ -28,8 +105,11 @@ class Conductor(object):
         keys = v.keys()
         s = '\n'
         for k in keys:
-            s += str(k) + ': ' + str(v[k]) + '\n'
+            s += str(k) + ': ' + repr(v[k]) + '\n'
         return(s)
+
+    def copy(self):
+        return(copy.deepcopy(self))
 
 class CrossSection(object):
     """Class that organizes Conductor objects and stores other input
@@ -45,29 +125,81 @@ class CrossSection(object):
         self.step = None #step size for calculations
         self.sample_height = 3. #uniform sample height
         self.lROW = None #exact coordinate of the left ROW edge
-        self.lROWi = None #integer index of x_sample closest to self.lROW
         self.rROW = None #exact coordinate of the left ROW edge
-        self.rROWi = None #integer index of x_sample closest to self.rROW
         self.hot = [] #list of Conductor objects with nonzero voltage
         self.gnd = [] #list of Conductor objects with zero voltage
-        #arrays with unlabeled conductor data for fast passing to fields_calcs
-        #need to be updated with update_arrays() if conductors change
-        #these arrays store hot conductor info first, then the grounded lines
-        self.x = np.empty((0,)) #x coordinates
-        self.y = np.empty((0,)) #y coordinates
-        self.subconds = np.empty((0,)) #number of subconductors per bundles
-        self.d_cond = np.empty((0,)) #conductor diameters
-        self.d_bund = np.empty((0,)) #bundle diameters
-        self.V = np.empty((0,)) #ilne voltages
-        self.I = np.empty((0,)) #line currents
-        self.phase = np.empty((0,)) #phase angles
-        self.x_sample = np.empty((0,)) #x coordinates of sample points
-        self.y_sample = np.empty((0,)) #y coordinates of sample points
+        #dictionaries mapping Conductor tags to Conductor objects
+        self.tag2hotidx = {}
+        self.tag2gndidx = {}
         #DataFrame storing results, populated with calculate_fields()
-        self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
+        self.fields = pd.DataFrame(columns=['Bx','By','Bprod','Bmax',
                                             'Ex','Ey','Eprod','Emax'])
-        self.fields = pd.DataFrame(columns = ['Bx','By','Bprod','Bmax',
-                                            'Ex','Ey','Eprod','Emax'])
+
+    #---------------------------------------------------------------------------
+    #PROPERTIES
+
+    def _get_tags(self): return([xc.tag for xc in self.conds])
+    tags = property(_get_tags)
+
+    def _get_N_sample(self): return(1 + int(np.ceil(2*self.max_dist/self.step)))
+    N_sample = property(_get_N_sample)
+
+    def _get_conds(self): return(self.hot + self.gnd)
+    conds = property(_get_conds)
+
+    def _get_x_sample(self):
+        return(np.linspace(-self.max_dist, self.max_dist, num=self.N_sample))
+    x_sample = property(_get_x_sample)
+
+    def _get_y_sample(self):
+        return(self.sample_height*np.ones((self.N_sample,), dtype=float))
+    y_sample = property(_get_y_sample)
+
+    def _get_x(self): return(np.array([c.x for c in self.conds], dtype=float))
+    x = property(_get_x)
+
+    def _get_y(self): return(np.array([c.y for c in self.conds], dtype=float))
+    y = property(_get_y)
+
+    def _get_lROWi(self):
+        d = np.absolute(self.x_sample - self.lROW)
+        return(max(np.where(d == np.min(d))[0]))
+    lROWi = property(_get_lROWi)
+
+    def _get_rROWi(self):
+        d = np.absolute(self.x_sample - self.rROW)
+        return(min(np.where(d == np.min(d))[0]))
+    rROWi = property(_get_rROWi)
+
+    def _get_subconds(self):
+        return(np.array([c.subconds for c in self.conds], dtype=float))
+    subconds = property(_get_subconds)
+
+    def _get_d_cond(self):
+        return(np.array([c.d_cond for c in self.conds], dtype=float))
+    d_cond = property(_get_d_cond)
+
+    def _get_d_bund(self):
+        return(np.array([c.d_bund for c in self.conds], dtype=float))
+    d_bund = property(_get_d_bund)
+
+    def _get_V(self):
+        return(np.array([c.V for c in self.conds], dtype=float))
+    V = property(_get_V)
+
+    def _get_I(self):
+        return(np.array([c.I for c in self.conds], dtype=float))
+    I = property(_get_I)
+
+    def _get_phase(self):
+        return(np.array([c.phase for c in self.conds], dtype=float))
+    phase = property(_get_phase)
+
+    def _get_ROW_edge_fields(self):
+        return(self.fields.iloc[[self.lROWi, self.rROWi]])
+    ROW_edge_fields = property(_get_ROW_edge_fields)
+
+    #---------------------------------------------------------------------------
 
     def __str__(self):
         """quick and dirty printing"""
@@ -76,40 +208,78 @@ class CrossSection(object):
         s = '\n'
         for k in keys:
             if(k != 'fields'):
-                s += str(k) + ': ' + str(v[k]) + '\n'
+                s += str(k) + ': ' + repr(v[k]) + '\n'
         s += '\ninspect self.fields separately to see field simulation results\n'
         return(s)
 
-    def update_arrays(self):
-        """Populate the CrossSection objects numpy array attributes"""
-        #calculate sample point coordinates
-        N = 1 + int(np.ceil(2*self.max_dist/self.step))
-        self.x_sample = np.linspace(-self.max_dist, self.max_dist, num=N)
-        self.y_sample = self.sample_height*np.ones((N,), dtype=float)
-        #update ROW edge index variables
-        #if ROW edges lie between two sample points, use the one closer to zero
-        d = np.absolute(self.x_sample - self.lROW)
-        self.lROWi = max(np.where(d == np.min(d))[0])
-        d = np.absolute(self.x_sample - self.rROW)
-        self.rROWi = min(np.where(d == np.min(d))[0])
-        #assemble all the conductor data in arrays for calculations
-        conds = self.hot + self.gnd
-        self.x = np.array([c.x for c in conds], dtype=float)
-        self.y = np.array([c.y for c in conds], dtype=float)
-        self.subconds = np.array([c.subconds for c in conds], dtype=float)
-        self.d_cond = np.array([c.d_cond for c in conds], dtype=float)
-        self.d_bund = np.array([c.d_bund for c in conds], dtype=float)
-        self.V = np.array([c.V for c in conds], dtype=float)
-        self.I = np.array([c.I for c in conds], dtype=float)
-        self.phase = np.array([c.phase for c in conds], dtype=float)
+    def __getitem__(self, key):
+        #check in the hot dict
+        try:
+            idx = self.tag2hotidx[key]
+        except(KeyError):
+            pass
+        else:
+            return(self.hot[idx])
+        #check in the gnd dict
+        try:
+            idx = self.tag2gndidx[key]
+        except(KeyError):
+            pass
+        else:
+            return(self.gnd[idx])
+        #return None if no xc is found
+        return(None)
+
+    def add_conductor(self, cond):
+        #check if the Conductor is complete
+        complete, missing = cond.complete
+        if(not complete):
+            raise(EMFError("""
+            Cannot add Conductor "%s" to the CrossSection because it
+            is not complete. The parameter "%s" is not set."""
+            % (cond.tag, missing[1:])))
+        #check if the tag has already been used
+        if((cond.tag in self.tag2gndidx) or (cond.tag in self.tag2hotidx)):
+            raise(EMFError("""
+            A Conductor with tag "%s" is already in CrossSection "%s".
+            Another Conductor with the same tag cannot be added"""
+            % (cond.tag, self.sheet)))
+        #see if the conductor is grounded
+        if(cond.V == 0):
+            #probably shouldn't have current if grounded
+            if(cond.I != 0):
+                print("""
+                Conductor with tag "%s" in CrossSection "%s"
+                is grounded (V = 0) but has nonzero current?"""
+                % (cond.tag, self.sheet))
+            #add to self.gnd and dict
+            self.tag2gndidx[cond.tag] = len(self.gnd)
+            self.gnd.append(copy.deepcopy(cond))
+        else:
+            #add to self.hot
+            self.tag2hotidx[cond.tag] = len(self.hot)
+            self.hot.append(copy.deepcopy(cond))
+
+    def remove_conductor(self, key):
+        #check in the hot dict
+        try:
+            idx = self.tag2hotidx[key]
+        except(KeyError):
+            #check in the gnd dict
+            try:
+                idx = self.tag2gndidx[key]
+            except(KeyError):
+                pass
+            else:
+                self.gnd.pop(idx)
+                self.tag2gndidx = dict(zip([c.tag for c in self.gnd], self.gnd))
+        else:
+            self.hot.pop(idx)
+            self.tag2hotidx = dict(zip([c.tag for c in self.hot], self.hot))
 
     def calculate_fields(self):
         """Calculate electric and magnetic fields across the ROW and store the
-        results in the self.fields DataFrame. This function also initializes
-        many CrossSection variables, so it's wise to run it as soon as the
-        all CrossSection data is entered or whenever it changes."""
-        #populate flat array variables with all Conductor data
-        self.update_arrays()
+        results in the self.fields DataFrame"""
         #calculate magnetic field
         Bx, By = fields_calcs.B_field(self.x, self.y, self.I, self.phase,
             self.x_sample, self.y_sample)
@@ -122,17 +292,17 @@ class CrossSection(object):
         self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
                                     index=self.x_sample)
-        self.ROW_edge_fields = self.fields.iloc[[self.lROWi, self.rROWi]]
         #return the fields dataframe
         return(self.fields)
 
-    def compare_DAT(self, DAT_path, **kwargs):
+    def compare_DAT(self, DAT_path, **kw):
         """Load a FIELDS output file (.DAT), find absolute and percentage
         differences between it and the CrossSection object's results.
         args:
             DAT_path - path of FIELDS results file
-        kwargs:
-            save - boolean, toggle whether output Panel and figures are saved
+        kw:
+            save - boolean, toggle whether output Panel and figures are saved,
+                   also saves figures with error and comparison plots
             path - string, destination of saved files, will force save == True
             round - int, round the results in self.fields to a certain
                     number of digits in an attempt to exactly match the
@@ -151,14 +321,14 @@ class CrossSection(object):
             DataFrame have different shapes. Be sure to target the correct
             .DAT file and that it has compatible DIST values.""" % self.sheet))
         #prepare a dictionary to create a Panel
-        if(('round' in kwargs) and ('truncate' in kwargs)):
+        if(('round' in kw) and ('truncate' in kw)):
             raise(FLDError("""
             Cannot both round and truncate for DAT comparison. Choose either
             rounding or truncation."""))
-        elif('round' in kwargs):
-            f = self.fields.round(kwargs['round'])
-        elif('truncate' in kwargs):
-            if(kwargs['truncate']):
+        elif('round' in kw):
+            f = self.fields.round(kw['round'])
+        elif('truncate' in kw):
+            if(kw['truncate']):
                 f = self.fields.copy(deep=True)
                 for c in f.columns:
                     for i in f.index:
@@ -172,21 +342,35 @@ class CrossSection(object):
                 frames[2] : f - df,
                 frames[3] : 100*(f - df)/f})
         #write data and save figures if called for
-        if('path' in kwargs):
-            kwargs['save'] = True
-        if('save' in kwargs):
-            if(kwargs['save']):
+        if('path' in kw):
+            kw['save'] = True
+        if('save' in kw):
+            if(kw['save']):
                 fn = fields_funks._path_manage(self.sheet + '-DAT_comparison',
-                    '.xlsx', **kwargs)
+                    '.xlsx', **kw)
                 xl = pd.ExcelWriter(fn, engine='xlsxwriter')
                 for f in frames:
                     pan[f].to_excel(xl, index_label='x', sheet_name=f)
                 xl.save()
                 print('DAT comparison book saved to: "%s"' % fn)
                 #make plots of the absolute and percent error
-                figs = fields_plots._plot_DAT_comparison(self, pan, **kwargs)
+                figs = fields_plots._plot_DAT_comparison(self, pan, **kw)
         #return the Panel
         return(pan)
+
+    def sample(self, *args):
+        """Get a random Conductor from the CrossSection
+        args:
+            an input integer determines the number of random xcs fetched"""
+        c = self.conds
+        if(len(args) == 0):
+            return(self.conds[np.random.randint(len(c))])
+        else:
+            r = np.random.randint(len(c), size=args[0])
+            return([c[i] for i in r])
+
+    def copy(self):
+        return(copy.deepcopy(self))
 
 class SectionBook(object):
     """Top level class organizing a group of CrossSection objects. Uses a
@@ -200,12 +384,48 @@ class SectionBook(object):
         self.name = name #mandatory identification field
         self.xcs = [] #list of cross section objects
         self.sheet2idx = dict() #mapping dictionary for CrossSection retrieval
-        self.sheets = [] #list of CrossSection names
-        self.tags = [] #collection of CrossSection tags
-        self.tag_groups = [[]] #groups of CrossSection indices with identical tags
-        #DataFrame of maximum fields at ROW edges
-        self.ROW_edge_max = pd.DataFrame(columns=['name','title',
-                                            'Bmaxl','Bmaxr','Emaxl','Emaxr'])
+        self.i = _IntegerIndexer(self)
+
+    #---------------------------------------------------------------------------
+    #PROPERTIES
+
+    def _get_sheets(self): return([xc.sheet for xc in self.xcs])
+    sheets = property(_get_sheets, None, None, 'list of CrossSection sheets')
+
+    def _get_tags(self): return([xc.tag for xc in self.xcs])
+    tags = property(_get_tags, None, None, 'list of CrossSection tags')
+
+    def _get_titles(self): return([xc.title for xc in self.xcs])
+
+    def _get_tag_groups(self):
+        u = list(set(self.tags)) #get unique CrossSection tags
+        tag_groups = []
+        tag_groups = [[] for i in range(len(u))]
+        for i in range(len(self.xcs)):
+            tag_groups[u.index(self.xcs[i].tag)].append(self.xcs[i])
+        return(tag_groups)
+    tag_groups = property(_get_tag_groups, None, None,
+            'a list of lists of grouped CrossSection objects')
+
+    def _get_ROW_edge_max(self):
+        #gather ROW edge results
+        L = len(self.xcs)
+        El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
+        for i in range(L):
+            xc = self.i[i]
+            Bl[i] = xc.fields['Bmax'].iat[xc.lROWi]
+            Br[i] = xc.fields['Bmax'].iat[xc.rROWi]
+            El[i] = xc.fields['Emax'].iat[xc.lROWi]
+            Er[i] = xc.fields['Emax'].iat[xc.rROWi]
+        #construct DataFrame
+        df = pd.DataFrame(data={
+            'sheet': self.sheets, 'title': [xc.title for xc in self],
+            'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er})
+        return(df)
+    ROW_edge_max = property(_get_ROW_edge_max, None, None,
+            'DataFrame with maximum field magnitudes for each CrossSection')
+
+    #---------------------------------------------------------------------------
 
     def __getitem__(self, key):
         """Index the SectionBook by CrossSection names"""
@@ -231,12 +451,8 @@ class SectionBook(object):
         keys = v.keys()
         s = '\n'
         for k in keys:
-            s += str(k) + ': ' + str(v[k]) + '\n'
+            s += str(k) + ': ' + repr(v[k]) + '\n'
         return(s)
-
-    def i(self, idx):
-        """Get a CrossSection object by it's numeric index in self.xcs"""
-        return(self.xcs[idx])
 
     def sample(self, *args):
         """Get a random CrossSection from the SectionBook
@@ -254,39 +470,54 @@ class SectionBook(object):
         and make the group plotting functions impossible, so don't do that.
         Use this method instead."""
         #Prevent adding CrossSections with the same names
-        if(xc.sheet in self.sheets):
+        if(xc.sheet in self.sheet2idx):
             raise(EMFError("""
             CrossSection name "%s" already exists in the SectionBook.
             Duplicate names would cause collisions in the lookup dictionary
             (self.sheet2idx). Use a different name.""" % xc.sheet))
         else:
+            xc.calculate_fields()
             self.sheet2idx[xc.sheet] = len(self.xcs)
-            self.xcs.append(xc)
-            self.sheets.append(xc.sheet)
-            self.tags.append(xc.tag)
+            self.xcs.append(copy.deepcopy(xc))
 
-    def export(self, **kwargs):
+    def remove_section(self, sheet):
+        """Remove a CrossSection from the SectionBook by providing its
+        sheet string
+        args:
+            sheet - sheet string of CrossSection to remove"""
+        #check sheet is in self
+        if(sheet not in self.sheet2idx):
+            raise(EMFError("""
+            Sheet %s cannot be removed because it does not exist in the
+            SectionBook object""" % sheet))
+        #delete from self.xcs list
+        idx = self.sheet2idx[sheet]
+        self.xcs.pop(idx)
+        #update
+        self.sheet2idx = dict(zip([xc.sheet for xc in self.xcs], xcs))
+
+    def export(self, **kw):
         """Write results to an excel workbook and ROW edge results to a csv
-        kwargs:
+        kw:
             path - string, destination/filename for saved file"""
-        self.results_export(**kwargs)
-        self.ROW_edge_export(**kwargs)
+        self.results_export(**kw)
+        self.ROW_edge_export(**kw)
 
-    def results_export(self, **kwargs):
+    def results_export(self, **kw):
         """Write all of the cross section results to an excel workbook"""
         #path management
         fn = fields_funks._path_manage('all_results', '.xlsx',
-                **kwargs)
+                **kw)
         #write results
         xlwriter = pd.ExcelWriter(fn, engine='xlsxwriter')
         for xc in self:
             xc.fields.to_excel(xlwriter, sheet_name=xc.sheet, index_label='x')
         print('Full SectionBook results written to: %s' % fn)
 
-    def ROW_edge_export(self, **kwargs):
+    def ROW_edge_export(self, **kw):
         """Write max field results at ROW edges for each cross section to
         an excel or csv file. Default is csv.
-        kwargs:
+        kw:
             file_type - string, accepts 'csv' or 'excel' (default csv)
             path - string, destination/filename for saved file
             xl - pandas ExcelWriter object, takes precedence over 'path'"""
@@ -298,62 +529,38 @@ class SectionBook(object):
                 'Bmax - Left ROW Edge', 'Bmax - Right ROW Edge',
                 'Emax - Left ROW Edge', 'Emax - Right ROW Edge']
         wo = False
-        if('xl' in kwargs):
-            wo = kwargs['xl']
-        elif('file_type' in kwargs):
-            file_type = kwargs['file_type']
+        if('xl' in kw):
+            wo = kw['xl']
+        elif('file_type' in kw):
+            file_type = kw['file_type']
             if(file_type[0] == '.'):
                 file_type = file_type[1:]
             if(file_type == 'excel'):
                 wo = fields_funks._path_manage('ROW_edge_results',
-                        '.xlsx', **kwargs)
+                        '.xlsx', **kw)
         if(wo):
             self.ROW_edge_max.to_excel(wo, index=False, columns=c,
                                     header=h, sheet_name='ROW_edge_max')
         else:
-            wo = fields_funks._path_manage('ROW_edge_results', '.csv', **kwargs)
+            wo = fields_funks._path_manage('ROW_edge_results', '.csv', **kw)
             self.ROW_edge_max.to_csv(wo, index=False, columns=c, header=h)
-        if(not ('xl' in kwargs)):
+        if(not ('xl' in kw)):
             print('Maximum fields at ROW edges written to: %s' % wo)
 
-    def update(self):
+    def update_fields(self):
         """Executes all of the update functions"""
-        self._update_fields()
-        self._update_ROW_edge_max()
-        self._update_tag_groups()
-
-    #----------------------------------
-    #functions that update SectionBook variables when CrossSections are done
-    #being added or when CrossSection data changes
-
-    def _update_fields(self):
-        """run the fields calculations for each CrossSection in the
-        SectionBook"""
         for xc in self:
             xc.calculate_fields()
 
-    def _update_ROW_edge_max(self):
-        """Execution populates the self.ROW_edge_max DataFrame with
-        the most current results of the fields calculation in each
-        CrossSection."""
-        #gather ROW edge results
-        L = len(self.xcs)
-        El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
-        for i in range(L):
-            xc = self.i(i)
-            Bl[i] = xc.fields['Bmax'].iat[xc.lROWi]
-            Br[i] = xc.fields['Bmax'].iat[xc.rROWi]
-            El[i] = xc.fields['Emax'].iat[xc.lROWi]
-            Er[i] = xc.fields['Emax'].iat[xc.rROWi]
-        #construct DataFrame
-        self.ROW_edge_max = pd.DataFrame(data={
-            'sheet': self.sheets, 'title': [xc.title for xc in self],
-            'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
-                    ).sort_values('sheet')
+class _IntegerIndexer(object):
+    """Ancillary class for retrieval of CrossSections in SectionBooks by
+    their integer position in the SectionBook"""
 
-    def _update_tag_groups(self):
-        """Generate a list of lists of CrossSection indices with the same tag"""
-        u = list(set(self.tags)) #get unique CrossSection tags
-        self.tag_groups = [[] for i in range(len(u))]
-        for i in range(len(self.xcs)):
-            self.tag_groups[u.index(self.xcs[i].tag)].append(i)
+    def __init__(self, sb):
+        self._sb = sb
+
+    def __getitem__(self, key):
+        if(type(key) is not int):
+            raise(EMFError("""
+            SectionBook.i can only receive integer indices."""))
+        return(self._sb.xcs[key])

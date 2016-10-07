@@ -50,11 +50,11 @@ def _write_entries(ofile, *entries):
             w = str(entry) + '\n'
         ofile.write(w)
 
-def to_FLD(xc, **kwargs):
+def to_FLD(xc, **kw):
     """Create an FLD input file for FIELDS out of a CrossSection object
     args:
         xc - CrossSection object
-    kwargs:
+    kw:
         path - output file destination"""
     #check input
     if(not isinstance(xc, fields_class.CrossSection)):
@@ -63,7 +63,7 @@ def to_FLD(xc, **kwargs):
         input of type: %s
         Use to_FLDs() for a SectionBook object.""" % str(type(xc))))
     #get a filename
-    fn = fields_funks._path_manage(xc.sheet, 'FLD', **kwargs)
+    fn = fields_funks._path_manage(xc.sheet, 'FLD', **kw)
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
@@ -85,21 +85,21 @@ def to_FLD(xc, **kwargs):
     ofile.close()
     print('FLD file generated: %s' % fn)
 
-def to_FLDs(*args, **kwargs):
+def to_FLDs(*args, **kw):
     """Load or recieve a template workbook of CrossSections and convert them
     all to FLD files
     args:
         can either be a path string to a target template workbook or an
         existing SectionBook object
-    kwargs:
+    kw:
         path - output destination for FLD files, default is the same directory
                as the template book if a path string is passed or the current
                directory if a SectionBook is passed."""
     if(type(args[0]) == str):
         #load the template
         sb = fields_funks.load_template(args[0])
-        if(not ('path' in kwargs)):
-            kwargs['path'] = os.path.dirname(args[0]) + '/'
+        if(not ('path' in kw)):
+            kw['path'] = os.path.dirname(args[0]) + '/'
     elif(isinstance(args[0], fields_class.SectionBook)):
         sb = args[0]
     else:
@@ -116,9 +116,9 @@ def to_FLDs(*args, **kwargs):
             sheets.append(xc.sheet)
     #generate FLD files
     for xc in sb:
-        to_FLD(xc, **kwargs)
+        to_FLD(xc, **kw)
 
-def to_FLDs_crawl(dir_name, **kwargs):
+def to_FLDs_crawl(dir_name, **kw):
     """crawl a directory and all of its subdirectories for excel workbooks
     that can be passed to create_FLDs(). The FLD files are generated in the
     same directory as the template book they come from."""
@@ -190,29 +190,29 @@ def read_DAT(file_path):
         dict(zip(['Bx','By','Bprod','Bmax','Ex','Ey','Eprod','Emax'],data[1:])),
         index = data[0]))
 
-def convert_DAT(file_path, **kwargs):
+def convert_DAT(file_path, **kw):
     """read a DAT file and write it to a csv
     args:
         file_path - target DAT file
-    kwargs:
+    kw:
         path - output location/name for csv file"""
     #get the DAT data
     df = read_DAT(file_path)
     #write it to a csv
     fn = fields_funks._path_manage(os.path.basename(file_path)[:file_path.index('.')],
-        'csv', **kwargs)
+        'csv', **kw)
     with open(fn, 'w') as ofile:
         df.to_csv(ofile, index_label = 'dist (ft)')
         print('DAT converted to csv: "%s"' % fn)
 
-def convert_DAT_crawl(dir_name, **kwargs):
+def convert_DAT_crawl(dir_name, **kw):
     """crawl a directory and all of its subdirectories for .DAT files that
     can be passed to DAT_to_csv() for output re-formatting and optional
     plotting.
     args:
         dir_name - the directory to initiate the crawl in. To designate the
                    current directory, use '*'
-    kwargs:
+    kw:
         bundle - bool, if True, all DAT files found in the same directory are
                  written to a common excel workbook. If False or absent,
                  the DAT files are simply written to csv files."""
@@ -221,8 +221,8 @@ def convert_DAT_crawl(dir_name, **kwargs):
     dir_contents = glob.glob(dir_name)
 
     #get the bundling option
-    if('bundle' in kwargs):
-        bundle = kwargs['bundle']
+    if('bundle' in kw):
+        bundle = kw['bundle']
     else:
         bundle = False
     #if bundle is True, set a flag for the existence of an ExcelWriter object
@@ -251,7 +251,7 @@ def convert_DAT_crawl(dir_name, **kwargs):
         else:
             #if there's a period in the dir_element, it's not a directory
             if(os.path.isdir(dir_element)):
-                convert_DAT_crawl(dir_element + '/*', **kwargs)
+                convert_DAT_crawl(dir_element + '/*', **kw)
     #close/save the excel bundles DAT results
     if(bundle and xl_flag):
         xl.save()

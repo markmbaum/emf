@@ -1,13 +1,13 @@
-from .. import os, np, pd, copy, itertools
+from .. import os, np, pd, itertools
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number,
-                        _check_intable, _flatten)
+                        _check_intable, _flatten, _sig_figs)
 
 import fields_class
 import fields_calcs
 import fields_plots
 
-def run(template_path, **kwargs):
+def run(template_path, **kw):
     """Import the templates in an excel file with the path 'template_path'
     then generate a workbook of all fields results and lots of plots.
     Use the 'path' keyword argument to specify a destination for the output,
@@ -15,33 +15,33 @@ def run(template_path, **kwargs):
     a SectionBook object.
     args:
         template_path - path to cross section template excel workbook
-    kwargs:
+    kw:
         sheets - a list of sheet names to load, default is all sheets
         path - string, destination/filename for saved files
         format - string, saved plot format (usually 'png' or 'pdf')
         xmax - cutoff distance from ROW center in plots"""
     #force saving for the plotting functions if there is no 'path' keyword
-    if(not ('path' in kwargs)):
-        kwargs['save'] = True
+    if(not ('path' in kw)):
+        kw['save'] = True
         #also direct output files to the same directory as the template
-        kwargs['path'] = os.path.dirname(template_path)
+        kw['path'] = os.path.dirname(template_path)
     #import templates
     sb = load_template(template_path)
     #export the full results workbook
-    sb.results_export(**kwargs)
+    sb.results_export(**kw)
     #export ROW edge results
-    sb.ROW_edge_export(**kwargs)
+    sb.ROW_edge_export(**kw)
     #export single CrossSection plots
     for xc in sb:
-        fig = fields_plots.plot_max_fields(xc, **kwargs)
+        fig = fields_plots.plot_max_fields(xc, **kw)
         fields_plots.plt.close(fig)
     #export group comparison line plots
-    fields_plots.plot_groups(sb, **kwargs)
+    fields_plots.plot_groups(sb, **kw)
     #export group ROW comparison bar plots
-    fields_plots.plot_groups_at_ROW(sb, **kwargs)
+    fields_plots.plot_groups_at_ROW(sb, **kw)
     return(sb)
 
-def load_template(file_path, **kwargs):
+def load_template(file_path, **kw):
     """Import conductor data from an excel template, loading each conductor
     into a Conductor object, each Conductor into a CrossSection object, and
     each CrossSection object into a SectionBook object. The SectionBook
@@ -49,7 +49,7 @@ def load_template(file_path, **kwargs):
     args:
         template_path - string, path to cross section template excel
                         workbook
-    kwargs:
+    kw:
         sheets - list of strings, a list of sheet names to load, default is
                  all sheets"""
     #import the cross sections as a dictionary of pandas DataFrames, also
@@ -63,8 +63,8 @@ def load_template(file_path, **kwargs):
     frames = xl.parse(sheetname = None, skiprows = [0,1,2,3], parse_cols = 16,
                     header = None)
     #remove necessary sheets if the 'sheets' keyword is passed in
-    if('sheets' in kwargs):
-        include = kwargs['sheets']
+    if('sheets' in kw):
+        include = kw['sheets']
         sheets = [sh for sh in sheets if sh in include]
     #create a SectionBook object to store the CrossSection objects
     basename = os.path.basename(file_path)
@@ -100,8 +100,8 @@ def load_template(file_path, **kwargs):
         #load hot conductors
         tags, x, y = [], [], []
         for i in range(df[3].dropna().shape[0]):
-            cond = fields_class.Conductor()
-            cond.tag = df[2].iat[i]
+            #initialize a Conductor
+            cond = fields_class.Conductor(df[2].iat[i])
             #check for conductors with identical tags (names/labels)
             if(cond.tag in tags):
                 raise(fields_class.EMFError("""
@@ -132,12 +132,12 @@ def load_template(file_path, **kwargs):
             cond.V = df[8].iat[i]
             cond.I = df[9].iat[i]
             cond.phase = df[10].iat[i]
-            xc.hot.append(cond)
+            xc.add_conductor(cond)
         #load grounded conductors
         tags, x, y = [], [], []
         for i in range(df[12].dropna().shape[0]):
-            cond = fields_class.Conductor()
-            cond.tag = df[11].iat[i]
+            #initialize a Conductor
+            cond = fields_class.Conductor(df[11].iat[i])
             #check for conductors with identical tags (names/labels)
             if(cond.tag in tags):
                 raise(fields_class.EMFError("""
@@ -168,17 +168,14 @@ def load_template(file_path, **kwargs):
             cond.V = 0.
             cond.I = 0.
             cond.phase = 0.
-            xc.gnd.append(cond)
+            xc.add_conductor(cond)
         #add the CrossSection object to the SectionBook
+        #fields automatically updated upon addition to SectionBook
         sb.add_section(xc)
-    #update the SectionBook, which initiates fields calculations and
-    #population of lots of other variables in the CrossSection and SectionBook
-    #objects
-    sb.update()
     #return the SectionBook object
     return(sb)
 
-def optimize_phasing(xc, circuits, **kwargs):
+def optimize_phasing(xc, circuits, **kw):
     """Permute the phasing of non-grounded conductors and find the
     arrangement that results in the lowest fields at the left and right
     edge of the ROW. The number of hot conductors must be a multiple of
@@ -187,12 +184,13 @@ def optimize_phasing(xc, circuits, **kwargs):
     three-phase transfer circuit.
     args:
         xc - target CrossSection object
-        circuits - list of lists of ints, or 'all'. If a list of lists,
-                   each sublist contains the integer indices of the
-                   conductors that belong to a circuit, indexed from zero.
+        circuits - list of lists of Conductor tags, or 'all'. If a list of
+                   lists, each sublist contains the Conductor tags
+                   of the Conductors comprising a single circuit.
                    If 'all', circuits are assumed to be consecutive groups
-                   of three conductors.
-    kwargs:
+                   of three conductors. (consecutive according to the order
+                   in which hot conductors were added to the CrossSection)
+    kw:
         save - bool, toggle saving of the results DataFrame to an excel book
         path - string, location/filename for saved results workbook, forces
                saving even if no 'save' keyword is used.
@@ -213,18 +211,28 @@ def optimize_phasing(xc, circuits, **kwargs):
             assumed to be three-phase and conductors comprising each circuit
             are assumed to be consecutive groups of three, in the order that
             they appear in the template. The number of hot conductors is not a
-            multiple of three in the CrossSection named: "%s" """ % xc.sheet))
+            multiple of three in the CrossSection named: %s""" % xc.sheet))
         #number of circuits, groups of 3 hot conductors
         G = int(N/3)
         #circuits, consecutive groups of three conductors
         circuits = [range(i*3,i*3 + 3) for i in range(G)]
     else:
-        #check that all conductor indices are integers
+        #check that all conductor tags are present
         for circ in range(len(circuits)):
-            for idx in circ:
-                if(type(idx) is not int):
-                    raise(fields_class.EMFError("""
-                    Conductor indices in circuits must be integers."""))
+            for tag in circ:
+                if(xc[tag] is None):
+                    raise(EMFError("""
+                    Unrecognized conductor tag: %s
+                    All conductor tags must refer to Conductor objects present
+                    in the target CrossSecton object.""" % repr(tag)))
+                if(xc[tag] in xc.gnd):
+                    raise(EMFError("""
+                    Only phasing of non-grounded Conductors can be permuted.
+                    Tag "%s" refers to a grounded Conductor""" % repr(tag)))
+        #convert the conductor tags to integer indices
+        for i in range(len(circuits)):
+            for j in range(len(circuits[i])):
+                circuits[i][j] = xc.hot.index(xc[circuits[i][j]])
     #all permutations of the phases of each circuit
     perm = []
     for c in circuits:
@@ -236,16 +244,13 @@ def optimize_phasing(xc, circuits, **kwargs):
     #variables to find the minima with respect to each field and ROW edge
     B_left_min, B_left_arr, B_right_min, B_right_arr = np.inf, [], np.inf, []
     E_left_min, E_left_arr, E_right_min, E_right_arr = np.inf, [], np.inf, []
-    #make sure the necessary CrossSection variables are set
-    xc.update_arrays()
     #get coordinates of the ROW edges
     x_ROW = np.array([xc.x_sample[xc.lROWi], xc.x_sample[xc.rROWi]])
     y_ROW = np.array([xc.y_sample[xc.lROWi], xc.y_sample[xc.rROWi]])
     #array for swapping phases, zeros in the grounded slots
     phasing = xc.phase.copy()
     #store a flattened version of the conductor indices for swapping
-    conds = np.array([item for sublist in circuits for item in sublist],
-                dtype = int)
+    conds = np.array([i for j in circuits for i in j], dtype=int)
     #loop through all possible arrangements in P
     for arr in P:
         #calculate fields at ROW edges with the new arrangement
@@ -260,21 +265,25 @@ def optimize_phasing(xc, circuits, **kwargs):
         if(Emax[1] < E_right_min):
             E_right_min, E_right_arr = Emax[1], new_arr
     #return results in a DataFrame
-    results = pd.DataFrame(data = {
+    results = pd.DataFrame(data={
         'Optimal Phasing - Bmax Left ROW Edge' : xc.phase[B_left_arr],
         'Optimal Phasing - Bmax Right ROW Edge' : xc.phase[B_right_arr],
         'Optimal Phasing - Emax Left ROW Edge' : xc.phase[E_left_arr],
         'Optimal Phasing - Emax Right ROW Edge' : xc.phase[E_right_arr]},
-        index = [xc.hot[i].tag for i in conds])
+        index=[xc.hot[i].tag for i in conds])
     #compile a new sectionbook with the optimal phasings
-    opt = fields_class.SectionBook('%s-optimal_phasing' % xc.sheet)
-    names = ['Optimized_for_Bmax_left','Optimized_for_Bmax_right',
-            'Optimized_for_Emax_left','Optimized_for_Emax_right']
-    tags = ['Optimized for Magnetic Field']*2+['Optimized for Electric Field']*2
+    xc = xc.copy()
+    opt = fields_class.SectionBook(xc.sheet + '-optimal_phasing')
+    xc.sheet += ' (Original)'
+    xc.tag = 'Phase Optimized'
+    opt.add_section(xc)
+    names = ['Optimized for Bmax left','Optimized for Bmax right',
+            'Optimized for Emax left','Optimized for Emax right']
+    tags = ['Phase Optimized']*4
     titles = results.columns
     for n, ti, ta in zip(names, titles, tags):
         #copy the input XC
-        new_xc = copy.deepcopy(xc)
+        new_xc = xc.copy()
         #change the identification fields
         new_xc.sheet, new_xc.title, new_xc.tag = n, ti, ta
         #swap the conductor phasings
@@ -284,14 +293,12 @@ def optimize_phasing(xc, circuits, **kwargs):
                 c.phase = results.at[t, ti]
         #store new_xc in the SectionBook
         opt.add_section(new_xc)
-    #update everything in the SectionBook
-    opt.update()
     #deal with saving
-    if('path' in kwargs):
-        kwargs['save'] = True
-    if('save' in kwargs):
-        if(kwargs['save']):
-            fn = _path_manage(xc.sheet + '_phase_optimization', 'xlsx', **kwargs)
+    if('path' in kw):
+        kw['save'] = True
+    if('save' in kw):
+        if(kw['save']):
+            fn = _path_manage(xc.sheet + '_phase_optimization', 'xlsx', **kw)
             xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
             results.to_excel(xl, index_label = 'Conductor Tag',
                 sheet_name = 'phase_assignments')
@@ -339,7 +346,7 @@ def _phasing_test(xc, x_ROW, y_ROW, conds, phasing, arr):
     #return results
     return(Bmax, Emax, new_arr)
 
-def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
+def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kw):
     """Increase conductor y coordinates until fields at ROW edges are below
     thresholds. All selected conductors are adjusted by the same amount.
     If any of the thresholds are empty or false, None is returned for their
@@ -358,7 +365,7 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
              combination, return None in the return variable 'h', and
              cause the returned SectionBook to omit that field-edge combo.
 
-    kwargs:
+    kw:
         max_iter - maximum number of _bisection iterations allowed
                    default is 1e3
         rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %)
@@ -379,23 +386,21 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
     if(gnd == 'all'):
         gnd = list(range(len(xc.gnd)))
     #maximum number of iterations and relative error tolerance
-    if('max_iter' in kwargs):
-        max_iter = kwargs['max_iter']
+    if('max_iter' in kw):
+        max_iter = kw['max_iter']
     else:
         max_iter = 1e3
-    if('rel_err' in kwargs):
-        rel_err = kwargs['rel_err']
+    if('rel_err' in kw):
+        rel_err = kw['rel_err']
     else:
         rel_err = 1.0e-6
-    if('hhigh' in kwargs):
-        hhigh = kwargs['hhigh']
+    if('hhigh' in kw):
+        hhigh = kw['hhigh']
     else:
         hhigh = 1.0e6
     hlow = 0.0
     #flattened indices
     conds = np.array(list(hot) + [len(xc.hot) + i for i in gnd])
-    #make sure the necessary CrossSection variables are set
-    xc.update_arrays()
     #run secant method to find adjustments for each target
     h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
     if(B_l):
@@ -412,19 +417,24 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
             max_iter, rel_err)
     #create return variables
     h = (h_B_l, h_B_r, h_E_l, h_E_r)
+    xc = xc.copy()
     adj = fields_class.SectionBook('%s-height_adjusted' % xc.sheet)
-    names = ['Adjusted_for_Bmax_left','Adjusted_for_Bmax_right',
-            'Adjusted_for_Emax_left','Adjusted_for_Emax_right']
+    xc.sheet += ' (Original)'
+    xc.tag = 'Height Adjusted'
+    adj.add_section(xc)
+    names = ['Adjusted for Bmax left','Adjusted for Bmax right',
+            'Adjusted for Emax left','Adjusted for Emax right']
     titles = ['Height Adjusted for %g mG at left ROW edge' % B_l,
                 'Height Adjusted for %g mG at left ROW edge' % B_r,
                 'Height Adjusted for %g kV/m at left ROW edge' % E_l,
                 'Height Adjusted for %g kV/m at left ROW edge' % E_r]
-    for n, s, a in zip(names, titles, h):
+    tags = ['Height Adjusted']*4
+    for n, s, a, t in zip(names, titles, h, tags):
         if(a is not None):
             #copy the input XC
-            new_xc = copy.deepcopy(xc)
+            new_xc = xc.copy()
             #change the identification fields
-            new_xc.sheet, new_xc.title = n, s
+            new_xc.sheet, new_xc.title, new_xc.tag = n, s, t
             #adjust conductor heights
             for idx in hot:
                 new_xc.hot[idx].y += a
@@ -432,14 +442,12 @@ def target_fields(xc, hot, gnd, B_l, B_r, E_l, E_r, **kwargs):
                 new_xc.gnd[idx].y += a
             #store new_xc in the SectionBook
             adj.add_section(new_xc)
-    #update everythin in the SectionBook
-    adj.update()
     #deal with saving
-    if('path' in kwargs):
-        kwargs['save'] = True
-    if('save' in kwargs):
-        if(kwargs['save']):
-            fn = _path_manage(xc.sheet + '_height_adjustments', 'xlsx', **kwargs)
+    if('path' in kw):
+        kw['save'] = True
+    if('save' in kw):
+        if(kw['save']):
+            fn = _path_manage(xc.sheet + '_height_adjustments', 'xlsx', **kw)
             xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
             pd.DataFrame(data = list(h), index = names,
                 columns = ['Height Addition (ft)']).to_excel(xl,
@@ -524,20 +532,20 @@ def _xc_sb_compare(xc, sb):
     returns:
         df - DataFrame with columns for the names of CrossSections in sb
              and with the difference between ROW edge values, computed by
-             subtracting xc values from sb values (sb.i() - xc)
+             subtracting xc values from sb values (sb.i[idx] - xc)
         c - column names
         h - refined column names (header names)"""
     #gather ROW edge differences
     L = len(sb)
     El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
     for i in range(L):
-        Bl[i] = (sb.i(i).fields['Bmax'].iat[sb.i(i).lROWi]
+        Bl[i] = (sb.i[i].fields['Bmax'].iat[sb.i[i].lROWi]
                     - xc.fields['Bmax'].iat[xc.lROWi])
-        Br[i] = (sb.i(i).fields['Bmax'].iat[sb.i(i).rROWi]
+        Br[i] = (sb.i[i].fields['Bmax'].iat[sb.i[i].rROWi]
                     - xc.fields['Bmax'].iat[xc.rROWi])
-        El[i] = (sb.i(i).fields['Emax'].iat[sb.i(i).lROWi]
+        El[i] = (sb.i[i].fields['Emax'].iat[sb.i[i].lROWi]
                     - xc.fields['Emax'].iat[xc.lROWi])
-        Er[i] = (sb.i(i).fields['Emax'].iat[sb.i(i).rROWi]
+        Er[i] = (sb.i[i].fields['Emax'].iat[sb.i[i].rROWi]
                     - xc.fields['Emax'].iat[xc.rROWi])
     #create and return DataFrame
     df = pd.DataFrame(data = {

@@ -3,13 +3,13 @@ from subcalc_class import (Model,
 
 from subcalc_funks import (read_REF,
                             load_model,
-                            convert_REF,
-                            drop_template)
+                            convert_REF)
 
 from subcalc_plots import (plot_contour,
                             plot_pcolormesh,
                             ion,
                             show,
-                            close)
+                            close,
+                            plt)
 
 del(subcalc_class, subcalc_funks, subcalc_plots)

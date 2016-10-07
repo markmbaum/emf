@@ -5,7 +5,11 @@ from emf import fields as fld
 
 sb = fld.load_template('../working_files/practice_xcs')
 
-fld.plot_ROW_values(sb, path='test')
+fld.plot_groups_at_ROW(sb, return_figs=True)
+
+#fld.plot_groups_at_ROW(sb, save=True)
+
+fld.show()
 
 #cProfile.run("""
 #xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()

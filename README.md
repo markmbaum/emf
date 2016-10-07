@@ -87,5 +87,6 @@ The editon of [EPRI](http://www.epri.com)'s "Red Book" that I worked from to rep
 * `numpy`
 * `scipy`
 * `pandas`
+* `textwrap`
 * `itertools`
 * `matplotlib`

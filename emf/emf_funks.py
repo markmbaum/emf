@@ -104,7 +104,7 @@ def _is_int(x):
     return(False)
 
 def _sig_figs(v, figs):
-    w = round(v, int(figs - np.ceil(np.log10(v))))
+    w = round(v, int(figs - np.ceil(np.log10(np.abs(v)))))
     if(w == round(w)):
         return(int(w))
     return(w)

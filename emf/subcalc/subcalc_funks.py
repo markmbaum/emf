@@ -1,4 +1,4 @@
-from .. import os, np, pd, shutil
+from .. import os, np, pd
 import pkg_resources
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
@@ -148,18 +148,6 @@ def read_REF(file_path):
     data = dict(zip(return_keys, [data[k] for k in keys]))
 
     return(data, info)
-
-def drop_template(**kwargs):
-    """Save a new footprint data template file
-    kwargs:
-        path - destination/filename of dropped template file"""
-    #get destination path
-    target_fn = os.path.abspath('../templates/')
-    print target_fn
-    output_fn = _path_manage('subcalc_footprint_template', '.xlsx', **kwargs)
-    #drop file
-    shutil.copyfile(target_fn, output_fn)
-    print('subcalc footprint template saved to: %s' % output_fn)
 
 def _meshgrid(flat_data):
     """Convert raw grid data read from a SubCalc output file

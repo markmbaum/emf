@@ -10,11 +10,13 @@ from fields_funks import (load_template,
 from fields_plots import (plot_Bmax,
                         plot_Emax,
                         plot_max_fields,
+                        plot_xc,
                         plot_groups,
                         plot_groups_at_ROW,
                         ion,
                         show,
-                        close)
+                        close,
+                        plt)
 
 from FIELDS_io import (to_FLD,
                         to_FLDs,
