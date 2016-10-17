@@ -1,4 +1,4 @@
-from .. import os, np, pd, itertools
+from .. import os, np, pd, shutil, itertools
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number,
                         _check_intable, _flatten, _sig_figs)
@@ -6,6 +6,30 @@ from ..emf_funks import (_path_manage, _check_extension, _is_number,
 import fields_class
 import fields_calcs
 import fields_plots
+
+def drop_template(*args, **kw):
+	"""Copy the emf.fields template in the current directory or a
+	directory specified by an input string
+	args:
+		drop_path = string, path of copied template file"""
+	#check inputs
+	if(len(args) > 1):
+		raise(fields_class.EMFError("""
+		drop_template only accepts zero or one input argument.
+		A string can be passed to specify the directory in which the
+		template file is copied. With no arguments, the template file
+		is copied into the current directory."""))
+	elif(len(args) == 1):
+		kw = {'path': args[0]}
+	#get template file path
+	template_path = os.path.dirname(os.path.dirname(__file__))
+	template_path = os.path.join(template_path, 'templates')
+	template_path = os.path.join(template_path, 'fields-template.xlsx')
+	#get drop path
+	drop_path = _path_manage('fields-template', 'xlsx', **kw)
+	#copy and notify
+	shutil.copyfile(template_path, drop_path)
+	print('emf.fields template written to: %s' % drop_path)
 
 def run(template_path, **kw):
     """Import the templates in an excel file with the path 'template_path'

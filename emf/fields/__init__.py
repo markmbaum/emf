@@ -2,7 +2,8 @@ from fields_class import (Conductor,
                         CrossSection,
                         SectionBook)
 
-from fields_funks import (load_template,
+from fields_funks import (drop_template,
+						load_template,
                         optimize_phasing,
                         target_fields,
                         run)
