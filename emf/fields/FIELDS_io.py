@@ -50,36 +50,36 @@ def _write_entries(ofile, *entries):
             w = str(entry) + '\n'
         ofile.write(w)
 
-def to_FLD(xc, **kw):
+def to_FLD(xs, **kw):
     """Create an FLD input file for FIELDS out of a CrossSection object
     args:
-        xc - CrossSection object
+        xs - CrossSection object
     kw:
         path - output file destination"""
     #check input
-    if(not isinstance(xc, fields_class.CrossSection)):
+    if(not isinstance(xs, fields_class.CrossSection)):
         raise(fields_class.EMFError("""
         Input argument to to_FLD() must be a CrossSection object, not an
         input of type: %s
-        Use to_FLDs() for a SectionBook object.""" % str(type(xc))))
+        Use to_FLDs() for a SectionBook object.""" % str(type(xs))))
     #get a filename
-    fn = fields_funks._path_manage(xc.sheet, 'FLD', **kw)
+    fn = fields_funks._path_manage(xs.sheet, 'FLD', **kw)
     #write the .FLD file
     ofile = open(fn, 'w')
     #miscellaneous stuff first
-    _write_entries(ofile, xc.sheet, xc.title, 60, xc.soil_resistivity,
-            xc.max_dist, xc.step, xc.sample_height, xc.lROW, xc.rROW)
+    _write_entries(ofile, xs.sheet, xs.title, 60, xs.soil_resistivity,
+            xs.max_dist, xs.step, xs.sample_height, xs.lROW, xs.rROW)
     #number of conductors and ground wires
-    Lconds = len(xc.hot)
+    Lconds = len(xs.hot)
     _write_entries(ofile, Lconds)
-    Lgrounds = len(xc.gnd)
+    Lgrounds = len(xs.gnd)
     _write_entries(ofile, Lgrounds)
     #write the hot and gnd conductor data in the same format
-    for c in xc.hot + xc.gnd:
+    for c in xs.hot + xs.gnd:
         _write_entries(ofile, c.tag, c.x, c.y, c.subconds, c.d_cond, c.d_bund,
                 'ED!(I)', c.I, c.V, c.phase)
     #write the ground wire data a second time, in a different format
-    for c in xc.gnd:
+    for c in xs.gnd:
         _write_entries(ofile, c.tag, c.x, c.y, c.d_cond, 0, 0)
     #close/save
     ofile.close()
@@ -107,16 +107,16 @@ def to_FLDs(*args, **kw):
         Input argument to to_FLDs() must be a filepath or a SectionBook."""))
     #check for duplicate sheets
     sheets = []
-    for xc in sb:
-        if(xc.sheet in sheets):
+    for xs in sb:
+        if(xs.sheet in sheets):
             raise(fields_class.EMFError("""
             Can't create FLD files because of duplicate CrossSection names.
-            Name "%s" is used at least twice.""" % xc.sheet))
+            Name "%s" is used at least twice.""" % xs.sheet))
         else:
-            sheets.append(xc.sheet)
+            sheets.append(xs.sheet)
     #generate FLD files
-    for xc in sb:
-        to_FLD(xc, **kw)
+    for xs in sb:
+        to_FLD(xs, **kw)
 
 def to_FLDs_crawl(dir_name, **kw):
     """crawl a directory and all of its subdirectories for excel workbooks
@@ -143,7 +143,7 @@ def to_FLDs_crawl(dir_name, **kw):
                 to_FLDs_crawl(dir_element + '\\*')
 
 #------------------------------------------------------------------------------
-#FUNCTIONS FOR CONVERTING OUTPUT .DAT FILES TO CSV/EXCEL FILES
+#FUNCTIONS FOR CONVERTING OUTPUT .DAT FILES TO CSV/excel FILES
 
 def read_DAT(file_path):
     """Read a DAT file, which can have some funky extra characters if the
@@ -225,7 +225,7 @@ def convert_DAT_crawl(dir_name, **kw):
         bundle = kw['bundle']
     else:
         bundle = False
-    #if bundle is True, set a flag for the existence of an ExcelWriter object
+    #if bundle is True, set a flag for the existence of an excelWriter object
     if(bundle):
         xl_flag = False
 
@@ -235,14 +235,14 @@ def convert_DAT_crawl(dir_name, **kw):
         if(dir_element[-4:] == '.DAT'):
             #if bundling is on, read the DAT and write it to the excel book
             if(bundle):
-                #if an ExcelWriter doesn't exist, initialize one and set flag
+                #if an excelWriter doesn't exist, initialize one and set flag
                 if(not xl_flag):
                     xl_flag = True
                     fn = os.path.dirname(dir_element) + '/converted_DATs.xlsx'
-                    xl = pd.ExcelWriter(fn, engine = 'xlsxwriter')
+                    xl = pd.excelWriter(fn, engine = 'xlsxwriter')
                 #use the DAT's filename as the sheet name, without extension
                 sn = os.path.basename(dir_element).replace('.DAT','')
-                #read the DAT into a DataFrame and send it to the ExcelWriter
+                #read the DAT into a DataFrame and send it to the excelWriter
                 read_DAT(dir_element).to_excel(xl, sheet_name = sn,
                     index_label = 'dist (ft)')
             else:

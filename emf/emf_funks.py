@@ -120,6 +120,12 @@ def _check_intable(f):
 #sublists, not recursively on all levels
 _flatten = lambda L: [item for sublist in L for item in sublist]
 
+_to_alphanumeric = lambda s: ''.join(ch for ch in s if ch.isalnum())
+
+def _path_str_condition(s):
+	s = s.replace(' ', '-')
+	return(_to_alphanumeric(s))
+
 def _Levenshtein_group(V, W):
     """Match each string in vector V to a string in vector W, using global
     least Levenshtein distance for each match.
