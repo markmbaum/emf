@@ -58,7 +58,7 @@ Comparison of simulated magnetic field profiles of two related cross sections, e
 ![plot_groups](docs/images/group_hl-Bmax.png)
 
 A comparison of the results of phase optimization through `emf.fields.optimize_phasing()`, using `emf.fields.plot_groups()` again. The plot shows magnetic field profiles for each of the four optimization scenarios (optimize for electric field on the left side, electric field on the right, magnetic on the left, and magnetic on the right). Notably, optimization for magnetic fields at the right ROW edge reduces fields quite significantly (about 88 %):
-![plot_phase_optimized_group](docs/images/group_Phase_Optimized-Bmax.png)
+![plot_phase_optimized_group](docs/images/group_Phase Optimized-Bmax.png)
 
 A plot showing how simulated magnetic fields at ROW edges decrease when the
 spacing between the conductors in a single "delta" configuration circuit (three power lines arranged in a triangle) is decreased, using `emf.fields.plot_groups_at_ROW()`:
@@ -68,10 +68,10 @@ These plots were all automatically generated.
 
 #### Example `emf.subcalc` plots
 
-Contour plot of SubCalc magnetic field results and structures of interest using `emf.subcalc.plot_contours()`, where the contours are colored on a logarithmic scale using the "viridis" colormap:
+Contour plot of SUBCALC magnetic field results and structures of interest using `emf.subcalc.plot_contours()`, where the contours are colored on a logarithmic scale using the "viridis" colormap:
 ![plot_contours-1](docs/images/contour_plot_log.png)
 
-A heatmap or colormesh plot of the same SubCalc results again, using `emf.subcalc.plot_pcolormesh()`:
+A heatmap or colormesh plot of the same SUBCALC results again, using `emf.subcalc.plot_pcolormesh()`:
 ![plot_pcolormesh-1](docs/images/pcolormesh_plot.png)
 
 Another heatmap using results from the same model as above, but with only the
@@ -80,7 +80,7 @@ horizontal (x) component of the magnetic field plotted, and using the "magma" co
 
 ###### EPRI's "Red Book"
 
-The editon of [EPRI](http://www.epri.com)'s "Red Book" that I worked from to replicate FIELDS calculations is titled "Transmission Line Reference Book: 345 kV and Above, Second Edition." Section 8.3 outlines the calculation of electric fields. Section 8.4 outlines the calculation of magnetic fields. Appendix 8.1 details how to calculate the maximum field magnitude from horizontal and vertical component phasors, which might sound almost trivial but is more involved than expected.
+The edition of [EPRI](http://www.epri.com)'s "Red Book" that I worked from to replicate FIELDS calculations is titled "Transmission Line Reference Book: 345 kV and Above, Second Edition." Section 8.3 outlines the calculation of electric fields. Section 8.4 outlines the calculation of magnetic fields. Appendix 8.1 details how to calculate the maximum field magnitude from horizontal and vertical component phasors, which might sound almost trivial but is more involved than expected.
 
 ###### Other Things
 
