@@ -20,7 +20,7 @@ mpl.rcParams['ytick.color'] = (.2, .2, .2)
 #other more specific/dynamic global formatting variables
 _B_color = 'darkgreen'
 _E_color = 'midnightblue'
-_fields_linewidth = 2
+_fields_linewidth = 1.75
 _ROW_linewidth = 0.75
 _ROW_color = 'gray'
 _ground_surface_linewidth = 1
@@ -34,7 +34,7 @@ _colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
             (0.6350, 0.0780, 0.1840)]
 #useful globals for the CrossSection plotting routines, unlikely to collide
 #with other variables of the same name
-_fields_plots_xs_headspace = 0.4 #space at the top of plots for legend
+_fields_plots_xs_headspace = 0.45 #space at the top of plots for legend
 _include_headspace = True #toggle scaling to make legend overlap unlikely
 _fields_plots_xs_wireperc = 0.3 #percent of max field value to scale wire height
 
@@ -857,10 +857,11 @@ def plot_groups_at_ROW(sb, **kw):
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
         format - string, saved plot format/extension (default 'png')
-        xs_order - dict, keys can be CrossSection group tags, which map to
-                   lists of strings specifying the order of the plotted
-                   CrossSection bars (left to right). Not all CrossSecitons
-                   in a group must be listed. Any/all can be left out.
+        xs_order - dict, keys are CrossSection group tags, which map to
+                   lists of CrossSection shets specifying the order of the
+				   plotted CrossSection bars (left to right). Not all
+				   CrossSecitons in a group must be listed. Any/all can be
+				   left out.
         return_figs - toggle whether a list of figure objects is returned
                       instead of closing the figures to clear memory,
                       default is False

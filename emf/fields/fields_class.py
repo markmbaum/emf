@@ -15,6 +15,7 @@ class Conductor(object):
 		args:
 			tag - int or string, essentially just a name"""
 		self.tag = tag #conductor labels
+		self._xs = None #parent CrossSection object
 		self._freq = 60. #phase frequency
 		self._x = None #x coordinate
 		self._y = None #y coordinate
@@ -33,10 +34,15 @@ class Conductor(object):
 		d = vars(self)
 		keys = d.keys()
 		for k in keys:
-			if(d[k] is None):
-				return(False, k)
+			if('xs' not in k):
+				if(d[k] is None):
+					return(False, k)
 		return(True, None)
 	complete = property(_check_complete)
+
+	def _reset_xs_fields(self):
+		if(self._xs is not None):
+			self._xs._fields = None
 
 	def _check_to_float(self, x, prop):
 		if(not fields_funks._is_number(x)):
@@ -59,42 +65,55 @@ class Conductor(object):
 	def _get_freq(self): return(self._freq)
 	def _set_freq(self, value):
 		self._freq = self._check_to_float(value, 'freq')
+		self._reset_xs_fields()
 	freq = property(_get_freq, _set_freq)
 
 	def _get_x(self): return(self._x)
-	def _set_x(self, value): self._x = self._check_to_float(value, 'x')
+	def _set_x(self, value):
+		self._x = self._check_to_float(value, 'x')
+		self._reset_xs_fields()
 	x = property(_get_x, _set_x)
 
 	def _get_y(self): return(self._y)
-	def _set_y(self, value): self._y = self._check_to_float(value, 'y')
+	def _set_y(self, value):
+		self._y = self._check_to_float(value, 'y')
+		self._reset_xs_fields()
 	y = property(_get_y, _set_y)
 
 	def _get_subconds(self): return(self._subconds)
 	def _set_subconds(self, value):
 		self._subconds = self._check_to_int(value, 'subconds')
+		self._reset_xs_fields()
 	subconds = property(_get_subconds, _set_subconds)
 
 	def _get_d_cond(self): return(self._d_cond)
 	def _set_d_cond(self, value):
 		self._d_cond = self._check_to_float(value, 'd_cond')
+		self._reset_xs_fields()
 	d_cond = property(_get_d_cond, _set_d_cond)
 
 	def _get_d_bund(self): return(self._d_bund)
 	def _set_d_bund(self, value):
 		self._d_bund = self._check_to_float(value, 'd_bund')
+		self._reset_xs_fields()
 	d_bund = property(_get_d_bund, _set_d_bund)
 
 	def _get_V(self): return(self._V)
-	def _set_V(self, value): self._V = self._check_to_float(value, 'V')
+	def _set_V(self, value):
+		self._V = self._check_to_float(value, 'V')
+		self._reset_xs_fields()
 	V = property(_get_V, _set_V)
 
 	def _get_I(self): return(self._I)
-	def _set_I(self, value): self._I = self._check_to_float(value, 'I')
+	def _set_I(self, value):
+		self._I = self._check_to_float(value, 'I')
+		self._reset_xs_fields()
 	I = property(_get_I, _set_I)
 
 	def _get_phase(self): return(self._phase)
 	def _set_phase(self, value):
 		self._phase = self._check_to_float(value, 'phase')
+		self._reset_xs_fields()
 	phase = property(_get_phase, _set_phase)
 
 	#---------------------------------------------------------------------------
@@ -132,9 +151,10 @@ class CrossSection(object):
 		self.conds = [] #list of Conductor objects
 		#dictionary mapping Conductor tags to Conductor objects
 		self.tag2condidx = {}
-		#DataFrame storing results, populated with calculate_fields()
-		self.fields = pd.DataFrame(columns=['Bx','By','Bprod','Bmax',
-											'Ex','Ey','Eprod','Emax'])
+		#integer indexer
+		self.i = _IntegerIndexer(self.conds)
+		#DataFrame storing results, populated with _calculate_fields()
+		self._fields = None
 		#add conductors if they're passed in
 		if(len(args) == 1):
 			for c in args[0]:
@@ -202,6 +222,12 @@ class CrossSection(object):
 	def _get_phase(self):
 		return(np.array([c.phase for c in self.conds], dtype=float))
 	phase = property(_get_phase)
+
+	def _get_fields(self):
+		if(self._fields is None):
+			self._calculate_fields()
+		return(self._fields)
+	fields = property(_get_fields)
 
 	def _get_ROW_edge_fields(self):
 		return(self.fields.iloc[[self.lROWi, self.rROWi]])
@@ -271,6 +297,9 @@ class CrossSection(object):
 		#add to self.conds and indexing dict
 		self.tag2condidx[cond.tag] = len(self.conds)
 		self.conds.append(copy.deepcopy(cond))
+		#associate xs with the conductor
+		self.conds[-1]._xs = self
+
 
 	def remove_conductor(self, key):
 		#check in the hot dict
@@ -279,10 +308,11 @@ class CrossSection(object):
 		except(KeyError):
 			pass
 		else:
+			self.conds[idx]._xs = None
 			self.conds.pop(idx)
 			self.tag2condidx.pop(key)
 
-	def calculate_fields(self):
+	def _calculate_fields(self):
 		"""Calculate electric and magnetic fields across the ROW and store the
 		results in the self.fields DataFrame"""
 		#pull arrays with conductor and sampling information
@@ -297,11 +327,9 @@ class CrossSection(object):
 										x_sample, y_sample)
 		Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
 		#store the values
-		self.fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
+		self._fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
 									'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
 									index=self.x_sample)
-		#return the fields dataframe
-		return(self.fields)
 
 	def compare_DAT(self, DAT_path, **kw):
 		"""Load a FIELDS output file (.DAT), find absolute and percentage
@@ -380,6 +408,16 @@ class CrossSection(object):
 	def copy(self):
 		return(copy.deepcopy(self))
 
+	def export(self, **kw):
+		"""Write the fields to a csv
+		kw:
+			path - string, destination/filename for saved file"""
+		#path management
+		fn = fields_funks._path_manage(self.sheet + '-all_results', '.csv', **kw)
+		#write results
+		self.fields.to_csv(fn, index_label='Distance (ft)')
+		print('Cross section fields written to: %s' % fn)
+
 class SectionBook(object):
 	"""Top level class organizing a group of CrossSection objects. Uses a
 	dictionary to track CrossSections in a list and provide a convenient
@@ -392,7 +430,7 @@ class SectionBook(object):
 		self.name = name #mandatory identification field
 		self.xss = [] #list of cross section objects
 		self.sheet2idx = dict() #mapping dictionary for CrossSection retrieval
-		self.i = _IntegerIndexer(self)
+		self.i = _IntegerIndexer(self.xss)
 		#add CrossSections if they're passed in
 		if(len(args) == 1):
 			for xs in args[0]:
@@ -504,7 +542,6 @@ class SectionBook(object):
 			Duplicate names would cause collisions in the lookup dictionary
 			(self.sheet2idx). Use a different name.""" % xs.sheet))
 		else:
-			xs.calculate_fields()
 			self.sheet2idx[xs.sheet] = len(self.xss)
 			self.xss.append(copy.deepcopy(xs))
 
@@ -532,13 +569,16 @@ class SectionBook(object):
 		self.ROW_edge_export(**kw)
 
 	def results_export(self, **kw):
-		"""Write all of the cross section results to an excel workbook"""
+		"""Write all of the cross section results to an excel workbook
+		kw:
+			path - string, destination/filename for saved file"""
 		#path management
 		fn = fields_funks._path_manage(self.name + '-all_results','.xlsx',**kw)
 		#write results
 		xlwriter = pd.ExcelWriter(fn, engine='xlsxwriter')
 		for xs in self:
-			xs.fields.to_excel(xlwriter, sheet_name=xs.sheet, index_label='x')
+			xs.fields.to_excel(xlwriter, sheet_name=xs.sheet,
+					index_label='Distance (ft)')
 		print('Full SectionBook results written to: %s' % fn)
 
 	def ROW_edge_export(self, **kw):
@@ -575,20 +615,14 @@ class SectionBook(object):
 		if(not ('xl' in kw)):
 			print('Maximum fields at ROW edges written to: %s' % wo)
 
-	def update_fields(self):
-		"""Executes all of the update functions"""
-		for xs in self:
-			xs.calculate_fields()
-
 class _IntegerIndexer(object):
-	"""Ancillary class for retrieval of CrossSections in SectionBooks by
-	their integer position in the SectionBook"""
+	"""Ancillary class for retrieval of items from a list in a parent obj"""
 
-	def __init__(self, sb):
-		self._sb = sb
+	def __init__(self, L):
+		self._L = L
 
 	def __getitem__(self, key):
 		if(type(key) is not int):
 			raise(EMFError("""
 			SectionBook.i can only receive integer indices."""))
-		return(self._sb.xss[key])
+		return(self._L[key])
