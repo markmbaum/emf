@@ -12,7 +12,7 @@ class Model(object):
 	a .REF file containing SubCalc results. The Model object can be saved
 	to a more flexible (and smaller) excel file with Model.export(). Then
 	the excel file can be read back into a Model object using
-	subcalc.load_model again, but targeting the excel file.
+	subcalc.load_model, but targeting the excel file.
 		Model objects have a 'Bkey' property that determines which component
 	of the magnetic field results is accessed by the Model.B property. For
 	example, when Model.Bkey == 'Bmax' all operations involving the grid
@@ -29,7 +29,7 @@ class Model(object):
 	organizational objects.
 		Several methods are available for interpolating new values from
 	the grid of field results: Model.interp, Model.resample, and
-	Model.crosssection.
+	Model.cross_section.
 		Contour plots of the results can be automatically generated with
 	subcalc.plot_contour(Model) and colormesh plots can be automatically
 	generated with subcalc.plot_pcolormesh(Model)."""

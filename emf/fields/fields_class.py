@@ -40,16 +40,16 @@ class Conductor(object):
 		return(True, None)
 	complete = property(_check_complete)
 
-	def _reset_xs_fields(self):
-		if(self._xs is not None):
+	def _reset_xs_fields(self, old_value, new_value):
+		if((self._xs is not None) and (old_value != new_value)):
 			self._xs._fields = None
 
-	def _check_to_float(self, x, prop):
-		if(not fields_funks._is_number(x)):
+	def _check_to_float(self, value, prop):
+		if(not fields_funks._is_number(value)):
 			raise(EMFError("""
 			Conductor property '%s' must be numeric.
-			It cannot be set to: %s""" % (prop, repr(x))))
-		return(float(x))
+			It cannot be set to: %s""" % (prop, repr(value))))
+		return(float(value))
 
 	def _check_to_int(self, x, prop):
 		if(not fields_funks._is_number(x)):
@@ -63,57 +63,66 @@ class Conductor(object):
 		return(int(x))
 
 	def _get_freq(self): return(self._freq)
-	def _set_freq(self, value):
-		self._freq = self._check_to_float(value, 'freq')
-		self._reset_xs_fields()
+	def _set_freq(self, new_value):
+		old_value = self._freq
+		self._freq = self._check_to_float(new_value, 'freq')
+		self._reset_xs_fields(old_value, new_value)
 	freq = property(_get_freq, _set_freq)
 
 	def _get_x(self): return(self._x)
-	def _set_x(self, value):
-		self._x = self._check_to_float(value, 'x')
-		self._reset_xs_fields()
+	def _set_x(self, new_value):
+		old_value = self._x
+		self._x = self._check_to_float(new_value, 'x')
+		self._reset_xs_fields(old_value, new_value)
 	x = property(_get_x, _set_x)
 
 	def _get_y(self): return(self._y)
-	def _set_y(self, value):
-		self._y = self._check_to_float(value, 'y')
-		self._reset_xs_fields()
+	def _set_y(self, new_value):
+		old_value = self._y
+		self._y = self._check_to_float(new_value, 'y')
+		self._reset_xs_fields(old_value, new_value)
 	y = property(_get_y, _set_y)
 
 	def _get_subconds(self): return(self._subconds)
-	def _set_subconds(self, value):
-		self._subconds = self._check_to_int(value, 'subconds')
-		self._reset_xs_fields()
+	def _set_subconds(self, new_value):
+		old_value = self._subconds
+		self._subconds = self._check_to_int(new_value, 'subconds')
+		self._reset_xs_fields(old_value, new_value)
 	subconds = property(_get_subconds, _set_subconds)
 
 	def _get_d_cond(self): return(self._d_cond)
-	def _set_d_cond(self, value):
-		self._d_cond = self._check_to_float(value, 'd_cond')
-		self._reset_xs_fields()
+	def _set_d_cond(self, new_value):
+		old_value = self._d_cond
+		self._d_cond = self._check_to_float(new_value, 'd_cond')
+		self._reset_xs_fields(old_value, new_value)
 	d_cond = property(_get_d_cond, _set_d_cond)
 
 	def _get_d_bund(self): return(self._d_bund)
-	def _set_d_bund(self, value):
-		self._d_bund = self._check_to_float(value, 'd_bund')
-		self._reset_xs_fields()
+	def _set_d_bund(self, new_value):
+		old_value = self._d_bund
+		self._d_bund = self._check_to_float(new_value, 'd_bund')
+		self._reset_xs_fields(old_value, new_value)
 	d_bund = property(_get_d_bund, _set_d_bund)
 
 	def _get_V(self): return(self._V)
-	def _set_V(self, value):
-		self._V = self._check_to_float(value, 'V')
-		self._reset_xs_fields()
+	def _set_V(self, new_value):
+		old_value = self._V
+		self._V = self._check_to_float(new_value, 'V')
+		self._reset_xs_fields(old_value, new_value)
 	V = property(_get_V, _set_V)
 
 	def _get_I(self): return(self._I)
-	def _set_I(self, value):
-		self._I = self._check_to_float(value, 'I')
-		self._reset_xs_fields()
+	def _set_I(self, new_value):
+		old_value = self._I
+		self._I = self._check_to_float(new_value, 'I')
+		self._reset_xs_fields(old_value, new_value)
 	I = property(_get_I, _set_I)
 
 	def _get_phase(self): return(self._phase)
-	def _set_phase(self, value):
-		self._phase = self._check_to_float(value, 'phase')
-		self._reset_xs_fields()
+	def _set_phase(self, new_value):
+		old_value = self._phase
+		self._phase = self._check_to_float(new_value, 'phase')
+		self._reset_xs_fields(old_value, new_value)
 	phase = property(_get_phase, _set_phase)
 
 	#---------------------------------------------------------------------------
@@ -143,11 +152,11 @@ class CrossSection(object):
 		self.tag = None #identifier linking multiple CrossSection objects
 		self.title = '' #longer form, used for plotting text
 		self.soil_resistivity = 100. #?
-		self.max_dist = None #maximum simulated distance from the ROW center
-		self.step = 1 #step size for calculations
-		self.sample_height = 3. #uniform sample height
-		self.lROW = None #exact coordinate of the left ROW edge
-		self.rROW = None #exact coordinate of the left ROW edge
+		self._max_dist = None #maximum simulated distance from the ROW center
+		self._step = 1 #step size for calculations
+		self._sample_height = 3. #uniform sample height
+		self._lROW = None #exact coordinate of the left ROW edge
+		self._rROW = None #exact coordinate of the left ROW edge
 		self.conds = [] #list of Conductor objects
 		#dictionary mapping Conductor tags to Conductor objects
 		self.tag2condidx = {}
@@ -163,8 +172,54 @@ class CrossSection(object):
 	#---------------------------------------------------------------------------
 	#PROPERTIES
 
+	def _check_to_float(self, value, prop):
+		if(not fields_funks._is_number(value)):
+			raise(EMFError("""
+			CrossSection property '%s' must be numeric.
+			It cannot be set to: %s""" % (prop, repr(value))))
+		return(float(value))
+
+	def _reset_fields(self, old_value, new_value):
+		if(old_value != new_value):
+			self._fields = None
+
 	def _get_tags(self): return([xs.tag for xs in self.conds])
 	tags = property(_get_tags)
+
+	def _get_max_dist(self): return(self._max_dist)
+	def _set_max_dist(self, new_value):
+		old_value = self._max_dist
+		self._max_dist = self._check_to_float(new_value, 'max_dist')
+		self._reset_fields(old_value, new_value)
+	max_dist = property(_get_max_dist, _set_max_dist)
+
+	def _get_step(self): return(self._step)
+	def _set_step(self, new_value):
+		old_value = self._step
+		self._step = self._check_to_float(new_value, 'step')
+		self._reset_fields(old_value, new_value)
+	step = property(_get_step, _set_step)
+
+	def _get_sample_height(self): return(self._sample_height)
+	def _set_sample_height(self, new_value):
+		old_value = self._sample_height
+		self._sample_height = self._check_to_float(new_value, 'sample_height')
+		self._reset_fields(old_value, new_value)
+	sample_height = property(_get_sample_height, _set_sample_height)
+
+	def _get_lROW(self): return(self._lROW)
+	def _set_lROW(self, new_value):
+		old_value = self._lROW
+		self._lROW = self._check_to_float(new_value, 'lROW')
+		self._reset_fields(old_value, new_value)
+	lROW = property(_get_lROW, _set_lROW)
+
+	def _get_rROW(self): return(self._rROW)
+	def _set_rROW(self, new_value):
+		old_value = self._rROW
+		self._rROW = self._check_to_float(new_value, 'rROW')
+		self._reset_fields(old_value, new_value)
+	rROW = property(_get_rROW, _set_rROW)
 
 	def _get_N_sample(self): return(1 + int(np.ceil(2*self.max_dist/self.step)))
 	N_sample = property(_get_N_sample)
@@ -299,7 +354,6 @@ class CrossSection(object):
 		self.conds.append(copy.deepcopy(cond))
 		#associate xs with the conductor
 		self.conds[-1]._xs = self
-
 
 	def remove_conductor(self, key):
 		#check in the hot dict

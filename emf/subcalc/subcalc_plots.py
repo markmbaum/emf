@@ -523,11 +523,11 @@ def plot_pcolormesh(mod, **kw):
 	cbar = fig.add_subplot(1,2,2)
 	box = ax.get_position()
 	fig_size = fig.get_size_inches()
-	w = 0.4/fig_size[0]
+	w = 0.35/fig_size[0]
 	cbar.set_position([box.x0 + box.width + w, box.y0, w, box.height])
 	cbar = fig.colorbar(QM, cax=cbar, drawedges=False)
 	cbar.ax.legend(handles, labels,
-			loc='center left', bbox_to_anchor=(3, 0.5),
+			loc='center left', bbox_to_anchor=(2.5, 0.5),
 			numpoints=1)
 	_format_ax(cbar.ax)
 

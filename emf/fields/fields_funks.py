@@ -58,8 +58,8 @@ def run(template_path, **kw):
 	sb.ROW_edge_export(**kw)
 	#export single CrossSection plots
 	for xs in sb:
-		fig = fields_plots.plot_max_fields(xs, **kw)
-		fields_plots.plt.close(fig)
+		fig, ax_E, ax_B = fields_plots.plot_max_fields(xs, **kw)
+		fields_plots.close(fig)
 	#export group comparison line plots
 	fields_plots.plot_groups(sb, **kw)
 	#export group ROW comparison bar plots

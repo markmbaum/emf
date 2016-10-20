@@ -2,10 +2,15 @@
 
 The `emf` package is a container for two subpackages:
 
-1. `emf.fields` was originally a small stand-alone package that streamlined the use of an old elecromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, `emf.fields` would read power line information from excel templates, create the input files necessary to run the data through FIELDS, then read the FIELDS output files to provide plots, exports, etc. The package did everything except perform the actual EMF calculations. At this point `emf.fields` does everything the old FIELDS program does, including the EMF calculations, and more. See more on `emf.fields` below.
+1. `emf.fields` was originally a small stand-alone package that streamlined the use of an old elecromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, `emf.fields` would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. `emf.fields` still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better. See some of the details below.
 
 
-2. `emf.subcalc` is currently similar to the original versions of `emf.fields`, because it supplements and streamlines another modeling program without fully replacing it. In this case, the other modeling program is [SUBCALC](http://www.enertech.net/html/emfw.html) (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)), which predicts EMF over a fixed height 2 dimensional grid and can model many non-parellel groups of power lines. `emf.subcalc` reads the text file output of SUBCALC models and provides methods to associate the results with `Footprint` objects (simple outlines of nearby objects in the model domain like houses), plot the results, convert results to excel files (much smaller file size), and interpolate the grid (at points, along lines, or complete resampling). It would be nice to build the calculations into `emf.subcalc` and totally replace SUBCALC, but that hasn't been done yet.
+2. `emf.subcalc` is currently similar to the original versions of `emf.fields` because it supplements another modeling program without fully replacing it. In this case, the other modeling program is [SUBCALC](http://www.enertech.net/html/emfw.html) (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parellel groups of power lines. `emf.subcalc`'s primary functions are to:
+  * read the text file output of SUBCALC models and associate the results with `Footprint` objects (outlines of nearby objects in the model domain, like houses)
+  * generate contour and colormesh plots of the results, with maximum fields annotated along `Footprint` objects
+  * convert results to excel files (much smaller file size)
+  * interpolate the grid (at points, along lines, or complete resampling)
+It would be nice to build the calculations into `emf.subcalc` and totally replace SUBCALC, but that hasn't been done yet.
 
 ### `emf.fields` vs FIELDS
 
@@ -13,16 +18,17 @@ The `emf.fields` subpackage contains code that calculates theoretical electric a
 
 The main problems with FIELDS:
 * Using the program requires navigating through lots of menus with semi-responsive buttons, requiring manual entry of cross section data into menus and tables of the DOSBOX app without even the option to copy and paste. Building cross section models in FIELDS is slow, tedious, and error prone.
-* Once a cross section is built in FIELDS, it's very difficult to refer to the input data because FIELDS saves model information to nearly inscrutable text files with `.FLD` extensions. These files also force users to re-navigate the frustrating series of menus to edit cross section input.
+* Once a cross section is built in FIELDS, it's very difficult to refer to the input data because FIELDS saves model information to nearly inscrutable text files with `.FLD` extensions, like in [this](docs/32P.FLD) file. These files also force users to re-navigate the frustrating series of menus to edit cross section input.
 * Causing further annoyance, the program traps the mouse, meaning other applications can't be used at the same time unless an escape button is pressed first (the Windows button on Windows).
-* Results are output to delimited files with `.DAT` extensions, but these files contain results rounded/truncated to three digits and often have formatting complications or printing errors. For example, numbers that require more than four digits to the left of a decimal (including negative signs, like -1233.0) are printed on their own lines with "%" in front of them for some reason.
+* Model resolution/extent are limited in FIELDS, with a maximum of 602 samples.
+* Results are output to delimited files with `.DAT` extensions, but these files contain results rounded/truncated to three digits and often have formatting complications or printing errors. For example, numbers that require more than four digits to the left of a decimal (including negative signs, like -1233.0) are printed on their own lines with "%" in front of them for some reason, [like so](docs/32P.DAT). (`emf.fields.read_DAT()` is a function that will read these output files into [DataFrames](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) and handle all of their known eccentricities, a function mostly leftover from when `emf.fields` couldn't do EMF calculations on its own.)
 * Nothing is scriptable. Any changes require re-navigating the menus, `.FLD` files, and `.DAT` files.
 
 FIELDS is useful for performing the EMF calculations, but the rest of the program is an impediment.
 
 `emf.fields` performs the same calculations as FIELDS, but removes the frustrating issues listed above (for a person who knows some Python). The FIELDS source code isn't released, so a line-by-line replication of its calculations isn't possible, but `emf.fields` produces nearly identical results for the same input. The calculations follow the conceptual guidelines laid out in the Electric Power Research Institute's "Red Book" (some more information on this source below).
 
-Comparisons between FIELDS results and `emf.fields` results have shown error on the order of floating point roundoff in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic.
+Comparisons between FIELDS results and `emf.fields` results have shown error on the order of floating point roundoff in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic. Notice that the magnitude of the error is never more than 0.0005 mG, exactly what one expects if one set of results is only recorded to a maximum precision of 0.001 mG.
 ![roundoff-error-1](docs/images/raise1-DAT_comparison_Bmax.png)
 `emf.fields` also reproduces nearly identical results for underground conductors, as shown below.
 ![roundoff-error-2](docs/images/und_only-DAT_comparison_Bmax.png)
@@ -41,7 +47,7 @@ For modeling batches of cross sections, the package enables a one line effort (a
 * a table of maximum field magnitudes at the right-of-way (ROW) edges of each cross-section
 * double-axis plots of both electric and magnetic fields
 * plots comparing the electric and magnetic fields of grouped cross sections over their entire domain
-* bar charts showing the fields of grouped cross sections at ROW edges.
+* bar charts showing the fields of grouped cross sections at ROW edges
 
 The `emf.fields.run()` function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into `SectionBook`s for more targeted output using the `emf.fields.load_template()` function. Alternatively, cross section models can be built entirely in Python, as [this notebook](docs/fields-workflow-from-scratch.ipynb) demonstrates in an explicit manner.
 
