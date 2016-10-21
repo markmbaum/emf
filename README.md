@@ -2,10 +2,10 @@
 
 The `emf` package is a container for two subpackages:
 
-1. `emf.fields` was originally a small stand-alone package that streamlined the use of an old elecromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, `emf.fields` would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. `emf.fields` still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better. See some of the details below.
+1. `emf.fields` was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, `emf.fields` would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. `emf.fields` still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better. See some of the details below.
 
 
-2. `emf.subcalc` is currently similar to the original versions of `emf.fields` because it supplements another modeling program without fully replacing it. In this case, the other modeling program is [SUBCALC](http://www.enertech.net/html/emfw.html) (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parellel groups of power lines. `emf.subcalc`'s primary functions are to:
+2. `emf.subcalc` is currently similar to the original versions of `emf.fields` because it supplements another modeling program without fully replacing it. In this case, the other modeling program is [SUBCALC](http://www.enertech.net/html/emfw.html) (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. `emf.subcalc`'s primary functions are to:
   * read the text file output of SUBCALC models and associate the results with `Footprint` objects (outlines of nearby objects in the model domain, like houses)
   * generate contour and colormesh plots of the results, with maximum fields annotated along `Footprint` objects
   * convert results to excel files (much smaller file size)
@@ -28,10 +28,10 @@ FIELDS is useful for performing the EMF calculations, but the rest of the progra
 
 `emf.fields` performs the same calculations as FIELDS, but removes the frustrating issues listed above (for a person who knows some Python). The FIELDS source code isn't released, so a line-by-line replication of its calculations isn't possible, but `emf.fields` produces nearly identical results for the same input. The calculations follow the conceptual guidelines laid out in the Electric Power Research Institute's "Red Book" (some more information on this source below).
 
-Comparisons between FIELDS results and `emf.fields` results have shown error on the order of the FIELDS output roundoff in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic. Notice that the magnitude of the error is never more than 0.0005 mG, exactly what one expects if one set of results is only recorded to a maximum precision of 0.001 mG.
-![roundoff-error-1](docs/images/raise1-DAT_comparison_Bmax.png)
+Comparisons between FIELDS results and `emf.fields` results have shown error on the order FIELDS output roundoff (rounded/truncated to thousandths digit) in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic. Notice that the magnitude of the error is never more than 0.0005 mG, exactly what one expects if one set of results is only recorded to a maximum precision of 0.001 mG.
+![roundoff-error-1](docs/plots/raise1-DAT_comparison_Bmax.png)
 `emf.fields` also reproduces nearly identical results for underground conductors, as shown below.
-![roundoff-error-2](docs/images/und_only-DAT_comparison_Bmax.png)
+![roundoff-error-2](docs/plots/und_only-DAT_comparison_Bmax.png)
 
 An engineer on the team that originally developed FIELDS said that the FIELDS program runs 16-bit BASIC, lower precision than modern languages, and that BASIC has known accuracy issues with the sine and cosine functions (used at several points in the calculations). Additionally, because the results of FIELDS simulations are saved to output files with the values rounded or truncated to the thousandths digit, significant precision can be lost simply by exporting. Thus far, all discrepancies between FIELDS results and the results of `emf.fields` can reasonably be attributed to rounding in the FIELDS results when the field magnitudes are low and possibly to trigonometry inaccuracies in BASIC.
 
@@ -58,31 +58,33 @@ In addition to being quicker to use and more flexible than FIELDS, this code fur
 Finally, `emf.fields` has several plotting functions that work on `CrossSection` and `SectionBook` objects. Some examples are below:
 
 Simulated maximum electric and magnetic fields across a ROW, with the field magnitudes on split vertical axes, using `emf.fields.plot_max_fields()`. Conductor positions are shown in true horizontal units but false/scaled vertical units:
-![plot_max_fields](docs/images/und_P.png)
+![plot_max_fields](docs/plots/und_P.png)
 
 Comparison of simulated magnetic field profiles of two related cross sections, essentially a before-and-after plot, using `emf.fields.plot_groups()`. This plot shows that switching the rightmost circuit to a "delta" configuration reduces fields significantly:
-![plot_groups](docs/images/group_hl-Bmax.png)
+![plot_groups](docs/plots/group_hl-Bmax.png)
 
 A comparison of the results of phase optimization through `emf.fields.optimize_phasing()`, using `emf.fields.plot_groups()` again. The plot shows magnetic field profiles for each of the four optimization scenarios (optimize for electric field on the left side, electric field on the right, magnetic on the left, and magnetic on the right). Notably, optimization for magnetic fields at the right ROW edge reduces fields quite significantly (about 88 %):
-![plot_phase_optimized_group](docs/images/group_Phase Optimized-Bmax.png)
+![plot_phase_optimized_group](docs/plots/group_Phase Optimized-Bmax.png)
 
-A plot showing how simulated magnetic fields at ROW edges decrease when the
-spacing between the conductors in a single "delta" configuration circuit (three power lines arranged in a triangle) is decreased, using `emf.fields.plot_groups_at_ROW()`:
-![plot_groups_at_ROW](docs/images/group_Delta Spacing Decrementation-ROW-Bmax.png)
+A plot showing simulated magnetic fields due to an underground group of three conductors, arranged in a triangular or "delta" configuration with 2 feet between the conductors.
+![2-ft-spacing](docs/plots/2 ft Spacing.png)
+
+If the conductors in the plot above are moved closer together, the simulated magnetic fields decrease. The bar charts below show decreasing field values at both ROW edges due to decreasing conductor spacing. Interestingly, there appears to be a roughly linear relationship between the maximum field strength and the conductor spacing. The plot was generated with `emf.fields.plot_groups_at_ROW()`:
+![plot_groups_at_ROW](docs/plots/group_Delta Spacing-ROW-Bmax.png)
 
 These plots were all automatically generated.
 
 #### Example `emf.subcalc` plots
 
 Contour plot of SUBCALC magnetic field results and structures of interest using `emf.subcalc.plot_contours()`, where the contours are colored on a logarithmic scale using the "viridis" colormap:
-![plot_contours-1](docs/images/contour_plot_log.png)
+![plot_contours-1](docs/plots/contour_plot_log.png)
 
 A heatmap or colormesh plot of the same SUBCALC results again, using `emf.subcalc.plot_pcolormesh()`:
-![plot_pcolormesh-1](docs/images/pcolormesh_plot.png)
+![plot_pcolormesh-1](docs/plots/pcolormesh_plot.png)
 
 Another heatmap using results from the same model as above, but with only the
 horizontal (x) component of the magnetic field plotted, and using the "magma" colormap.
-![plot_pcolormesh-2](docs/images/Bx_magma.png)
+![plot_pcolormesh-2](docs/plots/Bx_magma.png)
 
 ###### EPRI's "Red Book"
 

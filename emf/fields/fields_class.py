@@ -13,7 +13,7 @@ class Conductor(object):
 	def __init__(self, tag):
 		"""
 		args:
-			tag - int or string, essentially just a name"""
+			tag - scalar, essentially just a name"""
 		self.tag = tag #conductor labels
 		self._xs = None #parent CrossSection object
 		self._freq = 60. #phase frequency
@@ -153,13 +153,13 @@ class CrossSection(object):
 		self.title = '' #longer form, used for plotting text
 		self.soil_resistivity = 100. #?
 		self._max_dist = None #maximum simulated distance from the ROW center
-		self._step = 1 #step size for calculations
+		self._step = .5 #step size for calculations
 		self._sample_height = 3. #uniform sample height
 		self._lROW = None #exact coordinate of the left ROW edge
 		self._rROW = None #exact coordinate of the left ROW edge
 		self.conds = [] #list of Conductor objects
 		#dictionary mapping Conductor tags to Conductor objects
-		self.tag2condidx = {}
+		self.tag2condidx = dict()
 		#integer indexer
 		self.i = _IntegerIndexer(self.conds)
 		#DataFrame storing results, populated with _calculate_fields()
@@ -188,6 +188,11 @@ class CrossSection(object):
 
 	def _get_max_dist(self): return(self._max_dist)
 	def _set_max_dist(self, new_value):
+		if(((self.lROW is not None) and (new_value < abs(self.lROW))) or
+			((self.rROW is not None) and (new_value < abs(self.rROW)))):
+			raise(EMFError("""
+			CrossSection max_dist must be greater than the magnitudes of
+			lROW and rROW."""))
 		old_value = self._max_dist
 		self._max_dist = self._check_to_float(new_value, 'max_dist')
 		self._reset_fields(old_value, new_value)
@@ -202,6 +207,9 @@ class CrossSection(object):
 
 	def _get_sample_height(self): return(self._sample_height)
 	def _set_sample_height(self, new_value):
+		if(new_value <= 0):
+			raise(EMFError("""
+			CrossSection sample_height must be greater than zero."""))
 		old_value = self._sample_height
 		self._sample_height = self._check_to_float(new_value, 'sample_height')
 		self._reset_fields(old_value, new_value)
@@ -209,6 +217,9 @@ class CrossSection(object):
 
 	def _get_lROW(self): return(self._lROW)
 	def _set_lROW(self, new_value):
+		if((self.rROW is not None) and (new_value >= self.rROW)):
+			raise(EMFError("""
+			lROW must be less than rROW."""))
 		old_value = self._lROW
 		self._lROW = self._check_to_float(new_value, 'lROW')
 		self._reset_fields(old_value, new_value)
@@ -216,6 +227,9 @@ class CrossSection(object):
 
 	def _get_rROW(self): return(self._rROW)
 	def _set_rROW(self, new_value):
+		if((self.lROW is not None) and (new_value <= self.lROW)):
+			raise(EMFError("""
+			rROW must be greater than lROW."""))
 		old_value = self._rROW
 		self._rROW = self._check_to_float(new_value, 'rROW')
 		self._reset_fields(old_value, new_value)
@@ -313,7 +327,6 @@ class CrossSection(object):
 		for k in keys:
 			if(k != 'fields'):
 				s += str(k) + ': ' + repr(v[k]) + '\n'
-		s += '\ninspect self.fields separately to see field simulation results\n'
 		return(s)
 
 	def __getitem__(self, key):
@@ -483,7 +496,7 @@ class SectionBook(object):
 	def __init__(self, name, *args):
 		self.name = name #mandatory identification field
 		self.xss = [] #list of cross section objects
-		self.sheet2idx = dict() #mapping dictionary for CrossSection retrieval
+		self._sheet2idx = dict() #mapping dictionary for CrossSection retrieval
 		self.i = _IntegerIndexer(self.xss)
 		#add CrossSections if they're passed in
 		if(len(args) == 1):
@@ -550,7 +563,7 @@ class SectionBook(object):
 	def __getitem__(self, key):
 		"""Index the SectionBook by CrossSection names"""
 		try:
-			idx = self.sheet2idx[key]
+			idx = self._sheet2idx[key]
 		except(KeyError):
 			return(False)
 		else:
@@ -590,13 +603,13 @@ class SectionBook(object):
 		and make the group plotting functions impossible, so don't do that.
 		Use this method instead."""
 		#Prevent adding CrossSections with the same names
-		if(xs.sheet in self.sheet2idx):
+		if(xs.sheet in self._sheet2idx):
 			raise(EMFError("""
 			CrossSection name "%s" already exists in the SectionBook.
 			Duplicate names would cause collisions in the lookup dictionary
-			(self.sheet2idx). Use a different name.""" % xs.sheet))
+			(self._sheet2idx). Use a different name.""" % xs.sheet))
 		else:
-			self.sheet2idx[xs.sheet] = len(self.xss)
+			self._sheet2idx[xs.sheet] = len(self.xss)
 			self.xss.append(copy.deepcopy(xs))
 
 	def remove_section(self, sheet):
@@ -605,15 +618,15 @@ class SectionBook(object):
 		args:
 			sheet - sheet string of CrossSection to remove"""
 		#check sheet is in self
-		if(sheet not in self.sheet2idx):
+		if(sheet not in self._sheet2idx):
 			raise(EMFError("""
 			Sheet %s cannot be removed because it does not exist in the
 			SectionBook object""" % sheet))
 		#delete from self.xss list
-		idx = self.sheet2idx[sheet]
+		idx = self._sheet2idx[sheet]
 		self.xss.pop(idx)
 		#update
-		self.sheet2idx = dict(zip([xs.sheet for xs in self.xss], xss))
+		self._sheet2idx = dict(zip([xs.sheet for xs in self.xss], xss))
 
 	def export(self, **kw):
 		"""Write results to an excel workbook and ROW edge results to a csv
