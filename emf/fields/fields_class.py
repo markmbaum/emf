@@ -5,6 +5,7 @@ from ..emf_class import EMFError
 import fields_funks
 import fields_plots
 import fields_calcs
+import fields_print
 import FIELDS_io
 
 class Conductor(object):
@@ -16,7 +17,7 @@ class Conductor(object):
 			tag - scalar, essentially just a name"""
 		self.tag = tag #conductor labels
 		self._xs = None #parent CrossSection object
-		self._freq = 60. #phase frequency
+		self._freq = 60.0 #phase frequency in Hertz
 		self._x = None #x coordinate
 		self._y = None #y coordinate
 		self._subconds = None #number of subconductors per bundle
@@ -63,11 +64,7 @@ class Conductor(object):
 		return(int(x))
 
 	def _get_freq(self): return(self._freq)
-	def _set_freq(self, new_value):
-		old_value = self._freq
-		self._freq = self._check_to_float(new_value, 'freq')
-		self._reset_xs_fields(old_value, new_value)
-	freq = property(_get_freq, _set_freq)
+	freq = property(_get_freq)
 
 	def _get_x(self): return(self._x)
 	def _set_x(self, new_value):
@@ -129,13 +126,7 @@ class Conductor(object):
 	#METHODS
 
 	def __str__(self):
-		"""quick and dirty printing"""
-		v = vars(self)
-		keys = v.keys()
-		s = '\n'
-		for k in keys:
-			s += str(k) + ': ' + repr(v[k]) + '\n'
-		return(s)
+		return(fields_print._str_Conductor(self))
 
 	def copy(self):
 		return(copy.deepcopy(self))
@@ -152,14 +143,14 @@ class CrossSection(object):
 		self.tag = None #identifier linking multiple CrossSection objects
 		self.title = '' #longer form, used for plotting text
 		self.soil_resistivity = 100. #?
-		self._max_dist = None #maximum simulated distance from the ROW center
-		self._step = .5 #step size for calculations
+		self._max_dist = 100 #maximum simulated distance from the ROW center
+		self._step = 1 #step size for calculations
 		self._sample_height = 3. #uniform sample height
 		self._lROW = None #exact coordinate of the left ROW edge
 		self._rROW = None #exact coordinate of the left ROW edge
 		self.conds = [] #list of Conductor objects
 		#dictionary mapping Conductor tags to Conductor objects
-		self.tag2condidx = dict()
+		self._tag2condidx = dict()
 		#integer indexer
 		self.i = _IntegerIndexer(self.conds)
 		#DataFrame storing results, populated with _calculate_fields()
@@ -252,6 +243,10 @@ class CrossSection(object):
 		return(self.sample_height*np.ones((self.N_sample,), dtype=float))
 	y_sample = property(_get_y_sample)
 
+	def _get_freq(self):
+		return(np.array([c.freq for c in self.conds], dtype=float))
+	freq = property(_get_freq)
+
 	def _get_x(self): return(np.array([c.x for c in self.conds], dtype=float))
 	x = property(_get_x)
 
@@ -320,19 +315,12 @@ class CrossSection(object):
 	#---------------------------------------------------------------------------
 
 	def __str__(self):
-		"""quick and dirty printing"""
-		v = vars(self)
-		keys = v.keys()
-		s = '\n'
-		for k in keys:
-			if(k != 'fields'):
-				s += str(k) + ': ' + repr(v[k]) + '\n'
-		return(s)
+		return(fields_print._str_CrossSection(self))
 
 	def __getitem__(self, key):
 		#check in the hot dict
 		try:
-			idx = self.tag2condidx[key]
+			idx = self._tag2condidx[key]
 		except(KeyError):
 			pass
 		else:
@@ -349,7 +337,7 @@ class CrossSection(object):
 			is not complete. The parameter "%s" is not set."""
 			% (cond.tag, v[1:])))
 		#check if the tag has already been used
-		if(cond.tag in self.tag2condidx):
+		if(cond.tag in self._tag2condidx):
 			raise(EMFError("""
 			A Conductor with tag "%s" is already in CrossSection "%s".
 			Another Conductor with the same tag cannot be added"""
@@ -363,7 +351,7 @@ class CrossSection(object):
 				is grounded (V = 0) but has nonzero current?"""
 				% (cond.tag, self.sheet))
 		#add to self.conds and indexing dict
-		self.tag2condidx[cond.tag] = len(self.conds)
+		self._tag2condidx[cond.tag] = len(self.conds)
 		self.conds.append(copy.deepcopy(cond))
 		#associate xs with the conductor
 		self.conds[-1]._xs = self
@@ -371,13 +359,13 @@ class CrossSection(object):
 	def remove_conductor(self, key):
 		#check in the hot dict
 		try:
-			idx = self.tag2condidx[key]
+			idx = self._tag2condidx[key]
 		except(KeyError):
 			pass
 		else:
 			self.conds[idx]._xs = None
 			self.conds.pop(idx)
-			self.tag2condidx.pop(key)
+			self._tag2condidx.pop(key)
 
 	def _calculate_fields(self):
 		"""Calculate electric and magnetic fields across the ROW and store the
@@ -509,7 +497,7 @@ class SectionBook(object):
 	def _get_sheets(self): return([xs.sheet for xs in self.xss])
 	sheets = property(_get_sheets, None, None, 'list of CrossSection sheets')
 
-	def _get_tags(self): return([xs.tag for xs in self.xss])
+	def _get_tags(self): return(set([xs.tag for xs in self.xss]))
 	tags = property(_get_tags, None, None, 'list of CrossSection tags')
 
 	def _get_titles(self): return([xs.title for xs in self.xss])
@@ -579,13 +567,7 @@ class SectionBook(object):
 		return(len(self.xss))
 
 	def __str__(self):
-		"""quick and dirty printing"""
-		v = vars(self)
-		keys = v.keys()
-		s = '\n'
-		for k in keys:
-			s += str(k) + ': ' + repr(v[k]) + '\n'
-		return(s)
+		return(fields_print._str_CrossSection(self))
 
 	def sample(self, *args):
 		"""Get a random CrossSection from the SectionBook
@@ -683,7 +665,7 @@ class SectionBook(object):
 			print('Maximum fields at ROW edges written to: %s' % wo)
 
 class _IntegerIndexer(object):
-	"""Ancillary class for retrieval of items from a list in a parent obj"""
+	"""Ancillary class for retrieval of items from a list in a parent object"""
 
 	def __init__(self, L):
 		self._L = L
