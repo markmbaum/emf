@@ -1,7 +1,21 @@
-def _str_Conductor(c):
+from .. import pd, textwrap
+
+wrapper = textwrap.TextWrapper(width=70, expand_tabs=True)
+
+def _table_iterable_fill(field, a):
+	wrapper.subsequent_indent = ' '*len(field)
+	v = []
+	for i in a:
+		if((type(i) is unicode) or (type(i) is str)):
+			v.append(repr(i))
+		else:
+			v.append(str(i))
+	return(wrapper.fill(field + ', '.join(v)))
+
+def _str_Conductor(z):
 
     if(z._xs is not None):
-        xs = repr(c._xs.sheet)
+        xs = repr(z._xs.sheet)
     else:
         xs = repr(None)
 
@@ -25,13 +39,18 @@ def _str_CrossSection(z):
 
     b, t, v = z.complete
     if(b):
-        f = ' '*6 + str(z.fields.iloc[[0, z.lROWi, z.rROWi, len(z.fields) - 1]])
+		idx = z.fields.index
+		locs = sorted(list(set([idx.min(), z.lROW, z.rROW, idx.max()])))
+		f = z.fields.loc[locs]
+		f = pd.concat((f['Bmax'], f['Emax']), axis=1)
+		f = ' '*6 + str(f).replace('\n', '\n' + ' '*6)
     else:
         f = """      Cannot compute fields.
       Attribute "%s"
         in Conductor "%s" is unset.""" % (t, v[1:])
 
     return("""  CrossSection object
+
     sheet:                    %s
     tag:                      %s
     title:                    %s
@@ -43,46 +62,37 @@ def _str_CrossSection(z):
     right ROW edge:           %s ft
 
     conductor information
-      tags:             %s
-      frequencies:      %s Hz
-      x coordinates:    %s ft
-      y coordinates:    %s ft
-      subconductors:    %s
-      diameters:        %s in
-      bundle diameters: %s in
-      voltages:         %s V
-      currents:         %s A
-      phase angles:     %s deg
+%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s
 
-    fields\n%s""" % (
+    fields sample (see CrossSection.fields for all EMF results)\n%s""" % (
         z.sheet, z.tag, z.title, z.soil_resistivity,
-        z.max_dist, z.step,z.sample_height, z.lROW, z.rROW,
-        ', '.join([str(i) for i in z.tags]),
-        ', '.join([str(i) for i in z.freq]),
-        ', '.join([str(i) for i in z.x]),
-        ', '.join([str(i) for i in z.y]),
-        ', '.join([str(i) for i in z.subconds]),
-        ', '.join([str(i) for i in z.d_cond]),
-        ', '.join([str(i) for i in z.d_bund]),
-        ', '.join([str(i) for i in z.V]),
-        ', '.join([str(i) for i in z.I]),
-        ', '.join([str(i) for i in z.phase]), f))
+        z.max_dist, z.step, z.sample_height, z.lROW, z.rROW,
+        _table_iterable_fill('      tags:                  ', z.tags),
+        _table_iterable_fill('      frequencies (Hz):      ', z.freq),
+        _table_iterable_fill('      x coordinates (ft):    ', z.x),
+        _table_iterable_fill('      y coordinates (ft):    ', z.y),
+        _table_iterable_fill('      subconductors:         ', z.subconds),
+        _table_iterable_fill('      diameters (in):        ', z.d_cond),
+        _table_iterable_fill('      bundle diameters (in): ', z.d_bund),
+        _table_iterable_fill('      voltages (V):          ', z.V),
+        _table_iterable_fill('      currents (A):          ', z.I),
+        _table_iterable_fill('      phase angles (deg):    ', z.phase), f))
 
 def _str_SectionBook(z):
 
     b, sheet, ctag, v = z.complete
     if(b):
-        f = ' '*6 + str(z.ROW_edge_max)
+        f = ' '*6 + str(z.ROW_edge_max).replace('\n', '\n' + ' '*6)
     else:
         f = """      ROW edge max fields unavailable.
       Attribute "%s"
         in Conductor "%s"
           in CrossSection "%s" is unset""" % (v[1:], ctag, sheet)
 
-    return("""  CrossSection object
-    name: %s
-    sheets: %s
-    unique tags: %s
+    return("""  SectionBook object
+      name:        %s\n%s\n%s
 
     fields at CrossSection ROW edges:\n%s""" %
-    (z.name, z.sheets, z.tags, f))
+	(repr(z.name),
+	_table_iterable_fill('      sheets:      ', z.sheets),
+	_table_iterable_fill('      unique tags: ', z.tags), f))

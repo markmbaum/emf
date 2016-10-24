@@ -407,13 +407,14 @@ def plot_xs(xs, **kw):
 	kw['H'], kw['L'], kw['scale'] = [], [], False
 	#plot wires
 	_plot_wires(ax, xs.hot, xs.gnd, [c.y for c in xs.conds], **kw)
-	_check_und_conds([xs], [ax], **kw)
 	#adjust axis limits if headspace is called for
 	if(_include_headspace):
 		yl = ax.get_ylim()
 		ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
 	#plot ROW lines
 	_plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
+	#check underground conductors
+	_check_und_conds([xs], [ax], **kw)
 	#set axis text and legend
 	ax.set_title('Cross Section Configuration - %s' % xs.title)
 	ax.set_xlabel(r'Distance from Center of ROW $(ft)$')

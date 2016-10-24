@@ -142,10 +142,10 @@ class CrossSection(object):
 		self.sheet = sheet #mandatory, short, template worksheet name
 		self.tag = None #identifier linking multiple CrossSection objects
 		self.title = '' #longer form, used for plotting text
-		self.soil_resistivity = 100. #?
-		self._max_dist = 100 #maximum simulated distance from the ROW center
-		self._step = 1 #step size for calculations
-		self._sample_height = 3. #uniform sample height
+		self.soil_resistivity = 100.0 #?
+		self._max_dist = 100.0 #maximum simulated distance from the ROW center
+		self._step = 1.0 #step size for calculations
+		self._sample_height = 3.0 #uniform sample height
 		self._lROW = None #exact coordinate of the left ROW edge
 		self._rROW = None #exact coordinate of the left ROW edge
 		self.conds = [] #list of Conductor objects
@@ -226,9 +226,6 @@ class CrossSection(object):
 		self._reset_fields(old_value, new_value)
 	rROW = property(_get_rROW, _set_rROW)
 
-	def _get_N_sample(self): return(1 + int(np.ceil(2*self.max_dist/self.step)))
-	N_sample = property(_get_N_sample)
-
 	def _get_hot(self): return([c for c in self.conds if c.V != 0])
 	hot = property(_get_hot)
 
@@ -236,11 +233,15 @@ class CrossSection(object):
 	gnd = property(_get_gnd)
 
 	def _get_x_sample(self):
-		return(np.linspace(-self.max_dist, self.max_dist, num=self.N_sample))
+		u = np.floor(self.max_dist/self.step)
+		v = np.linspace(-self.step*u, self.step*u, 2*u + 1)
+		if((self.lROW not in v) or (self.rROW not in v)):
+			v = np.array(sorted(list(set(v) | {self.lROW, self.rROW})))
+		return(v)
 	x_sample = property(_get_x_sample)
 
 	def _get_y_sample(self):
-		return(self.sample_height*np.ones((self.N_sample,), dtype=float))
+		return(self.sample_height*np.ones((len(self.x_sample),), dtype=float))
 	y_sample = property(_get_y_sample)
 
 	def _get_freq(self):
@@ -252,16 +253,6 @@ class CrossSection(object):
 
 	def _get_y(self): return(np.array([c.y for c in self.conds], dtype=float))
 	y = property(_get_y)
-
-	def _get_lROWi(self):
-		d = np.absolute(self.x_sample - self.lROW)
-		return(max(np.where(d == np.min(d))[0]))
-	lROWi = property(_get_lROWi)
-
-	def _get_rROWi(self):
-		d = np.absolute(self.x_sample - self.rROW)
-		return(min(np.where(d == np.min(d))[0]))
-	rROWi = property(_get_rROWi)
 
 	def _get_subconds(self):
 		return(np.array([c.subconds for c in self.conds], dtype=float))
@@ -294,7 +285,7 @@ class CrossSection(object):
 	fields = property(_get_fields)
 
 	def _get_ROW_edge_fields(self):
-		return(self.fields.iloc[[self.lROWi, self.rROWi]])
+		return(self.fields.loc[[self.lROW, self.rROW]])
 	ROW_edge_fields = property(_get_ROW_edge_fields)
 
 	def _check_complete(self):
@@ -384,7 +375,7 @@ class CrossSection(object):
 		#store the values
 		self._fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
 									'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
-									index=self.x_sample)
+									index=x_sample)
 
 	def compare_DAT(self, DAT_path, **kw):
 		"""Load a FIELDS output file (.DAT), find absolute and percentage
@@ -498,7 +489,7 @@ class SectionBook(object):
 	sheets = property(_get_sheets, None, None, 'list of CrossSection sheets')
 
 	def _get_tags(self): return(set([xs.tag for xs in self.xss]))
-	tags = property(_get_tags, None, None, 'list of CrossSection tags')
+	tags = property(_get_tags, None, None, 'set of CrossSection tags')
 
 	def _get_titles(self): return([xs.title for xs in self.xss])
 
@@ -514,18 +505,15 @@ class SectionBook(object):
 
 	def _get_ROW_edge_max(self):
 		#gather ROW edge results
-		L = len(self.xss)
-		El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
-		for i in range(L):
-			xs = self.i[i]
-			Bl[i] = xs.fields['Bmax'].iat[xs.lROWi]
-			Br[i] = xs.fields['Bmax'].iat[xs.rROWi]
-			El[i] = xs.fields['Emax'].iat[xs.lROWi]
-			Er[i] = xs.fields['Emax'].iat[xs.rROWi]
+		xss = self.xss
+		r = range(len(xss))
 		#construct DataFrame
 		df = pd.DataFrame(data={
-			'sheet': self.sheets, 'title': [xs.title for xs in self],
-			'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er})
+			'Bmaxl': [xss[i].fields.at[xss[i].lROW, 'Bmax'] for i in r],
+			'Bmaxr': [xss[i].fields.at[xss[i].rROW, 'Bmax'] for i in r],
+			'Emaxl': [xss[i].fields.at[xss[i].lROW, 'Emax'] for i in r],
+			'Emaxr': [xss[i].fields.at[xss[i].rROW, 'Emax'] for i in r]},
+			index=self.sheets)
 		return(df)
 	ROW_edge_max = property(_get_ROW_edge_max, None, None,
 			'DataFrame with maximum field magnitudes for each CrossSection')
@@ -567,7 +555,7 @@ class SectionBook(object):
 		return(len(self.xss))
 
 	def __str__(self):
-		return(fields_print._str_CrossSection(self))
+		return(fields_print._str_SectionBook(self))
 
 	def sample(self, *args):
 		"""Get a random CrossSection from the SectionBook
@@ -655,12 +643,13 @@ class SectionBook(object):
 				wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
 						'.xlsx', **kw)
 		if(wo):
-			self.ROW_edge_max.to_excel(wo, index=False, columns=c,
+			self.ROW_edge_max.to_excel(wo, index_label='Sheet', columns=c,
 									header=h, sheet_name='ROW_edge_max')
 		else:
 			wo = fields_funks._path_manage(self.name + '-ROW_edge_results',
 					'.csv', **kw)
-			self.ROW_edge_max.to_csv(wo, index=False, columns=c, header=h)
+			self.ROW_edge_max.to_csv(wo, index_label='Sheet',
+					columns=c, header=h)
 		if(not ('xl' in kw)):
 			print('Maximum fields at ROW edges written to: %s' % wo)
 

@@ -137,7 +137,7 @@ def load_template(file_path, **kw):
 				% (cond.tag, k)))
 			else:
 				tags.append(cond.tag)
-			cond.freq = misc[2]
+			#cond.freq = misc[2]
 			cond.x = df[3].iat[i]
 			cond.y = df[4].iat[i]
 			#check for conductors with identical x,y coordinates
@@ -173,7 +173,7 @@ def load_template(file_path, **kw):
 				% (cond.tag, k)))
 			else:
 				tags.append(cond.tag)
-			cond.freq = misc[2]
+			#cond.freq = misc[2]
 			cond.x = df[12].iat[i]
 			cond.y = df[13].iat[i]
 			#check for conductors with identical x,y coordinates
@@ -271,8 +271,8 @@ def optimize_phasing(xs, circuits, **kw):
 	B_left_min, B_left_arr, B_right_min, B_right_arr = np.inf, [], np.inf, []
 	E_left_min, E_left_arr, E_right_min, E_right_arr = np.inf, [], np.inf, []
 	#get coordinates of the ROW edges
-	x_ROW = np.array([xs.x_sample[xs.lROWi], xs.x_sample[xs.rROWi]])
-	y_ROW = np.array([xs.y_sample[xs.lROWi], xs.y_sample[xs.rROWi]])
+	x_ROW = np.array([xs.lROW, xs.rROW], dtype=float)
+	y_ROW = xs.sample_height*np.ones((2,), dtype=float)
 	#array for swapping phases, zeros in the grounded slots
 	phasing = xs.phase.copy()
 	#store a flattened version of the conductor indices for swapping
@@ -292,10 +292,10 @@ def optimize_phasing(xs, circuits, **kw):
 			E_right_min, E_right_arr = Emax[1], new_arr
 	#return results in a DataFrame
 	results = pd.DataFrame(data={
-		'Optimal Phasing - Bmax Left ROW Edge' : xs.phase[B_left_arr],
-		'Optimal Phasing - Bmax Right ROW Edge' : xs.phase[B_right_arr],
-		'Optimal Phasing - Emax Left ROW Edge' : xs.phase[E_left_arr],
-		'Optimal Phasing - Emax Right ROW Edge' : xs.phase[E_right_arr]},
+		'Optimal Phasing - Bmax Left ROW Edge': xs.phase[B_left_arr],
+		'Optimal Phasing - Bmax Right ROW Edge': xs.phase[B_right_arr],
+		'Optimal Phasing - Emax Left ROW Edge': xs.phase[E_left_arr],
+		'Optimal Phasing - Emax Right ROW Edge': xs.phase[E_right_arr]},
 		index=[xs.hot[i].tag for i in conds])
 	#compile a new sectionbook with the optimal phasings
 	fn = _path_str_condition(xs.sheet).replace(' ', '-')
@@ -428,17 +428,13 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
 	#run secant method to find adjustments for each target
 	h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
 	if(B_l):
-		h_B_l = _bisect(xs, conds, xs.lROWi, _B_funk, B_l, hlow, hhigh,
-			max_iter, rel_err)
+		h_B_l = _bisect(xs, conds, _B_funk, B_l, hlow, hhigh, max_iter, rel_err)
 	if(B_r):
-		h_B_r = _bisect(xs, conds, xs.rROWi, _B_funk, B_r, hlow, hhigh,
-			max_iter, rel_err)
+		h_B_r = _bisect(xs, conds, _B_funk, B_r, hlow, hhigh, max_iter, rel_err)
 	if(E_l):
-		h_E_l = _bisect(xs, conds, xs.lROWi, _E_funk, E_l, hlow, hhigh,
-			max_iter, rel_err)
+		h_E_l = _bisect(xs, conds, _E_funk, E_l, hlow, hhigh, max_iter, rel_err)
 	if(E_r):
-		h_E_r = _bisect(xs, conds, xs.rROWi, _E_funk, E_r, hlow, hhigh,
-			max_iter, rel_err)
+		h_E_r = _bisect(xs, conds, _E_funk, E_r, hlow, hhigh, max_iter, rel_err)
 	#create return variables
 	h = (h_B_l, h_B_r, h_E_l, h_E_r)
 	fn = _path_str_condition(xs.sheet).replace(' ', '-')
@@ -490,10 +486,10 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
 
 	return(h, adj)
 
-def _bisect(xs, conds, sample_idx, funk, target, hlow, hhigh, max_iter, rel_err):
+def _bisect(xs, conds, funk, target, hlow, hhigh, max_iter, rel_err):
 	#get sample x and y arrays with a single element in each
-	x_sample = np.array([xs.x_sample[sample_idx]], dtype = float)
-	y_sample = np.array([xs.y_sample[sample_idx]], dtype = float)
+	x_sample = np.array([xs.lROW, xs.rROW], dtype=float)
+	y_sample = xs.sample_height*np.ones((2,), dtype=float)
 	#evaluate at the bracketing values
 	flow = funk(hlow, target, xs, conds, x_sample, y_sample)
 	fhigh = funk(hhigh, target, xs, conds, x_sample, y_sample)
@@ -566,21 +562,20 @@ def _xs_sb_compare(xs, sb):
 	L = len(sb)
 	El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
 	for i in range(L):
-		Bl[i] = (sb.i[i].fields['Bmax'].iat[sb.i[i].lROWi]
-					- xs.fields['Bmax'].iat[xs.lROWi])
-		Br[i] = (sb.i[i].fields['Bmax'].iat[sb.i[i].rROWi]
-					- xs.fields['Bmax'].iat[xs.rROWi])
-		El[i] = (sb.i[i].fields['Emax'].iat[sb.i[i].lROWi]
-					- xs.fields['Emax'].iat[xs.lROWi])
-		Er[i] = (sb.i[i].fields['Emax'].iat[sb.i[i].rROWi]
-					- xs.fields['Emax'].iat[xs.rROWi])
+		Bl[i] = (sb.i[i].fields.at[sb.i[i].lROW, 'Bmax']
+					- xs.fields.at[xs.lROW, 'Bmax'])
+		Br[i] = (sb.i[i].fields.at[sb.i[i].rROW, 'Bmax']
+					- xs.fields.at[xs.rROW, 'Bmax'])
+		El[i] = (sb.i[i].fields.at[sb.i[i].lROW, 'Emax']
+					- xs.fields.at[xs.lROW, 'Emax'])
+		Er[i] = (sb.i[i].fields.at[sb.i[i].rROW, 'Emax']
+					- xs.fields.at[xs.rROW, 'Emax'])
 	#create and return DataFrame
 	df = pd.DataFrame(data = {
-		'sheet': sb.sheets, 'title': [xs.title for xs in sb],
-		'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
+		'sheet': sb.sheets, 'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
 				).sort_values('sheet')
-	c = ['sheet','title', 'Bmaxl','Bmaxr','Emaxl','Emaxr']
-	h = ['Cross-Section Sheet', 'Cross-Section Title',
+	c = ['sheet', 'Bmaxl', 'Bmaxr', 'Emaxl', 'Emaxr']
+	h = ['Cross-Section Sheet',
 			'Bmax Diff - Left ROW Edge', 'Bmax Diff - Right ROW Edge',
 			'Emax Diff - Left ROW Edge', 'Emax Diff - Right ROW Edge']
 	return(df, c, h)
