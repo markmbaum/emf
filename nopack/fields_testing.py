@@ -3,9 +3,11 @@ import pstats
 
 import emf.fields as fld
 
-c = fld.Conductor('1a', dict(x=10, y=23, V=345, I=200))
-print c
-print fld.Conductor('1b', dict(x=40), c)
+sb = fld.load_template(r"P:\MBaum\Programming\Python\python_code\emf\working_files\practice_xcs.xlsx")
+
+xs = sb.sample()
+print xs
+print fld.optimize_phasing(xs, 'all')
 
 #cProfile.run("""
 #xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()

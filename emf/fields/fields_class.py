@@ -125,6 +125,9 @@ class Conductor(object):
 
     def _get_tag(self): return(self._tag)
     def _set_tag(self, new_tag):
+        if(not new_tag):
+            raise(EMFError("""
+            Conductor tags cannot be implicitly False objects."""))
         if(self._xs is not None):
             if(new_tag in self._xs.tags):
                 raise(EMFError("""
@@ -409,6 +412,10 @@ class CrossSection(object):
         #return None if no xs is found
         return(None)
 
+    def __iter__(self):
+        for c in self.conds:
+            yield(c)
+
     def add_conductor(self, cond):
         #check if the Conductor is complete
         b, v = cond.complete
@@ -427,6 +434,7 @@ class CrossSection(object):
         if(cond.V == 0):
             #probably shouldn't have current if grounded
             if(cond.I != 0):
+                print cond.I
                 print("""
                 Conductor with tag "%s" in CrossSection "%s"
                 is grounded (V = 0) but has nonzero current?"""
@@ -438,6 +446,9 @@ class CrossSection(object):
         self.conds[-1]._xs = self
 
     def remove_conductor(self, key):
+        #check input
+        if(type(key) is Conductor):
+            key = key.tag
         #check in the hot dict
         try:
             idx = self._tag2idx[key]

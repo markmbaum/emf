@@ -67,12 +67,12 @@ def _str_CrossSection(z):
     left ROW edge (ft):            %s
     right ROW edge (ft):           %s
 
-    conductor information
+    conductor information (%d Conductors)
 %s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s
 
     fields sample (see CrossSection.fields for all EMF results)\n%s""" % (
         z.sheet, sb, z.tag, z.title, z.soil_resistivity,
-        z.max_dist, z.step, z.sample_height, z.lROW, z.rROW,
+        z.max_dist, z.step, z.sample_height, z.lROW, z.rROW, len(z.conds),
         _table_iterable_fill('      tags:                  ', z.tags),
         _table_iterable_fill('      frequencies (Hz):      ', z.freq),
         _table_iterable_fill('      x coordinates (ft):    ', z.x),
