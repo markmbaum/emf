@@ -3,9 +3,9 @@ import pstats
 
 import emf.fields as fld
 
-sb = fld.load_template(r"P:\MBaum\Programming\Python\python_code\emf\working_files\practice_xcs.xlsx")
-
-print sb.sample()
+c = fld.Conductor('1a', dict(x=10, y=23, V=345, I=200))
+print c
+print fld.Conductor('1b', dict(x=40), c)
 
 #cProfile.run("""
 #xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()
