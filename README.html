@@ -73,16 +73,16 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <h3>
 <a id="user-content-emffields-vs-fields" class="anchor" href="#emffields-vs-fields" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>emf.fields</code> vs FIELDS</h3>
 
-<p>The <code>emf.fields</code> subpackage contains code that calculates theoretical electric and magnetic fields near parallel groups of power lines. It replaces the old and difficult program called FIELDS, originally developed by <a href="https://www.sce.com">Southern California Edison Co.</a>. The FIELDS software runs through a DOSBOX application and is long out of date.</p>
+<p>The <code>emf.fields</code> subpackage contains code that calculates theoretical electric and magnetic fields near parallel groups of power lines. It replaces the old and difficult program called FIELDS, developed by <a href="https://www.sce.com">Southern California Edison Co.</a>. The FIELDS software runs through a DOSBOX application and is long out of date.</p>
 
 <p>The main problems with FIELDS:</p>
 
 <ul>
 <li>Using the program requires navigating through lots of menus with semi-responsive buttons, requiring manual entry of cross section data into menus and tables of the DOSBOX app without even the option to copy and paste. Building cross section models in FIELDS is slow, tedious, and error prone.</li>
-<li>Once a cross section is built in FIELDS, it's very difficult to refer to the input data because FIELDS saves model information to nearly inscrutable text files with <code>.FLD</code> extensions, like in <a href="docs/32P.FLD">this</a> file. These files also force users to re-navigate the frustrating series of menus to edit cross section input.</li>
+<li>Once a cross section is built in FIELDS, it's very difficult to refer to the input data because FIELDS saves model information to nearly inscrutable text files with <code>.FLD</code> extensions, like in <a href="docs/other/32P.FLD">this</a> file. These files also force users to re-navigate the frustrating series of menus to edit cross section input.</li>
 <li>Causing further annoyance, the program traps the mouse, meaning other applications can't be used at the same time unless an escape button is pressed first (the Windows button on Windows).</li>
 <li>Model resolution/extent are limited in FIELDS, with a maximum of 602 samples.</li>
-<li>Results are output to delimited files with <code>.DAT</code> extensions, but these files contain results rounded/truncated to three digits and often have formatting complications or printing errors. For example, numbers that require more than four digits to the left of a decimal (including negative signs, like -1233.0) are printed on their own lines with "%" in front of them for some reason, <a href="docs/32P.DAT">like so</a>. (<code>emf.fields.read_DAT()</code> is a function that will read these output files into <a href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html">DataFrames</a> and handle all of their known eccentricities, a function mostly leftover from when <code>emf.fields</code> couldn't do EMF calculations on its own.)</li>
+<li>Results are output to delimited files with <code>.DAT</code> extensions, but these files contain results rounded/truncated to three digits and often have formatting complications or printing errors. For example, numbers that require more than four digits to the left of a decimal (including negative signs, like -1233.0) are printed on their own lines with "%" in front of them for some reason, <a href="docs/other/32P.DAT">like so</a>. (<code>emf.fields.read_DAT()</code> is a function that will read these output files into <a href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html">DataFrames</a> and handle all of their known eccentricities, a function mostly leftover from when <code>emf.fields</code> couldn't do EMF calculations on its own.)</li>
 <li>Nothing is scriptable. Any changes require re-navigating the menus, <code>.FLD</code> files, and <code>.DAT</code> files.</li>
 </ul>
 
@@ -122,7 +122,7 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <li>bar charts showing the fields of grouped cross sections at ROW edges</li>
 </ul>
 
-<p>The <code>emf.fields.run()</code> function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into <code>SectionBook</code>s for more targeted output using the <code>emf.fields.load_template()</code> function. Alternatively, cross section models can be built entirely in Python, as <a href="docs/fields-workflow-from-scratch.ipynb">this notebook</a> demonstrates in an explicit manner.</p>
+<p>The <code>emf.fields.run()</code> function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into <code>SectionBook</code>s for more targeted output using the <code>emf.fields.load_template()</code> function. Alternatively, cross section models can be built entirely in Python, as <a href="docs/notebooks/fields-workflow-from-scratch.ipynb">this notebook</a> demonstrates in an explicit manner and <a href="docs/notebooks/underground-line-optimization.ipynb">this other notebook</a> demonstrates with fewer comments.</p>
 
 <p>In addition to being quicker to use and more flexible than FIELDS, this code furthers the analytical capabilities of FIELDS with two methods.</p>
 

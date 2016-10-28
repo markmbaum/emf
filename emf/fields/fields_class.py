@@ -218,7 +218,10 @@ class CrossSection(object):
 
     def __init__(self, sheet, *args):
         """CrossSection must be initialized with a sheet string, and a list
-        of Conductor objects can optionally be passed in"""
+        of Conductor objects can optionally be passed in in the second arg
+        args:
+            sheet - string, the name of the CrossSection
+            conds - list of Conducor objects to copy into the xs"""
         self._sheet = sheet #mandatory, short, template worksheet name
         self.tag = None #identifier linking multiple CrossSection objects
         self.title = '' #longer form, used for plotting text
@@ -417,6 +420,9 @@ class CrossSection(object):
             yield(c)
 
     def add_conductor(self, cond):
+        """Add a Conductor object to the CrossSection
+        args:
+            cond - Conductor object to add"""
         #check if the Conductor is complete
         b, v = cond.complete
         if(not b):
@@ -446,6 +452,9 @@ class CrossSection(object):
         self.conds[-1]._xs = self
 
     def remove_conductor(self, key):
+        """Remove a Conductor object from the CrossSection
+        args:
+            key - Conductor tag or Conductor object to remove"""
         #check input
         if(type(key) is Conductor):
             key = key.tag
@@ -577,6 +586,12 @@ class SectionBook(object):
     exporting methods."""
 
     def __init__(self, name, *args):
+        """SectionBooks must be initialized with a name string, with
+        the option to pass a list of CrossSection objects in the second arg
+        args:
+            name - string, name of SectionBook
+            xs - list of CrossSection objects to copy into the SectionBook"""
+
         self.name = name #mandatory identification field
         self.xss = [] #list of cross section objects
         self._sheet2idx = dict() #for CrossSection retrieval
@@ -776,6 +791,7 @@ class _IntegerIndexer(object):
     """Ancillary class for retrieval of items from a list in a parent object"""
 
     def __init__(self, L):
+        """Accepts a list"""
         self._L = L
 
     def __getitem__(self, key):

@@ -5,9 +5,8 @@ import emf.fields as fld
 
 sb = fld.load_template(r"P:\MBaum\Programming\Python\python_code\emf\working_files\practice_xcs.xlsx")
 
-xs = sb.sample()
-print xs
-print fld.optimize_phasing(xs, 'all')
+fld.plot_xs(sb['raise1'])
+fld.show()
 
 #cProfile.run("""
 #xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()

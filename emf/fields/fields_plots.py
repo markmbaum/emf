@@ -234,7 +234,9 @@ def _plot_ROW_edges(ax, lROW, rROW, **kw):
         ax - target axis
         lROW - x value of the left edge of the ROW
         rROW - x value of the right edge of the ROW"""
-    yl = ax.get_ylim()
+    yl = list(ax.get_ylim())
+    if(yl[0] > 0):
+        yl[0] = 0
     kw['H'].append(ax.plot([lROW]*2, yl, '--', color = _ROW_color,
                         linewidth = _ROW_linewidth, zorder = -1)[0])
     ax.plot([rROW]*2, yl, '--', color = _ROW_color,
@@ -626,50 +628,30 @@ def _plot_group_ROW_edges(ax, xss, **kw):
         ax - target axis
         xss - list of CrossSection objects to plot results from"""
 
-    #if there are only two CrossSections, handle ROW edges independently
-    if(len(xss) == 2):
+    #if the CrossSections all have the same ROW edges, plot a single pair
+    l, r = [xs.lROW for xs in xss], [xs.rROW for xs in xss]
+    if(all([i == l[0] for i in l[1:]]) and all([i == r[0] for i in r[1:]])):
+        _plot_ROW_edges(ax, l[0], r[0], **kw)
+
+    #if there are only two CrossSections and they have different ROW edges,
+    #handle ROW edges independently
+    elif(len(xss) == 2):
         yl = ax.get_ylim()
+        ax.plot([xss[0].lROW]*2, yl, '--', color = _colormap[0],
+                        linewidth = _ROW_linewidth, zorder = -1)
+        ax.plot([xss[1].lROW]*2, yl, '--', color = _colormap[1],
+                    linewidth = _ROW_linewidth, zorder = -1)
         #check if the left ROW edges are in the same place for both sections
-        if(xss[0].lROW == xss[1].lROW):
-            #plot overlapping dashed lines to create double colored dashes
-            ax.plot([xss[0].lROW]*2, yl, '--', color = _colormap[0],
-                        linewidth = _ROW_linewidth, zorder = -1,
-                        dashes = [6,6,6,6])
-            ax.plot([xss[1].lROW]*2, yl, '--', color = _colormap[1],
-                        linewidth = _ROW_linewidth, zorder = -1,
-                        dashes = [6,18,6,18])
-        else:
-            ax.plot([xss[0].lROW]*2, yl, '--', color = _colormap[0],
+        ax.plot([xss[0].rROW]*2, yl, '--', color = _colormap[0],
                         linewidth = _ROW_linewidth, zorder = -1)
-            ax.plot([xss[1].lROW]*2, yl, '--', color = _colormap[1],
-                        linewidth = _ROW_linewidth, zorder = -1)
-        #check if the left ROW edges are in the same place for both sections
-        if(xss[0].rROW == xss[1].rROW):
-            #plot overlapping dashed lines to create double colored dashes
-            ax.plot([xss[0].rROW]*2, yl, '--', color = _colormap[0],
-                        linewidth = _ROW_linewidth, zorder = -1,
-                        dashes = [6,6,6,6])
-            ax.plot([xss[1].rROW]*2, yl, '--', color = _colormap[1],
-                        linewidth = _ROW_linewidth, zorder = -1,
-                        dashes = [6,18,6,18])
-        else:
-            ax.plot([xss[0].rROW]*2, yl, '--', color = _colormap[0],
-                        linewidth = _ROW_linewidth, zorder = -1)
-            ax.plot([xss[1].rROW]*2, yl, '--', color = _colormap[1],
-                        linewidth = _ROW_linewidth, zorder = -1)
+        ax.plot([xss[1].rROW]*2, yl, '--', color = _colormap[1],
+                    linewidth = _ROW_linewidth, zorder = -1)
         #create a line handle and label for each color of the dashed line
         kw['H'] += [
                 mpl.lines.Line2D([], [], linestyle = '--',color = _colormap[0]),
                 mpl.lines.Line2D([], [], linestyle = '--', color = _colormap[1])
                 ]
-        kw['L'] += ['ROW Edges - ' + xss[0].sheet,
-                        'ROW Edges - ' + xss[1].sheet]
-    elif(len(xss) > 2):
-        #if there are more than two CrossSections and they all have the same
-        #ROW edges, plot the single set of edge lines
-        l, r = [xs.lROW for xs in xss], [xs.rROW for xs in xss]
-        if(all([i == l[0] for i in l[1:]]) and all([i == r[0] for i in r[1:]])):
-            _plot_ROW_edges(ax, l[0], r[0], **kw)
+        kw['L'] += ['ROW Edges - ' + xss[0].sheet, 'ROW Edges - ' + xss[1].sheet]
 
 def plot_groups(sb, **kw):
     """Plot the fields of grouped CrossSections in the same axis, a plot for
@@ -683,6 +665,7 @@ def plot_groups(sb, **kw):
         xmax - cutoff distance from ROW center
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
+        groups - a list of group names to plot, default is all groups
         return_figs - toggle whether a list of figure objects is returned
                       instead of closing the figures to clear memory,
                       default is False
@@ -702,76 +685,81 @@ def plot_groups(sb, **kw):
     E_flag = True
     if('E' in kw):
         E_flag = kw['E']
+    groups = sb.tags
+    if('groups' in kw):
+        groups = set(kw['groups'])
 
     #iterate over groups with more than 1 CrossSection
     for xss in sb.tag_groups:
 
-        #BMAX
-        if(B_flag):
-            #get plotting objects
-            fig = plt.figure()
-            ax = fig.add_subplot(1,1,1)
-            #init handles and labels lists for legend
-            kw['H'], kw['L'] = [], []
-            #plot the Bmax results for each xs in the group
-            _plot_group_fields(ax, xss, 'Bmax', **kw)
-            #plot wires
-            max_field = max([xs.fields['Bmax'].max() for xs in xss])
-            _plot_group_wires(ax, xss, max_field, **kw)
-            #adjust axis limits if called for
-            if(_include_headspace):
-                yl = ax.get_ylim()
-                ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
-            #plot ROW lines
-            _plot_group_ROW_edges(ax, xss, **kw)
-            #set axis text and legend
-            ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
-            ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
-            t = 'Maximum Magnetic Field - %s' % str(xss[0].tag)
-            ax.set_title(t)
-            ax.legend(kw['H'], kw['L'], numpoints = 1)
-            _format_line_axes_legends(ax)
-            #save the figure if keyword 'save' == True, and append fig to figs
-            _save_fig('group_%s-Bmax' % str(xss[0].tag), fig, **kw)
-            #store the fig or close it
-            if(return_figs):
-                figs['B'][xss[0].tag] = fig
-            else:
-                plt.close(fig)
+        if(xss[0].tag in groups):
 
-        #EMAX
-        if(E_flag):
-            #get plotting objects
-            fig = plt.figure()
-            ax = fig.add_subplot(1,1,1)
-            #init handles and labels lists for legend
-            kw['H'], kw['L'] = [], []
-            #plot the Bmax results for each xs in the group
-            _plot_group_fields(ax, xss, 'Emax', **kw)
-            #plot wires
-            max_field = max([xs.fields['Emax'].max() for xs in xss])
-            _plot_group_wires(ax, xss, max_field, **kw)
-            #adjust axis limits if called for
-            if(_include_headspace):
-                yl = ax.get_ylim()
-                ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
-            #plot ROW lines
-            _plot_group_ROW_edges(ax, xss, **kw)
-            #set axis text and legendf
-            ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
-            ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
-            t = 'Maximum Electric Field - %s' % str(xss[0].tag)
-            ax.set_title(t)
-            ax.legend(kw['H'], kw['L'], numpoints = 1)
-            _format_line_axes_legends(ax)
+            #BMAX
+            if(B_flag):
+                #get plotting objects
+                fig = plt.figure()
+                ax = fig.add_subplot(1,1,1)
+                #init handles and labels lists for legend
+                kw['H'], kw['L'] = [], []
+                #plot the Bmax results for each xs in the group
+                _plot_group_fields(ax, xss, 'Bmax', **kw)
+                #plot wires
+                max_field = max([xs.fields['Bmax'].max() for xs in xss])
+                _plot_group_wires(ax, xss, max_field, **kw)
+                #adjust axis limits if called for
+                if(_include_headspace):
+                    yl = ax.get_ylim()
+                    ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
+                #plot ROW lines
+                _plot_group_ROW_edges(ax, xss, **kw)
+                #set axis text and legend
+                ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
+                ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
+                t = 'Maximum Magnetic Field - %s' % str(xss[0].tag)
+                ax.set_title(t)
+                ax.legend(kw['H'], kw['L'], numpoints=1)
+                _format_line_axes_legends(ax)
+                #save the figure if keyword 'save' == True, and append fig
+                _save_fig('group_%s-Bmax' % str(xss[0].tag), fig, **kw)
+                #store the fig or close it
+                if(return_figs):
+                    figs['B'][xss[0].tag] = fig
+                else:
+                    plt.close(fig)
 
-            #save the figure if keyword 'save' == True or a path string is passed
-            _save_fig('group_%s-Emax' % str(xss[0].tag), fig, **kw)
-            #store the fig or close it
-            if(return_figs):
-                figs['E'][xss[0].tag] = fig
-            else:
-                plt.close(fig)
+            #EMAX
+            if(E_flag):
+                #get plotting objects
+                fig = plt.figure()
+                ax = fig.add_subplot(1,1,1)
+                #init handles and labels lists for legend
+                kw['H'], kw['L'] = [], []
+                #plot the Bmax results for each xs in the group
+                _plot_group_fields(ax, xss, 'Emax', **kw)
+                #plot wires
+                max_field = max([xs.fields['Emax'].max() for xs in xss])
+                _plot_group_wires(ax, xss, max_field, **kw)
+                #adjust axis limits if called for
+                if(_include_headspace):
+                    yl = ax.get_ylim()
+                    ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
+                #plot ROW lines
+                _plot_group_ROW_edges(ax, xss, **kw)
+                #set axis text and legendf
+                ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
+                ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
+                t = 'Maximum Electric Field - %s' % str(xss[0].tag)
+                ax.set_title(t)
+                ax.legend(kw['H'], kw['L'], numpoints=1)
+                _format_line_axes_legends(ax)
+
+                #save the figure if keyword 'save' == True or a path string is passed
+                _save_fig('group_%s-Emax' % str(xss[0].tag), fig, **kw)
+                #store the fig or close it
+                if(return_figs):
+                    figs['E'][xss[0].tag] = fig
+                else:
+                    plt.close(fig)
 
     if(return_figs):
         return(figs)
@@ -888,14 +876,15 @@ def plot_groups_at_ROW(sb, **kw):
     CrossSection group in a SectionBook
     args:
         sb - SectionBook object to pull plotting groups from
-    kw"
+    kw:
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
         format - string, saved plot format/extension (default 'png')
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
+        groups - a list of group names to plot, default is all groups
         xs_order - dict, keys are CrossSection group tags, which map to
-                   lists of CrossSection shets specifying the order of the
+                   lists of CrossSection sheets specifying the order of the
                    plotted CrossSection bars (left to right). Not all
                    CrossSecitons in a group must be listed. Any/all can be
                    left out.
@@ -918,50 +907,55 @@ def plot_groups_at_ROW(sb, **kw):
     E_flag = True
     if('E' in kw):
         E_flag = kw['E']
+    groups = sb.tags
+    if('groups' in kw):
+        groups = set(kw['groups'])
 
     #iterate over groups with more than 1 CrossSection
     for xss in sb.tag_groups:
 
-        #get reordered CrossSection list
-        xss = _reorder_xss(xss, **kw)
+        if(xss[0].tag in groups):
 
-        #plot Bmax
-        if(B_flag):
-            fig, axl, axr = _generate_ROW_value_plot_objects(xss)
-            _plot_group_bars(axl, xss, 'Bmax', 'left')
-            _plot_group_bars(axr, xss, 'Bmax', 'right')
-            #format
-            _format_bar_axes_legends(axl, axr)
-            #apply text
-            axl.set_ylabel(r'Maximum Magnetic Field $(mG)$')
-            fig.suptitle('Maximum Magnetic Fields at ROW Edges - %s' % xss[0].tag,
-                    fontsize=18)
-            #save?
-            _save_fig('group_%s-ROW-Bmax' % str(xss[0].tag), fig, **kw)
-            #store the fig or close it
-            if(return_figs):
-                figs['B'][xss[0].tag] = fig
-            else:
-                plt.close(fig)
+            #get reordered CrossSection list
+            xss = _reorder_xss(xss, **kw)
 
-        #plot Emax
-        if(E_flag):
-            fig, axl, axr = _generate_ROW_value_plot_objects(xss)
-            _plot_group_bars(axl, xss, 'Emax', 'left')
-            _plot_group_bars(axr, xss, 'Emax', 'right')
-            #format
-            _format_bar_axes_legends(axl, axr)
-            #apply text
-            axl.set_ylabel(r'Maximum Electric Field $(kV/m)$')
-            fig.suptitle('Maximum Electric Fields at ROW Edges - %s' % xss[0].tag,
-                    fontsize=18)
-            #save?
-            _save_fig('group_%s-ROW-Emax' % str(xss[0].tag), fig, **kw)
-            #store the fig or close it
-            if(return_figs):
-                figs['E'][xss[0].tag] = fig
-            else:
-                plt.close(fig)
+            #plot Bmax
+            if(B_flag):
+                fig, axl, axr = _generate_ROW_value_plot_objects(xss)
+                _plot_group_bars(axl, xss, 'Bmax', 'left')
+                _plot_group_bars(axr, xss, 'Bmax', 'right')
+                #format
+                _format_bar_axes_legends(axl, axr)
+                #apply text
+                axl.set_ylabel(r'Maximum Magnetic Field $(mG)$')
+                fig.suptitle('Maximum Magnetic Fields at ROW Edges - %s' %
+                        xss[0].tag, fontsize=18)
+                #save?
+                _save_fig('group_%s-ROW-Bmax' % str(xss[0].tag), fig, **kw)
+                #store the fig or close it
+                if(return_figs):
+                    figs['B'][xss[0].tag] = fig
+                else:
+                    plt.close(fig)
+
+            #plot Emax
+            if(E_flag):
+                fig, axl, axr = _generate_ROW_value_plot_objects(xss)
+                _plot_group_bars(axl, xss, 'Emax', 'left')
+                _plot_group_bars(axr, xss, 'Emax', 'right')
+                #format
+                _format_bar_axes_legends(axl, axr)
+                #apply text
+                axl.set_ylabel(r'Maximum Electric Field $(kV/m)$')
+                fig.suptitle('Maximum Electric Fields at ROW Edges - %s' %
+                        xss[0].tag, fontsize=18)
+                #save?
+                _save_fig('group_%s-ROW-Emax' % str(xss[0].tag), fig, **kw)
+                #store the fig or close it
+                if(return_figs):
+                    figs['E'][xss[0].tag] = fig
+                else:
+                    plt.close(fig)
 
     if(return_figs):
         return(figs)
