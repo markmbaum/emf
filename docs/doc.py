@@ -1,241 +1,244 @@
-import os
-import glob
+import inspect
 
-#Flatten a list of lists. Only works on a list and the first level of
-#sublists, not recursively on all levels
-flatten = lambda L: [item for sublist in L for item in sublist]
+def clean_html(s):
+    return(s.replace('\n', '').replace('\t', ' ').replace('    ', ' '))
 
-def get_docstring(lines, line_number):
-    i = line_number
-    while((i < len(lines)) and ('"""' not in lines[i])):
-        i += 1
-    if(i < len(lines)):
-        docstring = lines[i][lines[i].index('"""') + 3:]
-        while('"""' not in docstring):
-            i += 1
-            docstring += lines[i]
-        return(docstring.replace('"""', ''))
+def get_public_vars(obj):
+    v = vars(obj)
+    v = dict(zip([k for k in v if (k[0] != '_')],
+                [v[k] for k in v if (k[0] != '_')]))
+    return(v)
+
+def nav_html(mod_name, submodules, functions, classes, other):
+    """generate an unordered list of links for the navigation menu or index"""
+    #wrap in a single dict for iteration
+    keys = ['submodules', 'functions', 'classes', 'other']
+    d = dict(zip(keys, [submodules, functions, classes, other]))
+    html = '<div id="nav"><h2>Contents</h2><ul id="nav-ul">'
+    for k in keys:
+        if(d[k]):
+            html += """
+            <li class="nav-li"><a href="#%s">%s</a>
+                <ul class="subnav-ul">""" % (k, k)
+            for m in sorted(d[k].keys()):
+                if(k == 'submodules'):
+                    href = '%s-%s.html' % (mod_name, m)
+                else:
+                    href = '#%s' % m
+                html += '<li class="subnav-li"><a href="%s">%s</a></li>' % (href, m)
+            html += '</ul>'
+    html += '</ul></div>'
+    return(clean_html(html))
+
+def get_docstr(obj):
+    """Pull and format the docstring of an object for html"""
+    tab = '&ensp;'
+    docstr = obj.__doc__
+    if(docstr):
+        docstr = docstr.strip()
+        docstr = docstr.replace('\n', '<br>').replace('\t', tab).replace('    ', tab)
+        return('<p class="docstr">%s</p>' % docstr)
     else:
         return('')
 
-def is_unindented(line):
-    """Check if a line of text is unindented. Empty strings return False."""
-    if(len(line.lstrip()) != len(line)):
-        return(True)
+def get_argstr(function):
+    argspec = inspect.getargspec(function)
+    if('self' in argspec[0]):
+        argspec[0].pop(argspec[0].index('self'))
+    if(argspec[3] is not None):
+        for i in range(1, len(argspec[3]) + 1):
+            argspec[0][-i] += '=%s' % str(argspec[3][-i])
+    argstr = '('
+    if(argspec[0]):
+        argstr += ', '.join(argspec[0])
+    if(argspec[1]):
+        if(argspec[0]):
+            argstr += ', '
+        argstr += '*' + argspec[1]
+    if(argspec[2]):
+        if(argspec[1] or argspec[0]):
+            argstr += ', '
+        argstr += '**' + argspec[2]
+    argstr += ')'
+    return(argstr)
+
+def function_to_html(F, name):
+    """Create an html div for a function"""
+    #open a div
+    html = '<div class="function" id="%s">' % name
+    #add the function name and argstr
+    html += '<p class="function-str">%s%s</p>' % (name, get_argstr(F))
+    #add the docstr
+    html += get_docstr(F)
+    #add function name
+    html += '</div>'
+    return(clean_html(html))
+
+def functions_to_html(functions):
+    """Creat an html div for a group of functions, alphabetically"""
+    #start the html
+    html = ''
+    if(functions):
+        html += '<div class="section" id="functions"><h2>Functions</h2>'
+        for k in sorted(functions.keys()):
+            html += function_to_html(functions[k], k)
+        html += '</div>'
+    return(clean_html(html))
+
+def prop_to_html(P, name):
+    html = '<div class="property">'
+    html += '<p class="prop-name">%s</p>' % name
+    html += get_docstr(P) + '</div>'
+    return(clean_html(html))
+
+def class_to_html(C, name):
+    """Create an html string for a class/type object"""
+    #get it's variables, properties, and methods
+    v = get_public_vars(C)
+    #open a div for this individual class
+    html = '<div class="class" id="%s">' % name
+    #add the class name
+    html += '<h3>%s</h3>' % name
+    #add the class docstr
+    if(C.__doc__):
+        html += get_docstr(C)
+    #add the class-constructor
+    if('__init__' in vars(C)):
+        init = vars(C)['__init__']
+        html += function_to_html(init, name).replace('id="%s"' % name, '')
+    #allocate separate strings for properties, methods
+    properties, methods = '', ''
+    for k in sorted(v.keys()):
+        #check if property
+        if(inspect.isdatadescriptor(v[k])):
+            if(properties == ''):
+                properties += '<div class="properties"><h4>Properties</h4>'
+            properties += prop_to_html(v[k], k)
+        #check if method
+        if(inspect.ismethod(v[k]) or (inspect.isfunction(v[k]))):
+            if(methods == ''):
+                methods += '<div class="methods"><h4>Methods</h4>'
+            methods += function_to_html(v[k], k)
+    if(properties != ''):
+        properties += '</div>'
+    if(methods != ''):
+        methods += '</div>'
+    html += properties + methods
+    #close the individual class's div
+    html += '</div>'
+    return(clean_html(html))
+
+def classes_to_html(classes):
+    """Convert a dictionary of class/type objects into html documentation strings
+    args:
+        classes - dict mapping class/type names to class/type objects"""
+    #start html string
+    html = ''
+    #proceed alphabetically
+    if(classes):
+        #section div for all classes
+        html = '<div class="section" id="classes"><h2>Classes</h2>'
+        for k in sorted(classes.keys()):
+            html += class_to_html(classes[k], k)
+        html += '</div>'
+    return(clean_html(html))
+
+def doc_module(mod, **kw):
+    '''document a module by providing its name in the form of a string or a module object
+    args:
+        mod - str, module name or module object
+    kw:
+        all_submods - bool, determines whether submodules that are not in the module's __all__ list are recursively documented'''
+
+    if('all_submods' in kw):
+        all_submods = kw['all_submods']
     else:
-        return(False)
+        all_submods = False
 
-def is_funk_def(line):
-    if('def' in line):
-         if(':' in line):
-            if('(' in line):
-                if(')' in line):
-                    return(True)
-    return(False)
+    #import the module if a string is passed in
+    if(type(mod) is str):
+        exec('import %s as mod' % mod)
+    #store the module name
+    mod_name = mod.__name__
 
-def doc_funk(fn, lines, line_number):
-
-    L = lines
-    i = line_number
-
-    if(not is_funk_def(L[i])):
-        return(None)
-
-    F = {'funkname': L[i][:L[i].index('(')].replace('def', '').strip(),
-            'docstring': get_docstring(L, i),
-            'filename': fn,
-            'call': L[i].replace('def', '').replace(':', '').strip()}
-
-    F['filename'] = os.path.abspath(os.path.join(__file__, F['filename']))
-
-    return(F)
-
-def funk_to_html(F):
-
-    ds = ''
-    for line in F['docstring'].split('\n'):
-        line = line.replace('    ', '\t')
-
-        if(' - ' in line):
-            line = line.split('-')
-            left, right = line[0], ''.join(line[1:])
-            ds += """
-                    <div class="docstr-split-div">
-                        <div class="docstr-left" style="width=%s">
-                            %s -&nbsp;
-                        </div>
-                        <div class="docstr-right">
-                            %s
-                        </div>
-                    </div>""" % (
-                        '%drem' % (len(left) + 3),
-                        left,
-                        right.replace('\t', ''))
+    #get the module's dictionary/namespace/whatever
+    v = vars(mod)
+    #check for submods in __all__
+    if('__all__' in v):
+        submods_in_all = v['__all__']
+        for submod_name in submods_in_all:
+            doc_module(v['%s' % submod_name])
+    else:
+        submods_in_all = []
+    #remove private keys
+    v = get_public_vars(mod)
+    #separate the objects in v based on their types
+    submodules, functions, classes, other = dict(), dict(), dict(), dict()
+    for k in v:
+        t = type(v[k])
+        if(inspect.ismodule(v[k])):
+            if(all_submods or (k in submods_in_all)):
+                submodules[k] = v[k]
+        elif(inspect.isfunction(v[k])):
+            functions[k] = v[k]
+        elif(inspect.isclass(v[k])):
+            classes[k] = v[k]
         else:
-            line = line.replace('args:', '<span class="args">arguments</span>:')
-            line = line.replace('kw:', '<span class="kw">keyword arguments</span>:')
-            line = line.replace('returns:', '<span class="returns variables">returns</span>:')
-            indents = 0
-            if(':' in line):
-                while(line[indents] == '\t'):
-                    indents += 1
-            ds += ('<p class="funk-docstr-line" style="margin-left: %dcm">%s</p>' %
-                    (indents, line))
+            other[k] = v[k]
+    #generate html
+    html = ("""
+    <html lang="en">
+    	<head>
+    		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    		<title>%s</title>
+            <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="style.css">
+    	</head>
+        <body onresize="mainWidth()">
 
-    return(
-    ("""<div class="funk" id="%s">
-            <p class="funk-name">%s<span class="funk-call">%s</span></p>
-            <div class="funk-docstr">%s</div>
-        </div>""" % (
-        F['funkname'], F['funkname'], F['call'].replace(F['funkname'],''), ds)
-            ).replace('\n', '').replace('    ', '').replace('\t',''))
-
-def is_property_def(line):
-    if('property' in line):
-        if('=' in line):
-            if('(' in line):
-                if(')' in line):
-                    return(True)
-    return(False)
-
-def doc_property(lines, line_number):
-
-    L = lines
-    i = line_number
-
-    propstr = L[i]
-    while(')' not in L[i]):
-        propstr += L[i]
-        i += 1
-    propstr += L[i]
-
-    docstring = ''
-    if(propstr.count("'") > 1):
-        docstring = propstr[:propstr.rfind("'")]
-        docstring = docstring[docstring.rfind("'")+1:]
-
-    P = {'propname': propstr.split('=')[0].strip(),
-        'docstring': docstring}
-
-    return(P)
-
-def property_to_html(P):
-
-    return("""
-    <div class="docstr-split-div">
-        <div class="docstr-left" style="width=%s">
-            %s -&nbsp;
-        </div>
-        <div class="docstr-right">
+            <!--Navigation Bar-->
             %s
-        </div>
-    </div>""" % (
-        '%drem' % len(P['propname']),
-        P['propname'],
-        P['docstring']))
 
-def is_class_def(line):
-    if('class ' in line):
-        if(':' in line):
-            return(True)
-    return(False)
+            <div id="main">
+                <h1>%s</h1>
 
-def doc_class(fn, lines, line_number):
+                <!--classes section-->
+                %s
 
-    L = lines
-    i = line_number
+                <!--functions section-->
+                %s
+            </div>
 
-    if(not is_class_def(L[i])):
-        return(None)
+        </body>
 
-    C = {'classname': L[i][:L[i].index(':')].replace('class', '').strip(),
-            'inheritance': '',
-            'docstring': get_docstring(L, i),
-            'filename': fn,
-            'constructor': '',
-            'methods': [],
-            'properties': []}
+        <!--Control the width and height of the #main element-->
+        <script type="text/javascript">
 
-    if('(' in L[i]):
-        C['classname'] = L[i][:L[i].index('(')].replace('class', '').strip()
-        C['inheritance'] = L[i][L[i].index('(')+1:L[i].index(')')]
-    else:
-        C['classname'] = L[i][:L[i].index(':')].replace('class', '').strip()
+            function mainWidth(){
+                var w_nav = document.getElementById('nav').offsetWidth;
+                var w_body = document.body.offsetWidth;
+                var w = (w_body - w_nav - 3).toString() + 'px';
+                document.getElementById('main').style.width = w;}
 
-    i += 1
-    while((i < len(L)) and is_unindented(L[i])):
+            mainWidth();
+            document.addEventListener("resize", mainWidth());
 
-        if(is_funk_def(L[i])):
-            F = doc_funk(fn, L, i)
-            F['call'] = F['call'].replace('self, ', '').replace('self,', '')
-            if(F['funkname'] == '__init__'):
-                F['funkname'] = C['classname']
-                F['call'] = F['call'].replace('__init__', C['classname'])
-                C['constructor'] = F
-            else:
-                C['methods'].append(F)
+            h_main = document.getElementById('main').offsetHeight;
+            document.getElementById('nav').style.height = h_main;
 
-        if(is_property_def(L[i])):
-            C['properties'].append(doc_property(L, i))
+        </script>
 
-        i += 1
+    </html>
+    """ %
+    (mod_name,
+    nav_html(mod_name, submodules, functions, classes, other),
+    mod_name,
+    classes_to_html(classes),
+    functions_to_html(functions)))
 
-    return(C)
+    with open(mod_name.replace('.', '-') + '.html', 'w') as ofile:
+        ofile.write(html)
 
-def class_to_html(C):
+    return(html)
 
-    props = sorted(C['properties'], key=lambda x: x['propname'])
-    methods = sorted(C['methods'], key=lambda x: x['funkname'])
-    methods = [i for i in methods if i['funkname'][0] != '_']
-
-    return(("""
-    <div class="class" id="%s">
-        <p class="class-name">%s</p>
-        <p class="class-inheritance">%s</p>
-        %s
-        <div class="class-properties">
-            %s
-        </div>
-        <div class="class-methods">
-            %s
-        </div>
-    </div>""" %
-        (C['classname'],
-        C['classname'],
-        C['inheritance'],
-        funk_to_html(C['constructor']),
-        ''.join([property_to_html(i) for i in props]),
-        ''.join([funk_to_html(i) for i in methods])
-        )).replace('\n', '').replace('    ', '').replace('\t',''))
-
-
-fns = (glob.glob(os.path.join('..', 'emf', '*'))
-        + glob.glob(os.path.join('..', 'emf', 'fields', '*')))
-
-classes = []
-funks = []
-
-for fn in fns:
-
-    if(fn[-3:] == '.py'):
-        ifile = open(fn, 'r')
-        in_class_def = False
-        lines = ifile.readlines()
-        for i in range(len(lines)):
-
-            line = lines[i]
-
-            if(is_class_def(line)):
-                in_class_def = True
-                classes.append(doc_class(fn, lines, i))
-            elif(is_unindented(line)):
-                in_class_def = False
-
-            if(not in_class_def):
-                if(is_funk_def(line)):
-                    funks.append(doc_funk(fn, lines, i))
-
-        ifile.close()
-
-with open('text.txt', 'w') as ofile:
-    ofile.write(class_to_html(classes[2]))
+doc_module('emf')

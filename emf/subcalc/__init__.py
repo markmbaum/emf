@@ -10,7 +10,6 @@ from subcalc_plots import (plot_contour,
                         plot_pcolormesh,
                         ion,
                         show,
-                        close,
-                        plt)
+                        close)
 
 del(subcalc_class, subcalc_funks, subcalc_plots)

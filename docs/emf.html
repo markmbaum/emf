@@ -1,0 +1,44 @@
+
+    <html lang="en">
+    	<head>
+    		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    		<title>emf</title>
+            <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
+            <link rel="stylesheet" type="text/css" href="style.css">
+    	</head>
+        <body onresize="mainWidth()">
+
+            <!--Navigation Bar-->
+            <div id="nav"><h2>Contents</h2><ul id="nav-ul">   <li class="nav-li"><a href="#submodules">submodules</a>    <ul class="subnav-ul"><li class="subnav-li"><a href="emf-fields.html">fields</a></li><li class="subnav-li"><a href="emf-subcalc.html">subcalc</a></li></ul>   <li class="nav-li"><a href="#functions">functions</a>    <ul class="subnav-ul"><li class="subnav-li"><a href="#interpn">interpn</a></li></ul></ul></div>
+
+            <div id="main">
+                <h1>emf</h1>
+
+                <!--classes section-->
+                
+
+                <!--functions section-->
+                <div class="section" id="functions"><h2>Functions</h2><div class="function" id="interpn"><p class="function-str">interpn(points, values, xi, method=linear, bounds_error=True, fill_value=nan)</p><p class="docstr">Multidimensional interpolation on regular grids.<br><br>&ensp;Parameters<br>&ensp;----------<br>&ensp;points : tuple of ndarray of float, with shapes (m1, ), ..., (mn, )<br>&ensp;&ensp;The points defining the regular grid in n dimensions.<br><br>&ensp;values : array_like, shape (m1, ..., mn, ...)<br>&ensp;&ensp;The data on the regular grid in n dimensions.<br><br>&ensp;xi : ndarray of shape (..., ndim)<br>&ensp;&ensp;The coordinates to sample the gridded data at<br><br>&ensp;method : str, optional<br>&ensp;&ensp;The method of interpolation to perform. Supported are "linear" and<br>&ensp;&ensp;"nearest", and "splinef2d". "splinef2d" is only supported for<br>&ensp;&ensp;2-dimensional data.<br><br>&ensp;bounds_error : bool, optional<br>&ensp;&ensp;If True, when interpolated values are requested outside of the<br>&ensp;&ensp;domain of the input data, a ValueError is raised.<br>&ensp;&ensp;If False, then `fill_value` is used.<br><br>&ensp;fill_value : number, optional<br>&ensp;&ensp;If provided, the value to use for points outside of the<br>&ensp;&ensp;interpolation domain. If None, values outside<br>&ensp;&ensp;the domain are extrapolated.  Extrapolation is not supported by method<br>&ensp;&ensp;"splinef2d".<br><br>&ensp;Returns<br>&ensp;-------<br>&ensp;values_x : ndarray, shape xi.shape[:-1] + values.shape[ndim:]<br>&ensp;&ensp;Interpolated values at input coordinates.<br><br>&ensp;Notes<br>&ensp;-----<br><br>&ensp;.. versionadded:: 0.14<br><br>&ensp;See also<br>&ensp;--------<br>&ensp;NearestNDInterpolator : Nearest neighbour interpolation on unstructured<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;data in N dimensions<br><br>&ensp;LinearNDInterpolator : Piecewise linear interpolant on unstructured data<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   in N dimensions<br><br>&ensp;RegularGridInterpolator : Linear and nearest-neighbor Interpolation on a<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  regular grid in arbitrary dimensions<br><br>&ensp;RectBivariateSpline : Bivariate spline approximation over a rectangular mesh</p></div></div>
+            </div>
+
+        </body>
+
+        <!--Control the width and height of the #main element-->
+        <script type="text/javascript">
+
+            function mainWidth(){
+                var w_nav = document.getElementById('nav').offsetWidth;
+                var w_body = document.body.offsetWidth;
+                var w = (w_body - w_nav - 3).toString() + 'px';
+                document.getElementById('main').style.width = w;}
+
+            mainWidth();
+            document.addEventListener("resize", mainWidth());
+
+            h_main = document.getElementById('main').offsetHeight;
+            document.getElementById('nav').style.height = h_main;
+
+        </script>
+
+    </html>
+    

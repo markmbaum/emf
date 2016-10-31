@@ -8,6 +8,8 @@ from fields_funks import (drop_template,
                         target_fields,
                         run)
 
+from fields_calcs import E_field, B_field, phasors_to_magnitudes
+
 from fields_plots import (plot_Bmax,
                         plot_Emax,
                         plot_max_fields,
@@ -16,8 +18,7 @@ from fields_plots import (plot_Bmax,
                         plot_groups_at_ROW,
                         ion,
                         show,
-                        close,
-                        plt)
+                        close)
 
 from FIELDS_io import (to_FLD,
                         to_FLDs,
@@ -26,4 +27,9 @@ from FIELDS_io import (to_FLD,
                         convert_DAT,
                         convert_DAT_crawl)
 
-del(fields_class, fields_funks, fields_plots, FIELDS_io)
+del(fields_class,
+    fields_funks,
+    fields_calcs,
+    fields_plots,
+    FIELDS_io,
+    fields_print)
