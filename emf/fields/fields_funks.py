@@ -9,17 +9,12 @@ import fields_calcs
 import fields_plots
 
 def drop_template(*args, **kw):
-    """Copy the emf.fields template in the current directory or a
-    directory specified by an input string
+    """Copy the emf.fields template in the current directory or a directory specified by an input string
     args:
         drop_path = string, path of copied template file"""
     #check inputs
     if(len(args) > 1):
-        raise(fields_class.EMFError("""
-        drop_template only accepts zero or one input argument.
-        A string can be passed to specify the directory in which the
-        template file is copied. With no arguments, the template file
-        is copied into the current directory."""))
+        raise(fields_class.EMFError("""drop_template only accepts zero or one input argument. A string can be passed to specify the directory in which the template file is copied. With no arguments, the template file is copied into the current directory."""))
     elif(len(args) == 1):
         kw = {'path': args[0]}
     #get template file path
@@ -33,11 +28,7 @@ def drop_template(*args, **kw):
     print('emf.fields template written to: %s' % drop_path)
 
 def run(template_path, **kw):
-    """Import the templates in an excel file with the path 'template_path'
-    then generate a workbook of all fields results and lots of plots.
-    Use the 'path' keyword argument to specify a destination for the output,
-    otherwise it will be saved to the template's directory. Returns
-    a SectionBook object.
+    """Import the templates in an excel file with the path 'template_path' then generate a workbook of all fields results and lots of plots. Use the 'path' keyword argument to specify a destination for the output, otherwise it will be saved to the template's directory. Returns a SectionBook object.
     args:
         template_path - path to cross section template excel workbook
     kw:
@@ -67,10 +58,7 @@ def run(template_path, **kw):
     return(sb)
 
 def load_template(file_path, **kw):
-    """Import conductor data from an excel template, loading each conductor
-    into a Conductor object, each Conductor into a CrossSection object, and
-    each CrossSection object into a SectionBook object. The SectionBook
-    object is returned.
+    """Import conductor data from an excel template, loading each conductor into a Conductor object, each Conductor into a CrossSection object, and each CrossSection object into a SectionBook object. The SectionBook object is returned.
     args:
         template_path - string, path to cross section template excel
                         workbook
@@ -79,10 +67,7 @@ def load_template(file_path, **kw):
                  all sheets"""
     #import the cross sections as a dictionary of pandas DataFrames, also
     #getting a list of the ordered sheets
-    file_path = _check_extension(file_path, 'xlsx', """
-        Templates must be excel workbooks. The input target path
-            "%s"
-        is not recognized as an excel file""" % file_path)
+    file_path = _check_extension(file_path, 'xlsx', """Templates must be excel workbooks. The input target path "%s" is not recognized as an excel file""" % file_path)
     xl = pd.ExcelFile(file_path)
     sheets = xl.sheet_names
     frames = xl.parse(sheetname = None, skiprows = [0,1,2,3],
@@ -109,11 +94,7 @@ def load_template(file_path, **kw):
         xs.title = str(misc[1])
         #check for duplicate title inputs
         if(xs.title in titles):
-            raise(fields_class.EMFError("""
-            Cross-sections should have unique title entries.
-            title: "%s"
-            in sheet: "%s"
-            is used by at least one other sheet.""" % (xs.title, k)))
+            raise(fields_class.EMFError("""Cross-sections should have unique title entries. title: "%s" in sheet: "%s" is used by at least one other sheet.""" % (xs.title, k)))
         else:
             titles.append(xs.title)
         xs.soil_resistivity = misc[3]
@@ -129,11 +110,7 @@ def load_template(file_path, **kw):
             cond = fields_class.Conductor(df[2].iat[i])
             #check for conductors with identical tags (names/labels)
             if(cond.tag in tags):
-                raise(fields_class.EMFError("""
-                Conductors in a Cross Section must have unique tags.
-                The conductor tag "%s" in sheet:
-                    "%s"
-                is used at least twice."""
+                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique tags. The conductor tag "%s" in sheet:     "%s" is used at least twice."""
                 % (cond.tag, k)))
             else:
                 tags.append(cond.tag)
@@ -144,9 +121,7 @@ def load_template(file_path, **kw):
             if(cond.x in x):
                 idx = x.index(cond.x)
                 if(cond.y == y[idx]):
-                    raise(fields_class.EMFError("""
-                Conductors cannot have identical x,y coordinates. Conductor
-                "%s" is in the exact same place as conductor "%s"."""
+                    raise(fields_class.EMFError("""Conductors cannot have identical x,y coordinates. Conductor "%s" is in the exact same place as conductor "%s"."""
                 % (cond.tag, tags[idx])))
             else:
                 x.append(cond.x)
@@ -165,11 +140,7 @@ def load_template(file_path, **kw):
             cond = fields_class.Conductor(df.iat[i,11])
             #check for conductors with identical tags (names/labels)
             if(cond.tag in tags):
-                raise(fields_class.EMFError("""
-                Conductors in a Cross Section must have unique tags.
-                The conductor tag "%s" in sheet:
-                    "%s"
-                is used at least twice."""
+                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique tags. The conductor tag "%s" in sheet: "%s" is used at least twice."""
                 % (cond.tag, k)))
             else:
                 tags.append(cond.tag)
@@ -180,9 +151,7 @@ def load_template(file_path, **kw):
             if(cond.x in x):
                 idx = x.index(cond.x)
                 if(cond.y == y[idx]):
-                    raise(fields_class.EMFError("""
-                Conductors cannot have identical x,y coordinates. Conductor
-                "%s" is in the exact same place as conductor "%s"."""
+                    raise(fields_class.EMFError("""Conductors cannot have identical x,y coordinates. Conductor "%s" is in the exact same place as conductor "%s"."""
                 % (cond.tag, tags[idx])))
             else:
                 x.append(cond.x)
@@ -201,29 +170,16 @@ def load_template(file_path, **kw):
     return(sb)
 
 def optimize_phasing(xs, circuits, **kw):
-    """Permute the phasing of non-grounded conductors and find the
-    arrangement that results in the lowest fields at the left and right
-    edge of the ROW. The number of hot conductors must be a multiple of
-    three. The phases of consecutive groups of three conductors are
-    swapped around, assuming that those groups represent a single
-    three-phase transfer circuit.
+    """Permute the phasing of non-grounded conductors and find the arrangement that results in the lowest fields at the left and right edge of the ROW. The number of hot conductors must be a multiple of three. The phases of consecutive groups of three conductors are swapped around, assuming that those groups represent a single three-phase transfer circuit.
     args:
         xs - target CrossSection object
-        circuits - list of lists of Conductor tags, or 'all'. If a list of
-                   lists, each sublist contains the Conductor tags
-                   of the Conductors comprising a single circuit.
-                   If 'all', circuits are assumed to be consecutive groups
-                   of three conductors. (consecutive according to the order
-                   in which hot conductors were added to the CrossSection)
+        circuits - list of lists of Conductor tags, or 'all'. If a list of lists, each sublist contains the Conductor tags of the Conductors comprising a single circuit. If 'all', circuits are assumed to be consecutive groups of three conductors. (consecutive according to the order in which hot conductors were added to the CrossSection)
     kw:
         save - bool, toggle saving of the results DataFrame to an excel book
-        path - string, location/filename for saved results workbook, forces
-               saving even if no 'save' keyword is used.
+        path - string, location/filename for saved results workbook, forces saving even if no 'save' keyword is used.
     returns:
-        res - pandas DataFrame listing conductor phasings that optimize
-              electric and magnetic fields at both ROW edges.
-        opt - new SectionBook object containing the permuted phasings that
-              optimize the E and B fields at the left and right ROW edges."""
+        res - pandas DataFrame listing conductor phasings that optimize electric and magnetic fields at both ROW edges.
+        opt - new SectionBook object containing the permuted phasings that optimize the E and B fields at the left and right ROW edges."""
 
     if(circuits == 'all'):
         #number of hot wires
@@ -231,13 +187,7 @@ def optimize_phasing(xs, circuits, **kw):
         N = len(xs.hot)
         #check the number of hot lines
         if(N % 3 != 0):
-            raise(fields_class.EMFError("""
-            The number of hot (not grounded) conductors must be a multiple
-            of three for phase optimization with 'all' circuits. Circuits are
-            assumed to be three-phase and conductors comprising each circuit
-            are assumed to be consecutive groups of three, in the order that
-            they appear in the template. The number of hot conductors is not a
-            multiple of three in the CrossSection named: %s""" % xs.sheet))
+            raise(fields_class.EMFError("""The number of hot (not grounded) conductors must be a multiple of three for phase optimization with 'all' circuits. Circuits are assumed to be three-phase and conductors comprising each circuit are assumed to be consecutive groups of three, in the order that they appear in the template. The number of hot conductors is not a multiple of three in the CrossSection named: %s""" % xs.sheet))
         #number of circuits, groups of 3 hot conductors
         G = int(N/3)
         #circuits, consecutive groups of three conductors
@@ -251,14 +201,9 @@ def optimize_phasing(xs, circuits, **kw):
         for circ in circuits:
             for tag in circ:
                 if(xs[tag] is None):
-                    raise(fields_class.EMFError("""
-                    Unrecognized conductor tag: %s
-                    All conductor tags must refer to Conductor objects
-                    in the target CrossSecton object.""" % repr(tag)))
+                    raise(fields_class.EMFError("""Unrecognized conductor tag: %s All conductor tags must refer to Conductor objects in the target CrossSecton object.""" % repr(tag)))
                 if(xs[tag] in gnd):
-                    raise(fields_class.EMFError("""
-                    Only phasing of non-grounded Conductors can be permuted.
-                    Tag "%s" refers to a grounded Conductor""" % repr(tag)))
+                    raise(fields_class.EMFError("""Only phasing of non-grounded Conductors can be permuted. Tag "%s" refers to a grounded Conductor""" % repr(tag)))
     #convert the conductor tags to integer indices in xs.conds
     for i in range(len(circuits)):
         for j in range(len(circuits[i])):
@@ -354,10 +299,7 @@ def optimize_phasing(xs, circuits, **kw):
     return(results, opt)
 
 def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
-    """Increase conductor y coordinates until fields at ROW edges are below
-    thresholds. All selected conductors are adjusted by the same amount.
-    If any of the thresholds are empty or false, None is returned for their
-    adjustment result.
+    """Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.
     args:
         xs - CrossSection object to perform adjustments on
         tags - iterable of Conductor tags, identifying which ones to raise
@@ -366,25 +308,17 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
         E_l - electric field threshold at left ROW edge*
         E_r - electric field threshold at right ROW edge*
 
-            *an implicitly False input will ignore that field-edge
-             combination, return None in the return variable 'h', and
-             cause the returned SectionBook to omit that field-edge combo.
+            *an implicitly False input will ignore that field-edge combination, return None in the return variable 'h', and cause the returned SectionBook to omit that field-edge combo.
 
     kw:
-        max_iter - maximum number of _bisection iterations allowed
-                   default is 1e3
-        rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %)
-                  default is 1e-6.
+        max_iter - maximum number of _bisection iterations allowed default is 1e3
+        rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %) default is 1e-6.
         hhigh - upper limit of the height adjustment, default is 1.0e6
         save - toggle saving of the results DataFrame to an excel book
-        path - location/filename for saved results workbook, forces saving
-               even if no 'save' keyword is used.
+        path - location/filename for saved results workbook, forces saving even if no 'save' keyword is used.
     returns:
-        h - height adjustments necessary for E and B fields at left and
-            right ROW edges. The ordering is:
-                    (B_left, B_right, E_left, E_right)
-        adj - a new SectionBook object with the adjusted conductor heights
-             for each scenario in a CrossSection"""
+        h - height adjustments necessary for E and B fields at left and right ROW edges. The ordering is: (B_left, B_right, E_left, E_right)
+        adj - a new SectionBook object with the adjusted conductor heights for each scenario in a CrossSection"""
     #convert 'all' inputs to numeric indices
     if(tags == 'all'):
         tags = xs.tags
@@ -532,15 +466,12 @@ def _E_funk(h, target, xs, conds, x_sample, y_sample):
     return(Emax[0] - target)
 
 def _xs_sb_diff(xs, sb):
-    """Compute the difference in ROW edge fields of all the CrossSections
-    in a SectionBook object to those of a single CrossSection.
+    """Compute the difference in ROW edge fields of all the CrossSections in a SectionBook object to those of a single CrossSection.
     args:
         xs - CrossSection, single xs to compare to all xss in sb
         sb - SectionBook, contains xss to compare to xs
     returns:
-        df - DataFrame with columns for the names of CrossSections in sb
-             and with the difference between ROW edge values, computed by
-             subtracting xs values from sb values (sb.i[idx] - xs)
+        df - DataFrame with columns for the names of CrossSections in sb and with the difference between ROW edge values, computed by subtracting xs values from sb values (sb.i[idx] - xs)
         c - column names
         h - refined column names (header names)"""
     #gather ROW edge differences

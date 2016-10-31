@@ -18,48 +18,34 @@
             <a href="#FIELDS-support"><li>FIELDS support</li></a>
         </ul>
 
-        <div style="padding: 2.5cm 0 0 0;">
+        <div id="main">
 
-            <h1 style="margin: 0 0 2.5% 0; text-align: center;">emf.fields</h1>
+            <h1>emf.fields</h1>
 
-            <div class="section">
-                <a name="classes"><h3>classes</h3></a>
-
-                <p class="funkname">plot_groups_at_ROW</p>
-                        <p class="funk-call">&nbsp; &nbsp;  plot_groups_at_ROW(sb, **kw)</p>
-                        <p class="source-file">&nbsp; &nbsp;  P:\MBaum\Programming\Python\python_code\emf\docs\emf\fields\fields_plots.py</p>
-
-                        <p class="funk-docstring">
-                            &nbsp; &nbsp; &nbsp; &nbsp;  Create bar charts showing the field values at ROW edges for each<br>&nbsp; &nbsp; &nbsp; &nbsp; CrossSection group in a SectionBook<br>&nbsp; &nbsp; &nbsp; &nbsp; args:<br>&nbsp; &nbsp; &nbsp; &nbsp; sb - SectionBook object to pull plotting groups from<br>&nbsp; &nbsp; &nbsp; &nbsp; kw:<br>&nbsp; &nbsp; &nbsp; &nbsp; save - bool, toggle plot saving<br>&nbsp; &nbsp; &nbsp; &nbsp; path - string, destination/filename for saved figure<br>&nbsp; &nbsp; &nbsp; &nbsp; format - string, saved plot format/extension (default 'png')<br>&nbsp; &nbsp; &nbsp; &nbsp; B - bool, toggle magnetic field plots, default is True<br>&nbsp; &nbsp; &nbsp; &nbsp; E - bool, toggle electric field plots, default is True<br>&nbsp; &nbsp; &nbsp; &nbsp; groups - a list of group names to plot, default is all groups<br>&nbsp; &nbsp; &nbsp; &nbsp; xs_order - dict, keys are CrossSection group tags, which map to<br>&nbsp; &nbsp; &nbsp; &nbsp;lists of CrossSection sheets specifying the order of the<br>&nbsp; &nbsp; &nbsp; &nbsp;plotted CrossSection bars (left to right). Not all<br>&nbsp; &nbsp; &nbsp; &nbsp;CrossSecitons in a group must be listed. Any/all can be<br>&nbsp; &nbsp; &nbsp; &nbsp;left out.<br>&nbsp; &nbsp; &nbsp; &nbsp; return_figs - toggle whether a list of figure objects is returned<br>&nbsp; &nbsp; &nbsp; &nbsp;   instead of closing the figures to clear memory,<br>&nbsp; &nbsp; &nbsp; &nbsp;   default is False<br>&nbsp; &nbsp; &nbsp; &nbsp; returns:<br>&nbsp; &nbsp; &nbsp; &nbsp; figs - dict of dicts, keys are 'E' and 'B', which are each keyed<br>&nbsp; &nbsp; &nbsp; &nbsp; by group tags, leading to Figure objects<br>&nbsp; &nbsp; &nbsp; &nbsp;
-                        </p>
+            <div class="section" id="classes">
+                <h3>classes</h3>
 
             </div>
 
-            <div class="section">
-                <a name="modeling-functions"><h3>modeling functions</h3></a>
-
-
-            </div>
-
-            <div class="section">
-                <a name="plotting-functions"><h3>plotting functions</h3></a>
-
+            <div class="section" id="modeling-functions">
+                <h3>modeling functions</h3>
 
             </div>
 
-            <div class="section">
-                <a name="calculations"><h3>calculations</h3></a>
-
-
-            </div>
-
-            <div class="section">
-                <a name="FIELDS-support"><h3>FIELDS support</h3></a>
-
+            <div class="section" id="plotting-functions">
+                <h3>plotting functions</h3>
 
             </div>
 
-        </div>
-    </body>
+            <div class="section" id="calculations">
+                <h3>calculations</h3>
+
+            </div>
+
+            <div class="section" id="FIELDS-support">
+                <h3>FIELDS support</h3>
+
+<div class="class" id="CrossSection"><p class="class-name">CrossSection</p><p class="class-inheritance">object</p><div class="funk" id="CrossSection"><p class="funk-name">CrossSection<span class="funk-call">(sheet, *args)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">CrossSection must be initialized with a sheet string, and a list of Conductor objects can optionally be passed in in the second arg</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="args">arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=12rem">sheet  -&nbsp;</div><div class="docstr-right"> string, the name of the CrossSection</div></div><div class="docstr-split-div"><div class="docstr-left" style="width=12rem">conds  -&nbsp;</div><div class="docstr-right"> list of Conducor objects to copy into the xs</div></div><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div><div class="class-properties"><div class="docstr-split-div"><div class="docstr-left" style="width=1rem">I -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=15rem">ROW_edge_fields -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=1rem">V -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=8rem">complete -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=6rem">d_bund -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=6rem">d_cond -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=6rem">fields -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=4rem">freq -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=3rem">gnd -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=3rem">hot -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=4rem">lROW -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=8rem">max_dist -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=5rem">phase -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=4rem">rROW -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=13rem">sample_height -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=5rem">sheet -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=4rem">step -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=8rem">subconds -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=4rem">tags -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=1rem">x -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=8rem">x_sample -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=1rem">y -&nbsp;</div><div class="docstr-right"></div></div><div class="docstr-split-div"><div class="docstr-left" style="width=8rem">y_sample -&nbsp;</div><div class="docstr-right"></div></div></div><div class="class-methods"><div class="funk" id="add_conductor"><p class="funk-name">add_conductor<span class="funk-call">(cond)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">Add a Conductor object to the CrossSection</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="args">arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=11rem">cond  -&nbsp;</div><div class="docstr-right"> Conductor object to add</div></div><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div><div class="funk" id="compare_DAT"><p class="funk-name">compare_DAT<span class="funk-call">(DAT_path, **kw)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">Load a FIELDS output file (.DAT), find absolute and percentage differences between it and the CrossSection object's results.</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="args">arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=15rem">DAT_path  -&nbsp;</div><div class="docstr-right"> path of FIELDS results file</div></div><p class="funk-docstr-line" style="margin-left: 2cm"><span class="kw">keyword arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=11rem">save  -&nbsp;</div><div class="docstr-right"> boolean, toggle whether output Panel and figures are saved, also saves figures with error and comparison plots</div></div><div class="docstr-split-div"><div class="docstr-left" style="width=11rem">path  -&nbsp;</div><div class="docstr-right"> string, destination of saved files, will force save == True</div></div><div class="docstr-split-div"><div class="docstr-left" style="width=12rem">round  -&nbsp;</div><div class="docstr-right"> int, round the results in self.fields to a certain number   of digits in an attempt to exactly match the FIELDS results, which are printed only to the thousandths digit</div></div><div class="docstr-split-div"><div class="docstr-left" style="width=15rem">truncate  -&nbsp;</div><div class="docstr-right"> bool, truncate results after the thousandths digit</div></div><p class="funk-docstr-line" style="margin-left: 2cm"><span class="returns variables">returns</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=10rem">pan  -&nbsp;</div><div class="docstr-right"> pandas Panel with DAT results, results of this code, the absolute error between, and the relative error between</div></div><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div><div class="funk" id="copy"><p class="funk-name">copy<span class="funk-call">(self)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">Write the fields to a csv</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="kw">keyword arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=11rem">path  -&nbsp;</div><div class="docstr-right"> string, destination/filename for saved file</div></div><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div><div class="funk" id="export"><p class="funk-name">export<span class="funk-call">(**kw)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">Write the fields to a csv</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="kw">keyword arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=11rem">path  -&nbsp;</div><div class="docstr-right"> string, destination/filename for saved file</div></div><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div><div class="funk" id="remove_conductor"><p class="funk-name">remove_conductor<span class="funk-call">(key)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">Remove a Conductor object from the CrossSection</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="args">arguments</span>:</p><div class="docstr-split-div"><div class="docstr-left" style="width=10rem">key  -&nbsp;</div><div class="docstr-right"> Conductor tag or Conductor object to remove</div></div><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div><div class="funk" id="sample"><p class="funk-name">sample<span class="funk-call">(*args)</span></p><div class="funk-docstr"><p class="funk-docstr-line" style="margin-left: 0cm">Get a random Conductor from the CrossSection</p><p class="funk-docstr-line" style="margin-left: 2cm"><span class="args">arguments</span>:</p><p class="funk-docstr-line" style="margin-left: 0cm">an input integer determines the number of random xss fetched</p><p class="funk-docstr-line" style="margin-left: 0cm"></p></div></div></div></div>
+
 
 </html>

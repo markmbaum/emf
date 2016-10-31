@@ -16,27 +16,14 @@ class Conductor(object):
         args:
             tag - scalar hashable, mandatory, essentially just a name
             params - dict or list, available Conductor parameters are:
-                    'x'
-                    'y'
-                    'subconds'
-                    'd_cond'
-                    'd_bund'
-                    'V'
-                    'I'
-                    'phase'
-                A list can be passed with the values of any number of those
-                paremeters (in the order listed above) or a dict can be
-                passed with any number of those parameter strings as keys.
-            cond - an existing Conductor object, parameters that are not set
-                with the second arg will be borrowed from the Conductor"""
+
+                    'x', 'y', 'subconds', 'd_cond', 'd_bund', 'V', 'I', 'phase'
+
+                A list can be passed with the values of any number of those paremeters (in the order listed above) or a dict can be passed with any number of those parameter strings as keys.
+            cond - an existing Conductor object, parameters that are not set with the second arg will be borrowed from the Conductor"""
 
         if(len(args) == 0):
-            raise(EMFError("""
-            Conductor objects must be initialized with 1-3 args,
-            the first of which must be the Conductor 'tag'. The second
-            arg can be a dict or list setting the Conductor's paremeters.
-            See the Conductor class doc string for more info on the
-            second arg."""))
+            raise(EMFError("""Conductor objects must be initialized with 1-3 args, the first of which must be the Conductor 'tag'. The second arg can be a dict or list setting the Conductor's paremeters. See the Conductor class doc string for more info on the second arg."""))
         self._tag = None #conductor label
         self._xs = None #parent CrossSection object
         self._freq = 60.0 #phase frequency in Hertz
@@ -64,25 +51,17 @@ class Conductor(object):
             elif(type(a) is dict):
                 for k in a:
                     if(k not in p):
-                        raise(EMFError("""
-                            Unexpected dictionary key "%s" encountered
-                            in Conductor initialization."""% str(k)))
+                        raise(EMFError("""Unexpected dictionary key "%s" encountered in Conductor initialization."""% str(k)))
                     exec('self.%s = %s' % (k, str(a[k])))
                     p.remove(k)
 
             else:
-                raise(EMFError("""
-                The second argument to Conductor initialization must be
-                a list or dict. See the Conductor class doc string for more
-                info on the second arg."""))
+                raise(EMFError("""The second argument to Conductor initialization must be a list or dict. See the Conductor class doc string for more info on the second arg."""))
 
         if(len(args) > 2):
             c = args[2]
             if(type(c) is not type(self)):
-                raise(EMFError("""
-                The third argument must be an existing Conductor object
-                from which all unset parameters in the newly created
-                Conductor are copied."""))
+                raise(EMFError("""The third argument must be an existing Conductor object from which all unset parameters in the newly created Conductor are copied."""))
             for q in p:
                 if(eval('c.%s' % q) is not None):
                     exec('self.%s = c.%s' % (q, q))
@@ -107,34 +86,23 @@ class Conductor(object):
 
     def _check_to_float(self, value, prop):
         if(not fields_funks._is_number(value)):
-            raise(EMFError("""
-            Conductor property '%s' must be numeric.
-            It cannot be set to: %s""" % (prop, repr(value))))
+            raise(EMFError("""Conductor property '%s' must be numeric. It cannot be set to: %s""" % (prop, repr(value))))
         return(float(value))
 
     def _check_to_int(self, x, prop):
         if(not fields_funks._is_number(x)):
-            raise(EMFError("""
-            Conductor property '%s' must be numeric.
-            It cannot be set to: %s""" % (prop, repr(x))))
+            raise(EMFError("""Conductor property '%s' must be numeric. It cannot be set to: %s""" % (prop, repr(x))))
         elif(int(x) != float(x)):
-            raise(EMFError("""
-            Conductor property '%s' must be an integer.
-            It cannot be set to: %s""" % (prop, repr(x))))
+            raise(EMFError("""Conductor property '%s' must be an integer. It cannot be set to: %s""" % (prop, repr(x))))
         return(int(x))
 
     def _get_tag(self): return(self._tag)
     def _set_tag(self, new_tag):
         if(not new_tag):
-            raise(EMFError("""
-            Conductor tags cannot be implicitly False objects."""))
+            raise(EMFError("""Conductor tags cannot be implicitly False objects."""))
         if(self._xs is not None):
             if(new_tag in self._xs.tags):
-                raise(EMFError("""
-                Cannot change Conductor tag from "%s" to "%s" because
-                the latter is alread present in the Conductor's parent
-                CrossSection object. CrossSections must contain Conductors
-                with unique tags.""" % (str(self._tag), str(new_tag))))
+                raise(EMFError("""Cannot change Conductor tag from "%s" to "%s" because the latter is alread present in the Conductor's parent CrossSection object. CrossSections must contain Conductors with unique tags.""" % (str(self._tag), str(new_tag))))
         old_tag = self._tag
         self._tag = new_tag
         if((new_tag != old_tag) and (self._xs is not None)):
@@ -212,13 +180,10 @@ class Conductor(object):
         return(copy.deepcopy(self))
 
 class CrossSection(object):
-    """Class that organizes Conductor objects and stores other input
-    information for a power line cross section. Includes plotting methods
-    for the fields results and exporting methods for the results."""
+    """Class that organizes Conductor objects and stores other input information for a power line cross section. Includes plotting methods for the fields results and exporting methods for the results."""
 
     def __init__(self, sheet, *args):
-        """CrossSection must be initialized with a sheet string, and a list
-        of Conductor objects can optionally be passed in in the second arg
+        """CrossSection must be initialized with a sheet string, and a list of Conductor objects can optionally be passed in in the second arg
         args:
             sheet - string, the name of the CrossSection
             conds - list of Conducor objects to copy into the xs"""
@@ -249,9 +214,7 @@ class CrossSection(object):
 
     def _check_to_float(self, value, prop):
         if(not fields_funks._is_number(value)):
-            raise(EMFError("""
-            CrossSection property '%s' must be numeric.
-            It cannot be set to: %s""" % (prop, repr(value))))
+            raise(EMFError("""CrossSection property '%s' must be numeric. It cannot be set to: %s""" % (prop, repr(value))))
         return(float(value))
 
     def _reset_fields(self, old_value, new_value):
@@ -277,9 +240,7 @@ class CrossSection(object):
     def _set_max_dist(self, new_value):
         if(((self.lROW is not None) and (new_value < abs(self.lROW))) or
             ((self.rROW is not None) and (new_value < abs(self.rROW)))):
-            raise(EMFError("""
-            CrossSection max_dist must be greater than the magnitudes of
-            lROW and rROW."""))
+            raise(EMFError("""CrossSection max_dist must be greater than the magnitudes of lROW and rROW."""))
         old_value = self._max_dist
         self._max_dist = self._check_to_float(new_value, 'max_dist')
         self._reset_fields(old_value, new_value)
@@ -295,8 +256,7 @@ class CrossSection(object):
     def _get_sample_height(self): return(self._sample_height)
     def _set_sample_height(self, new_value):
         if(new_value <= 0):
-            raise(EMFError("""
-            CrossSection sample_height must be greater than zero."""))
+            raise(EMFError("""CrossSection sample_height must be greater than zero."""))
         old_value = self._sample_height
         self._sample_height = self._check_to_float(new_value, 'sample_height')
         self._reset_fields(old_value, new_value)
@@ -305,8 +265,7 @@ class CrossSection(object):
     def _get_lROW(self): return(self._lROW)
     def _set_lROW(self, new_value):
         if((self.rROW is not None) and (new_value >= self.rROW)):
-            raise(EMFError("""
-            lROW must be less than rROW."""))
+            raise(EMFError("""lROW must be less than rROW."""))
         old_value = self._lROW
         self._lROW = self._check_to_float(new_value, 'lROW')
         self._reset_fields(old_value, new_value)
@@ -315,8 +274,7 @@ class CrossSection(object):
     def _get_rROW(self): return(self._rROW)
     def _set_rROW(self, new_value):
         if((self.lROW is not None) and (new_value <= self.lROW)):
-            raise(EMFError("""
-            rROW must be greater than lROW."""))
+            raise(EMFError("""rROW must be greater than lROW."""))
         old_value = self._rROW
         self._rROW = self._check_to_float(new_value, 'rROW')
         self._reset_fields(old_value, new_value)
@@ -385,13 +343,11 @@ class CrossSection(object):
     ROW_edge_fields = property(_get_ROW_edge_fields)
 
     def _check_complete(self):
-        """Check that all variables in each conductor in the CrossSection
-        are set, and not left with the initial None values.
+        """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.
         returns:
             b - True if all Conductors are complete, False if not
             t - tag of first incomplete Conductor, if any, else None
-            v - variable name of first unset variable in first incomplete
-                Conductor, if any, else None"""
+            v - variable name of first unset variable in first incomplete       Conductor, if any, else None"""
         for c in self.conds:
             b, v = c.complete
             if(b is False):
@@ -426,24 +382,18 @@ class CrossSection(object):
         #check if the Conductor is complete
         b, v = cond.complete
         if(not b):
-            raise(EMFError("""
-            Cannot add Conductor "%s" to the CrossSection because it
-            is not complete. The parameter "%s" is not set."""
+            raise(EMFError("""Cannot add Conductor "%s" to the CrossSection because it is not complete. The parameter "%s" is not set."""
             % (cond.tag, v[1:])))
         #check if the tag has already been used
         if(cond.tag in self._tag2idx):
-            raise(EMFError("""
-            A Conductor with tag "%s" is already in CrossSection "%s".
-            Another Conductor with the same tag cannot be added"""
+            raise(EMFError("""A Conductor with tag "%s" is already in CrossSection "%s". Another Conductor with the same tag cannot be added"""
             % (cond.tag, self.sheet)))
         #see if the conductor is grounded
         if(cond.V == 0):
             #probably shouldn't have current if grounded
             if(cond.I != 0):
                 print cond.I
-                print("""
-                Conductor with tag "%s" in CrossSection "%s"
-                is grounded (V = 0) but has nonzero current?"""
+                print("""Conductor with tag "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?"""
                 % (cond.tag, self.sheet))
         #add to self.conds and indexing dict
         self._tag2idx[cond.tag] = len(self.conds)
@@ -472,8 +422,7 @@ class CrossSection(object):
         self._tag2idx = dict(zip(self.tags, range(len(self.conds))))
 
     def _calculate_fields(self):
-        """Calculate electric and magnetic fields across the ROW and store the
-        results in the self.fields DataFrame"""
+        """Calculate electric and magnetic fields across the ROW and store the results in the self.fields DataFrame"""
         #pull arrays with conductor and sampling information
         x_sample, y_sample = self.x_sample, self.y_sample
         x, y, I, V, phase = self.x, self.y, self.I, self.V, self.phase
@@ -491,35 +440,24 @@ class CrossSection(object):
                                     index=x_sample)
 
     def compare_DAT(self, DAT_path, **kw):
-        """Load a FIELDS output file (.DAT), find absolute and percentage
-        differences between it and the CrossSection object's results.
+        """Load a FIELDS output file (.DAT), find absolute and percentage differences between it and the CrossSection object's results.
         args:
             DAT_path - path of FIELDS results file
         kw:
-            save - boolean, toggle whether output Panel and figures are saved,
-                   also saves figures with error and comparison plots
+            save - boolean, toggle whether output Panel and figures are saved, also saves figures with error and comparison plots
             path - string, destination of saved files, will force save == True
-            round - int, round the results in self.fields to a certain
-                    number of digits in an attempt to exactly match the
-                    FIELDS results, which are printed only to the
-                    thousandths digit
+            round - int, round the results in self.fields to a certain number   of digits in an attempt to exactly match the FIELDS results, which are printed only to the thousandths digit
             truncate - bool, truncate results after the thousandths digit
         returns:
-            pan - pandas Panel with DAT results, results of this code,
-                  the absolute error between, and the relative error between"""
+            pan - pandas Panel with DAT results, results of this code, the absolute error between, and the relative error between"""
         #load the .DAT file into a dataframe
         df = FIELDS_io.read_DAT(DAT_path)
         #check dataframe shape compatibility
         if(df.shape != self.fields.shape):
-            raise(EMFError("""
-            self.fields in CrossSection named "%s" and the imported .DAT
-            DataFrame have different shapes. Be sure to target the correct
-            .DAT file and that it has compatible DIST values.""" % self.sheet))
+            raise(EMFError("""self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes. Be sure to target the correct .DAT file and that it has compatible DIST values.""" % self.sheet))
         #prepare a dictionary to create a Panel
         if(('round' in kw) and ('truncate' in kw)):
-            raise(FLDError("""
-            Cannot both round and truncate for DAT comparison. Choose either
-            rounding or truncation."""))
+            raise(FLDError("""Cannot both round and truncate for DAT comparison. Choose either rounding or truncation."""))
         elif('round' in kw):
             f = self.fields.round(kw['round'])
         elif('truncate' in kw):
@@ -578,16 +516,10 @@ class CrossSection(object):
         print('Cross section fields written to: %s' % fn)
 
 class SectionBook(object):
-    """Top level class organizing a group of CrossSection objects. Uses a
-    dictionary to track CrossSections in a list and provide a convenient
-    __getitem__ method than gets CrossSections by their name. Also tracks
-    maximum field results at the ROW edges of each CrossSection added,
-    provides a plotting method for CrossSection groups, and provides
-    exporting methods."""
+    """Top level class organizing a group of CrossSection objects. Uses a dictionary to track CrossSections in a list and provide a convenient __getitem__ method than gets CrossSections by their name. Also tracks maximum field results at the ROW edges of each CrossSection added, provides a plotting method for CrossSection groups, and provides exporting methods."""
 
     def __init__(self, name, *args):
-        """SectionBooks must be initialized with a name string, with
-        the option to pass a list of CrossSection objects in the second arg
+        """SectionBooks must be initialized with a name string, with the option to pass a list of CrossSection objects in the second arg
         args:
             name - string, name of SectionBook
             xs - list of CrossSection objects to copy into the SectionBook"""
@@ -642,10 +574,8 @@ class SectionBook(object):
         returns:
             b - True if all xcs are complete, False if not
             sheet - sheet of first incomplete xs, if any, else None
-            ctag - tag of first incomplete Conductor in first incomplete
-                    xs, if any, else None
-            v - variable name of first unset variable in first incomplete
-                Conductor in first incomplete xs, if any, else None"""
+            ctag - tag of first incomplete Conductor in first incomplete xs, if any, else None
+            v - variable name of first unset variable in first incomplete Conductor in first incomplete xs, if any, else None"""
         for xs in self:
             b, ctag, v = xs.complete
             if(b is False):
@@ -687,10 +617,7 @@ class SectionBook(object):
             return([self.xss[i] for i in r])
 
     def add_section(self, xs, **kw):
-        """Add a CrossSection to the book. Doing so by directly altering
-        self.xss will make the CrossSections inaccessible by __getitem__
-        and make the group plotting functions impossible, so don't do that.
-        Use this method instead.
+        """Add a CrossSection to the book. Doing so by directly altering self.xss will make the CrossSections inaccessible by __getitem__ and make the group plotting functions impossible, so don't do that. Use this method instead.
         args:
             xs - CrossSection object to add to SectionBook (a copy is added)
         kw:
@@ -703,10 +630,7 @@ class SectionBook(object):
             xs.sheet = kw['sheet']
         #Prevent adding CrossSections with the same sheets
         if(xs.sheet in self._sheet2idx):
-            raise(EMFError("""
-            CrossSection name "%s" already exists in the SectionBook.
-            Duplicate names would cause collisions in the lookup dictionary
-            (self._sheet2idx). Use a different name.""" % xs.sheet))
+            raise(EMFError("""CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
         else:
             #add the CrossSection and update indexing dict
             self._sheet2idx[xs.sheet] = len(self.xss)
@@ -715,15 +639,12 @@ class SectionBook(object):
             self.xss[-1]._sb = self
 
     def remove_section(self, sheet):
-        """Remove a CrossSection from the SectionBook by providing its
-        sheet string
+        """Remove a CrossSection from the SectionBook by providing its sheet string
         args:
             sheet - sheet string of CrossSection to remove"""
         #check sheet is in self
         if(sheet not in self._sheet2idx):
-            raise(EMFError("""
-            Sheet %s cannot be removed because it does not exist in the
-            SectionBook object""" % sheet))
+            raise(EMFError("""Sheet %s cannot be removed because it does not exist in the SectionBook object""" % sheet))
         #delete from self.xss list
         idx = self._sheet2idx[sheet]
         self.xss.pop(idx)
@@ -754,8 +675,7 @@ class SectionBook(object):
         print('Full SectionBook results written to: %s' % fn)
 
     def ROW_edge_export(self, **kw):
-        """Write max field results at ROW edges for each cross section to
-        an excel or csv file. Default is csv.
+        """Write max field results at ROW edges for each cross section to an excel or csv file. Default is csv.
         kw:
             file_type - string, accepts 'csv' or 'excel' (default csv)
             path - string, destination/filename for saved file

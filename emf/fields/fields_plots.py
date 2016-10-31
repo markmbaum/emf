@@ -50,9 +50,7 @@ def show():
     plt.show()
 
 def close(*args):
-    """Call plt.close() on any Figure objects or lists of Figure objects
-    passed in. If nothing is passed, all Figure objects are closed with
-    plt.close('all')"""
+    """Call plt.close() on any Figure objects or lists of Figure objects passed in. If nothing is passed, all Figure objects are closed with plt.close('all')"""
     if(args):
         for a in args:
             if(hasattr(a, '__len__')):
@@ -130,9 +128,7 @@ def _format_twin_axes(*args):
 
 
 def _check_und_conds(xss, axs, **kw):
-    """Check for underground conductors, adding some padding at the bottom
-    of the axes and drawing a ground surface line if there are underground
-    lines, or setting the lower y axis limit to zero if not
+    """Check for underground conductors, adding some padding at the bottom of the axes and drawing a ground surface line if there are underground lines, or setting the lower y axis limit to zero if not
     args:
         xss - list of CrossSection objects containing Conductors to check
         axs - list of Axes object to potentially apply padding to"""
@@ -156,8 +152,7 @@ def _check_und_conds(xss, axs, **kw):
             ax.set_ylim(0, yl[1])
 
 def _spines_on(ax, *args):
-    """Turn axes spines on by passing strings indicating which spines to
-    make visible, like 'left', 'bottom', 'top', 'right'
+    """Turn axes spines on by passing strings indicating which spines to make visible, like 'left', 'bottom', 'top', 'right'
     args:
         ax - target Axes object
         strings indicating spines to turn on"""
@@ -165,8 +160,7 @@ def _spines_on(ax, *args):
         ax.spines[s].set_visible(True)
 
 def _spines_off(ax, *args):
-    """Turn axes spines on by passing strings indicating which spines to
-    make invisible, like 'left', 'bottom', 'top', 'right'
+    """Turn axes spines on by passing strings indicating which spines to make invisible, like 'left', 'bottom', 'top', 'right'
     args:
         ax - target Axes object
         strings indicating spines to turn off"""
@@ -199,8 +193,7 @@ def _find_xmax(xs, **kw):
     return(xmax)
 
 def _plot_wires(ax, hot, gnd, v, **kw):
-    """Plot conductor symbols in ax. Returns handles for the hot and gnd
-    Conductors.
+    """Plot conductor symbols in ax. Returns handles for the hot and gnd Conductors.
     args:
         ax - target axis
         hot - list of non-grounded conductors
@@ -226,10 +219,7 @@ def _plot_wires(ax, hot, gnd, v, **kw):
         kw['L'].append('Grounded Conductors')
 
 def _plot_ROW_edges(ax, lROW, rROW, **kw):
-    """Plot dashed lines marking the left and right edges of the
-    Right-of-Way. Axis limits are also adjusted to allow extra space on the
-    sides to make the ROW edge lines visible if needed. The ROW edge line
-    handles are returned in a list.
+    """Plot dashed lines marking the left and right edges of the Right-of-Way. Axis limits are also adjusted to allow extra space on the sides to make the ROW edge lines visible if needed. The ROW edge line handles are returned in a list.
     args:
         ax - target axis
         lROW - x value of the left edge of the ROW
@@ -247,8 +237,7 @@ def _plot_ROW_edges(ax, lROW, rROW, **kw):
         ax.set_xlim((xl[0]*1.15, xl[1]*1.15))
 
 def plot_Bmax(xs, **kw):
-    """Plot the maximum magnetic field along the ROW with conductor
-    locations shown in artificial coordinates.
+    """Plot the maximum magnetic field along the ROW with conductor locations shown in artificial coordinates.
     args:
         xs - a CrossSection object
     kw:
@@ -292,8 +281,7 @@ def plot_Bmax(xs, **kw):
     return(fig, ax)
 
 def plot_Emax(xs, **kw):
-    """Plot the maximum electric field along the ROW with conductor
-    locations shown in artificial coordinates.
+    """Plot the maximum electric field along the ROW with conductor locations shown in artificial coordinates.
     args:
         xs - a CrossSection object
     kw:
@@ -336,8 +324,7 @@ def plot_Emax(xs, **kw):
     return(fig, ax)
 
 def plot_max_fields(xs, **kw):
-    """Plot the maximum magnetic and electric field on split vertical axes,
-    along the ROW with conductor locations shown in artificial coordinates.
+    """Plot the maximum magnetic and electric field on split vertical axes, along the ROW with conductor locations shown in artificial coordinates.
     args:
         xs - a CrossSection object
     kw:
@@ -430,8 +417,7 @@ def plot_xs(xs, **kw):
     return(fig, ax)
 
 def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit, **kw):
-    """Handle plotting of DAT comparison features that don't require unique
-    strings
+    """Handle plotting of DAT comparison features that don't require unique strings
     args:
         ax_abs - axis of absolute error plot
         ax_per - axis of percentage error plot
@@ -459,8 +445,7 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit, **kw):
     ax_mag.set_xlabel('Distance from ROW Center $(ft)$')
 
 def _plot_DAT_comparison(xs, pan, **kw):
-    """Generate 2 subplots showing the FIELDS results (from a .DAT file)
-    compared to the results of this code and the error.
+    """Generate 2 subplots showing the FIELDS results (from a .DAT file) compared to the results of this code and the error.
     args:
         xs - CrossSection object
         pan - pandas.Panel object containing results and errors
@@ -546,8 +531,7 @@ def _plot_group_fields(ax, xss, field, **kw):
         kw['L'].append(xss[i].sheet)
 
 def _plot_group_wires(ax, xss, max_field, **kw):
-    """Plot the conductors of 1 or 2 CrossSections, using split color
-    for conductor locations shared by 2 CrossSections
+    """Plot the conductors of 1 or 2 CrossSections, using split color for conductor locations shared by 2 CrossSections
     args:
         ax - target axis
         xss - list of CrossSection objects to plot results from
@@ -654,8 +638,7 @@ def _plot_group_ROW_edges(ax, xss, **kw):
         kw['L'] += ['ROW Edges - ' + xss[0].sheet, 'ROW Edges - ' + xss[1].sheet]
 
 def plot_groups(sb, **kw):
-    """Plot the fields of grouped CrossSections in the same axis, a plot for
-    both fields. Only plots groups of more than one CrossSection.
+    """Plot the fields of grouped CrossSections in the same axis, a plot for both fields. Only plots groups of more than one CrossSection.
     args:
         sb - SectionBook object to pull plotting groups from
     kw:
@@ -666,12 +649,9 @@ def plot_groups(sb, **kw):
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
         groups - a list of group names to plot, default is all groups
-        return_figs - toggle whether a list of figure objects is returned
-                      instead of closing the figures to clear memory,
-                      default is False
+        return_figs - toggle whether a list of figure objects is returned instead of closing the figures to clear memory, default is False
     returns:
-        figs - dict of dicts, keys are 'E' and 'B', which are each keyed
-                by group tags, leading to Figure objects"""
+        figs - dict of dicts, keys are 'E' and 'B', which are each keyed by group tags, leading to Figure objects"""
 
     #check kws
     return_figs = False
@@ -765,16 +745,11 @@ def plot_groups(sb, **kw):
         return(figs)
 
 def _reorder_xss(xss, **kw):
-    """Use the xs_order kw, if it exists, to create a list of
-    CrossSection sheet strings that determines the order bars are plotted
-    in
+    """Use the xs_order kw, if it exists, to create a list of CrossSection sheet strings that determines the order bars are plotted in
     args:
         xss - list of CrossSections corresponding to a group
     kw:
-        xs_order - dict, if any keys are the same as the tag of the
-                   CrossSection group represented by xss, they should
-                   map to a list of strings with CrossSection sheet names
-                   specifiying an order to plot in.
+        xs_order - dict, if any keys are the same as the tag of the CrossSection group represented by xss, they should map to a list of strings with CrossSection sheet names specifiying an order to plot in.
     returns:
         reorder - a reordered list of CrossSections"""
 
@@ -872,8 +847,7 @@ def _generate_ROW_value_plot_objects(xss):
     return(fig, axl, axr)
 
 def plot_groups_at_ROW(sb, **kw):
-    """Create bar charts showing the field values at ROW edges for each
-    CrossSection group in a SectionBook
+    """Create bar charts showing the field values at ROW edges for each CrossSection group in a SectionBook
     args:
         sb - SectionBook object to pull plotting groups from
     kw:
@@ -883,17 +857,10 @@ def plot_groups_at_ROW(sb, **kw):
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
         groups - a list of group names to plot, default is all groups
-        xs_order - dict, keys are CrossSection group tags, which map to
-                   lists of CrossSection sheets specifying the order of the
-                   plotted CrossSection bars (left to right). Not all
-                   CrossSecitons in a group must be listed. Any/all can be
-                   left out.
-        return_figs - toggle whether a list of figure objects is returned
-                      instead of closing the figures to clear memory,
-                      default is False
+        xs_order - dict, keys are CrossSection group tags, which map to lists of CrossSection sheets specifying the order of the plotted CrossSection bars (left to right). Not all CrossSecitons in a group must be listed. Any/all can be left out.
+        return_figs - toggle whether a list of figure objects is returned instead of closing the figures to clear memory, default is False
     returns:
-        figs - dict of dicts, keys are 'E' and 'B', which are each keyed
-                by group tags, leading to Figure objects"""
+        figs - dict of dicts, keys are 'E' and 'B', which are each keyed by group tags, leading to Figure objects"""
 
     #check kws
     return_figs = False

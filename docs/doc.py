@@ -52,21 +52,87 @@ def doc_funk(fn, lines, line_number):
 
 def funk_to_html(F):
 
-    tab = '&nbsp; '*2
-    ds = F['docstring'].replace('\n','<br>%s' % (tab*2))
-    ds = ds.replace('    ','').replace('\t','')
+    ds = ''
+    for line in F['docstring'].split('\n'):
+        line = line.replace('    ', '\t')
+
+        if(' - ' in line):
+            line = line.split('-')
+            left, right = line[0], ''.join(line[1:])
+            ds += """
+                    <div class="docstr-split-div">
+                        <div class="docstr-left" style="width=%s">
+                            %s -&nbsp;
+                        </div>
+                        <div class="docstr-right">
+                            %s
+                        </div>
+                    </div>""" % (
+                        '%drem' % (len(left) + 3),
+                        left,
+                        right.replace('\t', ''))
+        else:
+            line = line.replace('args:', '<span class="args">arguments</span>:')
+            line = line.replace('kw:', '<span class="kw">keyword arguments</span>:')
+            line = line.replace('returns:', '<span class="returns variables">returns</span>:')
+            indents = 0
+            if(':' in line):
+                while(line[indents] == '\t'):
+                    indents += 1
+            ds += ('<p class="funk-docstr-line" style="margin-left: %dcm">%s</p>' %
+                    (indents, line))
 
     return(
-    """<p class="funkname">%s</p>
-        <p class="funk-call">%s %s</p>
-        <p class="source-file">%s %s</p>
+    ("""<div class="funk" id="%s">
+            <p class="funk-name">%s<span class="funk-call">%s</span></p>
+            <div class="funk-docstr">%s</div>
+        </div>""" % (
+        F['funkname'], F['funkname'], F['call'].replace(F['funkname'],''), ds)
+            ).replace('\n', '').replace('    ', '').replace('\t',''))
 
-        <p class="funk-docstring">
-            %s %s
-        </p>""" % (
-        F['funkname'], tab, F['call'], tab, F['filename'], tab*2, ds))
+def is_property_def(line):
+    if('property' in line):
+        if('=' in line):
+            if('(' in line):
+                if(')' in line):
+                    return(True)
+    return(False)
 
+def doc_property(lines, line_number):
 
+    L = lines
+    i = line_number
+
+    propstr = L[i]
+    while(')' not in L[i]):
+        propstr += L[i]
+        i += 1
+    propstr += L[i]
+
+    docstring = ''
+    if(propstr.count("'") > 1):
+        docstring = propstr[:propstr.rfind("'")]
+        docstring = docstring[docstring.rfind("'")+1:]
+
+    P = {'propname': propstr.split('=')[0].strip(),
+        'docstring': docstring}
+
+    return(P)
+
+def property_to_html(P):
+
+    return("""
+    <div class="docstr-split-div">
+        <div class="docstr-left" style="width=%s">
+            %s -&nbsp;
+        </div>
+        <div class="docstr-right">
+            %s
+        </div>
+    </div>""" % (
+        '%drem' % len(P['propname']),
+        P['propname'],
+        P['docstring']))
 
 def is_class_def(line):
     if('class ' in line):
@@ -87,7 +153,8 @@ def doc_class(fn, lines, line_number):
             'docstring': get_docstring(L, i),
             'filename': fn,
             'constructor': '',
-            'methods': []}
+            'methods': [],
+            'properties': []}
 
     if('(' in L[i]):
         C['classname'] = L[i][:L[i].index('(')].replace('class', '').strip()
@@ -97,21 +164,50 @@ def doc_class(fn, lines, line_number):
 
     i += 1
     while((i < len(L)) and is_unindented(L[i])):
+
         if(is_funk_def(L[i])):
             F = doc_funk(fn, L, i)
             F['call'] = F['call'].replace('self, ', '').replace('self,', '')
             if(F['funkname'] == '__init__'):
-                F['funkname'] = C['classname'] + ' constructor'
+                F['funkname'] = C['classname']
                 F['call'] = F['call'].replace('__init__', C['classname'])
                 C['constructor'] = F
             else:
                 C['methods'].append(F)
+
+        if(is_property_def(L[i])):
+            C['properties'].append(doc_property(L, i))
+
         i += 1
 
     return(C)
 
 def class_to_html(C):
-    pass
+
+    props = sorted(C['properties'], key=lambda x: x['propname'])
+    methods = sorted(C['methods'], key=lambda x: x['funkname'])
+    methods = [i for i in methods if i['funkname'][0] != '_']
+
+    return(("""
+    <div class="class" id="%s">
+        <p class="class-name">%s</p>
+        <p class="class-inheritance">%s</p>
+        %s
+        <div class="class-properties">
+            %s
+        </div>
+        <div class="class-methods">
+            %s
+        </div>
+    </div>""" %
+        (C['classname'],
+        C['classname'],
+        C['inheritance'],
+        funk_to_html(C['constructor']),
+        ''.join([property_to_html(i) for i in props]),
+        ''.join([funk_to_html(i) for i in methods])
+        )).replace('\n', '').replace('    ', '').replace('\t',''))
+
 
 fns = (glob.glob(os.path.join('..', 'emf', '*'))
         + glob.glob(os.path.join('..', 'emf', 'fields', '*')))
@@ -141,5 +237,5 @@ for fn in fns:
 
         ifile.close()
 
-with open('test.txt', 'w') as ofile:
-    ofile.write(funk_to_html(funks[-5]))
+with open('text.txt', 'w') as ofile:
+    ofile.write(class_to_html(classes[2]))
