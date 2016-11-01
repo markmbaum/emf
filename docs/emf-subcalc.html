@@ -32,13 +32,16 @@
                 var w = (w_body - w_nav - 3).toString() + 'px';
                 document.getElementById('main').style.width = w;}
 
-            mainWidth();
-            document.addEventListener("resize", mainWidth());
+            function navHeight(){
+                var h = document.getElementById('main').offsetHeight;
+                console.log(h);
+                document.getElementById('nav').style.height = h;}
 
-            h_main = document.getElementById('main').offsetHeight;
-            document.getElementById('nav').style.height = h_main;
+            document.addEventListener("load", mainWidth());
+            document.addEventListener("load", navHeight());
+            document.addEventListener("resize", mainWidth());
+            document.addEventListener("resize", navHeight());
 
         </script>
 
     </html>
-    

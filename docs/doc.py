@@ -32,22 +32,30 @@ def nav_html(mod_name, submodules, functions, classes, other):
 
 def get_docstr(obj):
     """Pull and format the docstring of an object for html"""
-    tab = '&ensp;'
+    tab = '&ensp;'*2
     docstr = obj.__doc__
     if(docstr):
         docstr = docstr.strip()
-        docstr = docstr.replace('\n', '<br>').replace('\t', tab).replace('    ', tab)
+        docstr = docstr.replace('\n', '<br>'
+                ).replace('\t', tab).replace('    ', tab)
         return('<p class="docstr">%s</p>' % docstr)
     else:
         return('')
 
 def get_argstr(function):
+    #get the argspec named tuple
     argspec = inspect.getargspec(function)
+    #remove 'self'
     if('self' in argspec[0]):
         argspec[0].pop(argspec[0].index('self'))
+    #apply spans for syntax coloring
+    for i in range(len(argspec[0])):
+        argspec[0] = '<span class="function-arg">' + argspec[0] + '</span>'
+    #join default arg names with their values
     if(argspec[3] is not None):
         for i in range(1, len(argspec[3]) + 1):
             argspec[0][-i] += '=%s' % str(argspec[3][-i])
+    #concatenate the complete string
     argstr = '('
     if(argspec[0]):
         argstr += ', '.join(argspec[0])
@@ -67,7 +75,7 @@ def function_to_html(F, name):
     #open a div
     html = '<div class="function" id="%s">' % name
     #add the function name and argstr
-    html += '<p class="function-str">%s%s</p>' % (name, get_argstr(F))
+    html += '<p class="function-str"><span class="function-name">%s</span>%s</p>' % (name, get_argstr(F))
     #add the docstr
     html += get_docstr(F)
     #add function name
@@ -85,9 +93,9 @@ def functions_to_html(functions):
         html += '</div>'
     return(clean_html(html))
 
-def prop_to_html(P, name):
-    html = '<div class="property">'
-    html += '<p class="prop-name">%s</p>' % name
+def property_to_html(P, name, classname):
+    html = '<div class="property" id="%s-%s">' % (name, classname)
+    html += '<p class="property-name">%s</p>' % name
     html += get_docstr(P) + '</div>'
     return(clean_html(html))
 
@@ -112,13 +120,14 @@ def class_to_html(C, name):
         #check if property
         if(inspect.isdatadescriptor(v[k])):
             if(properties == ''):
-                properties += '<div class="properties"><h4>Properties</h4>'
-            properties += prop_to_html(v[k], k)
+                properties += '<div class="properties" id="%s-properties"><h4>Properties</h4>' % name
+            properties += property_to_html(v[k], k, name)
         #check if method
         if(inspect.ismethod(v[k]) or (inspect.isfunction(v[k]))):
             if(methods == ''):
                 methods += '<div class="methods"><h4>Methods</h4>'
-            methods += function_to_html(v[k], k)
+            methods += function_to_html(v[k], k).replace(
+                    'id="%s"' % k, 'id=%s-%s' % (name, k))
     if(properties != ''):
         properties += '</div>'
     if(methods != ''):
@@ -194,7 +203,7 @@ def doc_module(mod, **kw):
             <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
             <link rel="stylesheet" type="text/css" href="style.css">
     	</head>
-        <body onresize="mainWidth()">
+        <body onresize="arrange()" onload="arrange()">
 
             <!--Navigation Bar-->
             %s
@@ -214,17 +223,22 @@ def doc_module(mod, **kw):
         <!--Control the width and height of the #main element-->
         <script type="text/javascript">
 
-            function mainWidth(){
-                var w_nav = document.getElementById('nav').offsetWidth;
+            function arrange(){
+
+                var nav = document.getElementById('nav');
+                var main = document.getElementById('main');
+
+                var w_nav = nav.offsetWidth;
                 var w_body = document.body.offsetWidth;
                 var w = (w_body - w_nav - 3).toString() + 'px';
-                document.getElementById('main').style.width = w;}
+                main.style.width = w;
 
-            mainWidth();
-            document.addEventListener("resize", mainWidth());
+                var h = main.offsetHeight;
+                nav.style.height = h;
+                //console.log('arrange');
+                };
 
-            h_main = document.getElementById('main').offsetHeight;
-            document.getElementById('nav').style.height = h_main;
+            arrange();
 
         </script>
 

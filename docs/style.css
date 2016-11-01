@@ -4,15 +4,16 @@ body {
     font-family: 'Anonymous Pro', monospace;
     margin: 0;
     padding: 0;
+    overflow: scroll;
 }
 
 #nav {
     float: left;
     margin: 0;
-    padding: 0.25cm;
+    padding: 0.5cm;
     min-height: 100%;
     background-color: #20242C;
-    border-right: 1px solid #606060;
+    border-right: 1px solid #505050;
 }
 
 #nav h2 {
@@ -29,12 +30,13 @@ body {
 
 .nav-li {
     font-family: "Open Sans", sans-serif;
+    font-size: 14pt;
     margin: 0.5cm 0;
 }
 
 .nav-li a {
     text-decoration: none;
-    color: #C8C8C8
+    color: #828997;
 }
 
 .subnav-ul {
@@ -44,16 +46,18 @@ body {
 
 .subnav-li {
     font-family: "Anonymous Pro", monospace;
-    margin: 0.1cm 0;
+    font-size: 11pt;
+    margin: 0.15cm 0;
 }
 
 .subnav-li a {
     text-decoration: none;
-    color: #C8C8C8;
+    color: #828997;
 }
 
 #nav a:hover {
     font-weight: 700;
+    color: #ABB2BF;
     /*background-color: #282C34;*/
 }
 
@@ -73,8 +77,8 @@ body {
 .section {
     margin: 1cm;
     padding: 5%;
-    border: 1px solid #505050;
-    border-radius: 10px;
+    border: 1px solid #484848;
+    border-radius: 12px;
 }
 
 .section h2 {
@@ -86,7 +90,7 @@ body {
 }
 
 .docstr {
-    margin: 0;
+    margin-left: 1cm;
     font-size: 90%;
     color: #98C379;
 }
@@ -100,4 +104,57 @@ body {
     font-size: 200%;
     font-family: "Open Sans", sans-serif;
     margin: 1cm 0 .5cm 0;
+}
+
+.class .function {
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties {
+    margin: 1cm 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties h4 {
+    font-weight: normal;
+    font-family: "Open Sans", sans-serif;
+    font-size: 150%;
+}
+
+.properties .property {
+    margin-left: 1cm;
+    padding-left: 0.1cm;
+    border-left: 1px solid #383838;
+}
+
+.methods {
+    margin: 1cm 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.methods h4 {
+  font-weight: normal;
+  font-family: "Open Sans", sans-serif;
+  font-size: 150%;
+}
+
+.methods .function {
+    margin-left: 1cm;
+    border-left: 1px solid #383838;
+}
+
+#functions .function {
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.function .function-name {
+    color: #61AFEF;
+}
+
+.function .function-arg {
+    color: #D19A66;
 }
