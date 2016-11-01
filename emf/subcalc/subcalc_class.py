@@ -36,17 +36,12 @@ class Model(object):
         if(largs <= 2):
             #check args[0]
             if(type(args[0]) is not dict):
-                raise(EMFError("""
-                The first argument to Model() must be a dictionary of
-                model result information when passing 1 or 2 arguments to
-                initialize the Model, not %s""" % type(args[0])))
+                raise(EMFError("""The first argument to Model() must be a dictionary of model result information when passing 1 or 2 arguments to initialize the Model, not %s""" % type(args[0])))
             #check keys
             s = set(['X','Y','Bmax','Bres','Bx','By','Bz'])
             if(any([(i not in s) for i in args[0].keys()])):
                 print args[0].keys()
-                raise(EMFError("""
-                If passing a dictionary to initialize a Model object, the
-                dict must have the following keys only:
+                raise(EMFError("""If passing a dictionary to initialize a Model object, the dict must have the following keys only:
                     %s""" % str(s)))
             #store data
             self._grid = args[0]
@@ -58,18 +53,13 @@ class Model(object):
             #store the info dict if present
             if(largs == 2):
                 if(type(args[1]) is not dict):
-                    raise(EMFError("""
-                    The fourth argument to Model() must be a dictionary of
-                    model result information, not %s""" % type(args[1])))
+                    raise(EMFError("""The fourth argument to Model() must be a dictionary of model result information, not %s""" % type(args[1])))
                 self.info = args[1]
             else:
                 self.info = None
         elif(largs <= 4):
             #check input types
-            mgs = """
-            If passing three or four arguments to initialize a Model, the first
-            three arguments must be 2D numpy arrays representing X, Y, and B
-            grids respectively, each with the same shape."""
+            mgs = """If passing three or four arguments to initialize a Model, the first three arguments must be 2D numpy arrays representing X, Y, and B grids respectively, each with the same shape."""
             for i in range(3):
                 if(type(args[i]) is not np.ndarray):
                     raise(EMFError(msg))
@@ -86,9 +76,7 @@ class Model(object):
             #store the info dict if present
             if(largs == 4):
                 if(type(args[3]) is not dict):
-                    raise(EMFError("""
-                    The fourth argument to Model() must be a dictionary of
-                    model result information, not type %s""" % type(args[3])))
+                    raise(EMFError("""The fourth argument to Model() must be a dictionary of model result information, not type %s""" % type(args[3])))
                 self.info = args[3]
             else:
                 self.info = None
@@ -119,8 +107,7 @@ class Model(object):
                 %s""" % str(k)))
         else:
             self._Bkey = value
-    Bkey = property(_get_Bkey, _set_Bkey, None,
-            'Component of magnetic field accessed by the B property')
+    Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field accessed by the B property')
 
     def _get_X(self):
         return(self._grid['X'])
@@ -132,13 +119,11 @@ class Model(object):
 
     def _get_x(self):
         return(self.X[0,:])
-    x = property(_get_x, None, None,
-            'Unique x values in model grid (column positions)')
+    x = property(_get_x, None, None, 'Unique x values in model grid (column positions)')
 
     def _get_y(self):
         return(self.Y[:,0])
-    y = property(_get_y, None, None,
-            'Unique y values in model grid (row positions)')
+    y = property(_get_y, None, None, 'Unique y values in model grid (row positions)')
 
     def _get_xmax(self):
         return(np.max(self.x))
@@ -160,14 +145,10 @@ class Model(object):
         return(self._north_angle)
     def _set_north_angle(self, angle):
         if(not subcalc_funks._is_number(angle)):
-            raise(EMFError("""
-            The 'north_angle' attribute of a Model object must be a number."""))
+            raise(EMFError("""The 'north_angle' attribute of a Model object must be a number."""))
         else:
             self._north_angle = float(angle)
-    north_angle = property(_get_north_angle, _set_north_angle, None,
-            """Angle of the Northern direction in degrees, where 0 represents
-            the vertical or Y direction and clockwise represents increasing
-            angle""")
+    north_angle = property(_get_north_angle, _set_north_angle, None, """Angle of the Northern direction in degrees, where 0 represents the vertical or Y direction and clockwise represents increasing angle""")
 
     def _get_footprint_groups(self):
         """Generate a list of lists of Footprints with identical tags"""
@@ -182,8 +163,7 @@ class Model(object):
     #---------------------------------------------------------------------------
 
     def load_footprints(self, footprint_info, **kw):
-        """Read footprint data from a csv file and organize it in
-        Footprint objects stored in self.footprints
+        """Read footprint data from a csv file and organize it in Footprint objects stored in self.footprints
         args:
             footprint_info - string, path to the footprint csv/excel data.
                             If footprint data is in an excel workbook with,
@@ -263,8 +243,7 @@ class Model(object):
         return(x, y, B_interp)
 
     def interp(self, x, y):
-        """Interpolate in the x and y directions to find an estimated B
-        value at an x,y location within the model
+        """Interpolate in the x and y directions to find an estimated B value at an x,y location within the model
         args:
             x - iterable or scalar, x coordinate(s) to interpolate at
             y - iterable or scalar, y coordinate(s) to interpolate at
@@ -309,8 +288,7 @@ class Model(object):
             return(True)
 
     def resample(self, **kw):
-        """Resample the model grid along a new number of x,y values, a new
-        selection of x,y values, or a new number of total values
+        """Resample the model grid along a new number of x,y values, a new selection of x,y values, or a new number of total values
         kw:
             x - int or iterable, new number of x samples or new selection of
                 x samples
@@ -379,9 +357,7 @@ class Model(object):
         return(x, y, b)
 
     def export(self, **kw):
-        """Export the grid data and accompanying info to an excel file with
-        tabs for each Bfield component, another for the info dict, and a
-        final one for footprints if they're present
+        """Export the grid data and accompanying info to an excel file with tabs for each Bfield component, another for the info dict, and a final one for footprints if they're present
         kw:
             path - string, output destination/filename for workbook"""
         #get appropriate export filename

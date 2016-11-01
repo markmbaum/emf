@@ -649,9 +649,12 @@ def plot_groups(sb, **kw):
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
         groups - a list of group names to plot, default is all groups
-        return_figs - toggle whether a list of figure objects is returned instead of closing the figures to clear memory, default is False
+        return_figs - toggle whether a list of figure objects is returned
+                        instead of closing the figures to clear memory,
+                        default is False
     returns:
-        figs - dict of dicts, keys are 'E' and 'B', which are each keyed by group tags, leading to Figure objects"""
+        figs - dict of dicts, keys are 'E' and 'B', which are each keyed
+                by group tags, leading to Figure objects"""
 
     #check kws
     return_figs = False
@@ -749,7 +752,10 @@ def _reorder_xss(xss, **kw):
     args:
         xss - list of CrossSections corresponding to a group
     kw:
-        xs_order - dict, if any keys are the same as the tag of the CrossSection group represented by xss, they should map to a list of strings with CrossSection sheet names specifiying an order to plot in.
+        xs_order - dict, if any keys are the same as the tag of the
+                    CrossSection group represented by xss, they should map
+                    to a list of strings with CrossSection sheet names
+                    specifiying an order to plot in.
     returns:
         reorder - a reordered list of CrossSections"""
 
@@ -857,10 +863,17 @@ def plot_groups_at_ROW(sb, **kw):
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
         groups - a list of group names to plot, default is all groups
-        xs_order - dict, keys are CrossSection group tags, which map to lists of CrossSection sheets specifying the order of the plotted CrossSection bars (left to right). Not all CrossSecitons in a group must be listed. Any/all can be left out.
-        return_figs - toggle whether a list of figure objects is returned instead of closing the figures to clear memory, default is False
+        xs_order - dict, keys are CrossSection group tags, which map to
+                    lists of CrossSection sheets specifying the order of the
+                    plotted CrossSection bars (left to right). Not all
+                    CrossSections in a group must be listed.
+                    Any/all can be left out.
+        return_figs - toggle whether a list of figure objects is returned
+                    instead of closing the figures to clear memory,
+                    default is False
     returns:
-        figs - dict of dicts, keys are 'E' and 'B', which are each keyed by group tags, leading to Figure objects"""
+        figs - dict of dicts, keys are 'E' and 'B', which are each keyed
+                by group tags, leading to Figure objects"""
 
     #check kws
     return_figs = False

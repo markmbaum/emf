@@ -35,7 +35,7 @@ def _write_FLD_entries(ofile, *entries):
 		ofile.write(w)
 
 def to_FLD(xs, **kw):
-	"""Create an FLD input file for FIELDS out of a CrossSection object
+	"""Create an FLD input file for FIELDS from a CrossSection object
 	args:
 		xs - CrossSection object
 	kw:
@@ -72,7 +72,7 @@ def to_FLDs(*args, **kw):
 		can either be a path string to a target template workbook or an
 		existing SectionBook object
 	kw:
-		path - output destination for FLD files, default is the same directory as the template book if a path string is passed or the current directory if a SectionBook is passed."""
+		path - output destination for FLD files"""
 	if(type(args[0]) == str):
 		#load the template
 		sb = fields_funks.load_template(args[0])
@@ -122,7 +122,8 @@ def read_DAT(file_path):
 	args:
 		file_path - string, path to DAT file
 	returns:
-		pandas DataFrame with 'Bx','By','Bprod','Bmax','Ex','Ey','Eprod', and 'Emax' columns, and the distance ('x') in the index"""
+		pandas DataFrame with 'Bx','By','Bprod','Bmax','Ex','Ey','Eprod',
+        and 'Emax' columns, and the distance ('x') in the index"""
 
 	#check that the target file is a DAT
 	fields_funks._check_extension(file_path, 'DAT', """Input file must have a '.DAT' extension.""")
@@ -177,9 +178,12 @@ def convert_DAT(file_path, **kw):
 def convert_DAT_crawl(dir_name, **kw):
 	"""crawl a directory and all of its subdirectories for .DAT files that can be passed to DAT_to_csv() for output re-formatting and optional plotting.
 	args:
-		dir_name - the directory to initiate the crawl in. To designate the current directory, use '*'
+		dir_name - Directory to initiate the crawl in.
+                    To designate the current directory, use '*'
 	kw:
-		bundle - bool, if True, all DAT files found in the same directory are written to a common excel workbook. If False or absent, the DAT files are simply written to csv files."""
+		bundle - bool, if True, all DAT files found in the same directory
+                are written to a common excel workbook. If False or absent,
+                the DAT files are simply written to individual csv files."""
 
 	#get input directory's file and subdir names
 	dir_contents = glob.glob(dir_name)
