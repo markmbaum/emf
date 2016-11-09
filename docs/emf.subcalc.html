@@ -1,0 +1,935 @@
+
+    <html lang="en">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>emf.subcalc</title>
+            <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
+            <style>body{color:#ABB2BF;background-color:#282C34;font-family:'Anonymous Pro', monospace;margin:0;padding:0;overflow:scroll;}#back-to-top{position:fixed;right:0;bottom:0;padding:3px;margin:0;background-color:inherit;color:#828997;font-family:"Open Sans", sans-serif;font-size:11pt;text-decoration:none;border-top:1px solid #505050;border-left:1px solid #505050;}#mod-docstr{margin:0;text-align:justify;line-height:150%;color:#ABB2BF;font-family:"Open Sans", sans-serif;font-size:11pt;}#mod-docstr .mod-docstr-modname{font-family:'Anonymous Pro', monospace;}.monospace-span{font-family:'Anonymous Pro', monospace;font-size:125%;}#nav-wrapper{position:absolute;top:0;left:0;margin:0;padding:0 5px 0 0;min-height:1vh;background-color:#20242C;}#nav{position:fixed;top:0;left:0;bottom:0;overflow-y:scroll;padding:0.5cm;min-height:1vh;background-color:inherit;border-right:1px solid #505050;}#nav::-webkit-scrollbar{width:4px;}#nav h2{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:24pt;margin:0.25cm 0;}#nav-ul{margin:0;padding:0;list-style-type:none;}.nav-li{font-family:"Open Sans", sans-serif;font-size:18pt;margin:0.5cm 0;}.nav-li a{text-decoration:none;color:#828997;}.subnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.5cm 0;}.subnav-li{font-family:"Anonymous Pro", monospace;font-size:13pt;margin:0.15cm 0;}.subnav-li a{text-decoration:none;color:#828997;}.subsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.4cm 0;}.subsubnav-li{font-family:"Open Sans", sans-serif;font-size:11pt;margin:0.15cm 0;}.subsubnav-li a{text-decoration:none;color:#828997;}.subsubsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.3cm 0;}.subsubsubnav-li{font-family:"Anonymous Pro", monospace;font-size:11pt;margin:0.15cm 0;}.subsubsubnav-li a{text-decoration:none;color:#828997;}#nav a:hover{font-weight:700;color:#ABB2BF;/*background-color:#282C34;*/}#main{float:right;z-index:-1;}#main h1{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:400%;text-align:center;margin:1cm 0;}.section{margin:1cm;padding:5% 5% 5% 1cm;border:1px solid #484848;border-radius:12px;}.section h2{font-weight:normal;font-size:250%;font-family:"Open Sans", sans-serif;text-align:center;margin:0 0 1cm 0;}.docstr{margin:.5cm 0 .5cm 1cm;font-size:90%;text-align:justify;line-height:125%;color:#98C379;}.docstr pre{margin:0;padding:0;font-size:inherit;}.class{border-top:1px solid #404040;}.class h3{font-weight:normal;font-size:200%;font-family:"Open Sans", sans-serif;padding:0;margin:1cm 0 0 0.5cm;}#classes .class{margin-top:1cm;}.class .function{padding-left:0.1cm;border-left:1px solid #404040;}.properties{margin:1cm 0;padding-left:0.1cm;border-left:1px solid #404040;}.properties h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.properties .property{margin-left:1cm;padding-left:0.1cm;border-left:1px solid #383838;}.methods{margin:1cm 0 0 0;padding-left:0.1cm;border-left:1px solid #404040;}.methods h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.methods .function{margin-left:1cm;border-left:1px solid #383838;}#functions .function{border-top:1px solid #404040;}.function .function-name{color:#61AFEF;}.function .function-arg{color:#D19A66;}.function .default-str{color:#98C379;}.source{display:inline-block;margin:.5cm 0 .5cm 1cm;border:1px solid #383838;border-radius:12px;}.source h4{font-family:"Open Sans", sans-serif;font-weight:400;font-size:10pt;margin:0;padding:0.25cm;cursor:pointer;}.source .code{display:none;overflow:auto;padding:0 0.5cm 0.5cm 0.5cm;font-size:10pt;}.other{margin:0.5cm 0;}.other-type{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other-value{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other .comments{margin:0;padding:0.5cm 0 0.5 1cm;}.highlight .k {color:#C678DD;} .highlight .nf {color:#61AFEF;} .highlight .nf .n {color:#D19A66;} .highlight .nb {color:#56B6C2;} .highlight .o {font-weight:bold;} .highlight .ow {color:#C678DD;} .highlight .s1 {color:#98C379;} .highlight .s2 {color:#98C379;} .highlight .sd {color:#98C379;} .highlight .si {color:#D19A66;} .highlight .mi {color:#D19A66;} .highlight .mf {color:#D19A66;} .highlight .mh {color:#D19A66;} .highlight .mo {color:#D19A66;} .highlight .bp {color:#D19A66;} .highlight .c1 {color:#5C6370;}</style>
+    	</head>
+        <body onresize="arrange()" onload="arrange()">
+
+            <!--Back to Top Button-->
+            <a id="back-to-top" href="#">back to top</a>
+
+            <!--Navigation Sidebar-->
+            <div id="nav-wrapper">
+                <div id="nav">
+                    <h2>contents</h2>
+                    <ul id="nav-ul">
+            <li class="nav-li"><a href="#functions">functions</a>
+                <ul class="subnav-ul"><li class="subnav-li"><a href="#close">close</a></li><li class="subnav-li"><a href="#convert_REF">convert_REF</a></li><li class="subnav-li"><a href="#drop_footprint_template">drop_footprint_template</a></li><li class="subnav-li"><a href="#ion">ion</a></li><li class="subnav-li"><a href="#load_model">load_model</a></li><li class="subnav-li"><a href="#plot_contour">plot_contour</a></li><li class="subnav-li"><a href="#plot_pcolormesh">plot_pcolormesh</a></li><li class="subnav-li"><a href="#read_REF">read_REF</a></li><li class="subnav-li"><a href="#show">show</a></li></ul>
+            <li class="nav-li"><a href="#classes">classes</a>
+                <ul class="subnav-ul"><li class="subnav-li"><a href="#Footprint">Footprint</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Footprint-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Footprint-draw_as_loop>draw_as_loop</a></li><li class="subsubsubnav-li"><a href=#Footprint-group>group</a></li><li class="subsubsubnav-li"><a href=#Footprint-name>name</a></li><li class="subsubsubnav-li"><a href=#Footprint-of_concern>of_concern</a></li><li class="subsubsubnav-li"><a href=#Footprint-power_line>power_line</a></li><li class="subsubsubnav-li"><a href=#Footprint-x>x</a></li><li class="subsubsubnav-li"><a href=#Footprint-y>y</a></li></ul></li></ul></li><li class="subnav-li"><a href="#Model">Model</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Model-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Model-B>B</a></li><li class="subsubsubnav-li"><a href=#Model-Bkey>Bkey</a></li><li class="subsubsubnav-li"><a href=#Model-X>X</a></li><li class="subsubsubnav-li"><a href=#Model-Y>Y</a></li><li class="subsubsubnav-li"><a href=#Model-footprint_groups>footprint_groups</a></li><li class="subsubsubnav-li"><a href=#Model-north_angle>north_angle</a></li><li class="subsubsubnav-li"><a href=#Model-x>x</a></li><li class="subsubsubnav-li"><a href=#Model-xmax>xmax</a></li><li class="subsubsubnav-li"><a href=#Model-xmin>xmin</a></li><li class="subsubsubnav-li"><a href=#Model-y>y</a></li><li class="subsubsubnav-li"><a href=#Model-ymax>ymax</a></li><li class="subsubsubnav-li"><a href=#Model-ymin>ymin</a></li></ul></li><li class="subsubnav-li"><a href=#Model-methods>methods</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Model-cross_section>cross_section</a></li><li class="subsubsubnav-li"><a href=#Model-export>export</a></li><li class="subsubsubnav-li"><a href=#Model-flatten>flatten</a></li><li class="subsubsubnav-li"><a href=#Model-in_grid>in_grid</a></li><li class="subsubsubnav-li"><a href=#Model-interp>interp</a></li><li class="subsubsubnav-li"><a href=#Model-load_footprints>load_footprints</a></li><li class="subsubsubnav-li"><a href=#Model-resample>resample</a></li></ul></li></ul></li></ul></ul></div></div>
+
+            <div id="main">
+                <h1>emf.subcalc</h1>
+                <!--module docstring section-->
+                <div class="section"><p id="mod-docstr">The <span class="mod-docstr-modname">emf.subcalc</span> package is currently similar to the original versions of emf.fields because it supplements another modeling program without fully replacing it. In this case, the other modeling program is SUBCALC (developed by Enertech, sponsored by EPRI). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. <span class="mod-docstr-modname">emf.subcalc's</span> primary functions are to:<br><br>&ensp;&ensp;&ensp;&ensp;- read the text file output of SUBCALC models and associate the results<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;with Footprint objects (outlines of nearby objects in the model<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;domain, like houses)<br><br>&ensp;&ensp;&ensp;&ensp;- generate contour and colormesh plots of the results, with maximum<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fields annotated along Footprint objects<br><br>&ensp;&ensp;&ensp;&ensp;- convert results to excel files (much smaller file size)<br><br>&ensp;&ensp;&ensp;&ensp;- interpolate the grid (at points, along lines, or complete resampling)<br><br>It would be nice to build the calculations into <span class="mod-docstr-modname">emf.subcalc</span> and totally replace SUBCALC, but that hasn't been done yet.</p></div>
+
+                <!--functions section-->
+                <div class="section" id="functions"><h2>functions</h2><div class="function" id="close"><p class="function-str"><span class="function-name">close</span>(*<span class="function-arg">args</span>)</p><p class="docstr">Call plt.close() on any Figure objects or lists of Figure objects<br>&ensp;&ensp;&ensp;&ensp;passed in. If nothing is passed, all Figure objects are closed with<br>&ensp;&ensp;&ensp;&ensp;plt.close('all')</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Call plt.close() on any Figure objects or lists of Figure objects</span>
+<span class="sd">	passed in. If nothing is passed, all Figure objects are closed with</span>
+<span class="sd">	plt.close(&#39;all&#39;)&quot;&quot;&quot;</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+		<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+			<span class="k">if</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)):</span>
+				<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+					<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="convert_REF"><p class="function-str"><span class="function-name">convert_REF</span>(*<span class="function-arg">args</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Convert a .REF model file to an excel file storing the same data and save the excel file<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;REF_path - string, path to the .REF file<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;footprint_path - string, optional, path to footprint csv file<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, path/name of output file</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">convert_REF</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a .REF model file to an excel file storing the same data and save the excel file</span>
+<span class="sd">    args:</span>
+<span class="sd">        REF_path - string, path to the .REF file</span>
+<span class="sd">        footprint_path - string, optional, path to footprint csv file</span>
+<span class="sd">    kw:</span>
+<span class="sd">        path - string, path/name of output file&quot;&quot;&quot;</span>
+
+    <span class="c1">#load and export the model</span>
+    <span class="n">load_model</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="drop_footprint_template"><p class="function-str"><span class="function-name">drop_footprint_template</span>(*<span class="function-arg">args</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Copy the emf.subcalc footprint template into the current directory or a directory specified by an input string<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;drop_path - string, path of copied template file</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">drop_footprint_template</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy the emf.subcalc footprint template into the current directory or a directory</span>
+<span class="sd">	specified by an input string</span>
+<span class="sd">	args:</span>
+<span class="sd">		drop_path - string, path of copied template file&quot;&quot;&quot;</span>
+	<span class="c1">#check inputs</span>
+	<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;drop_footprint_template only accepts zero or one</span>
+<span class="s2">		input argument. A string can be passed to specify the directory in which the template file is</span>
+<span class="s2">		copied. With no arguments, the template file is copied into the current directory.&quot;&quot;&quot;</span><span class="p">))</span>
+	<span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+		<span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+	<span class="c1">#get template file path</span>
+	<span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+	<span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
+	<span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;subcalc-footprint-template.xlsx&#39;</span><span class="p">)</span>
+	<span class="c1">#get drop path</span>
+	<span class="n">drop_path</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;subcalc-footprint-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+	<span class="c1">#copy and notify</span>
+	<span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="n">drop_path</span><span class="p">)</span>
+	<span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">drop_path</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="ion"><p class="function-str"><span class="function-name">ion</span>()</p><p class="docstr">Call plt.ion() to toggle interactive plotting on</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ion</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;Call plt.ion() to toggle interactive plotting on&quot;&quot;&quot;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="load_model"><p class="function-str"><span class="function-name">load_model</span>(*<span class="function-arg">args</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Read a .REF output file from the SUBCALC program and load the data into a Model object<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;results_path - string, path to the output .REF file of field results<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   or to the excel file exported by a Model object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;footprint_path - string, optional, path to the csv file of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; footprint data<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Bkey - string, sets 'component' of magnetic field results that the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   returned Model object accesses by default<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; - can be 'Bx', 'By', 'Bz', 'Bmax', or 'Bres'<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; - default is 'Bmax'<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; - all components are stored, none are lost<br>&ensp;&ensp;&ensp;&ensp;returns<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;mod - Model object</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a .REF output file from the SUBCALC program and load the data into a Model object</span>
+<span class="sd">    args:</span>
+<span class="sd">        results_path - string, path to the output .REF file of field results</span>
+<span class="sd">                       or to the excel file exported by a Model object</span>
+<span class="sd">        footprint_path - string, optional, path to the csv file of</span>
+<span class="sd">                         footprint data</span>
+<span class="sd">    kw:</span>
+<span class="sd">        Bkey - string, sets &#39;component&#39; of magnetic field results that the</span>
+<span class="sd">               returned Model object accesses by default</span>
+<span class="sd">                     - can be &#39;Bx&#39;, &#39;By&#39;, &#39;Bz&#39;, &#39;Bmax&#39;, or &#39;Bres&#39;</span>
+<span class="sd">                     - default is &#39;Bmax&#39;</span>
+<span class="sd">                     - all components are stored, none are lost</span>
+<span class="sd">    returns</span>
+<span class="sd">        mod - Model object&quot;&quot;&quot;</span>
+
+    <span class="c1">#check for a Bkey kwarg</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;Bkey&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">Bkey</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;Bkey&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Bkey</span> <span class="o">=</span> <span class="s1">&#39;Bmax&#39;</span>
+
+    <span class="c1">#check extensions</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">_check_extension</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;.REF&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">(</span><span class="n">subcalc_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">):</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">_check_extension</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;.xlsx&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;&quot;Can only load Models from .REF or .xlsx files&quot;&quot;&quot;</span><span class="p">)</span>
+
+
+    <span class="k">if</span><span class="p">(</span><span class="n">fn</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;REF&#39;</span><span class="p">):</span>
+
+        <span class="c1">#pull data from the REF file</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">read_REF</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1">#get the gridded arrays</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_meshgrid</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1">#initialize Model object</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">subcalc_class</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">Bkey</span><span class="o">=</span><span class="n">Bkey</span><span class="p">)</span>
+        <span class="c1">#check for footprint file path and load if present</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">mod</span><span class="o">.</span><span class="n">load_footprints</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">elif</span><span class="p">(</span><span class="n">fn</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">):</span>
+        <span class="c1">#get a dict of all sheets in excel file</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sheetname</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">bkeys</span> <span class="o">=</span> <span class="n">dfs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;info&#39;</span> <span class="ow">in</span> <span class="n">bkeys</span><span class="p">):</span>
+            <span class="n">bkeys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;info&#39;</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;footprints&#39;</span> <span class="ow">in</span> <span class="n">bkeys</span><span class="p">):</span>
+            <span class="n">bkeys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;footprints&#39;</span><span class="p">)</span>
+        <span class="c1">#slice out grid data</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dfs</span><span class="p">[</span><span class="n">bkeys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dfs</span><span class="p">[</span><span class="n">bkeys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">X</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="n">Y</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">bkeys</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dfs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1">#slice out info dictionary</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">dfs</span><span class="p">[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="n">info</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="n">info</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+        <span class="c1">#initialize Model object</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">subcalc_class</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">Bkey</span><span class="o">=</span><span class="n">Bkey</span><span class="p">)</span>
+        <span class="c1">#check for footprints</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;footprints&#39;</span> <span class="ow">in</span> <span class="n">dfs</span><span class="p">):</span>
+            <span class="n">mod</span><span class="o">.</span><span class="n">load_footprints</span><span class="p">(</span><span class="n">dfs</span><span class="p">[</span><span class="s1">&#39;footprints&#39;</span><span class="p">])</span>
+        <span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1">#check for footprint file path and load if present</span>
+            <span class="n">mod</span><span class="o">.</span><span class="n">load_footprints</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span><span class="p">(</span><span class="n">subcalc_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Models must be loaded from .REF file or excel files&quot;&quot;&quot;</span><span class="p">))</span>
+
+    <span class="c1">#return</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="plot_contour"><p class="function-str"><span class="function-name">plot_contour</span>(<span class="function-arg">mod</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Generate a contour plot from the magnetic field results and<br>&ensp;&ensp;&ensp;&ensp;Footprint objects stored in a Model object<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;mod - Model object<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;scale - str, can be 'log' or 'linear' (default is 'linear')<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;levels - iterable, determines contour level values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(automatically determined by matplotlib if not used)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;north_angle - number, direction of north arrow<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(0 is along +y axis and clockwise is increasing)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cmap - str, name of matplotlib colormap, see:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;http://matplotlib.org/examples/color/colormaps_reference.html<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - bool, toggle whether the figure is saved<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, path to directory for saved figure. If set, overrides<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the 'save' keyword<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;format - string, saved plot format/extension (default 'png')<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;max_fig_width - float/int, inches, maximum width of figure<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;max_fig_height - float/int, inches, maximum height of figure<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;legend_padding - float/int, inches, width left for legend area<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fig - matplotlib figure object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ax - matplotlib axes object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;CS - matplotlib QuadContourSet object</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_contour</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Generate a contour plot from the magnetic field results and</span>
+<span class="sd">	Footprint objects stored in a Model object</span>
+<span class="sd">	args:</span>
+<span class="sd">		mod - Model object</span>
+<span class="sd">	kw:</span>
+<span class="sd">		scale - str, can be &#39;log&#39; or &#39;linear&#39; (default is &#39;linear&#39;)</span>
+<span class="sd">		levels - iterable, determines contour level values</span>
+<span class="sd">					(automatically determined by matplotlib if not used)</span>
+<span class="sd">		north_angle - number, direction of north arrow</span>
+<span class="sd">						(0 is along +y axis and clockwise is increasing)</span>
+<span class="sd">		cmap - str, name of matplotlib colormap, see:</span>
+<span class="sd">				http://matplotlib.org/examples/color/colormaps_reference.html</span>
+<span class="sd">		save - bool, toggle whether the figure is saved</span>
+<span class="sd">		path - string, path to directory for saved figure. If set, overrides</span>
+<span class="sd">				the &#39;save&#39; keyword</span>
+<span class="sd">		format - string, saved plot format/extension (default &#39;png&#39;)</span>
+<span class="sd">		max_fig_width - float/int, inches, maximum width of figure</span>
+<span class="sd">		max_fig_height - float/int, inches, maximum height of figure</span>
+<span class="sd">		legend_padding - float/int, inches, width left for legend area</span>
+<span class="sd">	returns:</span>
+<span class="sd">		fig - matplotlib figure object</span>
+<span class="sd">		ax - matplotlib axes object</span>
+<span class="sd">		CS - matplotlib QuadContourSet object&quot;&quot;&quot;</span>
+
+	<span class="c1">#check kw</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">scale</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">_get_cmap</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">])</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">_get_cmap</span><span class="p">(</span><span class="n">_default_contour_cmap_name</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_width&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_width&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">_max_fig_width</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_height&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_height&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">_max_fig_height</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;legend_padding&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;legend_padding&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">_contour_legend_padding</span>
+
+	<span class="c1">#generate the plot objects</span>
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_equal_ax_objs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span>
+			<span class="n">max_fig_width</span><span class="p">,</span> <span class="n">max_fig_height</span><span class="p">,</span> <span class="n">legend_padding</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
+
+	<span class="c1">#get contour plotting keyword arguments</span>
+	<span class="n">contour_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">_cmap</span><span class="p">,</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">_contour_alpha</span><span class="p">}</span>
+	<span class="c1">#get levels if passed in</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;levels&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+	<span class="c1">#determine contour scaling kwarg</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">):</span>
+		<span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;locator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">LogLocator</span><span class="p">()</span>
+	<span class="k">elif</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">):</span>
+		<span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;locator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">MaxNLocator</span><span class="p">()</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">		Invalid value passed to keyword argument &#39;scale.&#39;</span>
+<span class="s2">		Must be &#39;log&#39; or &#39;linear.&#39;&quot;&quot;&quot;</span><span class="p">))</span>
+
+	<span class="c1">#plot</span>
+	<span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="o">**</span><span class="n">contour_kw</span><span class="p">)</span>
+
+	<span class="c1">#get color indexer from decorator along the way</span>
+	<span class="n">mlci</span> <span class="o">=</span> <span class="n">_make_color_indexer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">),</span>
+							<span class="nb">len</span><span class="p">(</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">),</span> <span class="n">scale</span><span class="p">)</span>
+
+	<span class="c1">#set the contour linewidths private variable...</span>
+	<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
+		<span class="n">c</span><span class="o">.</span><span class="n">_linewidths</span> <span class="o">=</span> <span class="p">(</span><span class="n">_contour_linewidths</span><span class="p">,)</span>
+
+	<span class="c1">#plot location of maximum field</span>
+	<span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+	<span class="n">peak_B</span><span class="p">,</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">xidx</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_2Dmax</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+	<span class="n">peak_B</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_sig_figs</span><span class="p">(</span><span class="n">peak_B</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+	<span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">xidx</span><span class="p">],</span> <span class="n">mod</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">yidx</span><span class="p">],</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
+			<span class="n">markersize</span><span class="o">=</span><span class="n">_field_marker_size</span><span class="p">,</span>
+			<span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+			<span class="n">markeredgewidth</span><span class="o">=</span><span class="n">_field_marker_edgewidth</span><span class="p">,</span>
+			<span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+	<span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Maximum Modeled</span><span class="se">\n</span><span class="s1">Magnetic Field</span><span class="se">\n</span><span class="s1">(</span><span class="si">%s</span><span class="s1"> mG)&#39;</span> <span class="o">%</span> <span class="n">peak_B</span><span class="p">)</span>
+
+	<span class="c1">#plot footprints</span>
+	<span class="n">H</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">_plot_footprints</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">_cmap</span><span class="p">,</span> <span class="n">mlci</span><span class="p">)</span>
+	<span class="n">handles</span> <span class="o">+=</span> <span class="n">H</span>
+	<span class="n">labels</span> <span class="o">+=</span> <span class="n">L</span>
+
+	<span class="c1">#legend</span>
+	<span class="n">cvalues</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_check_intable</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; mG&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">]</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">collections</span> <span class="o">+</span> <span class="n">handles</span><span class="p">,</span> <span class="n">cvalues</span> <span class="o">+</span> <span class="n">labels</span><span class="p">,</span>
+			<span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.025</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+			<span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="c1">#north arrow</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span><span class="p">)</span>
+	<span class="k">elif</span><span class="p">(</span><span class="s1">&#39;north_angle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;north_angle&#39;</span><span class="p">])</span>
+
+	<span class="c1">#write Bkey note</span>
+	<span class="n">_write_Bkey</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
+
+	<span class="c1">#axes text</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (ft)&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (ft)&#39;</span><span class="p">)</span>
+
+	<span class="c1">#final formatting</span>
+	<span class="n">_format_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+	<span class="c1">#saving</span>
+	<span class="n">_save_fig</span><span class="p">(</span><span class="s1">&#39;contour_plot&#39;</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">CS</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="plot_pcolormesh"><p class="function-str"><span class="function-name">plot_pcolormesh</span>(<span class="function-arg">mod</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Generate a color mesh plot of the magnetic field results and<br>&ensp;&ensp;&ensp;&ensp;Footprint objects stored in a Model object<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;mod - Model object<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;north_angle - number, direction of north arrow<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;(0 is along +y axis and clockwise is increasing)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cmap - str, name of matplotlib colormap, see:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;http://matplotlib.org/examples/color/colormaps_reference.html<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - bool, toggle whether the figure is saved<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, path to directory for saved figure. If set, overrides<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the 'save' keyword<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;format - string, saved plot format/extension (default 'png')<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;max_fig_width - float/int, inches, maximum width of figure<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;max_fig_height - float/int, inches, maximum height of figure<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;legend_padding - float/int, inches, width left for legend area<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fig - matplotlib figure object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;ax - matplotlib axes object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;QM - matplotlib QuadMesh object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cbar - matplotlib Axes that the colorbar is drawn in (to which<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;legend is attached)</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_pcolormesh</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Generate a color mesh plot of the magnetic field results and</span>
+<span class="sd">	Footprint objects stored in a Model object</span>
+<span class="sd">	args:</span>
+<span class="sd">		mod - Model object</span>
+<span class="sd">	kw:</span>
+<span class="sd">		north_angle - number, direction of north arrow</span>
+<span class="sd">						(0 is along +y axis and clockwise is increasing)</span>
+<span class="sd">		cmap - str, name of matplotlib colormap, see:</span>
+<span class="sd">				http://matplotlib.org/examples/color/colormaps_reference.html</span>
+<span class="sd">		save - bool, toggle whether the figure is saved</span>
+<span class="sd">		path - string, path to directory for saved figure. If set, overrides</span>
+<span class="sd">				the &#39;save&#39; keyword</span>
+<span class="sd">		format - string, saved plot format/extension (default &#39;png&#39;)</span>
+<span class="sd">		max_fig_width - float/int, inches, maximum width of figure</span>
+<span class="sd">		max_fig_height - float/int, inches, maximum height of figure</span>
+<span class="sd">		legend_padding - float/int, inches, width left for legend area</span>
+<span class="sd">	returns:</span>
+<span class="sd">		fig - matplotlib figure object</span>
+<span class="sd">		ax - matplotlib axes object</span>
+<span class="sd">		QM - matplotlib QuadMesh object</span>
+<span class="sd">		cbar - matplotlib Axes that the colorbar is drawn in (to which</span>
+<span class="sd">				legend is attached)&quot;&quot;&quot;</span>
+
+	<span class="c1">#check kw</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">_get_cmap</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">])</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">_get_cmap</span><span class="p">(</span><span class="n">_default_pcolormesh_cmap_name</span><span class="p">)</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_width&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_width&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">_max_fig_width</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_height&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_height&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">_max_fig_height</span>
+	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;legend_padding&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;legend_padding&#39;</span><span class="p">]</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">_pcolormesh_legend_padding</span>
+
+	<span class="c1">#generate the plot objects</span>
+	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_equal_ax_objs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span>
+			<span class="n">max_fig_width</span><span class="p">,</span> <span class="n">max_fig_height</span><span class="p">,</span> <span class="n">legend_padding</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
+
+	<span class="c1">#get plotting keyword arguments</span>
+	<span class="n">pcolor_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">_cmap</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">_pcolor_alpha</span><span class="p">,</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+					<span class="s1">&#39;shading&#39;</span><span class="p">:</span> <span class="s1">&#39;gouraud&#39;</span><span class="p">}</span>
+
+	<span class="c1">#plot</span>
+	<span class="n">QM</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kw</span><span class="p">)</span>
+
+	<span class="c1">#get color indexer from decorator along the way</span>
+	<span class="n">mlci</span> <span class="o">=</span> <span class="n">_make_color_indexer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">),</span>
+							<span class="nb">len</span><span class="p">(</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">),</span> <span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+	<span class="c1">#plot location of maximum field</span>
+	<span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+	<span class="n">peak_B</span><span class="p">,</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">xidx</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_2Dmax</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+	<span class="n">peak_B</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_sig_figs</span><span class="p">(</span><span class="n">peak_B</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+	<span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">xidx</span><span class="p">],</span> <span class="n">mod</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">yidx</span><span class="p">],</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
+			<span class="n">markersize</span><span class="o">=</span><span class="n">_field_marker_size</span><span class="p">,</span>
+			<span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+			<span class="n">markeredgewidth</span><span class="o">=</span><span class="n">_field_marker_edgewidth</span><span class="p">,</span>
+			<span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+	<span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Maximum Modeled</span><span class="se">\n</span><span class="s1">Magnetic Field</span><span class="se">\n</span><span class="s1">(</span><span class="si">%s</span><span class="s1"> mG)&#39;</span> <span class="o">%</span> <span class="n">peak_B</span><span class="p">)</span>
+
+	<span class="c1">#plot footprints</span>
+	<span class="n">H</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">_plot_footprints</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">_cmap</span><span class="p">,</span> <span class="n">mlci</span><span class="p">)</span>
+	<span class="n">handles</span> <span class="o">+=</span> <span class="n">H</span>
+	<span class="n">labels</span> <span class="o">+=</span> <span class="n">L</span>
+
+	<span class="c1">#colorbar and legend</span>
+	<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+	<span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+	<span class="n">fig_size</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+	<span class="n">w</span> <span class="o">=</span> <span class="mf">0.35</span><span class="o">/</span><span class="n">fig_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">cbar</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span> <span class="o">+</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+	<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">QM</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar</span><span class="p">,</span> <span class="n">drawedges</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+	<span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span>
+			<span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+			<span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+	<span class="n">_format_ax</span><span class="p">(</span><span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
+
+	<span class="c1">#north arrow</span>
+	<span class="k">if</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span><span class="p">)</span>
+	<span class="k">elif</span><span class="p">(</span><span class="s1">&#39;north_angle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;north_angle&#39;</span><span class="p">])</span>
+
+	<span class="c1">#write Bkey note</span>
+	<span class="n">_write_Bkey</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
+
+	<span class="c1">#axes text</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (ft)&#39;</span><span class="p">)</span>
+	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (ft)&#39;</span><span class="p">)</span>
+
+	<span class="c1">#final formatting</span>
+	<span class="n">_format_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+	<span class="c1">#saving</span>
+	<span class="n">_save_fig</span><span class="p">(</span><span class="s1">&#39;contour_plot&#39;</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">QM</span><span class="p">,</span> <span class="n">cbar</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="read_REF"><p class="function-str"><span class="function-name">read_REF</span>(<span class="function-arg">file_path</span>)</p><p class="docstr">Read a .REF output file generated by the SUBCALC program and pull out the reference grid and magnetic field results.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;file_path - string, path to saved .REF output file<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;data - dict, keys are 'x', 'y', 'Bmax', 'Bres', 'Bx', 'By', and 'Bz',<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   which lead to 1D numpy arrays<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;info - dict, model metadata</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_REF</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a .REF output file generated by the SUBCALC program and pull out the reference grid and</span>
+<span class="sd">    magnetic field results.</span>
+<span class="sd">    args:</span>
+<span class="sd">        file_path - string, path to saved .REF output file</span>
+<span class="sd">    returns:</span>
+<span class="sd">        data - dict, keys are &#39;x&#39;, &#39;y&#39;, &#39;Bmax&#39;, &#39;Bres&#39;, &#39;Bx&#39;, &#39;By&#39;, and &#39;Bz&#39;,</span>
+<span class="sd">               which lead to 1D numpy arrays</span>
+<span class="sd">        info - dict, model metadata&quot;&quot;&quot;</span>
+
+    <span class="c1">#check the extension</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">_check_extension</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;REF&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;&quot;SubCalc results are saved to text files with</span>
+<span class="s2">    .REF extensions. The input path &quot;</span><span class="si">%s</span><span class="s2">&quot; does not have the correct extension.&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+
+    <span class="c1">#allocate dictionaries</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;REF_path&#39;</span><span class="p">:</span> <span class="n">file_path</span><span class="p">}</span> <span class="c1">#dictionary storing reference grid information</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;X Coord&#39;</span><span class="p">,</span> <span class="s1">&#39;Y Coord&#39;</span><span class="p">,</span> <span class="s1">&#39;X Mag&#39;</span><span class="p">,</span> <span class="s1">&#39;Y Mag&#39;</span><span class="p">,</span> <span class="s1">&#39;Z Mag&#39;</span><span class="p">,</span> <span class="s1">&#39;Max&#39;</span><span class="p">,</span> <span class="s1">&#39;Res&#39;</span><span class="p">]</span>
+    <span class="n">return_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;bx&#39;</span><span class="p">,</span> <span class="s1">&#39;by&#39;</span><span class="p">,</span> <span class="s1">&#39;bz&#39;</span><span class="p">,</span> <span class="s1">&#39;bmax&#39;</span><span class="p">,</span> <span class="s1">&#39;bres&#39;</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">))]))</span>
+
+    <span class="c1">#pull data out</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ifile</span><span class="p">:</span>
+        <span class="c1">#store information about the grid</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span><span class="p">(</span><span class="s1">&#39;:&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">[:</span><span class="n">idx</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">_is_number</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>
+                    <span class="n">info</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">info</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="c1">#read through the rest of the data</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ifile</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">line</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)]):</span>
+                    <span class="n">L</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">L</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+
+    <span class="c1">#flatten the lists in data</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_flatten</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+
+    <span class="c1">#switch the keys</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">return_keys</span><span class="p">,</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]))</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="show"><p class="function-str"><span class="function-name">show</span>()</p><p class="docstr">Call plt.show() to display open figures</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;Call plt.show() to display open figures&quot;&quot;&quot;</span>
+	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+                    </div>
+                </div></div></div>
+
+                <!--classes section-->
+                <div class="section" id="classes"><h2>classes</h2><div class="class" id="Footprint"><h3>Footprint</h3><div class="function" ><p class="function-str"><span class="function-name">Footprint</span>(<span class="function-arg">name</span>, <span class="function-arg">x</span>, <span class="function-arg">y</span>, <span class="function-arg">power_line</span>, <span class="function-arg">of_concern</span>, <span class="function-arg">draw_as_loop</span>, <span class="function-arg">group</span>)</p><p class="docstr">args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;name - string, the name of the Footprint, i.e. 'power line 2'<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - iterable, x coordinates of Footprint<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - iterable, y coordinates of Footprint<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;power_line - bool, True indicates the footprint corresponds to<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; modeled<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;of_concern - bool, True if the Footprint represents an area<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; that is potentially concerned about EMF (homes)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;draw_as_loop - bool, True if the footprint should be plotted<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   as a closed loop<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;group - string, group strings that are identical between<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Footprint objects designate them as part of the same<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;group for plotting</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">power_line</span><span class="p">,</span> <span class="n">of_concern</span><span class="p">,</span> <span class="n">draw_as_loop</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        args:</span>
+<span class="sd">            name - string, the name of the Footprint, i.e. &#39;power line 2&#39;</span>
+<span class="sd">            x - iterable, x coordinates of Footprint</span>
+<span class="sd">            y - iterable, y coordinates of Footprint</span>
+<span class="sd">            power_line - bool, True indicates the footprint corresponds to</span>
+<span class="sd">                         modeled</span>
+<span class="sd">            of_concern - bool, True if the Footprint represents an area</span>
+<span class="sd">                         that is potentially concerned about EMF (homes)</span>
+<span class="sd">            draw_as_loop - bool, True if the footprint should be plotted</span>
+<span class="sd">                           as a closed loop</span>
+<span class="sd">            group - string, group strings that are identical between</span>
+<span class="sd">                    Footprint objects designate them as part of the same</span>
+<span class="sd">                    group for plotting&quot;&quot;&quot;</span>
+        <span class="c1">#check x and y are the same length</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Footprints must have the same number of x and y values.&quot;&quot;&quot;</span><span class="p">))</span>
+        <span class="c1">#init attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_power_line</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_of_concern</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_draw_as_loop</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_group</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c1">#set properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="c1">#string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="c1">#list of floats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="c1">#list of floats</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">power_line</span> <span class="o">=</span> <span class="n">power_line</span> <span class="c1">#bool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">of_concern</span> <span class="o">=</span> <span class="n">of_concern</span> <span class="c1">#bool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_as_loop</span> <span class="o">=</span> <span class="n">draw_as_loop</span> <span class="c1">#bool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">group</span> <span class="c1">#string</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="properties" id="Footprint-properties"><h4>Properties</h4><div class="property" id="Footprint-draw_as_loop"><p class="property-name">draw_as_loop</p><p class="docstr">Bool indicating whether the footprint object should be drawn as a closed loop.</p></div><div class="property" id="Footprint-group"><p class="property-name">group</p><p class="docstr">Group name. Footprints with the same group name are plotted under the same label.</p></div><div class="property" id="Footprint-name"><p class="property-name">name</p><p class="docstr">Footprint name</p></div><div class="property" id="Footprint-of_concern"><p class="property-name">of_concern</p><p class="docstr">Bool indicating whether the footprint object is of concern with respect to magnetic field magnitudes. A house, for example, might be of concern.</p></div><div class="property" id="Footprint-power_line"><p class="property-name">power_line</p><p class="docstr">Bool indicating whether the footprint object represents a power line.</p></div><div class="property" id="Footprint-x"><p class="property-name">x</p><p class="docstr">list of floats, x coordinates of Footprint vertices</p></div><div class="property" id="Footprint-y"><p class="property-name">y</p><p class="docstr">list of floats, y coordinates of Footprint vertices</p></div></div></div><div class="class" id="Model"><h3>Model</h3><p class="docstr">Model objects store results generated by the SubCalc program, provide methods to interpolate the results, store Footprint objects, and can be used to generate contour and colormesh plots. A Model can be created by passing  directly or by passing a dictionary of grid results. The function subcalc.load_model is the best way to generate a Model object from a .REF file containing SubCalc results. The Model object can be saved to a more flexible (and smaller) excel file with Model.export(). Then the excel file can be read back into a Model object using subcalc.load_model, but targeting the excel file.<br><br>&ensp;&ensp;&ensp;&ensp;Model objects have a 'Bkey' property that determines which component of the magnetic field results is accessed by the Model.B property. For example, when Model.Bkey == 'Bmax' all operations involving the grid of magnetic field results accessed by Model.B will operate on the 'max' field component. When Bmax == 'Bz' all operations deal with the vertical 'z' component of the field, and so on. This includes plotting.<br><br>&ensp;&ensp;&ensp;&ensp;Footprints of objects in the Model domain like buildings, the power lines, fences, etc. can also be stored in Model objects. Data for these objects must be saved in csv template files. The path of the footprint csv files can be passed to subcalc.load_model for automatic inclusion in a newly generated Model object or it can be passed to an existing Model with Model.load_footprints. The footprint data is stored in Footprint objects that have very little functionality and are mostly just organizational objects.<br><br>&ensp;&ensp;&ensp;&ensp;Several methods are available for interpolating new values from the grid of field results: Model.interp, Model.resample, and Model.cross_section.<br><br>&ensp;&ensp;&ensp;&ensp;Contour plots of the results can be automatically generated with subcalc.plot_contour(Model) and colormesh plots can be automatically generated with subcalc.plot_pcolormesh(Model).</p><div class="function" ><p class="function-str"><span class="function-name">Model</span>(*<span class="function-arg">args</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Grid data must be passed in<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;either:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;X - 2D array of x coordinates<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Y - 2D array of y coordinats<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B - 2D array of magnetic field magnitudes<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;info - dict, optional, dictionary of model metadata<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;or:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;data - dict, dictionary with X, Y, and B grids (2D arrays),<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;which should be keyed by:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;'X', 'Y', 'Bmax', 'Bres', 'Bx', 'By', and 'Bz'<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;info - dict, optional, dictionary of model metadata<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Bkey - str, defines which component of magnetic field results were<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;passed if grid arrays are passed directly, or selects<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the field component accessed by default if a dictionary<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;of results are passed (see the Bkey property), in which<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;case it must be one of:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;('Bmax', 'Bres', 'Bx', 'By', 'Bz').</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Grid data must be passed in</span>
+<span class="sd">        args:</span>
+<span class="sd">            either:</span>
+<span class="sd">                X - 2D array of x coordinates</span>
+<span class="sd">                Y - 2D array of y coordinats</span>
+<span class="sd">                B - 2D array of magnetic field magnitudes</span>
+<span class="sd">                info - dict, optional, dictionary of model metadata</span>
+<span class="sd">            or:</span>
+<span class="sd">                data - dict, dictionary with X, Y, and B grids (2D arrays),</span>
+<span class="sd">                    which should be keyed by:</span>
+<span class="sd">                        &#39;X&#39;, &#39;Y&#39;, &#39;Bmax&#39;, &#39;Bres&#39;, &#39;Bx&#39;, &#39;By&#39;, and &#39;Bz&#39;</span>
+<span class="sd">                info - dict, optional, dictionary of model metadata</span>
+<span class="sd">        kw:</span>
+<span class="sd">            Bkey - str, defines which component of magnetic field results were</span>
+<span class="sd">                    passed if grid arrays are passed directly, or selects</span>
+<span class="sd">                    the field component accessed by default if a dictionary</span>
+<span class="sd">                    of results are passed (see the Bkey property), in which</span>
+<span class="sd">                    case it must be one of:</span>
+<span class="sd">                        (&#39;Bmax&#39;, &#39;Bres&#39;, &#39;Bx&#39;, &#39;By&#39;, &#39;Bz&#39;).&quot;&quot;&quot;</span>
+
+        <span class="n">largs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">largs</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="c1">#check args[0]</span>
+            <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;The first argument to Model() must be a dictionary of model result</span>
+<span class="s2">                information when passing 1 or 2 arguments to initialize the Model, not </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+            <span class="c1">#check keys</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;X&#39;</span><span class="p">,</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;Bmax&#39;</span><span class="p">,</span><span class="s1">&#39;Bres&#39;</span><span class="p">,</span><span class="s1">&#39;Bx&#39;</span><span class="p">,</span><span class="s1">&#39;By&#39;</span><span class="p">,</span><span class="s1">&#39;Bz&#39;</span><span class="p">])</span>
+            <span class="k">if</span><span class="p">(</span><span class="nb">any</span><span class="p">([(</span><span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()])):</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;If passing a dictionary to initialize a Model object, the dict</span>
+<span class="s2">                must have the following keys only:</span>
+<span class="s2">                    </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
+            <span class="c1">#store data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1">#deal with Bkey</span>
+            <span class="k">if</span><span class="p">(</span><span class="s1">&#39;Bkey&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Bkey</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;Bkey&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Bkey</span> <span class="o">=</span> <span class="s1">&#39;Bmax&#39;</span>
+            <span class="c1">#store the info dict if present</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">largs</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;The fourth argument to initialize a Model objet must be a</span>
+<span class="s2">                    dictionary of model result information, not </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]))))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">elif</span><span class="p">(</span><span class="n">largs</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="c1">#check input types</span>
+            <span class="n">mgs</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;If passing three or four arguments to initialize a Model, the first three</span>
+<span class="s2">            arguments must be 2D numpy arrays representing X, Y, and B grids respectively, each with</span>
+<span class="s2">            the same shape. The fourth argument can optionally be a dictionary of model metadata.&quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+                <span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+                <span class="k">elif</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+            <span class="c1">#2D reference grid arrays</span>
+            <span class="k">if</span><span class="p">(</span><span class="s1">&#39;Bkey&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Bkey</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;Bkey&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Bkey</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+            <span class="c1">#check shapes</span>
+            <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)):</span>
+                <span class="k">raise</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Grid arrays used to directly initialize a Model object must be the same</span>
+<span class="s2">                shape.&quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Bkey</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+
+            <span class="c1">#store the info dict if present</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">largs</span> <span class="o">==</span> <span class="mi">4</span><span class="p">):</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;The fourth argument to initialize a Model object must be a</span>
+<span class="s2">                    dictionary of model result information, not type </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]))))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1">#other reference objects in the model, like substation boundaries,</span>
+        <span class="c1">#stored in a list of Footprint objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footprint_df</span> <span class="o">=</span> <span class="bp">None</span> <span class="c1">#DataFrame of Footprint information</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footprints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#angle of the northern direction with respect to the grid</span>
+        <span class="c1">#   where 0 degrees is the positive y axis and clockwise is increasing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_north_angle</span> <span class="o">=</span> <span class="bp">None</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="properties" id="Model-properties"><h4>Properties</h4><div class="property" id="Model-B"><p class="property-name">B</p><p class="docstr">2D grid of magnetic field results, must be the same shape as Model.X and Model.Y</p></div><div class="property" id="Model-Bkey"><p class="property-name">Bkey</p><p class="docstr">The component of magnetic field accessed by the B property. Model objects can store 2D grids representing several components of magnetic field results (x component, z component, maximum magnitude, etc.). The Bkey property is a string used to key a dictionary of these results whenever Model.B is accessed. Changing Bkey changes which component of the results is automatically accessed by the B property.</p></div><div class="property" id="Model-X"><p class="property-name">X</p><p class="docstr">2D grid of reference grid x coordinates, must be the same shape as Model.Y and Model.B</p></div><div class="property" id="Model-Y"><p class="property-name">Y</p><p class="docstr">2D grid of reference grid y coordinates, must be the same shape as Model.X and Model.B</p></div><div class="property" id="Model-footprint_groups"><p class="property-name">footprint_groups</p><p class="docstr">Generate a list of lists of Footprints with identical tags</p></div><div class="property" id="Model-north_angle"><p class="property-name">north_angle</p><p class="docstr">Angle of the Northern direction in degrees, where 0 represents the vertical or Y direction and clockwise represents increasing angle</p></div><div class="property" id="Model-x"><p class="property-name">x</p><p class="docstr">An array of unique x values in model grid (coordinates of the grid columns)</p></div><div class="property" id="Model-xmax"><p class="property-name">xmax</p><p class="docstr">Maximum horizontal coordinate of the reference grid</p></div><div class="property" id="Model-xmin"><p class="property-name">xmin</p><p class="docstr">Minimum horizontal coordinate of the reference grid</p></div><div class="property" id="Model-y"><p class="property-name">y</p><p class="docstr">An array of unique y values in model grid (coordinates of the grid rows)</p></div><div class="property" id="Model-ymax"><p class="property-name">ymax</p><p class="docstr">Maximum vertical coordinate of the reference grid</p></div><div class="property" id="Model-ymin"><p class="property-name">ymin</p><p class="docstr">Minimum vertical coordinate of the reference grid</p></div></div><div class="methods" id="Model-methods"><h4>Methods</h4><div class="function" id=Model-cross_section><p class="function-str"><span class="function-name">cross_section</span>(<span class="function-arg">p1</span>, <span class="function-arg">p2</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Interpolate the field along a line between two points<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p1 - x-y pair, beginning of cross section<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p2 - x-y pair, end of cross section<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;N - integer, number of points sampled (default 1000)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - array, x coordinates of interpolated values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - array, y coordinates of interpolated values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_interp - array, interpolated field values</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">cross_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolate the field along a line between two points</span>
+<span class="sd">        args:</span>
+<span class="sd">            p1 - x-y pair, beginning of cross section</span>
+<span class="sd">            p2 - x-y pair, end of cross section</span>
+<span class="sd">        kw:</span>
+<span class="sd">            N - integer, number of points sampled (default 1000)</span>
+<span class="sd">        returns:</span>
+<span class="sd">            x - array, x coordinates of interpolated values</span>
+<span class="sd">            y - array, y coordinates of interpolated values</span>
+<span class="sd">            B_interp - array, interpolated field values&quot;&quot;&quot;</span>
+        <span class="c1">#check point lengths</span>
+        <span class="k">if</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Input points must consist of two values (xy pairs).&#39;</span><span class="p">))</span>
+        <span class="c1">#check kw</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;N&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="c1">#create x and y vectors</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span>
+        <span class="n">B_interp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B_interp</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id=Model-export><p class="function-str"><span class="function-name">export</span>(**<span class="function-arg">kw</span>)</p><p class="docstr">Export the grid data and accompanying info to an excel file with tabs for each Bfield component, another for the info dict, and a final one for footprints if they're present<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, output destination/filename for workbook</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the grid data and accompanying info to an excel file with tabs for each Bfield</span>
+<span class="sd">        component, another for the info dict, and a final one for footprints if they&#39;re present</span>
+<span class="sd">        kw:</span>
+<span class="sd">            path - string, output destination/filename for workbook&quot;&quot;&quot;</span>
+        <span class="c1">#get appropriate export filename</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;REF_path&#39;</span><span class="p">])</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_path_manage</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;.xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="c1">#create excel writing object</span>
+        <span class="n">xl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;xlsxwriter&#39;</span><span class="p">)</span>
+        <span class="c1">#write grid data</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">:</span>
+            <span class="k">if</span><span class="p">((</span><span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;X&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;Y&#39;</span><span class="p">)):</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+        <span class="c1">#write model information if present</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Parameter Value&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span>
+                            <span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;info&#39;</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="s1">&#39;Parameter Name&#39;</span><span class="p">)</span>
+        <span class="c1">#write footprint DataFrame if present</span>
+        <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">footprint_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">footprint_df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;footprints&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c1">#save and print</span>
+        <span class="n">xl</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;model saved to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id=Model-flatten><p class="function-str"><span class="function-name">flatten</span>()</p><p class="docstr">Create 1 dimensional versions of the gridded X, Y, and B arrays<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - 1D numpy array with x coordinates<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - 1D numpy array with y coordinates<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;b - 1D numpy array with magnetic field values</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create 1 dimensional versions of the gridded X, Y, and B arrays</span>
+<span class="sd">        returns:</span>
+<span class="sd">            x - 1D numpy array with x coordinates</span>
+<span class="sd">            y - 1D numpy array with y coordinates</span>
+<span class="sd">            b - 1D numpy array with magnetic field values&quot;&quot;&quot;</span>
+        <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">nrows</span><span class="o">*</span><span class="n">ncols</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id=Model-in_grid><p class="function-str"><span class="function-name">in_grid</span>(<span class="function-arg">x</span>, <span class="function-arg">y</span>)</p><p class="docstr">Check if an x,y coordinate pair is inside the Model grid<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - float, x coordinate<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - float, y coordinate<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;b - bool, True if x,y is in the grid, False if it's not</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">in_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if an x,y coordinate pair is inside the Model grid</span>
+<span class="sd">        args:</span>
+<span class="sd">            x - float, x coordinate</span>
+<span class="sd">            y - float, y coordinate</span>
+<span class="sd">        returns:</span>
+<span class="sd">            b - bool, True if x,y is in the grid, False if it&#39;s not&quot;&quot;&quot;</span>
+        <span class="k">if</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span> <span class="ow">or</span>
+            <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span> <span class="ow">or</span>
+                    <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)):</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id=Model-interp><p class="function-str"><span class="function-name">interp</span>(<span class="function-arg">x</span>, <span class="function-arg">y</span>)</p><p class="docstr">Perform bilinear interpolation to find an estimated B value at an x,y location within the model<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - iterable or scalar, x coordinate(s) to interpolate at<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - iterable or scalar, y coordinate(s) to interpolate at<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;return:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_interp - array or float, the interpolated field value</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">interp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform bilinear interpolation to find an estimated B value at an x,y location within the</span>
+<span class="sd">        model</span>
+<span class="sd">        args:</span>
+<span class="sd">            x - iterable or scalar, x coordinate(s) to interpolate at</span>
+<span class="sd">            y - iterable or scalar, y coordinate(s) to interpolate at</span>
+<span class="sd">        return:</span>
+<span class="sd">            B_interp - array or float, the interpolated field value&quot;&quot;&quot;</span>
+        <span class="c1">#make x,y iterable if scalars are passed in</span>
+        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">))):</span>
+            <span class="n">scalar</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scalar</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="c1">#check that all points are in the grid</span>
+        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">in_grid</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))])):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;x,y coordinates must fall inside the reference grid for interpolation.</span>
+<span class="s2">            The range of x coordinates is </span><span class="si">%g</span><span class="s2"> to </span><span class="si">%g</span><span class="s2"> and the range of y coordinates is </span><span class="si">%g</span><span class="s2"> to </span><span class="si">%g</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)))</span>
+        <span class="c1">#interpolate</span>
+        <span class="n">B_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_bilinear_interp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))])</span>
+        <span class="c1">#return</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">scalar</span><span class="p">):</span>
+            <span class="k">return</span><span class="p">(</span><span class="n">B_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="n">B_interp</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id=Model-load_footprints><p class="function-str"><span class="function-name">load_footprints</span>(<span class="function-arg">footprint_info</span>)</p><p class="docstr">Read footprint data from a csv file and organize it in Footprint objects stored in self.footprints<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;footprint_info - string or DataFrame<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if string, footprint_info must be:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the path to the footprint csv data.<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;if DataFrame, footprint_info must be:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;an existing DataFrame with footprint data.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;See</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">load_footprints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">footprint_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read footprint data from a csv file and organize it in Footprint objects stored in</span>
+<span class="sd">        self.footprints</span>
+<span class="sd">        args:</span>
+<span class="sd">            footprint_info - string or DataFrame</span>
+<span class="sd">                            if string, footprint_info must be:</span>
+<span class="sd">                                the path to the footprint csv data.</span>
+
+<span class="sd">                            if DataFrame, footprint_info must be:</span>
+<span class="sd">                                an existing DataFrame with footprint data.</span>
+<span class="sd">                                See&quot;&quot;&quot;</span>
+        <span class="c1">#load file if footprint_info is not a DataFrame</span>
+        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">footprint_info</span><span class="p">)</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)):</span>
+            <span class="c1">#check extension</span>
+            <span class="n">footprint_info</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_check_extension</span><span class="p">(</span><span class="n">footprint_info</span><span class="p">,</span>
+                <span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;Footprint files must be csv files.&#39;</span><span class="p">)</span>
+            <span class="c1">#load data</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">footprint_info</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">footprint_info</span>
+        <span class="c1">#store the DataFrame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footprint_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="c1">#check all columns are present</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span> <span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Power Line?&#39;</span><span class="p">,</span> <span class="s1">&#39;Of Concern?&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;Draw as Loop?&#39;</span><span class="p">,</span> <span class="s1">&#39;Group&#39;</span><span class="p">]</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            Footprint csv files must have the following column names:</span>
+<span class="s2">            </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">            The footprint csv file with path:</span>
+<span class="s2">            </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">            is missing or misspells these columns:</span>
+<span class="s2">            </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cols</span><span class="p">),</span> <span class="n">footprint_info</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))))))</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+        <span class="c1">#create a footprint for unique entries in the &#39;Name&#39; field</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">n</span><span class="p">]</span>
+            <span class="c1">#check that certain fields only contain a single entry</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+                <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;The column &quot;</span><span class="si">%s</span><span class="s2">&quot; must contain only one repeated value for each</span>
+<span class="s2">                    footprint. It contained multiple values for footprint name &quot;</span><span class="si">%s</span><span class="s2">&quot;.&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">Footprint</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="nb">bool</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;Power Line?&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="nb">bool</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;Of Concern?&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="nb">bool</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;Draw as Loop?&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">s</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">footprints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id=Model-resample><p class="function-str"><span class="function-name">resample</span>(**<span class="function-arg">kw</span>)</p><p class="docstr">Resample the model grid along a new number of x,y values, a new selection of x,y values, or a new number of total values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - int or iterable, new number of x samples or new selection of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x samples<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - int or iterable, new number of y samples or new selection of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y samples<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;N - int, new approximate number of total samples<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;- overrides x and y kw<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;- preserves approx ratio of number of x and y values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;- rounds up to nearest possible whole number of points<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;mod_resample - a new Model object containing the resampled grid</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resample the model grid along a new number of x,y values, a new selection of x,y values,</span>
+<span class="sd">        or a new number of total values</span>
+<span class="sd">        kw:</span>
+<span class="sd">            x - int or iterable, new number of x samples or new selection of</span>
+<span class="sd">                x samples</span>
+<span class="sd">            y - int or iterable, new number of y samples or new selection of</span>
+<span class="sd">                y samples</span>
+<span class="sd">            N - int, new approximate number of total samples</span>
+<span class="sd">                    - overrides x and y kw</span>
+<span class="sd">                    - preserves approx ratio of number of x and y values</span>
+<span class="sd">                    - rounds up to nearest possible whole number of points</span>
+<span class="sd">        returns:</span>
+<span class="sd">            mod_resample - a new Model object containing the resampled grid&quot;&quot;&quot;</span>
+        <span class="c1">#store grid x,y extents</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span>
+        <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span>
+        <span class="c1">#get 1D vectors of x and y coordinates to resample at, from kw</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;N&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span>
+            <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_is_int</span><span class="p">(</span><span class="n">N</span><span class="p">)):</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Keyword argument &quot;N&quot; must be a whole number&#39;</span><span class="p">))</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+            <span class="n">aspect</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">N_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="n">aspect</span><span class="p">))</span>
+            <span class="n">N_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="n">N_y</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">N_x</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">N_y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span><span class="p">(</span><span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_is_int</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+            <span class="k">if</span><span class="p">(</span><span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_is_int</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+        <span class="c1">#flip y coordinates so that Y prints intuitively</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1">#resample the grid</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="c1">#some arrays have to be flipped to conform to conventions of _interpn</span>
+        <span class="n">B_resample</span> <span class="o">=</span> <span class="n">_interpn</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span>
+                                <span class="p">(</span><span class="n">Y</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">X</span><span class="p">))</span>
+
+        <span class="c1">#return with re-flipped results</span>
+        <span class="n">mod_resample</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">B_resample</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">,:],</span>
+                <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">),</span>
+                <span class="n">Bkey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Bkey</span><span class="p">)</span>
+        <span class="n">mod_resample</span><span class="o">.</span><span class="n">load_footprints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">footprint_df</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">mod_resample</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div></div></div></div>
+
+                <!--others section-->
+                
+            </div>
+
+        </body>
+
+        <!--Control the width and height of the #main element-->
+        <script type="text/javascript">function arrange(){
+    var nav_wrapper = document.getElementById('nav-wrapper');
+    var nav = document.getElementById('nav');
+    var main = document.getElementById('main');
+
+    var w_nav = nav.offsetWidth + 1;
+    var w = w_nav.toString() + 'px';
+    main.setAttribute('style', 'margin-left: ' + w);
+    main.style.marginLeft = w;
+
+};
+
+arrange();
+
+function toggleSource(obj){
+    var parent = obj.parentElement;
+    var children = parent.children;
+
+    var header = children[0];
+    var code = children[1];
+    var codeDisplay = code.style.display;
+
+    if(codeDisplay == 'block'){
+        code.style.display = 'none';
+        header.innerHTML = 'show source';
+        parent.style.borderColor = '#383838'
+    }else{
+        code.style.display = 'block';
+        header.innerHTML = 'hide source';
+        parent.style.borderColor = '#C678DD'
+    };
+
+    arrange();
+};
+</script>
+
+    </html>
+    
