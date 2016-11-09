@@ -56,7 +56,7 @@
 <p>The <code>emf</code> package is a container for two subpackages:</p>
 
 <ol>
-<li><p><code>emf.fields</code> was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, <code>emf.fields</code> would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. <code>emf.fields</code> still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better. See some of the details below and check out the <a href="docs/emf-fields.html"><code>emf.fields</code> documentation</a>.</p></li>
+<li><p><code>emf.fields</code> was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, <code>emf.fields</code> would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. <code>emf.fields</code> still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better.</p></li>
 <li>
 <p><code>emf.subcalc</code> is currently similar to the original versions of <code>emf.fields</code> because it supplements another modeling program without fully replacing it. In this case, the other modeling program is <a href="http://www.enertech.net/html/emfw.html">SUBCALC</a> (developed by <a href="http://www.enertech.net/html/emfw.html">Enertech</a>, sponsored by <a href="http://www.epri.com">EPRI</a>). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. <code>emf.subcalc</code>'s primary functions are to:</p>
 
@@ -69,6 +69,8 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 </ul>
 </li>
 </ol>
+
+<p>Documentation for both submodules is accessible <a href="http://mbaum1122.github.io/emf/">here</a>.</p>
 
 <h3>
 <a id="user-content-emffields-vs-fields" class="anchor" href="#emffields-vs-fields" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>emf.fields</code> vs FIELDS</h3>
@@ -101,7 +103,7 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <a id="user-content-using-emffields" class="anchor" href="#using-emffields" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using <code>emf.fields</code>
 </h3>
 
-<p>The package isn't fully documented yet, but it uses three classes to organize models into hierarchies of objects, which are easy to manipulate for any modeling quetions:</p>
+<p>The <code>emf.fields</code> subpackage is fully documented <a href="http://mbaum1122.github.io/emf/emf.fields.html">here</a>. It uses three classes to organize models into hierarchies of objects, which are easy to manipulate for any modeling objectives:</p>
 
 <ul>
 <li>
@@ -122,7 +124,7 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <li>bar charts showing the fields of grouped cross sections at ROW edges</li>
 </ul>
 
-<p>The <code>emf.fields.run()</code> function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into <code>SectionBook</code>s for more targeted output using the <code>emf.fields.load_template()</code> function. Alternatively, cross section models can be built entirely in Python, as <a href="docs/notebooks/fields-workflow-from-scratch.ipynb">this notebook</a> demonstrates in an explicit manner and <a href="docs/notebooks/underground-line-optimization.ipynb">this other notebook</a> demonstrates with fewer comments.</p>
+<p>The <code>emf.fields.run()</code> function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into <code>SectionBook</code> objects for more targeted output using the <code>emf.fields.load_template()</code> function. Alternatively, cross section models can be built entirely in Python, as <a href="docs/notebooks/fields-workflow-from-scratch.ipynb">this notebook</a> demonstrates in an explicit manner and <a href="docs/notebooks/underground-line-optimization.ipynb">this other notebook</a> demonstrates with fewer comments.</p>
 
 <p>In addition to being quicker to use and more flexible than FIELDS, this code furthers the analytical capabilities of FIELDS with two methods.</p>
 

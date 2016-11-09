@@ -2,7 +2,7 @@
 
 The `emf` package is a container for two subpackages:
 
-1. `emf.fields` was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, `emf.fields` would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. `emf.fields` still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better. See some of the details below and check out the [`emf.fields` documentation](http://htmlpreview.github.io/?https://github.com/mbaum1122/emf/blob/master/docs/emf-fields.html).
+1. `emf.fields` was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, `emf.fields` would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. `emf.fields` still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better.
 
 
 2. `emf.subcalc` is currently similar to the original versions of `emf.fields` because it supplements another modeling program without fully replacing it. In this case, the other modeling program is [SUBCALC](http://www.enertech.net/html/emfw.html) (developed by [Enertech](http://www.enertech.net/html/emfw.html), sponsored by [EPRI](http://www.epri.com)). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. `emf.subcalc`'s primary functions are to:
@@ -11,6 +11,8 @@ The `emf` package is a container for two subpackages:
   * convert results to excel files (much smaller file size)
   * interpolate the grid (at points, along lines, or complete resampling)
 It would be nice to build the calculations into `emf.subcalc` and totally replace SUBCALC, but that hasn't been done yet.
+
+Documentation for both submodules is accessible [here](http://mbaum1122.github.io/emf/).
 
 ### `emf.fields` vs FIELDS
 
@@ -37,7 +39,7 @@ An engineer on the team that originally developed FIELDS said that the FIELDS pr
 
 ### Using `emf.fields`
 
-The package isn't fully documented yet, but it uses three classes to organize models into hierarchies of objects, which are easy to manipulate for any modeling quetions:
+The `emf.fields` subpackage is fully documented [here](http://mbaum1122.github.io/emf/emf.fields.html). It uses three classes to organize models into hierarchies of objects, which are easy to manipulate for any modeling objectives:
 * `Conductor` - Low level class representing a single power line (or conductor bundle) and storing fundamental information like position, voltage, etc.
 * `CrossSection` - Stores and organizes groups of `Conductor` objects, providing dictionary-like access to them. Also stores modeling information (like step size, model extents, etc.), the results of EMF calculations (in [DataFrames](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html)), and more.
 * `SectionBook` - Top level class that stores `CrossSection` objects, provides dictionary-like access to them, maintains a table of EMF values at all its child `CrossSections`'s ROW edges, provides exporting methods, and more.
@@ -49,7 +51,7 @@ For modeling batches of cross sections, the package enables a one line effort (a
 * plots comparing the electric and magnetic fields of grouped cross sections over their entire domain
 * bar charts showing the fields of grouped cross sections at ROW edges
 
-The `emf.fields.run()` function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into `SectionBook`s for more targeted output using the `emf.fields.load_template()` function. Alternatively, cross section models can be built entirely in Python, as [this notebook](docs/notebooks/fields-workflow-from-scratch.ipynb) demonstrates in an explicit manner and [this other notebook](docs/notebooks/underground-line-optimization.ipynb) demonstrates with fewer comments.
+The `emf.fields.run()` function does all of that and only requires the path of an excel workbook of templates. Templates can also be loaded into `SectionBook` objects for more targeted output using the `emf.fields.load_template()` function. Alternatively, cross section models can be built entirely in Python, as [this notebook](docs/notebooks/fields-workflow-from-scratch.ipynb) demonstrates in an explicit manner and [this other notebook](docs/notebooks/underground-line-optimization.ipynb) demonstrates with fewer comments.
 
 In addition to being quicker to use and more flexible than FIELDS, this code furthers the analytical capabilities of FIELDS with two methods.
 * `emf.fields.optimize_phasing()` optimizes the phasing arrangement of selected conductors in a cross section by calculating fields for every possible phasing permutation at the ROW edges. Conductors can be grouped arbitrarily into circuits (usually groups of three for three-phase circuits). Because this method performs brute force testing of the ROW edge fields for all possible permutations and scales poorly, it's slow when optimizing more than about five (three phase) circuits at a time, but CrossSections with more than a few circuits are very rare.
