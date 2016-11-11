@@ -164,7 +164,7 @@ class Conductor(object):
         old_value = self._V
         self._V = self._check_to_float(new_value, 'V')
         self._reset_xs_fields(old_value, new_value)
-    V = property(_get_V, _set_V, None, """Conductor phase voltage, not line voltage (Volts)""")
+    V = property(_get_V, _set_V, None, """Conductor phase voltage, not line voltage (kilovolts, kV)""")
 
     def _get_I(self): return(self._I)
     def _set_I(self, new_value):
@@ -309,10 +309,10 @@ class CrossSection(object):
     rROW = property(_get_rROW, _set_rROW, None, """Horizontal location of the right (positive x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)""")
 
     def _get_hot(self): return([c for c in self.conds if c.V != 0])
-    hot = property(_get_hot, None, None, """Return a list of the hot (nonzero Voltage) Conductor objects in the CrossSection""")
+    hot = property(_get_hot, None, None, """Return a list of the hot (nonzero voltage) Conductor objects in the CrossSection""")
 
     def _get_gnd(self): return([c for c in self.conds if c.V == 0])
-    gnd = property(_get_gnd, None, None, """Return a list of the grounded (zero Voltage) Conductor objects in the CrossSection""")
+    gnd = property(_get_gnd, None, None, """Return a list of the grounded (zero voltage) Conductor objects in the CrossSection""")
 
     def _get_x_sample(self):
         u = np.floor(self.max_dist/self.step)
@@ -350,7 +350,7 @@ class CrossSection(object):
 
     def _get_V(self):
         return(np.array([c.V for c in self.conds], dtype=float))
-    V = property(_get_V, None, None, """Generate an array of Conductor voltages (Volts), in the same order as 'conds'""")
+    V = property(_get_V, None, None, """Generate an array of Conductor voltages (kilovolts, kV), in the same order as 'conds'""")
 
     def _get_I(self):
         return(np.array([c.I for c in self.conds], dtype=float))

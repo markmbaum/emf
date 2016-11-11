@@ -14,7 +14,7 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
         subconds - 1D numpy array, number of subconductors per bundle
         d_cond - 1D numpy array, conductor diameters (inches)
         d_bund - 1D numpy array, bundle diameters (inches)
-        V_cond - 1D numpy array, voltages of conductors (Amps)
+        V_cond - 1D numpy array, voltages of conductors (kilovolts, kV)
         p_cond - 1D numpy array, phases of conductors (degrees)
         x - iterable of floats, horizontal coordinates of sample points (ft)
         y - iterable of floats, vertical coordinates of sample points (ft)

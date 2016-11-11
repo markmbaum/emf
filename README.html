@@ -53,7 +53,7 @@
 <a id="user-content-emf" class="anchor" href="#emf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>emf</code>
 </h1>
 
-<p>The <code>emf</code> package is a container for two subpackages:</p>
+<p>The <code>emf</code> package is a container for two subpackages (documentation accessible <a href="http://mbaum1122.github.io/emf/">here</a>):</p>
 
 <ol>
 <li><p><code>emf.fields</code> was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, <code>emf.fields</code> would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. <code>emf.fields</code> still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better.</p></li>
@@ -69,8 +69,6 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 </ul>
 </li>
 </ol>
-
-<p>Documentation for both submodules is accessible <a href="http://mbaum1122.github.io/emf/">here</a>.</p>
 
 <h3>
 <a id="user-content-emffields-vs-fields" class="anchor" href="#emffields-vs-fields" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>emf.fields</code> vs FIELDS</h3>

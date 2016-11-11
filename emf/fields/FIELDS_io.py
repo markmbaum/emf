@@ -110,8 +110,8 @@ def to_FLDs_crawl(dir_name, **kw):
 				if(type(e) is fields_class.EMFError):
 					print('\n\tBecause of EMFError:' + str(e))
 		else:
-			#if there's a period in the dir_element, it's not a directory
-			if(not ('.' in dir_element)):
+			#if the element is a subdirecory, crawl it
+			if(os.path.isdir(dir_element)):
 				to_FLDs_crawl(os.path.join(dir_element, '*'))
 
 #------------------------------------------------------------------------------

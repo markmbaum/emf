@@ -1,4 +1,4 @@
-from .. import np, pd, os, copy, interpn
+from .. import np, pd, os, copy, _interpn
 
 from ..emf_class import EMFError
 
@@ -54,9 +54,9 @@ class Model(object):
             if(largs == 2):
                 if(type(args[1]) is not dict):
                     raise(EMFError("""The fourth argument to Model() must be a dictionary of model result information, not %s""" % type(args[1])))
-                self.info = args[1]
+                self._info = args[1]
             else:
-                self.info = None
+                self._info = None
         elif(largs <= 4):
             #check input types
             mgs = """If passing three or four arguments to initialize a Model, the first three arguments must be 2D numpy arrays representing X, Y, and B grids respectively, each with the same shape."""
@@ -77,14 +77,14 @@ class Model(object):
             if(largs == 4):
                 if(type(args[3]) is not dict):
                     raise(EMFError("""The fourth argument to Model() must be a dictionary of model result information, not type %s""" % type(args[3])))
-                self.info = args[3]
+                self._info = args[3]
             else:
-                self.info = None
+                self._info = None
 
         #other reference objects in the model, like substation boundaries,
         #stored in a list of Footprint objects
         self.footprint_df = None #DataFrame of Footprint information
-        self.footprints = []
+        self._footprints = []
         #angle of the northern direction with respect to the grid
         #   where 0 degrees is the positive y axis and clockwise is increasing
         self._north_angle = None
@@ -109,6 +109,12 @@ class Model(object):
             self._Bkey = value
     Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field accessed by the B property')
 
+    def _get_info(self): return(self._info)
+    info = property(_get_info, None, None, 'Dictionary of model metadata')
+
+    def _get_footprints(self): return(self._footprints)
+    footprints = property(_get_footprints, None, None, 'List of Footprint objects')
+
     def _get_X(self):
         return(self._grid['X'])
     X = property(_get_X, None, None, '2D grid of reference grid x coordinates')
@@ -127,19 +133,19 @@ class Model(object):
 
     def _get_xmax(self):
         return(np.max(self.x))
-    xmax = property(_get_xmax)
+    xmax = property(_get_xmax, None, None, 'Maximum horizontal coordinate in model')
 
     def _get_xmin(self):
         return(np.min(self.x))
-    xmin = property(_get_xmin)
+    xmin = property(_get_xmin, None, None, 'Minimum horizontal coordinate in model')
 
     def _get_ymax(self):
         return(np.max(self.y))
-    ymax = property(_get_ymax)
+    ymax = property(_get_ymax, None, None, 'Maximum vertical coordinate in model')
 
     def _get_ymin(self):
         return(np.min(self.y))
-    ymin = property(_get_ymin)
+    ymin = property(_get_ymin, None, None, 'Minimum vertical coordinate in model')
 
     def _get_north_angle(self):
         return(self._north_angle)
@@ -331,8 +337,8 @@ class Model(object):
         y = y[::-1]
         #resample the grid
         X, Y = np.meshgrid(x, y)
-        #some arrays have to be flipped to conform to conventions of interpn
-        B_resample = interpn((self.y[::-1], self.x),
+        #some arrays have to be flipped to conform to conventions of _interpn
+        B_resample = _interpn((self.y[::-1], self.x),
                                 self.B[::-1,:],
                                 (Y[::-1,:], X))
 
