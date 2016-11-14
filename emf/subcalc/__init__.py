@@ -1,4 +1,5 @@
-"""emf.subcalc is currently similar to the original versions of emf.fields because it supplements another modeling program without fully replacing it. In this case, the other modeling program is SUBCALC (developed by Enertech, sponsored by EPRI). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. emf.subcalc's primary functions are to:
+"""
+emf.subcalc is currently similar to the original versions of emf.fields because it supplements another modeling program without fully replacing it. In this case, the other modeling program is SUBCALC (developed by Enertech, sponsored by EPRI). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. emf.subcalc's primary functions are to:
 
     - read the text file output of SUBCALC models and associate the results
       with Footprint objects (outlines of nearby objects in the model domain, like houses)
