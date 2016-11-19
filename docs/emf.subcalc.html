@@ -32,18 +32,18 @@
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Call plt.close() on any Figure objects or lists of Figure objects</span>
-<span class="sd">	passed in. If nothing is passed, all Figure objects are closed with</span>
-<span class="sd">	plt.close(&#39;all&#39;)&quot;&quot;&quot;</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-		<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
-			<span class="k">if</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)):</span>
-				<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
-					<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
-			<span class="k">else</span><span class="p">:</span>
-				<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Call plt.close() on any Figure objects or lists of Figure objects</span>
+<span class="sd">    passed in. If nothing is passed, all Figure objects are closed with</span>
+<span class="sd">    plt.close(&#39;all&#39;)&quot;&quot;&quot;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">a</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -69,27 +69,27 @@
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">drop_footprint_template</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Copy the emf.subcalc footprint template in the current directory or a</span>
-<span class="sd">	directory specified by an input string</span>
-<span class="sd">	args:</span>
-<span class="sd">		drop_path - string, path of copied template file&quot;&quot;&quot;</span>
-	<span class="c1">#check inputs</span>
-	<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">raise</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;drop_footprint_template only</span>
-<span class="s2">		accepts zero or one input argument. A string can be passed to specify the</span>
-<span class="s2">		directory in which the template file is copied. With no arguments, the template</span>
-<span class="s2">		file is copied into the current directory.&quot;&quot;&quot;</span><span class="p">))</span>
-	<span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-		<span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
-	<span class="c1">#get template file path</span>
-	<span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-	<span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
-	<span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;subcalc-footprint-template.xlsx&#39;</span><span class="p">)</span>
-	<span class="c1">#get drop path</span>
-	<span class="n">drop_path</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;subcalc-footprint-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
-	<span class="c1">#copy and notify</span>
-	<span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="n">drop_path</span><span class="p">)</span>
-	<span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">drop_path</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Copy the emf.subcalc footprint template in the current directory or a</span>
+<span class="sd">    directory specified by an input string</span>
+<span class="sd">    args:</span>
+<span class="sd">        drop_path - string, path of copied template file&quot;&quot;&quot;</span>
+    <span class="c1">#check inputs</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;drop_footprint_template only accepts zero</span>
+<span class="s2">        or one input argument. A string can be passed to specify the directory in</span>
+<span class="s2">        which the template file is copied. With no arguments, the template file</span>
+<span class="s2">        is copied into the current directory.&quot;&quot;&quot;</span><span class="p">))</span>
+    <span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="c1">#get template file path</span>
+    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
+    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;subcalc-footprint-template.xlsx&#39;</span><span class="p">)</span>
+    <span class="c1">#get drop path</span>
+    <span class="n">drop_path</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;subcalc-footprint-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="c1">#copy and notify</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="n">drop_path</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">drop_path</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -98,8 +98,8 @@
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ion</span><span class="p">():</span>
-	<span class="sd">&quot;&quot;&quot;Call plt.ion() to toggle interactive plotting on&quot;&quot;&quot;</span>
-	<span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;Call plt.ion() to toggle interactive plotting on&quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
 </pre></div>
 
                     </div>
@@ -192,126 +192,126 @@
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_contour</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Generate a contour plot from the magnetic field results and</span>
-<span class="sd">	Footprint objects stored in a Model object</span>
-<span class="sd">	args:</span>
-<span class="sd">		mod - Model object</span>
-<span class="sd">	kw:</span>
-<span class="sd">		scale - str, can be &#39;log&#39; or &#39;linear&#39; (default is &#39;linear&#39;)</span>
-<span class="sd">		levels - iterable, determines contour level values</span>
-<span class="sd">					(automatically determined by matplotlib if not used)</span>
-<span class="sd">		north_angle - number, direction of north arrow</span>
-<span class="sd">						(0 is along +y axis and clockwise is increasing)</span>
-<span class="sd">		cmap - str, name of matplotlib colormap, see:</span>
-<span class="sd">				http://matplotlib.org/examples/color/colormaps_reference.html</span>
-<span class="sd">		save - bool, toggle whether the figure is saved</span>
-<span class="sd">		path - string, path to directory for saved figure. If set, overrides</span>
-<span class="sd">				the &#39;save&#39; keyword</span>
-<span class="sd">		format - string, saved plot format/extension (default &#39;png&#39;)</span>
-<span class="sd">		max_fig_width - float/int, inches, maximum width of figure</span>
-<span class="sd">		max_fig_height - float/int, inches, maximum height of figure</span>
-<span class="sd">		legend_padding - float/int, inches, width left for legend area</span>
-<span class="sd">	returns:</span>
-<span class="sd">		fig - matplotlib figure object</span>
-<span class="sd">		ax - matplotlib axes object</span>
-<span class="sd">		CS - matplotlib QuadContourSet object&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Generate a contour plot from the magnetic field results and</span>
+<span class="sd">    Footprint objects stored in a Model object</span>
+<span class="sd">    args:</span>
+<span class="sd">        mod - Model object</span>
+<span class="sd">    kw:</span>
+<span class="sd">        scale - str, can be &#39;log&#39; or &#39;linear&#39; (default is &#39;linear&#39;)</span>
+<span class="sd">        levels - iterable, determines contour level values</span>
+<span class="sd">                    (automatically determined by matplotlib if not used)</span>
+<span class="sd">        north_angle - number, direction of north arrow</span>
+<span class="sd">                        (0 is along +y axis and clockwise is increasing)</span>
+<span class="sd">        cmap - str, name of matplotlib colormap, see:</span>
+<span class="sd">                http://matplotlib.org/examples/color/colormaps_reference.html</span>
+<span class="sd">        save - bool, toggle whether the figure is saved</span>
+<span class="sd">        path - string, path to directory for saved figure. If set, overrides</span>
+<span class="sd">                the &#39;save&#39; keyword</span>
+<span class="sd">        format - string, saved plot format/extension (default &#39;png&#39;)</span>
+<span class="sd">        max_fig_width - float/int, inches, maximum width of figure</span>
+<span class="sd">        max_fig_height - float/int, inches, maximum height of figure</span>
+<span class="sd">        legend_padding - float/int, inches, width left for legend area</span>
+<span class="sd">    returns:</span>
+<span class="sd">        fig - matplotlib figure object</span>
+<span class="sd">        ax - matplotlib axes object</span>
+<span class="sd">        CS - matplotlib QuadContourSet object&quot;&quot;&quot;</span>
 
-	<span class="c1">#check kw</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">scale</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">])</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">_default_contour_cmap_name</span><span class="p">)</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_width&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_width&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">_max_fig_width</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_height&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_height&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">_max_fig_height</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;legend_padding&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;legend_padding&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">_contour_legend_padding</span>
+    <span class="c1">#check kw</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">_default_contour_cmap_name</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_width&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_width&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">_max_fig_width</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_height&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_height&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">_max_fig_height</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;legend_padding&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">legend_padding</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;legend_padding&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">legend_padding</span> <span class="o">=</span> <span class="n">_contour_legend_padding</span>
 
-	<span class="c1">#generate the plot objects</span>
-	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_equal_ax_objs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span>
-			<span class="n">max_fig_width</span><span class="p">,</span> <span class="n">max_fig_height</span><span class="p">,</span> <span class="n">legend_padding</span><span class="p">)</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
+    <span class="c1">#generate the plot objects</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_equal_ax_objs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span>
+            <span class="n">max_fig_width</span><span class="p">,</span> <span class="n">max_fig_height</span><span class="p">,</span> <span class="n">legend_padding</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
 
-	<span class="c1">#get contour plotting keyword arguments</span>
-	<span class="n">contour_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">_cmap</span><span class="p">,</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">_contour_alpha</span><span class="p">}</span>
-	<span class="c1">#get levels if passed in</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;levels&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-	<span class="c1">#determine contour scaling kwarg</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">):</span>
-		<span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;locator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">LogLocator</span><span class="p">()</span>
-	<span class="k">elif</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">):</span>
-		<span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;locator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">MaxNLocator</span><span class="p">()</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">		Invalid value passed to keyword argument &#39;scale.&#39;</span>
-<span class="s2">		Must be &#39;log&#39; or &#39;linear.&#39;&quot;&quot;&quot;</span><span class="p">))</span>
+    <span class="c1">#get contour plotting keyword arguments</span>
+    <span class="n">contour_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">_cmap</span><span class="p">,</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">_contour_alpha</span><span class="p">}</span>
+    <span class="c1">#get levels if passed in</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;levels&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="c1">#determine contour scaling kwarg</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">):</span>
+        <span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;locator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">LogLocator</span><span class="p">()</span>
+    <span class="k">elif</span><span class="p">(</span><span class="n">scale</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">):</span>
+        <span class="n">contour_kw</span><span class="p">[</span><span class="s1">&#39;locator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">MaxNLocator</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Invalid value passed to keyword argument &#39;scale.&#39;</span>
+<span class="s2">        Must be &#39;log&#39; or &#39;linear.&#39;&quot;&quot;&quot;</span><span class="p">))</span>
 
-	<span class="c1">#plot</span>
-	<span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="o">**</span><span class="n">contour_kw</span><span class="p">)</span>
+    <span class="c1">#plot</span>
+    <span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="o">**</span><span class="n">contour_kw</span><span class="p">)</span>
 
-	<span class="c1">#get color indexer from decorator along the way</span>
-	<span class="n">mlci</span> <span class="o">=</span> <span class="n">_make_color_indexer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">),</span>
-							<span class="nb">len</span><span class="p">(</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">),</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="c1">#get color indexer from decorator along the way</span>
+    <span class="n">mlci</span> <span class="o">=</span> <span class="n">_make_color_indexer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">),</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">),</span> <span class="n">scale</span><span class="p">)</span>
 
-	<span class="c1">#set the contour linewidths private variable...</span>
-	<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
-		<span class="n">c</span><span class="o">.</span><span class="n">_linewidths</span> <span class="o">=</span> <span class="p">(</span><span class="n">_contour_linewidths</span><span class="p">,)</span>
+    <span class="c1">#set the contour linewidths private variable...</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">_linewidths</span> <span class="o">=</span> <span class="p">(</span><span class="n">_contour_linewidths</span><span class="p">,)</span>
 
-	<span class="c1">#plot location of maximum field</span>
-	<span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-	<span class="n">peak_B</span><span class="p">,</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">xidx</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_2Dmax</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
-	<span class="n">peak_B</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_sig_figs</span><span class="p">(</span><span class="n">peak_B</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-	<span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">xidx</span><span class="p">],</span> <span class="n">mod</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">yidx</span><span class="p">],</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
-			<span class="n">markersize</span><span class="o">=</span><span class="n">_field_marker_size</span><span class="p">,</span>
-			<span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-			<span class="n">markeredgewidth</span><span class="o">=</span><span class="n">_field_marker_edgewidth</span><span class="p">,</span>
-			<span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-	<span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Maximum Modeled</span><span class="se">\n</span><span class="s1">Magnetic Field</span><span class="se">\n</span><span class="s1">(</span><span class="si">%s</span><span class="s1"> mG)&#39;</span> <span class="o">%</span> <span class="n">peak_B</span><span class="p">)</span>
+    <span class="c1">#plot location of maximum field</span>
+    <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">peak_B</span><span class="p">,</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">xidx</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_2Dmax</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">peak_B</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_sig_figs</span><span class="p">(</span><span class="n">peak_B</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">xidx</span><span class="p">],</span> <span class="n">mod</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">yidx</span><span class="p">],</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
+            <span class="n">markersize</span><span class="o">=</span><span class="n">_field_marker_size</span><span class="p">,</span>
+            <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">markeredgewidth</span><span class="o">=</span><span class="n">_field_marker_edgewidth</span><span class="p">,</span>
+            <span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Maximum Modeled</span><span class="se">\n</span><span class="s1">Magnetic Field</span><span class="se">\n</span><span class="s1">(</span><span class="si">%s</span><span class="s1"> mG)&#39;</span> <span class="o">%</span> <span class="n">peak_B</span><span class="p">)</span>
 
-	<span class="c1">#plot footprints</span>
-	<span class="n">H</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">_plot_footprints</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">_cmap</span><span class="p">,</span> <span class="n">mlci</span><span class="p">)</span>
-	<span class="n">handles</span> <span class="o">+=</span> <span class="n">H</span>
-	<span class="n">labels</span> <span class="o">+=</span> <span class="n">L</span>
+    <span class="c1">#plot footprints</span>
+    <span class="n">H</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">_plot_footprints</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">_cmap</span><span class="p">,</span> <span class="n">mlci</span><span class="p">)</span>
+    <span class="n">handles</span> <span class="o">+=</span> <span class="n">H</span>
+    <span class="n">labels</span> <span class="o">+=</span> <span class="n">L</span>
 
-	<span class="c1">#legend</span>
-	<span class="n">cvalues</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_check_intable</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; mG&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">]</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">collections</span> <span class="o">+</span> <span class="n">handles</span><span class="p">,</span> <span class="n">cvalues</span> <span class="o">+</span> <span class="n">labels</span><span class="p">,</span>
-			<span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.025</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-			<span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1">#legend</span>
+    <span class="n">cvalues</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_check_intable</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; mG&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">CS</span><span class="o">.</span><span class="n">cvalues</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">CS</span><span class="o">.</span><span class="n">collections</span> <span class="o">+</span> <span class="n">handles</span><span class="p">,</span> <span class="n">cvalues</span> <span class="o">+</span> <span class="n">labels</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.025</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-	<span class="c1">#north arrow</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
-		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span><span class="p">)</span>
-	<span class="k">elif</span><span class="p">(</span><span class="s1">&#39;north_angle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;north_angle&#39;</span><span class="p">])</span>
+    <span class="c1">#north arrow</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span><span class="p">)</span>
+    <span class="k">elif</span><span class="p">(</span><span class="s1">&#39;north_angle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;north_angle&#39;</span><span class="p">])</span>
 
-	<span class="c1">#write Bkey note</span>
-	<span class="n">_write_Bkey</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
+    <span class="c1">#write Bkey note</span>
+    <span class="n">_write_Bkey</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
 
-	<span class="c1">#axes text</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (ft)&#39;</span><span class="p">)</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (ft)&#39;</span><span class="p">)</span>
+    <span class="c1">#axes text</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (ft)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (ft)&#39;</span><span class="p">)</span>
 
-	<span class="c1">#final formatting</span>
-	<span class="n">_format_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="c1">#final formatting</span>
+    <span class="n">_format_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
-	<span class="c1">#saving</span>
-	<span class="n">_save_fig</span><span class="p">(</span><span class="s1">&#39;contour_plot&#39;</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="c1">#saving</span>
+    <span class="n">_save_fig</span><span class="p">(</span><span class="s1">&#39;contour_plot&#39;</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 
-	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">CS</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">CS</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -320,112 +320,112 @@
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_pcolormesh</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-	<span class="sd">&quot;&quot;&quot;Generate a color mesh plot of the magnetic field results and</span>
-<span class="sd">	Footprint objects stored in a Model object</span>
-<span class="sd">	args:</span>
-<span class="sd">		mod - Model object</span>
-<span class="sd">	kw:</span>
-<span class="sd">		north_angle - number, direction of north arrow</span>
-<span class="sd">						(0 is along +y axis and clockwise is increasing)</span>
-<span class="sd">		cmap - str, name of matplotlib colormap, see:</span>
-<span class="sd">				http://matplotlib.org/examples/color/colormaps_reference.html</span>
-<span class="sd">		save - bool, toggle whether the figure is saved</span>
-<span class="sd">		path - string, path to directory for saved figure. If set, overrides</span>
-<span class="sd">				the &#39;save&#39; keyword</span>
-<span class="sd">		format - string, saved plot format/extension (default &#39;png&#39;)</span>
-<span class="sd">		max_fig_width - float/int, inches, maximum width of figure</span>
-<span class="sd">		max_fig_height - float/int, inches, maximum height of figure</span>
-<span class="sd">		legend_padding - float/int, inches, width left for legend area</span>
-<span class="sd">	returns:</span>
-<span class="sd">		fig - matplotlib figure object</span>
-<span class="sd">		ax - matplotlib axes object</span>
-<span class="sd">		QM - matplotlib QuadMesh object</span>
-<span class="sd">		cbar - matplotlib Axes that the colorbar is drawn in (to which</span>
-<span class="sd">				legend is attached)&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Generate a color mesh plot of the magnetic field results and</span>
+<span class="sd">    Footprint objects stored in a Model object</span>
+<span class="sd">    args:</span>
+<span class="sd">        mod - Model object</span>
+<span class="sd">    kw:</span>
+<span class="sd">        north_angle - number, direction of north arrow</span>
+<span class="sd">                        (0 is along +y axis and clockwise is increasing)</span>
+<span class="sd">        cmap - str, name of matplotlib colormap, see:</span>
+<span class="sd">                http://matplotlib.org/examples/color/colormaps_reference.html</span>
+<span class="sd">        save - bool, toggle whether the figure is saved</span>
+<span class="sd">        path - string, path to directory for saved figure. If set, overrides</span>
+<span class="sd">                the &#39;save&#39; keyword</span>
+<span class="sd">        format - string, saved plot format/extension (default &#39;png&#39;)</span>
+<span class="sd">        max_fig_width - float/int, inches, maximum width of figure</span>
+<span class="sd">        max_fig_height - float/int, inches, maximum height of figure</span>
+<span class="sd">        legend_padding - float/int, inches, width left for legend area</span>
+<span class="sd">    returns:</span>
+<span class="sd">        fig - matplotlib figure object</span>
+<span class="sd">        ax - matplotlib axes object</span>
+<span class="sd">        QM - matplotlib QuadMesh object</span>
+<span class="sd">        cbar - matplotlib Axes that the colorbar is drawn in (to which</span>
+<span class="sd">                legend is attached)&quot;&quot;&quot;</span>
 
-	<span class="c1">#check kw</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">])</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">_default_pcolormesh_cmap_name</span><span class="p">)</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_width&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_width&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">_max_fig_width</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_height&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_height&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">_max_fig_height</span>
-	<span class="k">if</span><span class="p">(</span><span class="s1">&#39;legend_padding&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;legend_padding&#39;</span><span class="p">]</span>
-	<span class="k">else</span><span class="p">:</span>
-		<span class="n">legend_padding</span> <span class="o">=</span> <span class="n">_pcolormesh_legend_padding</span>
+    <span class="c1">#check kw</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;cmap&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_cmap</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="n">_default_pcolormesh_cmap_name</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_width&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_width&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_fig_width</span> <span class="o">=</span> <span class="n">_max_fig_width</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_fig_height&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_fig_height&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">max_fig_height</span> <span class="o">=</span> <span class="n">_max_fig_height</span>
+    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;legend_padding&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">legend_padding</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;legend_padding&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">legend_padding</span> <span class="o">=</span> <span class="n">_pcolormesh_legend_padding</span>
 
-	<span class="c1">#generate the plot objects</span>
-	<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_equal_ax_objs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span>
-			<span class="n">max_fig_width</span><span class="p">,</span> <span class="n">max_fig_height</span><span class="p">,</span> <span class="n">legend_padding</span><span class="p">)</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
+    <span class="c1">#generate the plot objects</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">_equal_ax_objs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span>
+            <span class="n">max_fig_width</span><span class="p">,</span> <span class="n">max_fig_height</span><span class="p">,</span> <span class="n">legend_padding</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
 
-	<span class="c1">#get plotting keyword arguments</span>
-	<span class="n">pcolor_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">_cmap</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">_pcolor_alpha</span><span class="p">,</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-					<span class="s1">&#39;shading&#39;</span><span class="p">:</span> <span class="s1">&#39;gouraud&#39;</span><span class="p">}</span>
+    <span class="c1">#get plotting keyword arguments</span>
+    <span class="n">pcolor_kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cmap&#39;</span><span class="p">:</span> <span class="n">_cmap</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">_pcolor_alpha</span><span class="p">,</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;shading&#39;</span><span class="p">:</span> <span class="s1">&#39;gouraud&#39;</span><span class="p">}</span>
 
-	<span class="c1">#plot</span>
-	<span class="n">QM</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kw</span><span class="p">)</span>
+    <span class="c1">#plot</span>
+    <span class="n">QM</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="o">**</span><span class="n">pcolor_kw</span><span class="p">)</span>
 
-	<span class="c1">#get color indexer from decorator along the way</span>
-	<span class="n">mlci</span> <span class="o">=</span> <span class="n">_make_color_indexer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">),</span>
-							<span class="nb">len</span><span class="p">(</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">),</span> <span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="c1">#get color indexer from decorator along the way</span>
+    <span class="n">mlci</span> <span class="o">=</span> <span class="n">_make_color_indexer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">),</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">),</span> <span class="s1">&#39;linear&#39;</span><span class="p">)</span>
 
-	<span class="c1">#plot location of maximum field</span>
-	<span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-	<span class="n">peak_B</span><span class="p">,</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">xidx</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_2Dmax</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
-	<span class="n">peak_B</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_sig_figs</span><span class="p">(</span><span class="n">peak_B</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-	<span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">xidx</span><span class="p">],</span> <span class="n">mod</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">yidx</span><span class="p">],</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
-			<span class="n">markersize</span><span class="o">=</span><span class="n">_field_marker_size</span><span class="p">,</span>
-			<span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-			<span class="n">markeredgewidth</span><span class="o">=</span><span class="n">_field_marker_edgewidth</span><span class="p">,</span>
-			<span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-	<span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Maximum Modeled</span><span class="se">\n</span><span class="s1">Magnetic Field</span><span class="se">\n</span><span class="s1">(</span><span class="si">%s</span><span class="s1"> mG)&#39;</span> <span class="o">%</span> <span class="n">peak_B</span><span class="p">)</span>
+    <span class="c1">#plot location of maximum field</span>
+    <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">peak_B</span><span class="p">,</span> <span class="n">yidx</span><span class="p">,</span> <span class="n">xidx</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_2Dmax</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">peak_B</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_sig_figs</span><span class="p">(</span><span class="n">peak_B</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">xidx</span><span class="p">],</span> <span class="n">mod</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">yidx</span><span class="p">],</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
+            <span class="n">markersize</span><span class="o">=</span><span class="n">_field_marker_size</span><span class="p">,</span>
+            <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">_cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">markeredgewidth</span><span class="o">=</span><span class="n">_field_marker_edgewidth</span><span class="p">,</span>
+            <span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Maximum Modeled</span><span class="se">\n</span><span class="s1">Magnetic Field</span><span class="se">\n</span><span class="s1">(</span><span class="si">%s</span><span class="s1"> mG)&#39;</span> <span class="o">%</span> <span class="n">peak_B</span><span class="p">)</span>
 
-	<span class="c1">#plot footprints</span>
-	<span class="n">H</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">_plot_footprints</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">_cmap</span><span class="p">,</span> <span class="n">mlci</span><span class="p">)</span>
-	<span class="n">handles</span> <span class="o">+=</span> <span class="n">H</span>
-	<span class="n">labels</span> <span class="o">+=</span> <span class="n">L</span>
+    <span class="c1">#plot footprints</span>
+    <span class="n">H</span><span class="p">,</span> <span class="n">L</span> <span class="o">=</span> <span class="n">_plot_footprints</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">_cmap</span><span class="p">,</span> <span class="n">mlci</span><span class="p">)</span>
+    <span class="n">handles</span> <span class="o">+=</span> <span class="n">H</span>
+    <span class="n">labels</span> <span class="o">+=</span> <span class="n">L</span>
 
-	<span class="c1">#colorbar and legend</span>
-	<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-	<span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
-	<span class="n">fig_size</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
-	<span class="n">w</span> <span class="o">=</span> <span class="mf">0.35</span><span class="o">/</span><span class="n">fig_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-	<span class="n">cbar</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span> <span class="o">+</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
-	<span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">QM</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar</span><span class="p">,</span> <span class="n">drawedges</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-	<span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span>
-			<span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-			<span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-	<span class="n">_format_ax</span><span class="p">(</span><span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
+    <span class="c1">#colorbar and legend</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+    <span class="n">fig_size</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="mf">0.35</span><span class="o">/</span><span class="n">fig_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span> <span class="o">+</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">QM</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar</span><span class="p">,</span> <span class="n">drawedges</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">_format_ax</span><span class="p">(</span><span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="p">)</span>
 
-	<span class="c1">#north arrow</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
-		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span><span class="p">)</span>
-	<span class="k">elif</span><span class="p">(</span><span class="s1">&#39;north_angle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-		<span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;north_angle&#39;</span><span class="p">])</span>
+    <span class="c1">#north arrow</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="o">.</span><span class="n">north_angle</span><span class="p">)</span>
+    <span class="k">elif</span><span class="p">(</span><span class="s1">&#39;north_angle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+        <span class="n">_draw_north_arrow</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;north_angle&#39;</span><span class="p">])</span>
 
-	<span class="c1">#write Bkey note</span>
-	<span class="n">_write_Bkey</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
+    <span class="c1">#write Bkey note</span>
+    <span class="n">_write_Bkey</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
 
-	<span class="c1">#axes text</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (ft)&#39;</span><span class="p">)</span>
-	<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (ft)&#39;</span><span class="p">)</span>
+    <span class="c1">#axes text</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X (ft)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y (ft)&#39;</span><span class="p">)</span>
 
-	<span class="c1">#final formatting</span>
-	<span class="n">_format_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+    <span class="c1">#final formatting</span>
+    <span class="n">_format_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
-	<span class="c1">#saving</span>
-	<span class="n">_save_fig</span><span class="p">(</span><span class="s1">&#39;contour_plot&#39;</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="c1">#saving</span>
+    <span class="n">_save_fig</span><span class="p">(</span><span class="s1">&#39;contour_plot&#39;</span><span class="p">,</span> <span class="n">fig</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 
-	<span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">QM</span><span class="p">,</span> <span class="n">cbar</span><span class="p">)</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">QM</span><span class="p">,</span> <span class="n">cbar</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -491,8 +491,8 @@
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">show</span><span class="p">():</span>
-	<span class="sd">&quot;&quot;&quot;Call plt.show() to display open figures&quot;&quot;&quot;</span>
-	<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;Call plt.show() to display open figures&quot;&quot;&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
                     </div>

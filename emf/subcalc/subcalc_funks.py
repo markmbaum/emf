@@ -6,23 +6,23 @@ from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
 import subcalc_class
 
 def drop_footprint_template(*args, **kw):
-	"""Copy the emf.subcalc footprint template in the current directory or a directory specified by an input string
-	args:
-		drop_path - string, path of copied template file"""
-	#check inputs
-	if(len(args) > 1):
-		raise(fields_class.EMFError("""drop_footprint_template only accepts zero or one input argument. A string can be passed to specify the directory in which the template file is copied. With no arguments, the template file is copied into the current directory."""))
-	elif(len(args) == 1):
-		kw = {'path': args[0]}
-	#get template file path
-	template_path = os.path.dirname(os.path.dirname(__file__))
-	template_path = os.path.join(template_path, 'templates')
-	template_path = os.path.join(template_path, 'subcalc-footprint-template.xlsx')
-	#get drop path
-	drop_path = _path_manage('subcalc-footprint-template', 'xlsx', **kw)
-	#copy and notify
-	shutil.copyfile(template_path, drop_path)
-	print('emf.fields template written to: %s' % drop_path)
+    """Copy the emf.subcalc footprint template in the current directory or a directory specified by an input string
+    args:
+        drop_path - string, path of copied template file"""
+    #check inputs
+    if(len(args) > 1):
+        raise(fields_class.EMFError("""drop_footprint_template only accepts zero or one input argument. A string can be passed to specify the directory in which the template file is copied. With no arguments, the template file is copied into the current directory."""))
+    elif(len(args) == 1):
+        kw = {'path': args[0]}
+    #get template file path
+    template_path = os.path.dirname(os.path.dirname(__file__))
+    template_path = os.path.join(template_path, 'templates')
+    template_path = os.path.join(template_path, 'subcalc-footprint-template.xlsx')
+    #get drop path
+    drop_path = _path_manage('subcalc-footprint-template', 'xlsx', **kw)
+    #copy and notify
+    shutil.copyfile(template_path, drop_path)
+    print('emf.fields template written to: %s' % drop_path)
 
 def load_model(*args, **kw):
     """Read a .REF output file and load the data into a Model object

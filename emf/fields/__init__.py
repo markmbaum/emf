@@ -12,7 +12,13 @@ from fields_funks import (drop_template,
                         target_fields,
                         run)
 
-from fields_calcs import E_field, B_field, phasors_to_magnitudes
+from fields_calcs import (E_field,
+                        B_field,
+                        phasors_to_magnitudes,
+                        EPSILON,
+                        electric_prefactor,
+                        MU,
+                        magnetic_prefactor)
 
 from fields_plots import (plot_Bmax,
                         plot_Emax,
