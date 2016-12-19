@@ -4,7 +4,333 @@
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>emf</title>
             <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
-            <style>body{color:#ABB2BF;background-color:#282C34;font-family:'Anonymous Pro', monospace;margin:0;padding:0;overflow:scroll;}#back-to-top{position:fixed;right:0;bottom:0;padding:3px;margin:0;background-color:inherit;color:#828997;font-family:"Open Sans", sans-serif;font-size:11pt;text-decoration:none;border-top:1px solid #505050;border-left:1px solid #505050;}#mod-docstr{margin:0;text-align:justify;line-height:150%;color:#ABB2BF;font-family:"Open Sans", sans-serif;font-size:11pt;}.monospace-span{font-family:'Anonymous Pro', monospace;font-size:125%;}#nav-wrapper{position:absolute;top:0;left:0;margin:0;padding:0 5px 0 0;min-height:1vh;background-color:#20242C;}#nav{position:fixed;top:0;left:0;bottom:0;overflow-y:scroll;padding:0.5cm;min-height:1vh;background-color:inherit;border-right:1px solid #505050;}#nav::-webkit-scrollbar{width:4px;}#nav h2{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:24pt;margin:0.25cm 0;}#nav-ul{margin:0;padding:0;list-style-type:none;}.nav-li{font-family:"Open Sans", sans-serif;font-size:18pt;margin:0.5cm 0;}.nav-li a{text-decoration:none;color:#828997;}.subnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.5cm 0;}.subnav-li{font-family:"Anonymous Pro", monospace;font-size:13pt;margin:0.15cm 0;}.subnav-li a{text-decoration:none;color:#828997;}.subsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.4cm 0;}.subsubnav-li{font-family:"Open Sans", sans-serif;font-size:11pt;margin:0.15cm 0;}.subsubnav-li a{text-decoration:none;color:#828997;}.subsubsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.3cm 0;}.subsubsubnav-li{font-family:"Anonymous Pro", monospace;font-size:11pt;margin:0.15cm 0;}.subsubsubnav-li a{text-decoration:none;color:#828997;}#nav a:hover{font-weight:700;color:#ABB2BF;/*background-color:#282C34;*/}#main{float:right;z-index:-1;}#main h1{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:400%;text-align:center;margin:1cm 0;}.section{margin:1cm;padding:5% 5% 5% 1cm;border:1px solid #484848;border-radius:12px;}.section h2{font-weight:normal;font-size:250%;font-family:"Open Sans", sans-serif;text-align:center;margin:0 0 1cm 0;}.docstr{margin:.5cm 0 .5cm 1cm;font-size:90%;text-align:justify;line-height:125%;color:#98C379;}.docstr pre{margin:0;padding:0;font-size:inherit;}.class{border-top:1px solid #404040;}.class h3{font-weight:normal;font-size:200%;font-family:"Open Sans", sans-serif;padding:0;margin:1cm 0 0 0.5cm;}#classes .class{margin-top:1cm;}.class .function{padding-left:0.1cm;border-left:1px solid #404040;}.properties{margin:1cm 0;padding-left:0.1cm;border-left:1px solid #404040;}.properties h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.properties .property{margin-left:1cm;padding-left:0.1cm;border-left:1px solid #383838;}.methods{margin:1cm 0 0 0;padding-left:0.1cm;border-left:1px solid #404040;}.methods h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.methods .function{margin-left:1cm;border-left:1px solid #383838;}#functions .function{border-top:1px solid #404040;}.function .function-name{color:#61AFEF;}.function .function-arg{color:#D19A66;}.function .default-str{color:#98C379;}.source{display:inline-block;margin:.5cm 0 .5cm 1cm;border:1px solid #383838;border-radius:12px;}.source h4{font-family:"Open Sans", sans-serif;font-weight:400;font-size:10pt;margin:0;padding:0.25cm;cursor:pointer;}.source .code{display:none;overflow:auto;padding:0 0.5cm 0.5cm 0.5cm;font-size:10pt;}.other{margin:0.5cm 0;}.other-type{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other-value{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other .comments{margin:0;padding:0.5cm 0 0.5 1cm;}.highlight .k {color:#C678DD;} .highlight .nf {color:#61AFEF;} .highlight .nf .n {color:#D19A66;} .highlight .nb {color:#56B6C2;} .highlight .o {font-weight:bold;} .highlight .ow {color:#C678DD;} .highlight .s1 {color:#98C379;} .highlight .s2 {color:#98C379;} .highlight .sd {color:#98C379;} .highlight .si {color:#D19A66;} .highlight .mi {color:#D19A66;} .highlight .mf {color:#D19A66;} .highlight .mh {color:#D19A66;} .highlight .mo {color:#D19A66;} .highlight .bp {color:#D19A66;} .highlight .c1 {color:#5C6370;}</style>
+            <style>body {
+    color: #ABB2BF;
+    background-color: #282C34;
+    font-family: 'Anonymous Pro', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: scroll;
+}
+
+#back-to-top {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: 3px;
+    margin: 0;
+    background-color: inherit;
+    color: #828997;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    text-decoration: none;
+    border-top: 1px solid #505050;
+    border-left: 1px solid #505050;
+}
+
+#mod-docstr {
+    margin: 0;
+    text-align: justify;
+    line-height: 150%;
+    color: #ABB2BF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+}
+
+.monospace-span {
+    font-family: 'Anonymous Pro', monospace;
+    font-size: 125%;
+}
+
+#nav-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0 5px 0 0;
+    min-height: 1vh;
+    background-color: #20242C;
+}
+
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    padding: 0.5cm;
+    min-height: 1vh;
+    background-color: inherit;
+    border-right: 1px solid #505050;
+}
+
+#nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+#nav h2 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 24pt;
+    margin: 0.25cm 0;
+}
+
+#nav-ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.nav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 18pt;
+    margin: 0.5cm 0;
+}
+
+.nav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.5cm 0;
+}
+
+.subnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 13pt;
+    margin: 0.15cm 0;
+}
+
+.subnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.4cm 0;
+}
+
+.subsubnav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.3cm 0;
+}
+
+.subsubsubnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+#nav a:hover {
+    font-weight: 700;
+    color: #ABB2BF;
+}
+
+#main {
+    float: right;
+    z-index: -1;
+}
+
+#main h1 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 400%;
+    text-align: center;
+    margin: 1cm 0;
+}
+
+.section {
+    margin: 1cm;
+    padding: 5% 5% 5% 1cm;
+    border: 1px solid #484848;
+    border-radius: 12px;
+}
+
+.section h2 {
+    font-weight: normal;
+    font-size: 250%;
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    margin: 0 0 1cm 0;
+}
+
+.docstr {
+    margin: .5cm 0 .5cm 1cm;
+    font-size: 90%;
+    text-align: justify;
+    line-height: 125%;
+    color: #98C379;
+}
+
+.docstr pre {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+}
+
+.class {
+    border-top: 1px solid #404040;
+}
+
+.class h3 {
+    font-weight: normal;
+    font-size: 200%;
+    font-family: "Open Sans", sans-serif;
+    padding: 0;
+    margin: 1cm 0 0 0.5cm;
+}
+
+#classes .class {
+    margin-top: 1cm;
+}
+
+.class .function {
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties {
+    margin: 1cm 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties h4 {
+    font-weight: normal;
+    font-family: "Open Sans", sans-serif;
+    font-size: 150%;
+}
+
+.properties .property {
+    margin-left: 1cm;
+    padding-left: 0.1cm;
+    border-left: 1px solid #383838;
+}
+
+.methods {
+    margin: 1cm 0 0 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.methods h4 {
+  font-weight: normal;
+  font-family: "Open Sans", sans-serif;
+  font-size: 150%;
+}
+
+.methods .function {
+    margin-left: 1cm;
+    border-left: 1px solid #383838;
+}
+
+#functions .function {
+    border-top: 1px solid #404040;
+}
+
+.function .function-name {
+    color: #61AFEF;
+}
+
+.function .function-arg {
+    color: #D19A66;
+}
+
+.function .default-str {
+    color: #98C379;
+}
+
+.source {
+    display: inline-block;
+    margin: .5cm 0 .5cm 1cm;
+    border: 1px solid #383838;
+    border-radius: 12px;
+}
+
+.source h4 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0.25cm;
+    cursor: pointer;
+}
+
+.source .code {
+    display: none;
+    overflow: auto;
+    padding: 0 0.5cm 0.5cm 0.5cm;
+    font-size: 10pt;
+}
+
+.other {
+    margin: 0.5cm 0;
+}
+
+.other-type {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other-value {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other .comments {
+    margin: 0;
+    padding: 0.5cm 0 0.5 1cm;
+}
+
+.other pre {
+    margin: 0;
+    padding: 0 0 0 1.5cm;
+}
+.highlight .k  {color: #C678DD;}
+
+.highlight .nf {color: #61AFEF;}
+.highlight .nf .n {color: #D19A66;}
+.highlight .nb {color: #56B6C2;}
+
+.highlight .o  {font-weight: bold;}
+.highlight .ow {color: #C678DD;}
+
+.highlight .s1 {color: #98C379;}
+.highlight .s2 {color: #98C379;}
+.highlight .sd {color: #98C379;}
+.highlight .si {color: #D19A66;}
+
+.highlight .mi {color: #D19A66;}
+.highlight .mf {color: #D19A66;}
+.highlight .mh {color: #D19A66;}
+.highlight .mo {color: #D19A66;}
+
+.highlight .bp {color: #D19A66;}
+
+.highlight .c1 {color: #5C6370;}
+</style>
     	</head>
         <body onresize="arrange()" onload="arrange()">
 
@@ -25,27 +351,36 @@
                 <div class="section"><p id="mod-docstr">The emf package is a container for two subpackages, emf.fields and emf.subcalc. It imports libraries used by the subpackages like numpy, pandas, and matplotlib. It also contains some custom functions and classes that are used by both emf.fields and emf.subcalc, but they are all private. See the documentation for emf.fields and emf.subcalc.</p></div>
 
                 <!--functions section-->
-
+                
 
                 <!--classes section-->
-
+                
 
                 <!--others section-->
-
+                
             </div>
 
         </body>
 
         <!--Control the width and height of the #main element-->
-        <script type="text/javascript">function arrange(){
+        <script type="text/javascript">
+function arrange(){
     var nav_wrapper = document.getElementById('nav-wrapper');
     var nav = document.getElementById('nav');
     var main = document.getElementById('main');
+    var body = document.body;
 
     var w_nav = nav.offsetWidth + 1;
-    var w = w_nav.toString() + 'px';
-    main.setAttribute('style', 'margin-left: ' + w);
-    main.style.marginLeft = w;
+    var m = w_nav.toString() + 'px';
+    var w = (body.offsetWidth - w_nav).toString() + 'px';
+
+    main.setAttribute('style', 'margin-left: ' + m);
+    main.style.marginLeft = m;
+
+    main.setAttribute('style', 'width: ' + w);
+    main.style.width = w;
+
+    console.log('arrange')
 
 };
 
@@ -73,15 +408,5 @@ function toggleSource(obj){
 };
 </script>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-67200904-4', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
     </html>
+    

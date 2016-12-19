@@ -272,7 +272,7 @@ def plot_Bmax(xs, **kw):
     #set axis text and legend
     ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
     ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
-    ax.set_title('Maximum Magnetic Field - %s' % xs.title)
+    ax.set_title(textwrap.fill('Maximum Magnetic Field - %s' % xs.title))
     ax.legend(kw['H'], kw['L'], numpoints=1)
     _format_line_axes_legends(ax)
     #save the fig or don't, depending on keywords
@@ -315,7 +315,7 @@ def plot_Emax(xs, **kw):
     #set axis text and legend
     ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
     ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
-    ax.set_title('Maximum Electric Field - %s' % xs.title)
+    ax.set_title(textwrap.fill('Maximum Electric Field - %s' % xs.title))
     ax.legend(kw['H'], kw['L'], numpoints=1)
     _format_line_axes_legends(ax)
     #save the fig or don't, depending on keywords
@@ -366,7 +366,7 @@ def plot_max_fields(xs, **kw):
     ax_B.set_xlabel(r'Distance from Center of ROW $(ft)$')
     ax_B.set_ylabel(r'Maximum Magnetic Field $(mG)$', color=_B_color)
     ax_E.set_ylabel(r'Maximum Electric Field $(kV/m)$', color=_E_color)
-    ax_B.set_title('Maximum Magnetic and Electric Fields - %s' % xs.title)
+    ax_B.set_title(textwrap.fill('Maximum Magnetic and Electric Fields - %s' % xs.title))
     #set color of axis spines and ticklabels
     _color_twin_axes(ax_B, _B_color, ax_E, _E_color)
     #legend
@@ -405,7 +405,7 @@ def plot_xs(xs, **kw):
     #check underground conductors
     _check_und_conds([xs], [ax], **kw)
     #set axis text and legend
-    ax.set_title('Cross Section Configuration - %s' % xs.title)
+    ax.set_title(textwrap.fill('Cross Section Configuration - %s' % xs.title))
     ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
     ax.set_ylabel(r'Height Above Ground $(ft)$')
     ax.legend(kw['H'], kw['L'], numpoints=1)
@@ -699,7 +699,7 @@ def plot_groups(sb, **kw):
                 ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
                 ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
                 t = 'Maximum Magnetic Field - %s' % str(xss[0].tag)
-                ax.set_title(t)
+                ax.set_title(textwrap.fill(t))
                 ax.legend(kw['H'], kw['L'], numpoints=1)
                 _format_line_axes_legends(ax)
                 #save the figure if keyword 'save' == True, and append fig
@@ -732,7 +732,7 @@ def plot_groups(sb, **kw):
                 ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
                 ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
                 t = 'Maximum Electric Field - %s' % str(xss[0].tag)
-                ax.set_title(t)
+                ax.set_title(textwrap.fill(t))
                 ax.legend(kw['H'], kw['L'], numpoints=1)
                 _format_line_axes_legends(ax)
 
@@ -836,7 +836,7 @@ def _generate_ROW_value_plot_objects(xss):
     fig = plt.figure()
     #left ROW axis
     axl = fig.add_subplot(1,2,1)
-    axl.set_title('Left ROW Edge' + lROW_title_add)
+    axl.set_title(textwrap.fill('Left ROW Edge' + lROW_title_add))
     pos = axl.get_position()
     axl.set_position([pos.x0,
                     pos.y0 + pos.height*(1 - ax_y_up_frac),
@@ -844,7 +844,7 @@ def _generate_ROW_value_plot_objects(xss):
                     pos.height*ax_y_shrink_frac])
     #right ROW axis
     axr = fig.add_subplot(1,2,2)
-    axr.set_title('Right ROW Edge' + rROW_title_add)
+    axr.set_title(textwrap.fill('Right ROW Edge' + rROW_title_add))
     pos = axr.get_position()
     axr.set_position([pos.x0,
                     pos.y0 + pos.height*(1 - ax_y_up_frac),

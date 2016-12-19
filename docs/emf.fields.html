@@ -4,7 +4,333 @@
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>emf.fields</title>
             <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
-            <style>body{color:#ABB2BF;background-color:#282C34;font-family:'Anonymous Pro', monospace;margin:0;padding:0;overflow:scroll;}#back-to-top{position:fixed;right:0;bottom:0;padding:3px;margin:0;background-color:inherit;color:#828997;font-family:"Open Sans", sans-serif;font-size:11pt;text-decoration:none;border-top:1px solid #505050;border-left:1px solid #505050;}#mod-docstr{margin:0;text-align:justify;line-height:150%;color:#ABB2BF;font-family:"Open Sans", sans-serif;font-size:11pt;}.monospace-span{font-family:'Anonymous Pro', monospace;font-size:125%;}#nav-wrapper{position:absolute;top:0;left:0;margin:0;padding:0 5px 0 0;min-height:1vh;background-color:#20242C;}#nav{position:fixed;top:0;left:0;bottom:0;overflow-y:scroll;padding:0.5cm;min-height:1vh;background-color:inherit;border-right:1px solid #505050;}#nav::-webkit-scrollbar{width:4px;}#nav h2{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:24pt;margin:0.25cm 0;}#nav-ul{margin:0;padding:0;list-style-type:none;}.nav-li{font-family:"Open Sans", sans-serif;font-size:18pt;margin:0.5cm 0;}.nav-li a{text-decoration:none;color:#828997;}.subnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.5cm 0;}.subnav-li{font-family:"Anonymous Pro", monospace;font-size:13pt;margin:0.15cm 0;}.subnav-li a{text-decoration:none;color:#828997;}.subsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.4cm 0;}.subsubnav-li{font-family:"Open Sans", sans-serif;font-size:11pt;margin:0.15cm 0;}.subsubnav-li a{text-decoration:none;color:#828997;}.subsubsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.3cm 0;}.subsubsubnav-li{font-family:"Anonymous Pro", monospace;font-size:11pt;margin:0.15cm 0;}.subsubsubnav-li a{text-decoration:none;color:#828997;}#nav a:hover{font-weight:700;color:#ABB2BF;/*background-color:#282C34;*/}#main{float:right;z-index:-1;}#main h1{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:400%;text-align:center;margin:1cm 0;}.section{margin:1cm;padding:5% 5% 5% 1cm;border:1px solid #484848;border-radius:12px;}.section h2{font-weight:normal;font-size:250%;font-family:"Open Sans", sans-serif;text-align:center;margin:0 0 1cm 0;}.docstr{margin:.5cm 0 .5cm 1cm;font-size:90%;text-align:justify;line-height:125%;color:#98C379;}.docstr pre{margin:0;padding:0;font-size:inherit;}.class{border-top:1px solid #404040;}.class h3{font-weight:normal;font-size:200%;font-family:"Open Sans", sans-serif;padding:0;margin:1cm 0 0 0.5cm;}#classes .class{margin-top:1cm;}.class .function{padding-left:0.1cm;border-left:1px solid #404040;}.properties{margin:1cm 0;padding-left:0.1cm;border-left:1px solid #404040;}.properties h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.properties .property{margin-left:1cm;padding-left:0.1cm;border-left:1px solid #383838;}.methods{margin:1cm 0 0 0;padding-left:0.1cm;border-left:1px solid #404040;}.methods h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.methods .function{margin-left:1cm;border-left:1px solid #383838;}#functions .function{border-top:1px solid #404040;}.function .function-name{color:#61AFEF;}.function .function-arg{color:#D19A66;}.function .default-str{color:#98C379;}.source{display:inline-block;margin:.5cm 0 .5cm 1cm;border:1px solid #383838;border-radius:12px;}.source h4{font-family:"Open Sans", sans-serif;font-weight:400;font-size:10pt;margin:0;padding:0.25cm;cursor:pointer;}.source .code{display:none;overflow:auto;padding:0 0.5cm 0.5cm 0.5cm;font-size:10pt;}.other{margin:0.5cm 0;}.other-type{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other-value{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other .comments{margin:0;padding:0.5cm 0 0.5 1cm;}.highlight .k {color:#C678DD;} .highlight .nf {color:#61AFEF;} .highlight .nf .n {color:#D19A66;} .highlight .nb {color:#56B6C2;} .highlight .o {font-weight:bold;} .highlight .ow {color:#C678DD;} .highlight .s1 {color:#98C379;} .highlight .s2 {color:#98C379;} .highlight .sd {color:#98C379;} .highlight .si {color:#D19A66;} .highlight .mi {color:#D19A66;} .highlight .mf {color:#D19A66;} .highlight .mh {color:#D19A66;} .highlight .mo {color:#D19A66;} .highlight .bp {color:#D19A66;} .highlight .c1 {color:#5C6370;}</style>
+            <style>body {
+    color: #ABB2BF;
+    background-color: #282C34;
+    font-family: 'Anonymous Pro', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: scroll;
+}
+
+#back-to-top {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: 3px;
+    margin: 0;
+    background-color: inherit;
+    color: #828997;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    text-decoration: none;
+    border-top: 1px solid #505050;
+    border-left: 1px solid #505050;
+}
+
+#mod-docstr {
+    margin: 0;
+    text-align: justify;
+    line-height: 150%;
+    color: #ABB2BF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+}
+
+.monospace-span {
+    font-family: 'Anonymous Pro', monospace;
+    font-size: 125%;
+}
+
+#nav-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0 5px 0 0;
+    min-height: 1vh;
+    background-color: #20242C;
+}
+
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    padding: 0.5cm;
+    min-height: 1vh;
+    background-color: inherit;
+    border-right: 1px solid #505050;
+}
+
+#nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+#nav h2 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 24pt;
+    margin: 0.25cm 0;
+}
+
+#nav-ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.nav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 18pt;
+    margin: 0.5cm 0;
+}
+
+.nav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.5cm 0;
+}
+
+.subnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 13pt;
+    margin: 0.15cm 0;
+}
+
+.subnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.4cm 0;
+}
+
+.subsubnav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.3cm 0;
+}
+
+.subsubsubnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+#nav a:hover {
+    font-weight: 700;
+    color: #ABB2BF;
+}
+
+#main {
+    float: right;
+    z-index: -1;
+}
+
+#main h1 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 400%;
+    text-align: center;
+    margin: 1cm 0;
+}
+
+.section {
+    margin: 1cm;
+    padding: 5% 5% 5% 1cm;
+    border: 1px solid #484848;
+    border-radius: 12px;
+}
+
+.section h2 {
+    font-weight: normal;
+    font-size: 250%;
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    margin: 0 0 1cm 0;
+}
+
+.docstr {
+    margin: .5cm 0 .5cm 1cm;
+    font-size: 90%;
+    text-align: justify;
+    line-height: 125%;
+    color: #98C379;
+}
+
+.docstr pre {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+}
+
+.class {
+    border-top: 1px solid #404040;
+}
+
+.class h3 {
+    font-weight: normal;
+    font-size: 200%;
+    font-family: "Open Sans", sans-serif;
+    padding: 0;
+    margin: 1cm 0 0 0.5cm;
+}
+
+#classes .class {
+    margin-top: 1cm;
+}
+
+.class .function {
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties {
+    margin: 1cm 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties h4 {
+    font-weight: normal;
+    font-family: "Open Sans", sans-serif;
+    font-size: 150%;
+}
+
+.properties .property {
+    margin-left: 1cm;
+    padding-left: 0.1cm;
+    border-left: 1px solid #383838;
+}
+
+.methods {
+    margin: 1cm 0 0 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.methods h4 {
+  font-weight: normal;
+  font-family: "Open Sans", sans-serif;
+  font-size: 150%;
+}
+
+.methods .function {
+    margin-left: 1cm;
+    border-left: 1px solid #383838;
+}
+
+#functions .function {
+    border-top: 1px solid #404040;
+}
+
+.function .function-name {
+    color: #61AFEF;
+}
+
+.function .function-arg {
+    color: #D19A66;
+}
+
+.function .default-str {
+    color: #98C379;
+}
+
+.source {
+    display: inline-block;
+    margin: .5cm 0 .5cm 1cm;
+    border: 1px solid #383838;
+    border-radius: 12px;
+}
+
+.source h4 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0.25cm;
+    cursor: pointer;
+}
+
+.source .code {
+    display: none;
+    overflow: auto;
+    padding: 0 0.5cm 0.5cm 0.5cm;
+    font-size: 10pt;
+}
+
+.other {
+    margin: 0.5cm 0;
+}
+
+.other-type {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other-value {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other .comments {
+    margin: 0;
+    padding: 0.5cm 0 0.5 1cm;
+}
+
+.other pre {
+    margin: 0;
+    padding: 0 0 0 1.5cm;
+}
+.highlight .k  {color: #C678DD;}
+
+.highlight .nf {color: #61AFEF;}
+.highlight .nf .n {color: #D19A66;}
+.highlight .nb {color: #56B6C2;}
+
+.highlight .o  {font-weight: bold;}
+.highlight .ow {color: #C678DD;}
+
+.highlight .s1 {color: #98C379;}
+.highlight .s2 {color: #98C379;}
+.highlight .sd {color: #98C379;}
+.highlight .si {color: #D19A66;}
+
+.highlight .mi {color: #D19A66;}
+.highlight .mf {color: #D19A66;}
+.highlight .mh {color: #D19A66;}
+.highlight .mo {color: #D19A66;}
+
+.highlight .bp {color: #D19A66;}
+
+.highlight .c1 {color: #5C6370;}
+</style>
     	</head>
         <body onresize="arrange()" onload="arrange()">
 
@@ -17,7 +343,7 @@
                     <h2>contents</h2>
                     <ul id="nav-ul">
             <li class="nav-li"><a href="#functions">functions</a>
-                <ul class="subnav-ul"><li class="subnav-li"><a href="#B_field">B_field</a></li><li class="subnav-li"><a href="#E_field">E_field</a></li><li class="subnav-li"><a href="#close">close</a></li><li class="subnav-li"><a href="#convert_DAT">convert_DAT</a></li><li class="subnav-li"><a href="#convert_DAT_crawl">convert_DAT_crawl</a></li><li class="subnav-li"><a href="#drop_template">drop_template</a></li><li class="subnav-li"><a href="#ion">ion</a></li><li class="subnav-li"><a href="#load_template">load_template</a></li><li class="subnav-li"><a href="#optimize_phasing">optimize_phasing</a></li><li class="subnav-li"><a href="#phasors_to_magnitudes">phasors_to_magnitudes</a></li><li class="subnav-li"><a href="#plot_Bmax">plot_Bmax</a></li><li class="subnav-li"><a href="#plot_Emax">plot_Emax</a></li><li class="subnav-li"><a href="#plot_groups">plot_groups</a></li><li class="subnav-li"><a href="#plot_groups_at_ROW">plot_groups_at_ROW</a></li><li class="subnav-li"><a href="#plot_max_fields">plot_max_fields</a></li><li class="subnav-li"><a href="#plot_xs">plot_xs</a></li><li class="subnav-li"><a href="#read_DAT">read_DAT</a></li><li class="subnav-li"><a href="#run">run</a></li><li class="subnav-li"><a href="#show">show</a></li><li class="subnav-li"><a href="#target_fields">target_fields</a></li><li class="subnav-li"><a href="#to_FLD">to_FLD</a></li><li class="subnav-li"><a href="#to_FLDs">to_FLDs</a></li><li class="subnav-li"><a href="#to_FLDs_crawl">to_FLDs_crawl</a></li></ul>
+                <ul class="subnav-ul"><li class="subnav-li"><a href="#B_field">B_field</a></li><li class="subnav-li"><a href="#E_field">E_field</a></li><li class="subnav-li"><a href="#close">close</a></li><li class="subnav-li"><a href="#convert_DAT">convert_DAT</a></li><li class="subnav-li"><a href="#convert_DAT_crawl">convert_DAT_crawl</a></li><li class="subnav-li"><a href="#drop_template">drop_template</a></li><li class="subnav-li"><a href="#ion">ion</a></li><li class="subnav-li"><a href="#load_template">load_template</a></li><li class="subnav-li"><a href="#optimize_phasing">optimize_phasing</a></li><li class="subnav-li"><a href="#phasors_to_magnitudes">phasors_to_magnitudes</a></li><li class="subnav-li"><a href="#plot_Bmax">plot_Bmax</a></li><li class="subnav-li"><a href="#plot_Emax">plot_Emax</a></li><li class="subnav-li"><a href="#plot_groups">plot_groups</a></li><li class="subnav-li"><a href="#plot_groups_at_ROW">plot_groups_at_ROW</a></li><li class="subnav-li"><a href="#plot_max_fields">plot_max_fields</a></li><li class="subnav-li"><a href="#plot_xs">plot_xs</a></li><li class="subnav-li"><a href="#read_DAT">read_DAT</a></li><li class="subnav-li"><a href="#read_FLD">read_FLD</a></li><li class="subnav-li"><a href="#run">run</a></li><li class="subnav-li"><a href="#sb_xs_compare">sb_xs_compare</a></li><li class="subnav-li"><a href="#show">show</a></li><li class="subnav-li"><a href="#target_fields">target_fields</a></li><li class="subnav-li"><a href="#to_FLD">to_FLD</a></li><li class="subnav-li"><a href="#to_FLDs">to_FLDs</a></li><li class="subnav-li"><a href="#to_FLDs_crawl">to_FLDs_crawl</a></li></ul>
             <li class="nav-li"><a href="#classes">classes</a>
                 <ul class="subnav-ul"><li class="subnav-li"><a href="#Conductor">Conductor</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Conductor-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Conductor-I>I</a></li><li class="subsubsubnav-li"><a href=#Conductor-V>V</a></li><li class="subsubsubnav-li"><a href=#Conductor-complete>complete</a></li><li class="subsubsubnav-li"><a href=#Conductor-d_bund>d_bund</a></li><li class="subsubsubnav-li"><a href=#Conductor-d_cond>d_cond</a></li><li class="subsubsubnav-li"><a href=#Conductor-freq>freq</a></li><li class="subsubsubnav-li"><a href=#Conductor-phase>phase</a></li><li class="subsubsubnav-li"><a href=#Conductor-subconds>subconds</a></li><li class="subsubsubnav-li"><a href=#Conductor-tag>tag</a></li><li class="subsubsubnav-li"><a href=#Conductor-x>x</a></li><li class="subsubsubnav-li"><a href=#Conductor-y>y</a></li></ul></li><li class="subsubnav-li"><a href=#Conductor-methods>methods</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Conductor-copy>copy</a></li></ul></li></ul></li><li class="subnav-li"><a href="#CrossSection">CrossSection</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#CrossSection-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#CrossSection-I>I</a></li><li class="subsubsubnav-li"><a href=#CrossSection-ROW_edge_fields>ROW_edge_fields</a></li><li class="subsubsubnav-li"><a href=#CrossSection-V>V</a></li><li class="subsubsubnav-li"><a href=#CrossSection-complete>complete</a></li><li class="subsubsubnav-li"><a href=#CrossSection-conds>conds</a></li><li class="subsubsubnav-li"><a href=#CrossSection-d_bund>d_bund</a></li><li class="subsubsubnav-li"><a href=#CrossSection-d_cond>d_cond</a></li><li class="subsubsubnav-li"><a href=#CrossSection-fields>fields</a></li><li class="subsubsubnav-li"><a href=#CrossSection-freq>freq</a></li><li class="subsubsubnav-li"><a href=#CrossSection-gnd>gnd</a></li><li class="subsubsubnav-li"><a href=#CrossSection-hot>hot</a></li><li class="subsubsubnav-li"><a href=#CrossSection-i>i</a></li><li class="subsubsubnav-li"><a href=#CrossSection-lROW>lROW</a></li><li class="subsubsubnav-li"><a href=#CrossSection-max_dist>max_dist</a></li><li class="subsubsubnav-li"><a href=#CrossSection-phase>phase</a></li><li class="subsubsubnav-li"><a href=#CrossSection-rROW>rROW</a></li><li class="subsubsubnav-li"><a href=#CrossSection-sample_height>sample_height</a></li><li class="subsubsubnav-li"><a href=#CrossSection-sheet>sheet</a></li><li class="subsubsubnav-li"><a href=#CrossSection-step>step</a></li><li class="subsubsubnav-li"><a href=#CrossSection-subconds>subconds</a></li><li class="subsubsubnav-li"><a href=#CrossSection-tag>tag</a></li><li class="subsubsubnav-li"><a href=#CrossSection-tags>tags</a></li><li class="subsubsubnav-li"><a href=#CrossSection-title>title</a></li><li class="subsubsubnav-li"><a href=#CrossSection-x>x</a></li><li class="subsubsubnav-li"><a href=#CrossSection-x_sample>x_sample</a></li><li class="subsubsubnav-li"><a href=#CrossSection-y>y</a></li><li class="subsubsubnav-li"><a href=#CrossSection-y_sample>y_sample</a></li></ul></li><li class="subsubnav-li"><a href=#CrossSection-methods>methods</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#CrossSection-add_conductor>add_conductor</a></li><li class="subsubsubnav-li"><a href=#CrossSection-compare_DAT>compare_DAT</a></li><li class="subsubsubnav-li"><a href=#CrossSection-copy>copy</a></li><li class="subsubsubnav-li"><a href=#CrossSection-export>export</a></li><li class="subsubsubnav-li"><a href=#CrossSection-remove_conductor>remove_conductor</a></li><li class="subsubsubnav-li"><a href=#CrossSection-sample>sample</a></li></ul></li></ul></li><li class="subnav-li"><a href="#SectionBook">SectionBook</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#SectionBook-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#SectionBook-ROW_edge_max>ROW_edge_max</a></li><li class="subsubsubnav-li"><a href=#SectionBook-complete>complete</a></li><li class="subsubsubnav-li"><a href=#SectionBook-i>i</a></li><li class="subsubsubnav-li"><a href=#SectionBook-name>name</a></li><li class="subsubsubnav-li"><a href=#SectionBook-sheets>sheets</a></li><li class="subsubsubnav-li"><a href=#SectionBook-tag_groups>tag_groups</a></li><li class="subsubsubnav-li"><a href=#SectionBook-tags>tags</a></li><li class="subsubsubnav-li"><a href=#SectionBook-titles>titles</a></li><li class="subsubsubnav-li"><a href=#SectionBook-xss>xss</a></li></ul></li><li class="subsubnav-li"><a href=#SectionBook-methods>methods</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#SectionBook-ROW_edge_export>ROW_edge_export</a></li><li class="subsubsubnav-li"><a href=#SectionBook-add_section>add_section</a></li><li class="subsubsubnav-li"><a href=#SectionBook-export>export</a></li><li class="subsubsubnav-li"><a href=#SectionBook-remove_section>remove_section</a></li><li class="subsubsubnav-li"><a href=#SectionBook-results_export>results_export</a></li><li class="subsubsubnav-li"><a href=#SectionBook-sample>sample</a></li></ul></li></ul></li></ul>
             <li class="nav-li"><a href="#others">others</a>
@@ -308,14 +634,18 @@
     <span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
     <span class="c1">#get template file path</span>
-    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
-    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;fields-template.xlsx&#39;</span><span class="p">)</span>
+    <span class="n">fn_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+    <span class="n">fn_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fn_temp</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
+    <span class="n">fn_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fn_temp</span><span class="p">,</span> <span class="s1">&#39;fields-template.xlsx&#39;</span><span class="p">)</span>
     <span class="c1">#get drop path</span>
-    <span class="n">drop_path</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;fields-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="n">fn_drop</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;fields-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="c1">#check for existing files</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fn_drop</span><span class="p">)):</span>
+        <span class="k">raise</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;A file with the path &quot;</span><span class="si">%s</span><span class="s1">&quot; already exists.</span>
+        <span class="n">Move</span><span class="o">/</span><span class="n">delete</span> <span class="n">it</span> <span class="ow">or</span> <span class="k">pass</span> <span class="n">a</span> <span class="n">new</span> <span class="n">path</span> <span class="n">string</span> <span class="n">to</span> <span class="n">drop_template</span><span class="p">()</span><span class="o">.</span><span class="s1">&#39; </span><span class="si">% f</span><span class="s1">n_drop))</span>
     <span class="c1">#copy and notify</span>
-    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="n">drop_path</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">drop_path</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">fn_temp</span><span class="p">,</span> <span class="n">fn_drop</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fn_drop</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -462,7 +792,7 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id="optimize_phasing"><p class="function-str"><span class="function-name">optimize_phasing</span>(<span class="function-arg">xs</span>, <span class="function-arg">circuits</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Permute the phasing of non-grounded conductors and find the arrangement that results in the lowest fields at the left and right edge of the ROW. The number of hot conductors must be a multiple of three. The phases of consecutive groups of three conductors are swapped around, assuming that those groups represent a single three-phase transfer circuit.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - target CrossSection object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;circuits - list of lists of Conductor tags, or 'all'. If a list of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;lists, each sublist contains the Conductor tags of the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Conductors comprising a single circuit. If 'all',<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;circuits are assumed to be consecutive groups of three<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;conductors. (consecutive according to the order in which<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;hot conductors were added to the CrossSection)<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - bool, toggle saving of the results DataFrame to an excel book<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, location/filename for saved results workbook,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;forces saving even if no 'save' keyword is used.<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res - pandas DataFrame listing conductor phasings that optimize<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;electric and magnetic fields at both ROW edges.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;opt - new SectionBook object containing the permuted phasings that<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;optimize the E and B fields at the left and right ROW edges.</p>
+                </div></div><div class="function" id="optimize_phasing"><p class="function-str"><span class="function-name">optimize_phasing</span>(<span class="function-arg">xs</span>, <span class="function-arg">circuits</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Permute the phasing of non-grounded conductors and find the arrangement that results in the lowest fields at the left and right edge of the ROW. The number of hot conductors must be a multiple of three. The phases of consecutive groups of three conductors are swapped around, assuming that those groups represent a single three-phase transfer circuit.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - target CrossSection object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;circuits - list of lists of Conductor tags, or 'all'. If a list of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;lists, each sublist contains the Conductor tags of the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;Conductors comprising a single circuit. If 'all',<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;circuits are assumed to be consecutive groups of three<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;conductors. (consecutive according to the order in which<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;hot, or non-grounded, conductors were added to the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;CrossSection)<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - bool, toggle saving of the results DataFrame to an excel book<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, location/filename for saved results workbook,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;forces saving even if no 'save' keyword is used.<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;res - pandas DataFrame listing conductor phasings that optimize<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;electric and magnetic fields at both ROW edges.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;opt - new SectionBook object containing the permuted phasings that<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;optimize the E and B fields at the left and right ROW edges.</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
@@ -479,7 +809,8 @@
 <span class="sd">                    Conductors comprising a single circuit. If &#39;all&#39;,</span>
 <span class="sd">                    circuits are assumed to be consecutive groups of three</span>
 <span class="sd">                    conductors. (consecutive according to the order in which</span>
-<span class="sd">                    hot conductors were added to the CrossSection)</span>
+<span class="sd">                    hot, or non-grounded, conductors were added to the</span>
+<span class="sd">                    CrossSection)</span>
 <span class="sd">    kw:</span>
 <span class="sd">        save - bool, toggle saving of the results DataFrame to an excel book</span>
 <span class="sd">        path - string, location/filename for saved results workbook,</span>
@@ -536,8 +867,8 @@
     <span class="c1">#a huge, factorial sized array of indices</span>
     <span class="n">P</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">perm</span><span class="p">)</span>
     <span class="c1">#variables to find the minima with respect to each field and ROW edge</span>
-    <span class="n">B_left_min</span><span class="p">,</span> <span class="n">B_left_arr</span><span class="p">,</span> <span class="n">B_right_min</span><span class="p">,</span> <span class="n">B_right_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">[],</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">[]</span>
-    <span class="n">E_left_min</span><span class="p">,</span> <span class="n">E_left_arr</span><span class="p">,</span> <span class="n">E_right_min</span><span class="p">,</span> <span class="n">E_right_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">[],</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="p">[]</span>
+    <span class="n">B_left_min</span><span class="p">,</span> <span class="n">B_right_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">E_left_min</span><span class="p">,</span> <span class="n">E_right_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="c1">#get coordinates of the ROW edges</span>
     <span class="n">x_ROW</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xs</span><span class="o">.</span><span class="n">lROW</span><span class="p">,</span> <span class="n">xs</span><span class="o">.</span><span class="n">rROW</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">y_ROW</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">sample_height</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">2</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -607,9 +938,9 @@
             <span class="n">results</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="s1">&#39;Conductor Tag&#39;</span><span class="p">,</span>
                 <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;phase_assignments&#39;</span><span class="p">)</span>
             <span class="n">opt</span><span class="o">.</span><span class="n">ROW_edge_export</span><span class="p">(</span><span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">)</span>
-            <span class="n">df</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">_xs_sb_diff</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;ROW_edge_diff&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                    <span class="n">columns</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">abs_dif</span><span class="p">,</span> <span class="n">rel_dif</span> <span class="o">=</span> <span class="n">sb_xs_compare</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">sheets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">abs_dif</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Abs Difference at ROW Edges&#39;</span><span class="p">)</span>
+            <span class="n">rel_dif</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Rel Difference at ROW Edges&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">:</span>
                 <span class="n">xs</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">xs</span><span class="o">.</span><span class="n">sheet</span><span class="p">)</span>
             <span class="n">xl</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
@@ -707,7 +1038,7 @@
     <span class="c1">#set axis text and legend</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;Distance from Center of ROW $(ft)$&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Maximum Magnetic Field $(mG)$&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Maximum Magnetic Field - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;Maximum Magnetic Field - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">],</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">_format_line_axes_legends</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
     <span class="c1">#save the fig or don&#39;t, depending on keywords</span>
@@ -757,7 +1088,7 @@
     <span class="c1">#set axis text and legend</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;Distance from Center of ROW $(ft)$&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Maximum Electric Field $(kV/m)$&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Maximum Electric Field - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;Maximum Electric Field - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">],</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">_format_line_axes_legends</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
     <span class="c1">#save the fig or don&#39;t, depending on keywords</span>
@@ -834,7 +1165,7 @@
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;Distance from Center of ROW $(ft)$&#39;</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Maximum Magnetic Field $(mG)$&#39;</span><span class="p">)</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="s1">&#39;Maximum Magnetic Field - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">xss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">],</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">_format_line_axes_legends</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
                 <span class="c1">#save the figure if keyword &#39;save&#39; == True, and append fig</span>
@@ -867,7 +1198,7 @@
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;Distance from Center of ROW $(ft)$&#39;</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Maximum Electric Field $(kV/m)$&#39;</span><span class="p">)</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="s1">&#39;Maximum Electric Field - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">xss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">],</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">_format_line_axes_legends</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
@@ -1027,7 +1358,7 @@
     <span class="n">ax_B</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;Distance from Center of ROW $(ft)$&#39;</span><span class="p">)</span>
     <span class="n">ax_B</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Maximum Magnetic Field $(mG)$&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">_B_color</span><span class="p">)</span>
     <span class="n">ax_E</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Maximum Electric Field $(kV/m)$&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">_E_color</span><span class="p">)</span>
-    <span class="n">ax_B</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Maximum Magnetic and Electric Fields - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax_B</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;Maximum Magnetic and Electric Fields - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
     <span class="c1">#set color of axis spines and ticklabels</span>
     <span class="n">_color_twin_axes</span><span class="p">(</span><span class="n">ax_B</span><span class="p">,</span> <span class="n">_B_color</span><span class="p">,</span> <span class="n">ax_E</span><span class="p">,</span> <span class="n">_E_color</span><span class="p">)</span>
     <span class="c1">#legend</span>
@@ -1072,7 +1403,7 @@
     <span class="c1">#check underground conductors</span>
     <span class="n">_check_und_conds</span><span class="p">([</span><span class="n">xs</span><span class="p">],</span> <span class="p">[</span><span class="n">ax</span><span class="p">],</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
     <span class="c1">#set axis text and legend</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Cross Section Configuration - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;Cross Section Configuration - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">r&#39;Distance from Center of ROW $(ft)$&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">r&#39;Height Above Ground $(ft)$&#39;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;L&#39;</span><span class="p">],</span> <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1135,6 +1466,70 @@
 </pre></div>
 
                     </div>
+                </div></div><div class="function" id="read_FLD"><p class="function-str"><span class="function-name">read_FLD</span>(<span class="function-arg">file_path</span>)</p><p class="docstr">Read a FLD file in to a CrossSection object<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;file_path - string, path to FLD file<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - CrossSection object representing the information in the FLD file</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_FLD</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a FLD file in to a CrossSection object</span>
+<span class="sd">    args:</span>
+<span class="sd">        file_path - string, path to FLD file</span>
+<span class="sd">    returns:</span>
+<span class="sd">        xs - CrossSection object representing the information in the FLD file&quot;&quot;&quot;</span>
+    <span class="c1">#check extension</span>
+    <span class="n">fields_funks</span><span class="o">.</span><span class="n">_check_extension</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;FLD&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;&quot;Input file must have a &#39;.FLD&#39; extention&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="c1">#read the FLD file into a list of lines without whitespace on the right</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ifile</span><span class="p">:</span>
+        <span class="n">fld</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+    <span class="c1">#initialize a CrossSection object</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">fields_class</span><span class="o">.</span><span class="n">CrossSection</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">fld</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">max_dist</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">sample_height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">lROW</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">rROW</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+    <span class="n">Lconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
+    <span class="n">Lgrounds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span>
+    <span class="c1">#create hot Conductors for the CrossSection</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">Lconds</span><span class="p">):</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">add_conductor</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">Conductor</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">],</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">subconds</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span>
+                <span class="n">d_cond</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">d_bund</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">5</span><span class="p">],</span> <span class="n">I</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">7</span><span class="p">],</span> <span class="n">V</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">8</span><span class="p">],</span>
+                <span class="n">phase</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">9</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">10</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1">#create ground Conductors</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">Lgrounds</span><span class="p">):</span>
+        <span class="c1">#sometimes there&#39;s a blank conductor?</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">]):</span>
+            <span class="n">xs</span><span class="o">.</span><span class="n">add_conductor</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">Conductor</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">],</span>
+                    <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="n">subconds</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">d_cond</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">d_bund</span><span class="o">=</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span> <span class="n">I</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">V</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">n</span> <span class="o">+=</span> <span class="mi">6</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">go</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">go</span><span class="p">):</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">]):</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;ED!(I)&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">]):</span>
+                        <span class="n">go</span> <span class="o">=</span> <span class="bp">False</span>
+                        <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">print</span> <span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
                 </div></div><div class="function" id="run"><p class="function-str"><span class="function-name">run</span>(<span class="function-arg">template_path</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Import the templates in an excel file with the path 'template_path' then generate a workbook of all fields results and lots of plots. Use the 'path' keyword argument to specify a destination for the output, otherwise it will be saved to the template's directory. Returns a SectionBook object.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;template_path - path to cross section template excel workbook<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sheets - a list of sheet names to load, default is all sheets<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, destination/filename for saved files<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;format - string, saved plot format (usually 'png' or 'pdf')<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xmax - cutoff distance from ROW center in plots</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
@@ -1174,6 +1569,30 @@
 </pre></div>
 
                     </div>
+                </div></div><div class="function" id="sb_xs_compare"><p class="function-str"><span class="function-name">sb_xs_compare</span>(<span class="function-arg">sb</span>, <span class="function-arg">sheet</span>)</p><p class="docstr">Compute the absolute and percentage difference between the maximum fields of one CrossSection in a SectionBook and all the other CrossSections<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sb - SectionBook object<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sheet - sheet string of the CrossSection in sb that should be<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;compared with all the other CrossSections<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;abs_dif - DataFrame with the absolute difference of the maximum<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  fields at ROW edges<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;rel_dif - DataFrame with the relative difference of the maximum<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  fields at ROW edges (multiply by 100 to get percentage dif)</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">sb_xs_compare</span><span class="p">(</span><span class="n">sb</span><span class="p">,</span> <span class="n">sheet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the absolute and percentage difference between the maximum fields</span>
+<span class="sd">    of one CrossSection in a SectionBook and all the other CrossSections</span>
+<span class="sd">    args:</span>
+<span class="sd">        sb - SectionBook object</span>
+<span class="sd">        sheet - sheet string of the CrossSection in sb that should be</span>
+<span class="sd">                compared with all the other CrossSections</span>
+<span class="sd">    returns:</span>
+<span class="sd">        abs_dif - DataFrame with the absolute difference of the maximum</span>
+<span class="sd">                  fields at ROW edges</span>
+<span class="sd">        rel_dif - DataFrame with the relative difference of the maximum</span>
+<span class="sd">                  fields at ROW edges (multiply by 100 to get percentage dif)&quot;&quot;&quot;</span>
+
+    <span class="n">rem</span> <span class="o">=</span> <span class="n">sb</span><span class="o">.</span><span class="n">ROW_edge_max</span>
+    <span class="n">abs_dif</span> <span class="o">=</span> <span class="n">rem</span> <span class="o">-</span> <span class="n">rem</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sheet</span><span class="p">]</span>
+    <span class="n">rel_dif</span> <span class="o">=</span> <span class="p">(</span><span class="n">rem</span> <span class="o">-</span> <span class="n">rem</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sheet</span><span class="p">])</span><span class="o">/</span><span class="n">rem</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">abs_dif</span><span class="p">,</span> <span class="n">rel_dif</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
                 </div></div><div class="function" id="show"><p class="function-str"><span class="function-name">show</span>()</p><p class="docstr">Call plt.show() to display open figures</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
@@ -1184,7 +1603,7 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id="target_fields"><p class="function-str"><span class="function-name">target_fields</span>(<span class="function-arg">xs</span>, <span class="function-arg">tags</span>, <span class="function-arg">B_l</span>, <span class="function-arg">B_r</span>, <span class="function-arg">E_l</span>, <span class="function-arg">E_r</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - CrossSection object to perform adjustments on<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;tags - iterable of Conductor tags, identifying which ones to raise<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_l - magnetic field threshold at left ROW edge*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_r - magnetic field threshold at right ROW edge*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E_l - electric field threshold at left ROW edge*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E_r - electric field threshold at right ROW edge*<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;*an implicitly False input will ignore that field-edge<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;combination, return None in the return variable 'h', and cause<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the returned SectionBook to omit that field-edge combo.<br><br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;max_iter - maximum number of _bisection iterations allowed,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;default is 1e3<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %),<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;default is 1e-6.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;hhigh - upper limit of the height adjustment, default is 1.0e6<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - toggle saving of the results DataFrame to an excel book<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - location/filename for saved results workbook, forces saving<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;even if no 'save' keyword is used.<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;h - height adjustments necessary for E and B fields at left and<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;right ROW edges. The ordering is: (B_left, B_right, E_left, E_right)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;adj - a new SectionBook object with the adjusted conductor heights<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for each scenario in a CrossSection</p>
+                </div></div><div class="function" id="target_fields"><p class="function-str"><span class="function-name">target_fields</span>(<span class="function-arg">xs</span>, <span class="function-arg">tags</span>, <span class="function-arg">B_l</span>, <span class="function-arg">B_r</span>, <span class="function-arg">E_l</span>, <span class="function-arg">E_r</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - CrossSection object to perform adjustments on<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;tags - iterable of Conductor tags, identifying which ones to raise,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   or 'all' to include all Conductors in the CrossSection<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_l - magnetic field threshold at left ROW edge*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_r - magnetic field threshold at right ROW edge*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E_l - electric field threshold at left ROW edge*<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;E_r - electric field threshold at right ROW edge*<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;*an implicitly False input will ignore that field-edge<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;combination, return None in the return variable 'h', and cause<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the returned SectionBook to omit that field-edge combo.<br><br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;max_iter - maximum number of _bisection iterations allowed,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;default is 1e3<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %),<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;default is 1e-6.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;hhigh - upper limit of the height adjustment, default is 1.0e6<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - toggle saving of the results DataFrame to an excel book<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - location/filename for saved results workbook, forces saving<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;even if no 'save' keyword is used.<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;h - height adjustments necessary for E and B fields at left and<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;right ROW edges. The ordering is: (B_left, B_right, E_left, E_right)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;adj - a new SectionBook object with the adjusted conductor heights<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;for each scenario in a CrossSection</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
@@ -1195,7 +1614,8 @@
 <span class="sd">    result.</span>
 <span class="sd">    args:</span>
 <span class="sd">        xs - CrossSection object to perform adjustments on</span>
-<span class="sd">        tags - iterable of Conductor tags, identifying which ones to raise</span>
+<span class="sd">        tags - iterable of Conductor tags, identifying which ones to raise,</span>
+<span class="sd">               or &#39;all&#39; to include all Conductors in the CrossSection</span>
 <span class="sd">        B_l - magnetic field threshold at left ROW edge*</span>
 <span class="sd">        B_r - magnetic field threshold at right ROW edge*</span>
 <span class="sd">        E_l - electric field threshold at left ROW edge*</span>
@@ -1222,6 +1642,9 @@
     <span class="c1">#convert &#39;all&#39; inputs to numeric indices</span>
     <span class="k">if</span><span class="p">(</span><span class="n">tags</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">):</span>
         <span class="n">tags</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">tags</span>
+    <span class="c1">#flattened indices</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">tags</span>
+    <span class="n">conds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">])</span>
     <span class="c1">#maximum number of iterations and relative error tolerance</span>
     <span class="k">if</span><span class="p">(</span><span class="s1">&#39;max_iter&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
         <span class="n">max_iter</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;max_iter&#39;</span><span class="p">]</span>
@@ -1236,9 +1659,6 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">hhigh</span> <span class="o">=</span> <span class="mf">1.0e6</span>
     <span class="n">hlow</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="c1">#flattened indices</span>
-    <span class="n">temp</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">tags</span>
-    <span class="n">conds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">])</span>
     <span class="c1">#run secant method to find adjustments for each target</span>
     <span class="n">h_B_l</span><span class="p">,</span> <span class="n">h_B_r</span><span class="p">,</span> <span class="n">h_E_l</span><span class="p">,</span> <span class="n">h_E_r</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
     <span class="k">if</span><span class="p">(</span><span class="n">B_l</span><span class="p">):</span>
@@ -1293,10 +1713,10 @@
                     <span class="n">index</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span>
                             <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Adjusted Conductor Heights&#39;</span><span class="p">,</span>
                             <span class="n">index_label</span><span class="o">=</span><span class="s1">&#39;Conductor Tag&#39;</span><span class="p">)</span>
-            <span class="n">adj</span><span class="o">.</span><span class="n">ROW_edge_export</span><span class="p">(</span><span class="n">xl</span> <span class="o">=</span> <span class="n">xl</span><span class="p">)</span>
-            <span class="n">df</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">_xs_sb_diff</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;ROW_edge_diff&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                    <span class="n">columns</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">adj</span><span class="o">.</span><span class="n">ROW_edge_export</span><span class="p">(</span><span class="n">xl</span><span class="o">=</span><span class="n">xl</span><span class="p">)</span>
+            <span class="n">abs_dif</span><span class="p">,</span> <span class="n">rel_dif</span> <span class="o">=</span> <span class="n">sb_xs_compare</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">adj</span><span class="o">.</span><span class="n">sheets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">abs_dif</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Abs Difference at ROW Edges&#39;</span><span class="p">)</span>
+            <span class="n">rel_dif</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Rel Difference at ROW Edges&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">adj</span><span class="p">:</span>
                 <span class="n">xs</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">xs</span><span class="o">.</span><span class="n">sheet</span><span class="p">,</span>
                         <span class="n">index_label</span><span class="o">=</span><span class="s1">&#39;Distance (ft)&#39;</span><span class="p">)</span>
@@ -1336,8 +1756,8 @@
     <span class="n">_write_FLD_entries</span><span class="p">(</span><span class="n">ofile</span><span class="p">,</span> <span class="n">Lgrounds</span><span class="p">)</span>
     <span class="c1">#write the hot and gnd conductor data in the same format</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">xs</span><span class="o">.</span><span class="n">hot</span> <span class="o">+</span> <span class="n">xs</span><span class="o">.</span><span class="n">gnd</span><span class="p">:</span>
-        <span class="n">_write_FLD_entries</span><span class="p">(</span><span class="n">ofile</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">subconds</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">d_cond</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">d_bund</span><span class="p">,</span>
-                <span class="s1">&#39;ED!(I)&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">I</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
+        <span class="n">_write_FLD_entries</span><span class="p">(</span><span class="n">ofile</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">subconds</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">d_cond</span><span class="p">,</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">d_bund</span><span class="p">,</span> <span class="s1">&#39;ED!(I)&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">I</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span>
     <span class="c1">#write the ground wire data a second time, in a different format</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">xs</span><span class="o">.</span><span class="n">gnd</span><span class="p">:</span>
         <span class="n">_write_FLD_entries</span><span class="p">(</span><span class="n">ofile</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">d_cond</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -1516,8 +1936,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_max_dist</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="c1">#maximum simulated distance from the ROW center</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1">#step size for calculations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sample_height</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="c1">#uniform sample height</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_lROW</span> <span class="o">=</span> <span class="bp">None</span> <span class="c1">#exact coordinate of the left ROW edge</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rROW</span> <span class="o">=</span> <span class="bp">None</span> <span class="c1">#exact coordinate of the left ROW edge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lROW</span> <span class="o">=</span> <span class="o">-</span><span class="mf">50.0</span> <span class="c1">#exact coordinate of the left ROW edge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rROW</span> <span class="o">=</span> <span class="mf">50.0</span> <span class="c1">#exact coordinate of the left ROW edge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conds</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#list of Conductor objects</span>
         <span class="c1">#dictionary mapping Conductor tags to Conductor objects</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tag2idx</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -1532,7 +1952,7 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="properties" id="CrossSection-properties"><h4>Properties</h4><div class="property" id="CrossSection-I"><p class="property-name">I</p><p class="docstr">Generate an array of Conductor currents (Amps), in the same order as 'conds'</p></div><div class="property" id="CrossSection-ROW_edge_fields"><p class="property-name">ROW_edge_fields</p><p class="docstr">Slice the 'fields' DataFrame and return another DataFrame with only the results at the left and right right-of-way (ROW) edges, the locations of which are set in 'lROW' and 'rROW'.</p></div><div class="property" id="CrossSection-V"><p class="property-name">V</p><p class="docstr">Generate an array of Conductor voltages (kilovolts, kV), in the same order as 'conds'</p></div><div class="property" id="CrossSection-complete"><p class="property-name">complete</p><p class="docstr">Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;b - True if all Conductors are complete, False if not<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;t - tag of first incomplete Conductor, if any, else None<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;v - variable name of first unset variable in first incomplete Conductor, if any, else None</p></div><div class="property" id="CrossSection-conds"><p class="property-name">conds</p><p class="docstr">List of Conductor objects added to the CrossSection. Do not modify it directly, but use the CrossSection methods add_conductor() and remove_conductor() to manage which Conductor objects are in a CrossSection.</p></div><div class="property" id="CrossSection-d_bund"><p class="property-name">d_bund</p><p class="docstr">Generate an array of Conductor bundle diameters (inches, see Conductor.d_bund), in the same order as 'conds'</p></div><div class="property" id="CrossSection-d_cond"><p class="property-name">d_cond</p><p class="docstr">Generate an array of Conductor diameters (inches, see Conductor.d_cond), in the same order as 'conds'</p></div><div class="property" id="CrossSection-fields"><p class="property-name">fields</p><p class="docstr">A pandas DataFrame of magnetic and electric field results at the points defined by 'x_sample' and 'y_sample'. The results are calculated and stored upon the first reference to this property. If Conductor objects in the CrossSection are modified in relevant ways, the results are cleared and recalculated when 'fields' is next accessed. All updating/refreshing is done automatically. The DataFrame of results is indexed by the values in 'x_sample' and has the following columns 'Ex', 'Ey', 'Eprod', 'Emax', 'Bx', 'By', 'Bprod', and 'Bmax.' The columns correspond to different components of the electric and magnetic fields (see emf.fields.phasors_to_magnitudes()). The electric fields are reported in units of kV/m and the magnetic fields are reported in units of mG (milliGauss).</p></div><div class="property" id="CrossSection-freq"><p class="property-name">freq</p><p class="docstr">Generate an array of Conductor frequencies, in the same order as 'conds'</p></div><div class="property" id="CrossSection-gnd"><p class="property-name">gnd</p><p class="docstr">Return a list of the grounded (zero voltage) Conductor objects in the CrossSection</p></div><div class="property" id="CrossSection-hot"><p class="property-name">hot</p><p class="docstr">Return a list of the hot (nonzero voltage) Conductor objects in the CrossSection</p></div><div class="property" id="CrossSection-i"><p class="property-name">i</p><p class="docstr">Use CrossSection.i[] to retrieve Conductor objects by the integer order in which they were added to the CrossSection. For example, CrossSection.i[0] gets the first Conductor added, CrossSection.i[4] gets the fifth one added, etc.</p></div><div class="property" id="CrossSection-lROW"><p class="property-name">lROW</p><p class="docstr">Horizontal location of the left (negative x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)</p></div><div class="property" id="CrossSection-max_dist"><p class="property-name">max_dist</p><p class="docstr">Maximum horizontal distance of sample points for EMF calculations (ft), default is 100. Resolution is controlled by the 'step' property.</p></div><div class="property" id="CrossSection-phase"><p class="property-name">phase</p><p class="docstr">Generate an array of Conductor phase angles (degrees), in the same order as 'conds'</p></div><div class="property" id="CrossSection-rROW"><p class="property-name">rROW</p><p class="docstr">Horizontal location of the right (positive x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)</p></div><div class="property" id="CrossSection-sample_height"><p class="property-name">sample_height</p><p class="docstr">Height of all sample points (ft), default is 3</p></div><div class="property" id="CrossSection-sheet"><p class="property-name">sheet</p><p class="docstr">The principle identification variable of a CrossSection, should be a string briefly identifying the object. CrossSections are retrieved from SectionBook objects by their sheet strings.</p></div><div class="property" id="CrossSection-step"><p class="property-name">step</p><p class="docstr">Horizontal distance between sample points for EMF calculations (ft), default is 1</p></div><div class="property" id="CrossSection-subconds"><p class="property-name">subconds</p><p class="docstr">Generate an array of Conductor subconductor counts (see Conductor.subconds), in the same order as 'conds'</p></div><div class="property" id="CrossSection-tag"><p class="property-name">tag</p><p class="docstr">Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same tag properties are grouped for functions that involve comparisons.</p></div><div class="property" id="CrossSection-tags"><p class="property-name">tags</p><p class="docstr">Return a list of the tags of Conductors in the CrossSection, in the order in which the Conductors were added</p></div><div class="property" id="CrossSection-title"><p class="property-name">title</p><p class="docstr">Longer form identification string, used in plot titles and such</p></div><div class="property" id="CrossSection-x"><p class="property-name">x</p><p class="docstr">Generate an array of Conductor x coordinates (ft), in the same order as 'conds'</p></div><div class="property" id="CrossSection-x_sample"><p class="property-name">x_sample</p><p class="docstr">Compute an array of horizontal coordinates (ft) for EMF calculations, based on 'max_dist' and 'step'. The left and right ROW edge locations ('lROW' and 'rROW') are always included in the returned array.</p></div><div class="property" id="CrossSection-y"><p class="property-name">y</p><p class="docstr">Generate an array of Conductor y coordinate (ft)s, in the same order as 'conds'</p></div><div class="property" id="CrossSection-y_sample"><p class="property-name">y_sample</p><p class="docstr">Return an array the same length as 'x_sample' with all values equal to 'sample_height'</p></div></div><div class="methods" id="CrossSection-methods"><h4>Methods</h4><div class="function" id=CrossSection-add_conductor><p class="function-str"><span class="function-name">add_conductor</span>(<span class="function-arg">cond</span>)</p><p class="docstr">Add a copy of a Conductor object to the CrossSection, which can be accessed by indexing the CrossSection like a dictionary, using the Conductor's 'tag' attribute.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cond - Conductor object to add</p>
+                </div></div><div class="properties" id="CrossSection-properties"><h4>Properties</h4><div class="property" id="CrossSection-I"><p class="property-name">I</p><p class="docstr">Generate an array of Conductor currents (Amps), in the same order as 'conds'</p></div><div class="property" id="CrossSection-ROW_edge_fields"><p class="property-name">ROW_edge_fields</p><p class="docstr">Slice the 'fields' DataFrame and return another DataFrame with only the results at the left and right right-of-way (ROW) edges, the locations of which are set in 'lROW' and 'rROW'.</p></div><div class="property" id="CrossSection-V"><p class="property-name">V</p><p class="docstr">Generate an array of Conductor voltages (kilovolts, kV), in the same order as 'conds'</p></div><div class="property" id="CrossSection-complete"><p class="property-name">complete</p><p class="docstr">Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;b - True if all Conductors are complete, False if not<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;t - tag of first incomplete Conductor, if any, else None<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;v - variable name of first unset variable in first incomplete Conductor, if any, else None</p></div><div class="property" id="CrossSection-conds"><p class="property-name">conds</p><p class="docstr">List of Conductor objects added to the CrossSection. Do not modify it directly, but use the CrossSection methods add_conductor() and remove_conductor() to manage which Conductor objects are in a CrossSection.</p></div><div class="property" id="CrossSection-d_bund"><p class="property-name">d_bund</p><p class="docstr">Generate an array of Conductor bundle diameters (inches, see Conductor.d_bund), in the same order as 'conds'</p></div><div class="property" id="CrossSection-d_cond"><p class="property-name">d_cond</p><p class="docstr">Generate an array of Conductor diameters (inches, see Conductor.d_cond), in the same order as 'conds'</p></div><div class="property" id="CrossSection-fields"><p class="property-name">fields</p><p class="docstr">A pandas DataFrame of magnetic and electric field results at the points defined by 'x_sample' and 'y_sample'. The results are calculated and stored upon the first reference to this property. If Conductor objects in the CrossSection are modified in relevant ways, the results are cleared and recalculated when 'fields' is next accessed. All updating/refreshing is done automatically. The DataFrame of results is indexed by the values in 'x_sample' and has the following columns 'Ex', 'Ey', 'Eprod', 'Emax', 'Bx', 'By', 'Bprod', and 'Bmax.' The columns correspond to different components of the electric and magnetic fields (see emf.fields.phasors_to_magnitudes()). The electric fields are reported in units of kV/m and the magnetic fields are reported in units of mG (milliGauss).</p></div><div class="property" id="CrossSection-freq"><p class="property-name">freq</p><p class="docstr">Generate an array of Conductor frequencies, in the same order as 'conds'</p></div><div class="property" id="CrossSection-gnd"><p class="property-name">gnd</p><p class="docstr">Return a list of the grounded (zero voltage) Conductor objects in the CrossSection</p></div><div class="property" id="CrossSection-hot"><p class="property-name">hot</p><p class="docstr">Return a list of the hot (nonzero voltage) Conductor objects in the CrossSection</p></div><div class="property" id="CrossSection-i"><p class="property-name">i</p><p class="docstr">Use CrossSection.i[] to retrieve Conductor objects by the integer order in which they were added to the CrossSection. For example, CrossSection.i[0] gets the first Conductor added, CrossSection.i[4] gets the fifth one added, etc.</p></div><div class="property" id="CrossSection-lROW"><p class="property-name">lROW</p><p class="docstr">Horizontal location of the left (negative x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)</p></div><div class="property" id="CrossSection-max_dist"><p class="property-name">max_dist</p><p class="docstr">Maximum horizontal distance of sample points for EMF calculations (ft), default is 100. Resolution is controlled by the 'step' property.</p></div><div class="property" id="CrossSection-phase"><p class="property-name">phase</p><p class="docstr">Generate an array of Conductor phase angles (degrees), in the same order as 'conds'</p></div><div class="property" id="CrossSection-rROW"><p class="property-name">rROW</p><p class="docstr">Horizontal location of the right (positive x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)</p></div><div class="property" id="CrossSection-sample_height"><p class="property-name">sample_height</p><p class="docstr">Height of all sample points (ft), default is 3</p></div><div class="property" id="CrossSection-sheet"><p class="property-name">sheet</p><p class="docstr">The principle identification variable of a CrossSection, should be a string briefly identifying the object. CrossSections are retrieved from SectionBook objects by their sheet strings.</p></div><div class="property" id="CrossSection-step"><p class="property-name">step</p><p class="docstr">Horizontal distance between sample points for EMF calculations (ft), default is 1</p></div><div class="property" id="CrossSection-subconds"><p class="property-name">subconds</p><p class="docstr">Generate an array of Conductor subconductor counts (see Conductor.subconds), in the same order as 'conds'</p></div><div class="property" id="CrossSection-tag"><p class="property-name">tag</p><p class="docstr">Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same tag properties are grouped for functions that involve comparisons.</p></div><div class="property" id="CrossSection-tags"><p class="property-name">tags</p><p class="docstr">Return a list of the tags of Conductors in the CrossSection, in the order in which the Conductors were added</p></div><div class="property" id="CrossSection-title"><p class="property-name">title</p><p class="docstr">Longer form identification string, used in plot titles and such. If unset, will fall back to CrossSection.tag</p></div><div class="property" id="CrossSection-x"><p class="property-name">x</p><p class="docstr">Generate an array of Conductor x coordinates (ft), in the same order as 'conds'</p></div><div class="property" id="CrossSection-x_sample"><p class="property-name">x_sample</p><p class="docstr">Compute an array of horizontal coordinates (ft) for EMF calculations, based on 'max_dist' and 'step'. The left and right ROW edge locations ('lROW' and 'rROW') are always included in the returned array.</p></div><div class="property" id="CrossSection-y"><p class="property-name">y</p><p class="docstr">Generate an array of Conductor y coordinate (ft)s, in the same order as 'conds'</p></div><div class="property" id="CrossSection-y_sample"><p class="property-name">y_sample</p><p class="docstr">Return an array the same length as 'x_sample' with all values equal to 'sample_height'</p></div></div><div class="methods" id="CrossSection-methods"><h4>Methods</h4><div class="function" id=CrossSection-add_conductor><p class="function-str"><span class="function-name">add_conductor</span>(<span class="function-arg">cond</span>)</p><p class="docstr">Add a copy of a Conductor object to the CrossSection, which can be accessed by indexing the CrossSection like a dictionary, using the Conductor's 'tag' attribute.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;cond - Conductor object to add</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
@@ -1552,7 +1972,7 @@
         <span class="k">if</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tag2idx</span><span class="p">):</span>
             <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;A Conductor with tag &quot;</span><span class="si">%s</span><span class="s2">&quot; is already in</span>
 <span class="s2">            CrossSection &quot;</span><span class="si">%s</span><span class="s2">&quot;. Another Conductor with the same tag cannot be</span>
-<span class="s2">            added&quot;&quot;&quot;</span>
+<span class="s2">            added.&quot;&quot;&quot;</span>
             <span class="o">%</span> <span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheet</span><span class="p">)))</span>
         <span class="c1">#see if the conductor is grounded</span>
         <span class="k">if</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">V</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
@@ -1791,8 +2211,8 @@
             <span class="n">xs</span><span class="o">.</span><span class="n">sheet</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;sheet&#39;</span><span class="p">]</span>
         <span class="c1">#Prevent adding CrossSections with the same sheets</span>
         <span class="k">if</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">sheet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet2idx</span><span class="p">):</span>
-            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;CrossSection name &quot;</span><span class="si">%s</span><span class="s2">&quot; already exists in the</span>
-<span class="s2">            SectionBook. Duplicate names would cause collisions in the lookup</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;A CrossSection with sheet &quot;</span><span class="si">%s</span><span class="s2">&quot; already exists in</span>
+<span class="s2">            the SectionBook. Duplicate names would cause collisions in the lookup</span>
 <span class="s2">            dictionary (self._sheet2idx). Use a different name.&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">xs</span><span class="o">.</span><span class="n">sheet</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1">#add the CrossSection and update indexing dict</span>
@@ -1882,41 +2302,50 @@
                 <div class="other" id="EPSILON">
                     <span class="other-name">EPSILON</span><br>
                     &ensp;&ensp;&ensp;&ensp;<span class="other-type">type:</span>float<br>
-                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span>8.854e-12
-
+                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span><pre>8.854e-12</pre>
+                    
                 </div>
                 <div class="other" id="MU">
                     <span class="other-name">MU</span><br>
                     &ensp;&ensp;&ensp;&ensp;<span class="other-type">type:</span>float<br>
-                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span>1.2566370614359173e-06
-
+                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span><pre>1.2566370614359173e-06</pre>
+                    
                 </div>
                 <div class="other" id="electric_prefactor">
                     <span class="other-name">electric_prefactor</span><br>
                     &ensp;&ensp;&ensp;&ensp;<span class="other-type">type:</span>float<br>
-                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span>17975484875.976437
-
+                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span><pre>17975484875.976437</pre>
+                    
                 </div>
                 <div class="other" id="magnetic_prefactor">
                     <span class="other-name">magnetic_prefactor</span><br>
                     &ensp;&ensp;&ensp;&ensp;<span class="other-type">type:</span>float<br>
-                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span>2.0
-
-                </div>
+                    &ensp;&ensp;&ensp;&ensp;<span class="other-value">value:</span><pre>2.0</pre>
+                    
+                </div></div>
             </div>
 
         </body>
 
         <!--Control the width and height of the #main element-->
-        <script type="text/javascript">function arrange(){
+        <script type="text/javascript">
+function arrange(){
     var nav_wrapper = document.getElementById('nav-wrapper');
     var nav = document.getElementById('nav');
     var main = document.getElementById('main');
+    var body = document.body;
 
     var w_nav = nav.offsetWidth + 1;
-    var w = w_nav.toString() + 'px';
-    main.setAttribute('style', 'margin-left: ' + w);
-    main.style.marginLeft = w;
+    var m = w_nav.toString() + 'px';
+    var w = (body.offsetWidth - w_nav).toString() + 'px';
+
+    main.setAttribute('style', 'margin-left: ' + m);
+    main.style.marginLeft = m;
+
+    main.setAttribute('style', 'width: ' + w);
+    main.style.width = w;
+
+    console.log('arrange')
 
 };
 
@@ -1944,15 +2373,5 @@ function toggleSource(obj){
 };
 </script>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-67200904-4', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
     </html>
+    

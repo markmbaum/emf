@@ -15,14 +15,17 @@ def drop_footprint_template(*args, **kw):
     elif(len(args) == 1):
         kw = {'path': args[0]}
     #get template file path
-    template_path = os.path.dirname(os.path.dirname(__file__))
-    template_path = os.path.join(template_path, 'templates')
-    template_path = os.path.join(template_path, 'subcalc-footprint-template.xlsx')
+    fn_temp = os.path.dirname(os.path.dirname(__file__))
+    fn_temp = os.path.join(fn_temp, 'templates')
+    fn_temp = os.path.join(fn_temp, 'subcalc-footprint-template.xlsx')
     #get drop path
-    drop_path = _path_manage('subcalc-footprint-template', 'xlsx', **kw)
+    fn_drop = _path_manage('subcalc-footprint-template', 'xlsx', **kw)
+    #check for existing files
+    if(os.path.isfile(fn_drop)):
+        raise(subcalc_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_footprint_template().' % fn_drop))
     #copy and notify
-    shutil.copyfile(template_path, drop_path)
-    print('emf.fields template written to: %s' % drop_path)
+    shutil.copyfile(fn_temp, fn_drop)
+    print('emf.fields template written to: %s' % fn_drop)
 
 def load_model(*args, **kw):
     """Read a .REF output file and load the data into a Model object

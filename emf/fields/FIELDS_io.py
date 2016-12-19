@@ -57,8 +57,8 @@ def to_FLD(xs, **kw):
     _write_FLD_entries(ofile, Lgrounds)
     #write the hot and gnd conductor data in the same format
     for c in xs.hot + xs.gnd:
-        _write_FLD_entries(ofile, c.tag, c.x, c.y, c.subconds, c.d_cond, c.d_bund,
-                'ED!(I)', c.I, c.V, c.phase)
+        _write_FLD_entries(ofile, c.tag, c.x, c.y, c.subconds, c.d_cond,
+                c.d_bund, 'ED!(I)', c.I, c.V, c.phase)
     #write the ground wire data a second time, in a different format
     for c in xs.gnd:
         _write_FLD_entries(ofile, c.tag, c.x, c.y, c.d_cond, 0, 0)
@@ -113,6 +113,67 @@ def to_FLDs_crawl(dir_name, **kw):
             #if the element is a subdirecory, crawl it
             if(os.path.isdir(dir_element)):
                 to_FLDs_crawl(os.path.join(dir_element, '*'))
+
+#------------------------------------------------------------------------------
+#FUNCTIONS FOR READING/CONVERTING .FLD FILES
+
+def read_FLD(file_path):
+    """Read a FLD file in to a CrossSection object
+    args:
+        file_path - string, path to FLD file
+    returns:
+        xs - CrossSection object representing the information in the FLD file"""
+    #check extension
+    fields_funks._check_extension(file_path, 'FLD', """Input file must have a '.FLD' extention""")
+    #read the FLD file into a list of lines without whitespace on the right
+    with open(file_path, 'r') as ifile:
+        fld = [i.rstrip() for i in ifile.readlines()]
+    #initialize a CrossSection object
+    xs = fields_class.CrossSection(fld[0])
+    xs.title = fld[1]
+    xs.max_dist = float(fld[4])
+    xs.step = float(fld[5])
+    xs.sample_height = float(fld[6])
+    xs.lROW = float(fld[7])
+    xs.rROW = float(fld[8])
+    Lconds = int(fld[9])
+    Lgrounds = int(fld[10])
+    #create hot Conductors for the CrossSection
+    n = 11
+    i = 0
+    while(i < Lconds):
+        xs.add_conductor(fields_class.Conductor(fld[n],
+                dict(x=fld[n+1], y=fld[n+2], subconds=fld[n+3],
+                d_cond=fld[n+4], d_bund=fld[n+5], I=fld[n+7], V=fld[n+8],
+                phase=fld[n+9])
+            )
+        )
+        n += 10
+        i += 1
+    #create ground Conductors
+    i = 0
+    while(i < Lgrounds):
+        #sometimes there's a blank conductor?
+        if(fld[n]):
+            xs.add_conductor(fields_class.Conductor(fld[n],
+                    dict(x=fld[n+1], y=fld[n+2], subconds=1,
+                    d_cond=fld[n+3], d_bund=fld[n+3], I=0, V=0, phase=0)
+                )
+            )
+            n += 6
+            i += 1
+        else:
+            n += 1
+            go = True
+            while(go):
+                if(fld[n]):
+                    if(fld[n][0] != ' ') and ('ED!(I)' not in fld[n]):
+                        go = False
+                        n -= 1
+                n += 1
+            print fld[n]
+
+    return(xs)
 
 #------------------------------------------------------------------------------
 #FUNCTIONS FOR CONVERTING OUTPUT .DAT FILES TO CSV/excel FILES

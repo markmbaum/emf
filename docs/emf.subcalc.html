@@ -4,7 +4,333 @@
             <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <title>emf.subcalc</title>
             <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
-            <style>body{color:#ABB2BF;background-color:#282C34;font-family:'Anonymous Pro', monospace;margin:0;padding:0;overflow:scroll;}#back-to-top{position:fixed;right:0;bottom:0;padding:3px;margin:0;background-color:inherit;color:#828997;font-family:"Open Sans", sans-serif;font-size:11pt;text-decoration:none;border-top:1px solid #505050;border-left:1px solid #505050;}#mod-docstr{margin:0;text-align:justify;line-height:150%;color:#ABB2BF;font-family:"Open Sans", sans-serif;font-size:11pt;}.monospace-span{font-family:'Anonymous Pro', monospace;font-size:125%;}#nav-wrapper{position:absolute;top:0;left:0;margin:0;padding:0 5px 0 0;min-height:1vh;background-color:#20242C;}#nav{position:fixed;top:0;left:0;bottom:0;overflow-y:scroll;padding:0.5cm;min-height:1vh;background-color:inherit;border-right:1px solid #505050;}#nav::-webkit-scrollbar{width:4px;}#nav h2{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:24pt;margin:0.25cm 0;}#nav-ul{margin:0;padding:0;list-style-type:none;}.nav-li{font-family:"Open Sans", sans-serif;font-size:18pt;margin:0.5cm 0;}.nav-li a{text-decoration:none;color:#828997;}.subnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.5cm 0;}.subnav-li{font-family:"Anonymous Pro", monospace;font-size:13pt;margin:0.15cm 0;}.subnav-li a{text-decoration:none;color:#828997;}.subsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.4cm 0;}.subsubnav-li{font-family:"Open Sans", sans-serif;font-size:11pt;margin:0.15cm 0;}.subsubnav-li a{text-decoration:none;color:#828997;}.subsubsubnav-ul{list-style-type:none;padding:0 0 0 0.5cm;margin:0.3cm 0;}.subsubsubnav-li{font-family:"Anonymous Pro", monospace;font-size:11pt;margin:0.15cm 0;}.subsubsubnav-li a{text-decoration:none;color:#828997;}#nav a:hover{font-weight:700;color:#ABB2BF;/*background-color:#282C34;*/}#main{float:right;z-index:-1;}#main h1{font-family:"Open Sans", sans-serif;font-weight:normal;font-size:400%;text-align:center;margin:1cm 0;}.section{margin:1cm;padding:5% 5% 5% 1cm;border:1px solid #484848;border-radius:12px;}.section h2{font-weight:normal;font-size:250%;font-family:"Open Sans", sans-serif;text-align:center;margin:0 0 1cm 0;}.docstr{margin:.5cm 0 .5cm 1cm;font-size:90%;text-align:justify;line-height:125%;color:#98C379;}.docstr pre{margin:0;padding:0;font-size:inherit;}.class{border-top:1px solid #404040;}.class h3{font-weight:normal;font-size:200%;font-family:"Open Sans", sans-serif;padding:0;margin:1cm 0 0 0.5cm;}#classes .class{margin-top:1cm;}.class .function{padding-left:0.1cm;border-left:1px solid #404040;}.properties{margin:1cm 0;padding-left:0.1cm;border-left:1px solid #404040;}.properties h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.properties .property{margin-left:1cm;padding-left:0.1cm;border-left:1px solid #383838;}.methods{margin:1cm 0 0 0;padding-left:0.1cm;border-left:1px solid #404040;}.methods h4{font-weight:normal;font-family:"Open Sans", sans-serif;font-size:150%;}.methods .function{margin-left:1cm;border-left:1px solid #383838;}#functions .function{border-top:1px solid #404040;}.function .function-name{color:#61AFEF;}.function .function-arg{color:#D19A66;}.function .default-str{color:#98C379;}.source{display:inline-block;margin:.5cm 0 .5cm 1cm;border:1px solid #383838;border-radius:12px;}.source h4{font-family:"Open Sans", sans-serif;font-weight:400;font-size:10pt;margin:0;padding:0.25cm;cursor:pointer;}.source .code{display:none;overflow:auto;padding:0 0.5cm 0.5cm 0.5cm;font-size:10pt;}.other{margin:0.5cm 0;}.other-type{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other-value{margin:.1cm .1cm .1cm 0;color:#5C6370;}.other .comments{margin:0;padding:0.5cm 0 0.5 1cm;}.highlight .k {color:#C678DD;} .highlight .nf {color:#61AFEF;} .highlight .nf .n {color:#D19A66;} .highlight .nb {color:#56B6C2;} .highlight .o {font-weight:bold;} .highlight .ow {color:#C678DD;} .highlight .s1 {color:#98C379;} .highlight .s2 {color:#98C379;} .highlight .sd {color:#98C379;} .highlight .si {color:#D19A66;} .highlight .mi {color:#D19A66;} .highlight .mf {color:#D19A66;} .highlight .mh {color:#D19A66;} .highlight .mo {color:#D19A66;} .highlight .bp {color:#D19A66;} .highlight .c1 {color:#5C6370;}</style>
+            <style>body {
+    color: #ABB2BF;
+    background-color: #282C34;
+    font-family: 'Anonymous Pro', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: scroll;
+}
+
+#back-to-top {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: 3px;
+    margin: 0;
+    background-color: inherit;
+    color: #828997;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    text-decoration: none;
+    border-top: 1px solid #505050;
+    border-left: 1px solid #505050;
+}
+
+#mod-docstr {
+    margin: 0;
+    text-align: justify;
+    line-height: 150%;
+    color: #ABB2BF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+}
+
+.monospace-span {
+    font-family: 'Anonymous Pro', monospace;
+    font-size: 125%;
+}
+
+#nav-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0 5px 0 0;
+    min-height: 1vh;
+    background-color: #20242C;
+}
+
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    padding: 0.5cm;
+    min-height: 1vh;
+    background-color: inherit;
+    border-right: 1px solid #505050;
+}
+
+#nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+#nav h2 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 24pt;
+    margin: 0.25cm 0;
+}
+
+#nav-ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.nav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 18pt;
+    margin: 0.5cm 0;
+}
+
+.nav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.5cm 0;
+}
+
+.subnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 13pt;
+    margin: 0.15cm 0;
+}
+
+.subnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.4cm 0;
+}
+
+.subsubnav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.3cm 0;
+}
+
+.subsubsubnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+#nav a:hover {
+    font-weight: 700;
+    color: #ABB2BF;
+}
+
+#main {
+    float: right;
+    z-index: -1;
+}
+
+#main h1 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 400%;
+    text-align: center;
+    margin: 1cm 0;
+}
+
+.section {
+    margin: 1cm;
+    padding: 5% 5% 5% 1cm;
+    border: 1px solid #484848;
+    border-radius: 12px;
+}
+
+.section h2 {
+    font-weight: normal;
+    font-size: 250%;
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    margin: 0 0 1cm 0;
+}
+
+.docstr {
+    margin: .5cm 0 .5cm 1cm;
+    font-size: 90%;
+    text-align: justify;
+    line-height: 125%;
+    color: #98C379;
+}
+
+.docstr pre {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+}
+
+.class {
+    border-top: 1px solid #404040;
+}
+
+.class h3 {
+    font-weight: normal;
+    font-size: 200%;
+    font-family: "Open Sans", sans-serif;
+    padding: 0;
+    margin: 1cm 0 0 0.5cm;
+}
+
+#classes .class {
+    margin-top: 1cm;
+}
+
+.class .function {
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties {
+    margin: 1cm 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties h4 {
+    font-weight: normal;
+    font-family: "Open Sans", sans-serif;
+    font-size: 150%;
+}
+
+.properties .property {
+    margin-left: 1cm;
+    padding-left: 0.1cm;
+    border-left: 1px solid #383838;
+}
+
+.methods {
+    margin: 1cm 0 0 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.methods h4 {
+  font-weight: normal;
+  font-family: "Open Sans", sans-serif;
+  font-size: 150%;
+}
+
+.methods .function {
+    margin-left: 1cm;
+    border-left: 1px solid #383838;
+}
+
+#functions .function {
+    border-top: 1px solid #404040;
+}
+
+.function .function-name {
+    color: #61AFEF;
+}
+
+.function .function-arg {
+    color: #D19A66;
+}
+
+.function .default-str {
+    color: #98C379;
+}
+
+.source {
+    display: inline-block;
+    margin: .5cm 0 .5cm 1cm;
+    border: 1px solid #383838;
+    border-radius: 12px;
+}
+
+.source h4 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0.25cm;
+    cursor: pointer;
+}
+
+.source .code {
+    display: none;
+    overflow: auto;
+    padding: 0 0.5cm 0.5cm 0.5cm;
+    font-size: 10pt;
+}
+
+.other {
+    margin: 0.5cm 0;
+}
+
+.other-type {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other-value {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other .comments {
+    margin: 0;
+    padding: 0.5cm 0 0.5 1cm;
+}
+
+.other pre {
+    margin: 0;
+    padding: 0 0 0 1.5cm;
+}
+.highlight .k  {color: #C678DD;}
+
+.highlight .nf {color: #61AFEF;}
+.highlight .nf .n {color: #D19A66;}
+.highlight .nb {color: #56B6C2;}
+
+.highlight .o  {font-weight: bold;}
+.highlight .ow {color: #C678DD;}
+
+.highlight .s1 {color: #98C379;}
+.highlight .s2 {color: #98C379;}
+.highlight .sd {color: #98C379;}
+.highlight .si {color: #D19A66;}
+
+.highlight .mi {color: #D19A66;}
+.highlight .mf {color: #D19A66;}
+.highlight .mh {color: #D19A66;}
+.highlight .mo {color: #D19A66;}
+
+.highlight .bp {color: #D19A66;}
+
+.highlight .c1 {color: #5C6370;}
+</style>
     	</head>
         <body onresize="arrange()" onload="arrange()">
 
@@ -19,7 +345,7 @@
             <li class="nav-li"><a href="#functions">functions</a>
                 <ul class="subnav-ul"><li class="subnav-li"><a href="#close">close</a></li><li class="subnav-li"><a href="#convert_REF">convert_REF</a></li><li class="subnav-li"><a href="#drop_footprint_template">drop_footprint_template</a></li><li class="subnav-li"><a href="#ion">ion</a></li><li class="subnav-li"><a href="#load_model">load_model</a></li><li class="subnav-li"><a href="#plot_contour">plot_contour</a></li><li class="subnav-li"><a href="#plot_pcolormesh">plot_pcolormesh</a></li><li class="subnav-li"><a href="#read_REF">read_REF</a></li><li class="subnav-li"><a href="#show">show</a></li></ul>
             <li class="nav-li"><a href="#classes">classes</a>
-                <ul class="subnav-ul"><li class="subnav-li"><a href="#Footprint">Footprint</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Footprint-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Footprint-group>group</a></li><li class="subsubsubnav-li"><a href=#Footprint-x>x</a></li><li class="subsubsubnav-li"><a href=#Footprint-y>y</a></li></ul></li></ul></li><li class="subnav-li"><a href="#Model">Model</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Model-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Model-B>B</a></li><li class="subsubsubnav-li"><a href=#Model-Bkey>Bkey</a></li><li class="subsubsubnav-li"><a href=#Model-X>X</a></li><li class="subsubsubnav-li"><a href=#Model-Y>Y</a></li><li class="subsubsubnav-li"><a href=#Model-footprint_groups>footprint_groups</a></li><li class="subsubsubnav-li"><a href=#Model-footprints>footprints</a></li><li class="subsubsubnav-li"><a href=#Model-info>info</a></li><li class="subsubsubnav-li"><a href=#Model-north_angle>north_angle</a></li><li class="subsubsubnav-li"><a href=#Model-x>x</a></li><li class="subsubsubnav-li"><a href=#Model-xmax>xmax</a></li><li class="subsubsubnav-li"><a href=#Model-xmin>xmin</a></li><li class="subsubsubnav-li"><a href=#Model-y>y</a></li><li class="subsubsubnav-li"><a href=#Model-ymax>ymax</a></li><li class="subsubsubnav-li"><a href=#Model-ymin>ymin</a></li></ul></li><li class="subsubnav-li"><a href=#Model-methods>methods</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Model-cross_section>cross_section</a></li><li class="subsubsubnav-li"><a href=#Model-export>export</a></li><li class="subsubsubnav-li"><a href=#Model-flatten>flatten</a></li><li class="subsubsubnav-li"><a href=#Model-in_grid>in_grid</a></li><li class="subsubsubnav-li"><a href=#Model-interp>interp</a></li><li class="subsubsubnav-li"><a href=#Model-load_footprints>load_footprints</a></li><li class="subsubsubnav-li"><a href=#Model-resample>resample</a></li></ul></li></ul></li></ul></ul></div></div>
+                <ul class="subnav-ul"><li class="subnav-li"><a href="#Footprint">Footprint</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Footprint-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Footprint-group>group</a></li><li class="subsubsubnav-li"><a href=#Footprint-x>x</a></li><li class="subsubsubnav-li"><a href=#Footprint-y>y</a></li></ul></li></ul></li><li class="subnav-li"><a href="#Model">Model</a><ul class="subsubnav-ul"><li class="subsubnav-li"><a href=#Model-properties>properties</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Model-B>B</a></li><li class="subsubsubnav-li"><a href=#Model-Bkey>Bkey</a></li><li class="subsubsubnav-li"><a href=#Model-X>X</a></li><li class="subsubsubnav-li"><a href=#Model-Y>Y</a></li><li class="subsubsubnav-li"><a href=#Model-footprint_groups>footprint_groups</a></li><li class="subsubsubnav-li"><a href=#Model-footprints>footprints</a></li><li class="subsubsubnav-li"><a href=#Model-info>info</a></li><li class="subsubsubnav-li"><a href=#Model-north_angle>north_angle</a></li><li class="subsubsubnav-li"><a href=#Model-x>x</a></li><li class="subsubsubnav-li"><a href=#Model-xmax>xmax</a></li><li class="subsubsubnav-li"><a href=#Model-xmin>xmin</a></li><li class="subsubsubnav-li"><a href=#Model-y>y</a></li><li class="subsubsubnav-li"><a href=#Model-ymax>ymax</a></li><li class="subsubsubnav-li"><a href=#Model-ymin>ymin</a></li></ul></li><li class="subsubnav-li"><a href=#Model-methods>methods</a><ul class="subsubsubnav-ul"><li class="subsubsubnav-li"><a href=#Model-export>export</a></li><li class="subsubsubnav-li"><a href=#Model-flatten>flatten</a></li><li class="subsubsubnav-li"><a href=#Model-in_grid>in_grid</a></li><li class="subsubsubnav-li"><a href=#Model-interp>interp</a></li><li class="subsubsubnav-li"><a href=#Model-load_footprints>load_footprints</a></li><li class="subsubsubnav-li"><a href=#Model-path>path</a></li><li class="subsubsubnav-li"><a href=#Model-resample>resample</a></li><li class="subsubsubnav-li"><a href=#Model-segment>segment</a></li></ul></li></ul></li></ul></ul></div></div>
 
             <div id="main">
                 <h1>emf.subcalc</h1>
@@ -82,14 +408,19 @@
     <span class="k">elif</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
     <span class="c1">#get template file path</span>
-    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
-    <span class="n">template_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="s1">&#39;subcalc-footprint-template.xlsx&#39;</span><span class="p">)</span>
+    <span class="n">fn_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+    <span class="n">fn_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fn_temp</span><span class="p">,</span> <span class="s1">&#39;templates&#39;</span><span class="p">)</span>
+    <span class="n">fn_temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fn_temp</span><span class="p">,</span> <span class="s1">&#39;subcalc-footprint-template.xlsx&#39;</span><span class="p">)</span>
     <span class="c1">#get drop path</span>
-    <span class="n">drop_path</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;subcalc-footprint-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="n">fn_drop</span> <span class="o">=</span> <span class="n">_path_manage</span><span class="p">(</span><span class="s1">&#39;subcalc-footprint-template&#39;</span><span class="p">,</span> <span class="s1">&#39;xlsx&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="c1">#check for existing files</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fn_drop</span><span class="p">)):</span>
+        <span class="k">raise</span><span class="p">(</span><span class="n">subcalc_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;A file with the path &quot;</span><span class="si">%s</span><span class="s1">&quot; already exists.</span>
+        <span class="n">Move</span><span class="o">/</span><span class="n">delete</span> <span class="n">it</span> <span class="ow">or</span> <span class="k">pass</span> <span class="n">a</span> <span class="n">new</span> <span class="n">path</span> <span class="n">string</span> <span class="n">to</span> <span class="n">drop_footprint_template</span><span class="p">()</span><span class="o">.</span><span class="s1">&#39; %</span>
+        <span class="n">fn_drop</span><span class="p">))</span>
     <span class="c1">#copy and notify</span>
-    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">template_path</span><span class="p">,</span> <span class="n">drop_path</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">drop_path</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">fn_temp</span><span class="p">,</span> <span class="n">fn_drop</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;emf.fields template written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fn_drop</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -623,37 +954,7 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="properties" id="Model-properties"><h4>Properties</h4><div class="property" id="Model-B"><p class="property-name">B</p><p class="docstr">2D grid of magnetic field results</p></div><div class="property" id="Model-Bkey"><p class="property-name">Bkey</p><p class="docstr">Component of magnetic field accessed by the B property</p></div><div class="property" id="Model-X"><p class="property-name">X</p><p class="docstr">2D grid of reference grid x coordinates</p></div><div class="property" id="Model-Y"><p class="property-name">Y</p><p class="docstr">2D grid of reference grid y coordinates</p></div><div class="property" id="Model-footprint_groups"><p class="property-name">footprint_groups</p><p class="docstr">Generate a list of lists of Footprints with identical tags</p></div><div class="property" id="Model-footprints"><p class="property-name">footprints</p><p class="docstr">List of Footprint objects</p></div><div class="property" id="Model-info"><p class="property-name">info</p><p class="docstr">Dictionary of model metadata</p></div><div class="property" id="Model-north_angle"><p class="property-name">north_angle</p><p class="docstr">Angle of the Northern direction in degrees, where 0 represents the vertical or Y direction and clockwise represents increasing angle</p></div><div class="property" id="Model-x"><p class="property-name">x</p><p class="docstr">Unique x values in model grid (column positions)</p></div><div class="property" id="Model-xmax"><p class="property-name">xmax</p><p class="docstr">Maximum horizontal coordinate in model</p></div><div class="property" id="Model-xmin"><p class="property-name">xmin</p><p class="docstr">Minimum horizontal coordinate in model</p></div><div class="property" id="Model-y"><p class="property-name">y</p><p class="docstr">Unique y values in model grid (row positions)</p></div><div class="property" id="Model-ymax"><p class="property-name">ymax</p><p class="docstr">Maximum vertical coordinate in model</p></div><div class="property" id="Model-ymin"><p class="property-name">ymin</p><p class="docstr">Minimum vertical coordinate in model</p></div></div><div class="methods" id="Model-methods"><h4>Methods</h4><div class="function" id=Model-cross_section><p class="function-str"><span class="function-name">cross_section</span>(<span class="function-arg">p1</span>, <span class="function-arg">p2</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Interpolate the field along a line between two points<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p1 - iterable, an x-y pair<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p2 - iterable, an x-y pair<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;n - integer, number of points sampled (default 1000)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - array, x coordinates of interpolated values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - array, y coordinates of interpolated values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_interp - array, interpolated field values</p>
-                <div class="source">
-                    <h4 onclick="toggleSource(this)">show source</h4>
-                    <div class="code">
-                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">cross_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Interpolate the field along a line between two points</span>
-<span class="sd">        args:</span>
-<span class="sd">            p1 - iterable, an x-y pair</span>
-<span class="sd">            p2 - iterable, an x-y pair</span>
-<span class="sd">        kw:</span>
-<span class="sd">            n - integer, number of points sampled (default 1000)</span>
-<span class="sd">        returns:</span>
-<span class="sd">            x - array, x coordinates of interpolated values</span>
-<span class="sd">            y - array, y coordinates of interpolated values</span>
-<span class="sd">            B_interp - array, interpolated field values&quot;&quot;&quot;</span>
-        <span class="c1">#check point lengths</span>
-        <span class="k">if</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)):</span>
-            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Points must consist of two values (xy pairs).&#39;</span><span class="p">))</span>
-        <span class="c1">#check kw</span>
-        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;n&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span>
-        <span class="c1">#create x and y vectors</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
-        <span class="n">B_interp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">return</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B_interp</span><span class="p">)</span>
-</pre></div>
-
-                    </div>
-                </div></div><div class="function" id=Model-export><p class="function-str"><span class="function-name">export</span>(**<span class="function-arg">kw</span>)</p><p class="docstr">Export the grid data and accompanying info to an excel file with tabs for each Bfield component, another for the info dict, and a final one for footprints if they're present<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, output destination/filename for workbook</p>
+                </div></div><div class="properties" id="Model-properties"><h4>Properties</h4><div class="property" id="Model-B"><p class="property-name">B</p><p class="docstr">2D grid of magnetic field results</p></div><div class="property" id="Model-Bkey"><p class="property-name">Bkey</p><p class="docstr">Component of magnetic field accessed by the B property</p></div><div class="property" id="Model-X"><p class="property-name">X</p><p class="docstr">2D grid of reference grid x coordinates</p></div><div class="property" id="Model-Y"><p class="property-name">Y</p><p class="docstr">2D grid of reference grid y coordinates</p></div><div class="property" id="Model-footprint_groups"><p class="property-name">footprint_groups</p><p class="docstr">Generate a list of lists of Footprints with identical tags</p></div><div class="property" id="Model-footprints"><p class="property-name">footprints</p><p class="docstr">List of Footprint objects</p></div><div class="property" id="Model-info"><p class="property-name">info</p><p class="docstr">Dictionary of model metadata</p></div><div class="property" id="Model-north_angle"><p class="property-name">north_angle</p><p class="docstr">Angle of the Northern direction in degrees, where 0 represents the vertical or Y direction and clockwise represents increasing angle</p></div><div class="property" id="Model-x"><p class="property-name">x</p><p class="docstr">Unique x values in model grid (column positions)</p></div><div class="property" id="Model-xmax"><p class="property-name">xmax</p><p class="docstr">Maximum horizontal coordinate in model</p></div><div class="property" id="Model-xmin"><p class="property-name">xmin</p><p class="docstr">Minimum horizontal coordinate in model</p></div><div class="property" id="Model-y"><p class="property-name">y</p><p class="docstr">Unique y values in model grid (row positions)</p></div><div class="property" id="Model-ymax"><p class="property-name">ymax</p><p class="docstr">Maximum vertical coordinate in model</p></div><div class="property" id="Model-ymin"><p class="property-name">ymin</p><p class="docstr">Minimum vertical coordinate in model</p></div></div><div class="methods" id="Model-methods"><h4>Methods</h4><div class="function" id=Model-export><p class="function-str"><span class="function-name">export</span>(**<span class="function-arg">kw</span>)</p><p class="docstr">Export the grid data and accompanying info to an excel file with tabs for each Bfield component, another for the info dict, and a final one for footprints if they're present<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, output destination/filename for workbook</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
@@ -827,6 +1128,61 @@
 </pre></div>
 
                     </div>
+                </div></div><div class="function" id=Model-path><p class="function-str"><span class="function-name">path</span>(<span class="function-arg">x</span>, <span class="function-arg">y</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Interpolate the field along a path defined by lists of x and y<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;coordinates<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - iterable of x coordinates representing the start and end<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;points of segments along the path<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - iterable of y coordinates representing the start and end<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;points of segments along the path<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;n - integer, approximate total number of points sampled. Each<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;segment will have at least two samples (the beginning and end<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;of the segment). The default is 100.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;close_path - bool, if True, append a segment to the end of the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; path connecting the first and last points<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - iterable of x coordinates sampled along the path, will<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;include all input coordinates<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - iterable of y coordinates sampled along the path, will<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;include all input coordinates<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_interp - interpolated values corresponding to the input<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;   coordinates</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolate the field along a path defined by lists of x and y</span>
+<span class="sd">        coordinates</span>
+<span class="sd">        args:</span>
+<span class="sd">            x - iterable of x coordinates representing the start and end</span>
+<span class="sd">                points of segments along the path</span>
+<span class="sd">            y - iterable of y coordinates representing the start and end</span>
+<span class="sd">                points of segments along the path</span>
+<span class="sd">        kw:</span>
+<span class="sd">            n - integer, approximate total number of points sampled. Each</span>
+<span class="sd">                segment will have at least two samples (the beginning and end</span>
+<span class="sd">                of the segment). The default is 100.</span>
+<span class="sd">            close_path - bool, if True, append a segment to the end of the</span>
+<span class="sd">                         path connecting the first and last points</span>
+<span class="sd">        returns:</span>
+<span class="sd">            x - iterable of x coordinates sampled along the path, will</span>
+<span class="sd">                include all input coordinates</span>
+<span class="sd">            y - iterable of y coordinates sampled along the path, will</span>
+<span class="sd">                include all input coordinates</span>
+<span class="sd">            B_interp - interpolated values corresponding to the input</span>
+<span class="sd">                       coordinates&quot;&quot;&quot;</span>
+        <span class="c1">#check inputs</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;There must be an equal number of x and y coordinates&quot;&quot;&quot;</span><span class="p">))</span>
+        <span class="c1">#check closing path kw</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;close_path&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">kw</span><span class="p">[</span><span class="s1">&#39;close_path&#39;</span><span class="p">]):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">rL</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;n&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="c1">#calculate distances of each segment</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rL</span><span class="p">])</span>
+        <span class="c1">#convert distances to fractions</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="c1">#approximately distribute the total number of points to each segment</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">d</span><span class="p">)</span>
+        <span class="c1">#make sure there are at least two samples in each segment</span>
+        <span class="n">n</span><span class="p">[</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="c1">#interpolate over each segment</span>
+        <span class="n">segs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rL</span><span class="p">]</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B_interp</span> <span class="o">=</span> <span class="p">(</span><span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_flatten</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">segs</span><span class="p">))</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B_interp</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
                 </div></div><div class="function" id=Model-resample><p class="function-str"><span class="function-name">resample</span>(**<span class="function-arg">kw</span>)</p><p class="docstr">Resample the model grid along a new number of x,y values, a new selection of x,y values, or a new number of total values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - int or iterable, new number of x samples or new selection of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x samples<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - int or iterable, new number of y samples or new selection of<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y samples<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;N - int, new approximate number of total samples<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;- overrides x and y kw<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;- preserves approx ratio of number of x and y values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;- rounds up to nearest possible whole number of points<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;mod_resample - a new Model object containing the resampled grid</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
@@ -890,24 +1246,63 @@
 </pre></div>
 
                     </div>
+                </div></div><div class="function" id=Model-segment><p class="function-str"><span class="function-name">segment</span>(<span class="function-arg">p1</span>, <span class="function-arg">p2</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Interpolate the field along a line between two points<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p1 - iterable, an x-y pair<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;p2 - iterable, an x-y pair<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;n - integer, number of points sampled (default 100)<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;x - array, x coordinates of interpolated values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;y - array, y coordinates of interpolated values<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;B_interp - array, interpolated field values</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interpolate the field along a line between two points</span>
+<span class="sd">        args:</span>
+<span class="sd">            p1 - iterable, an x-y pair</span>
+<span class="sd">            p2 - iterable, an x-y pair</span>
+<span class="sd">        kw:</span>
+<span class="sd">            n - integer, number of points sampled (default 100)</span>
+<span class="sd">        returns:</span>
+<span class="sd">            x - array, x coordinates of interpolated values</span>
+<span class="sd">            y - array, y coordinates of interpolated values</span>
+<span class="sd">            B_interp - array, interpolated field values&quot;&quot;&quot;</span>
+        <span class="c1">#check point lengths</span>
+        <span class="k">if</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)):</span>
+            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Points must consist of two values (xy pairs).&#39;</span><span class="p">))</span>
+        <span class="c1">#check kw</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;n&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="c1">#create x and y vectors</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">B_interp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">B_interp</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
                 </div></div></div></div></div>
 
                 <!--others section-->
-
+                
             </div>
 
         </body>
 
         <!--Control the width and height of the #main element-->
-        <script type="text/javascript">function arrange(){
+        <script type="text/javascript">
+function arrange(){
     var nav_wrapper = document.getElementById('nav-wrapper');
     var nav = document.getElementById('nav');
     var main = document.getElementById('main');
+    var body = document.body;
 
     var w_nav = nav.offsetWidth + 1;
-    var w = w_nav.toString() + 'px';
-    main.setAttribute('style', 'margin-left: ' + w);
-    main.style.marginLeft = w;
+    var m = w_nav.toString() + 'px';
+    var w = (body.offsetWidth - w_nav).toString() + 'px';
+
+    main.setAttribute('style', 'margin-left: ' + m);
+    main.style.marginLeft = m;
+
+    main.setAttribute('style', 'width: ' + w);
+    main.style.width = w;
+
+    console.log('arrange')
 
 };
 
@@ -935,15 +1330,5 @@ function toggleSource(obj){
 };
 </script>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-67200904-4', 'auto');
-  ga('send', 'pageview');
-
-</script>
-
     </html>
+    

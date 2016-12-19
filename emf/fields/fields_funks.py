@@ -18,14 +18,17 @@ def drop_template(*args, **kw):
     elif(len(args) == 1):
         kw = {'path': args[0]}
     #get template file path
-    template_path = os.path.dirname(os.path.dirname(__file__))
-    template_path = os.path.join(template_path, 'templates')
-    template_path = os.path.join(template_path, 'fields-template.xlsx')
+    fn_temp = os.path.dirname(os.path.dirname(__file__))
+    fn_temp = os.path.join(fn_temp, 'templates')
+    fn_temp = os.path.join(fn_temp, 'fields-template.xlsx')
     #get drop path
-    drop_path = _path_manage('fields-template', 'xlsx', **kw)
+    fn_drop = _path_manage('fields-template', 'xlsx', **kw)
+    #check for existing files
+    if(os.path.isfile(fn_drop)):
+        raise(fields_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_template().' % fn_drop))
     #copy and notify
-    shutil.copyfile(template_path, drop_path)
-    print('emf.fields template written to: %s' % drop_path)
+    shutil.copyfile(fn_temp, fn_drop)
+    print('emf.fields template written to: %s' % fn_drop)
 
 def run(template_path, **kw):
     """Import the templates in an excel file with the path 'template_path' then generate a workbook of all fields results and lots of plots. Use the 'path' keyword argument to specify a destination for the output, otherwise it will be saved to the template's directory. Returns a SectionBook object.
@@ -178,7 +181,8 @@ def optimize_phasing(xs, circuits, **kw):
                     Conductors comprising a single circuit. If 'all',
                     circuits are assumed to be consecutive groups of three
                     conductors. (consecutive according to the order in which
-                    hot conductors were added to the CrossSection)
+                    hot, or non-grounded, conductors were added to the
+                    CrossSection)
     kw:
         save - bool, toggle saving of the results DataFrame to an excel book
         path - string, location/filename for saved results workbook,
@@ -225,8 +229,8 @@ def optimize_phasing(xs, circuits, **kw):
     #a huge, factorial sized array of indices
     P = itertools.product(*perm)
     #variables to find the minima with respect to each field and ROW edge
-    B_left_min, B_left_arr, B_right_min, B_right_arr = np.inf, [], np.inf, []
-    E_left_min, E_left_arr, E_right_min, E_right_arr = np.inf, [], np.inf, []
+    B_left_min, B_right_min = np.inf, np.inf
+    E_left_min, E_right_min = np.inf, np.inf
     #get coordinates of the ROW edges
     x_ROW = np.array([xs.lROW, xs.rROW], dtype=float)
     y_ROW = xs.sample_height*np.ones((2,), dtype=float)
@@ -296,9 +300,9 @@ def optimize_phasing(xs, circuits, **kw):
             results.to_excel(xl, index_label='Conductor Tag',
                 sheet_name='phase_assignments')
             opt.ROW_edge_export(xl=xl)
-            df, c, h = _xs_sb_diff(xs, opt)
-            df.to_excel(xl, sheet_name='ROW_edge_diff', index=False,
-                    columns=c, header=h)
+            abs_dif, rel_dif = sb_xs_compare(opt, opt.sheets[0])
+            abs_dif.to_excel(xl, sheet_name='Abs Difference at ROW Edges')
+            rel_dif.to_excel(xl, sheet_name='Rel Difference at ROW Edges')
             for xs in opt:
                 xs.fields.to_excel(xl, sheet_name=xs.sheet)
             xl.save()
@@ -310,7 +314,8 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
     """Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.
     args:
         xs - CrossSection object to perform adjustments on
-        tags - iterable of Conductor tags, identifying which ones to raise
+        tags - iterable of Conductor tags, identifying which ones to raise,
+               or 'all' to include all Conductors in the CrossSection
         B_l - magnetic field threshold at left ROW edge*
         B_r - magnetic field threshold at right ROW edge*
         E_l - electric field threshold at left ROW edge*
@@ -337,6 +342,9 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
     #convert 'all' inputs to numeric indices
     if(tags == 'all'):
         tags = xs.tags
+    #flattened indices
+    temp = xs.tags
+    conds = np.array([temp.index(i) for i in tags])
     #maximum number of iterations and relative error tolerance
     if('max_iter' in kw):
         max_iter = kw['max_iter']
@@ -351,9 +359,6 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
     else:
         hhigh = 1.0e6
     hlow = 0.0
-    #flattened indices
-    temp = xs.tags
-    conds = np.array([temp.index(i) for i in tags])
     #run secant method to find adjustments for each target
     h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None
     if(B_l):
@@ -408,10 +413,10 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
                     index=tags).to_excel(xl,
                             sheet_name='Adjusted Conductor Heights',
                             index_label='Conductor Tag')
-            adj.ROW_edge_export(xl = xl)
-            df, c, h = _xs_sb_diff(xs, adj)
-            df.to_excel(xl, sheet_name='ROW_edge_diff', index=False,
-                    columns=c, header=h)
+            adj.ROW_edge_export(xl=xl)
+            abs_dif, rel_dif = sb_xs_compare(adj, adj.sheets[0])
+            abs_dif.to_excel(xl, sheet_name='Abs Difference at ROW Edges')
+            rel_dif.to_excel(xl, sheet_name='Rel Difference at ROW Edges')
             for xs in adj:
                 xs.fields.to_excel(xl, sheet_name=xs.sheet,
                         index_label='Distance (ft)')
@@ -480,35 +485,19 @@ def _E_funk(h, target, xs, conds, x_sample, y_sample):
     Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
     return(Emax[0] - target)
 
-def _xs_sb_diff(xs, sb):
-    """Compute the difference in ROW edge fields of all the CrossSections in a SectionBook object to those of a single CrossSection.
+def sb_xs_compare(sb, sheet):
+    """Compute the absolute and percentage difference between the maximum fields of one CrossSection in a SectionBook and all the other CrossSections
     args:
-        xs - CrossSection, single xs to compare to all xss in sb
-        sb - SectionBook, contains xss to compare to xs
+        sb - SectionBook object
+        sheet - sheet string of the CrossSection in sb that should be
+                compared with all the other CrossSections
     returns:
-        df - DataFrame with columns for the names of CrossSections in sb and
-            with the difference between ROW edge values, computed by
-            subtracting xs values from sb values (sb.i[idx] - xs)
-        c - column names
-        h - refined column names (header names)"""
-    #gather ROW edge differences
-    L = len(sb)
-    El,Er,Bl,Br = np.zeros((L,)),np.zeros((L,)),np.zeros((L,)),np.zeros((L,))
-    for i in range(L):
-        Bl[i] = (sb.i[i].fields.at[sb.i[i].lROW, 'Bmax']
-                    - xs.fields.at[xs.lROW, 'Bmax'])
-        Br[i] = (sb.i[i].fields.at[sb.i[i].rROW, 'Bmax']
-                    - xs.fields.at[xs.rROW, 'Bmax'])
-        El[i] = (sb.i[i].fields.at[sb.i[i].lROW, 'Emax']
-                    - xs.fields.at[xs.lROW, 'Emax'])
-        Er[i] = (sb.i[i].fields.at[sb.i[i].rROW, 'Emax']
-                    - xs.fields.at[xs.rROW, 'Emax'])
-    #create and return DataFrame
-    df = pd.DataFrame(data = {
-        'sheet': sb.sheets, 'Bmaxl': Bl, 'Emaxl': El, 'Bmaxr': Br, 'Emaxr': Er}
-                ).sort_values('sheet')
-    c = ['sheet', 'Bmaxl', 'Bmaxr', 'Emaxl', 'Emaxr']
-    h = ['Cross-Section Sheet',
-            'Bmax Diff - Left ROW Edge', 'Bmax Diff - Right ROW Edge',
-            'Emax Diff - Left ROW Edge', 'Emax Diff - Right ROW Edge']
-    return(df, c, h)
+        abs_dif - DataFrame with the absolute difference of the maximum
+                  fields at ROW edges
+        rel_dif - DataFrame with the relative difference of the maximum
+                  fields at ROW edges (multiply by 100 to get percentage dif)"""
+
+    rem = sb.ROW_edge_max
+    abs_dif = rem - rem.loc[sheet]
+    rel_dif = (rem - rem.loc[sheet])/rem
+    return(abs_dif, rel_dif)

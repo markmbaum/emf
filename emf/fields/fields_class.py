@@ -186,6 +186,16 @@ class Conductor(object):
     def __str__(self):
         return(fields_print._str_Conductor(self))
 
+    def __eq__(self, other):
+        if(type(self) is not type(other)):
+            return(False)
+        vs, vo = copy.deepcopy(vars(self)), copy.deepcopy(vars(other))
+        del(vs['_tag'])
+        for k in vs:
+            if(vs[k] != vo[k]):
+                return(False)
+        return(True)
+
     def copy(self):
         'Return a deep copy of the Conductor object'
         return(copy.deepcopy(self))
@@ -206,8 +216,8 @@ class CrossSection(object):
         self._max_dist = 100.0 #maximum simulated distance from the ROW center
         self._step = 1.0 #step size for calculations
         self._sample_height = 3.0 #uniform sample height
-        self._lROW = None #exact coordinate of the left ROW edge
-        self._rROW = None #exact coordinate of the left ROW edge
+        self._lROW = -50.0 #exact coordinate of the left ROW edge
+        self._rROW = 50.0 #exact coordinate of the left ROW edge
         self._conds = [] #list of Conductor objects
         #dictionary mapping Conductor tags to Conductor objects
         self._tag2idx = dict()
@@ -260,9 +270,13 @@ class CrossSection(object):
     def _set_tag(self, value): self._tag = value
     tag = property(_get_tag, _set_tag, None, """Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same tag properties are grouped for functions that involve comparisons.""")
 
-    def _get_title(self): return(self._title)
+    def _get_title(self):
+        if(self._title == ''):
+            return(self.tag)
+        else:
+            return(self._title)
     def _set_title(self, value): self._title = value
-    title = property(_get_title, _set_title, None, """Longer form identification string, used in plot titles and such""")
+    title = property(_get_title, _set_title, None, """Longer form identification string, used in plot titles and such. If unset, will fall back to CrossSection.tag""")
 
     def _get_max_dist(self): return(self._max_dist)
     def _set_max_dist(self, new_value):
@@ -393,7 +407,7 @@ class CrossSection(object):
         try:
             idx = self._tag2idx[key]
         except(KeyError):
-            pass
+            raise(KeyError('There are no Conductors with the tag "%s" in CrossSection "%s"' % (key, self.sheet)))
         else:
             return(self.conds[idx])
         #return None if no xs is found
@@ -414,7 +428,7 @@ class CrossSection(object):
             % (cond.tag, v[1:])))
         #check if the tag has already been used
         if(cond.tag in self._tag2idx):
-            raise(EMFError("""A Conductor with tag "%s" is already in CrossSection "%s". Another Conductor with the same tag cannot be added"""
+            raise(EMFError("""A Conductor with tag "%s" is already in CrossSection "%s". Another Conductor with the same tag cannot be added."""
             % (cond.tag, self.sheet)))
         #see if the conductor is grounded
         if(cond.V == 0):
@@ -635,7 +649,7 @@ class SectionBook(object):
         try:
             idx = self._sheet2idx[key]
         except(KeyError):
-            return(None)
+            raise(KeyError('There are no CrossSections with the sheet "%s" in SectionBook "%s"' % (key, self.name)))
         else:
             return(self.xss[idx])
 
@@ -675,7 +689,7 @@ class SectionBook(object):
             xs.sheet = kw['sheet']
         #Prevent adding CrossSections with the same sheets
         if(xs.sheet in self._sheet2idx):
-            raise(EMFError("""CrossSection name "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
+            raise(EMFError("""A CrossSection with sheet "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
         else:
             #add the CrossSection and update indexing dict
             self._sheet2idx[xs.sheet] = len(self.xss)

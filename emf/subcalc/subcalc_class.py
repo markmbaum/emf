@@ -224,13 +224,63 @@ class Model(object):
                     s['Group'].unique()[0])
             self.footprints.append(fp)
 
-    def cross_section(self, p1, p2, **kw):
+    def path(self, x, y, **kw):
+        """Interpolate the field along a path defined by lists of x and y
+        coordinates
+        args:
+            x - iterable of x coordinates representing the start and end
+                points of segments along the path
+            y - iterable of y coordinates representing the start and end
+                points of segments along the path
+        kw:
+            n - integer, approximate total number of points sampled. Each
+                segment will have at least two samples (the beginning and end
+                of the segment). The default is 100.
+            close_path - bool, if True, append a segment to the end of the
+                         path connecting the first and last points
+        returns:
+            x - iterable of x coordinates sampled along the path, will
+                include all input coordinates
+            y - iterable of y coordinates sampled along the path, will
+                include all input coordinates
+            B_interp - interpolated values corresponding to the input
+                       coordinates"""
+        #check inputs
+        if(len(x) != len(y)):
+            raise(EMFError("""There must be an equal number of x and y coordinates"""))
+        #check closing path kw
+        if('close_path' in kw):
+            if(kw['close_path']):
+                x, y = list(x), list(y)
+                x.append(x[0])
+                y.append(y[0])
+        L = len(x) - 1
+        rL = range(L)
+        if('n' in kw):
+            n = kw['n']
+        else:
+            n = 100
+        #calculate distances of each segment
+        d = np.array([np.sqrt((x[i] - x[i+1])**2 + (y[i] - y[i+1])**2) for i in rL])
+        #convert distances to fractions
+        d = d/sum(d)
+        #approximately distribute the total number of points to each segment
+        n = np.ceil(n*d)
+        #make sure there are at least two samples in each segment
+        n[n < 2] = 2
+        #interpolate over each segment
+        segs = [self.segment((x[i], y[i]), (x[i+1], y[i+1]), n=n[i]) for i in rL]
+        x, y, B_interp = (subcalc_funks._flatten(i) for i in zip(*segs))
+        return(x, y, B_interp)
+
+
+    def segment(self, p1, p2, **kw):
         """Interpolate the field along a line between two points
         args:
             p1 - iterable, an x-y pair
             p2 - iterable, an x-y pair
         kw:
-            n - integer, number of points sampled (default 1000)
+            n - integer, number of points sampled (default 100)
         returns:
             x - array, x coordinates of interpolated values
             y - array, y coordinates of interpolated values
@@ -242,7 +292,7 @@ class Model(object):
         if('n' in kw):
             n = kw['n']
         else:
-            n = 1000
+            n = 100
         #create x and y vectors
         x, y = np.linspace(p1[0], p2[0], n), np.linspace(p1[1], p2[1], n)
         B_interp = self.interp(x, y)

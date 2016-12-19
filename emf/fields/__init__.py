@@ -10,6 +10,7 @@ from fields_funks import (drop_template,
 						load_template,
                         optimize_phasing,
                         target_fields,
+                        sb_xs_compare,
                         run)
 
 from fields_calcs import (E_field,
@@ -33,6 +34,7 @@ from fields_plots import (plot_Bmax,
 from FIELDS_io import (to_FLD,
                         to_FLDs,
                         to_FLDs_crawl,
+                        read_FLD,
                         read_DAT,
                         convert_DAT,
                         convert_DAT_crawl)
