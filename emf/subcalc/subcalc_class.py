@@ -95,16 +95,18 @@ class Model(object):
         return(self._grid[self._Bkey])
     B = property(_get_B, None, None, '2D grid of magnetic field results')
 
+    def _get_Bkeys(self):
+        k = self._grid.keys()
+        k.remove('X')
+        k.remove('Y')
+        return(k)
+    Bkeys = property(_get_Bkeys, None, None, 'A list of available Bkey values in the Model')
+
     def _get_Bkey(self):
         return(self._Bkey)
     def _set_Bkey(self, value):
-        if((not (value in self._grid)) or (value == 'X') or (value == 'Y')):
-            k = self._grid.keys()
-            k.remove('X')
-            k.remove('Y')
-            raise(EMFError("""
-            Bkey must be set to one of the following elements:
-                %s""" % str(k)))
+        if(value not in self.Bkeys):
+            raise(EMFError("""Bkey must be set to one of the following elements:\n%s""" % str(self.Bkeys)))
         else:
             self._Bkey = value
     Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field accessed by the B property')
@@ -208,7 +210,10 @@ class Model(object):
             must contain only one repeated value for each footprint.
             It contained multiple values for footprint name:
                 "%s" """
+        #pick out some columns
         fields = cols[4:]
+        #clear the footprints list
+        self._footprints = []
         #create a footprint for unique entries in the 'Name' field
         for n in df['Name'].unique():
             s = df[df['Name'] == n]
@@ -224,7 +229,7 @@ class Model(object):
                     s['Group'].unique()[0])
             self.footprints.append(fp)
 
-    def path(self, x, y, **kw):
+    def path(self, x, y, n=101, close_path=False):
         """Interpolate the field along a path defined by lists of x and y
         coordinates
         args:
@@ -232,16 +237,16 @@ class Model(object):
                 points of segments along the path
             y - iterable of y coordinates representing the start and end
                 points of segments along the path
-        kw:
+        optional args:
             n - integer, approximate total number of points sampled. Each
                 segment will have at least two samples (the beginning and end
-                of the segment). The default is 100.
+                of the segment). The default is 101.
             close_path - bool, if True, append a segment to the end of the
                          path connecting the first and last points
         returns:
-            x - iterable of x coordinates sampled along the path, will
+            x - array of x coordinates sampled along the path, will
                 include all input coordinates
-            y - iterable of y coordinates sampled along the path, will
+            y - array of y coordinates sampled along the path, will
                 include all input coordinates
             B_interp - interpolated values corresponding to the input
                        coordinates"""
@@ -249,17 +254,12 @@ class Model(object):
         if(len(x) != len(y)):
             raise(EMFError("""There must be an equal number of x and y coordinates"""))
         #check closing path kw
-        if('close_path' in kw):
-            if(kw['close_path']):
-                x, y = list(x), list(y)
-                x.append(x[0])
-                y.append(y[0])
+        if(close_path):
+            x, y = list(x), list(y)
+            x.append(x[0])
+            y.append(y[0])
         L = len(x) - 1
         rL = range(L)
-        if('n' in kw):
-            n = kw['n']
-        else:
-            n = 100
         #calculate distances of each segment
         d = np.array([np.sqrt((x[i] - x[i+1])**2 + (y[i] - y[i+1])**2) for i in rL])
         #convert distances to fractions
@@ -274,13 +274,13 @@ class Model(object):
         return(x, y, B_interp)
 
 
-    def segment(self, p1, p2, **kw):
+    def segment(self, p1, p2, n=101):
         """Interpolate the field along a line between two points
         args:
             p1 - iterable, an x-y pair
             p2 - iterable, an x-y pair
-        kw:
-            n - integer, number of points sampled (default 100)
+        optional args:
+            n - integer, number of points sampled (default 101)
         returns:
             x - array, x coordinates of interpolated values
             y - array, y coordinates of interpolated values
@@ -288,11 +288,6 @@ class Model(object):
         #check point lengths
         if((len(p1) != 2) or (len(p2) != 2)):
             raise(EMFError('Points must consist of two values (xy pairs).'))
-        #check kw
-        if('n' in kw):
-            n = kw['n']
-        else:
-            n = 100
         #create x and y vectors
         x, y = np.linspace(p1[0], p2[0], n), np.linspace(p1[1], p2[1], n)
         B_interp = self.interp(x, y)
@@ -303,7 +298,7 @@ class Model(object):
         args:
             x - iterable or scalar, x coordinate(s) to interpolate at
             y - iterable or scalar, y coordinate(s) to interpolate at
-        return:
+        returns:
             B_interp - array or float, the interpolated field value"""
         #make x,y iterable if scalars are passed in
         if(not (hasattr(x, '__len__') and hasattr(y, '__len__'))):
@@ -399,6 +394,72 @@ class Model(object):
         mod_resample.load_footprints(self.footprint_df)
         return(mod_resample)
 
+    def rereference(self, x_ref=0, y_ref=0, inplace=False):
+        """Redefine the coordinates of the bottom left corner of the model
+        (the lowest values along each axis) and increment values in the
+        spatial grids accordingly. If no value is provided, spatial grids
+        are adjusted start at (0, 0).
+        optional args:
+            x_ref - float, new starting value for the x axis, default is zero
+            y_ref - float, new starting value for the y axis, default is zero
+            inplace - bool, if True, the Model is rereferenced in place,
+                      otherwise a rereferenced copy is returned."""
+        #get variables
+        if(inplace):
+            mod = self
+        else:
+            mod = self.copy()
+        X, Y = mod.X, mod.Y
+        #rereference the grid and child footprint objects
+        xdif, ydif = np.min(X) - x_ref, np.min(Y) - y_ref
+        X -= xdif
+        Y -= ydif
+        for i in range(len(mod.footprints)):
+            x, y = mod._footprints[i]._x, mod._footprints[i]._y
+            mod._footprints[i]._x = [j - xdif for j in x]
+            mod._footprints[i]._y = [j - ydif for j in y]
+        if(not inplace):
+            return(mod)
+
+    def zoom(self, x_range, y_range, inplace=False, rereference=False):
+        """Select a sub-area of the Model grid
+        args:
+            x_range - iterable of floats, two values representing the range of
+                      x values to include in the zoomed grid, if input is
+                      implicitly False all values are included (no x zooming)
+            y_range - iterable of floats, two values representing the range of
+                      y values to include in the zoomed grid, if input is
+                      implicitly False all values are included (no y zooming)
+        optional args:
+            inplace - bool, if True the Model grid is changed in place,
+                      otherwise a new Model is returned with the zoomed grid
+            rereference - bool or number, if a number, the spatial grids will
+                          be rereferenced to begin at that value. If True, the
+                          spatial grids are rereferenced to begin at zero."""
+        #check the ranges
+        x_range, y_range = sorted(x_range), sorted(y_range)
+        p1, p2 = (x_range[0], y_range[0]), (x_range[1], y_range[1])
+        if((not self.in_grid(p1[0], p1[1]) or (not self.in_grid(p2[0], p2[1])))):
+            raise(EMFError('Cannot zoom outside the model limits. The x limits are [%g, %g] and the y limits are [%g, %g].' % (self.xmin, self.xmax, self.ymin, self.ymax)))
+        #get variables
+        if(inplace):
+            mod = self
+        else:
+            mod = self.copy()
+        x, y = mod.x, mod.y
+        #zoom
+        bx = (x <= max(x_range)) & (x >= min(x_range))
+        by = (y <= max(y_range)) & (y >= min(y_range))
+        for k in mod._grid:
+            mod._grid[k] = mod._grid[k][by,:][:,bx]
+        #check rereferencing
+        if((type(rereference) is int) or (type(rereference) is float)):
+            mod.rereference(rereference, inplace=True)
+        elif(rereference):
+            mod.rereference(inplace=True)
+        if(not inplace):
+            return(mod)
+
     def flatten(self):
         """Create 1 dimensional versions of the gridded X, Y, and B arrays
         returns:
@@ -438,6 +499,10 @@ class Model(object):
         xl.save()
         print('model saved to: %s' % fn)
 
+    def copy(self):
+        'Return a deep copy of the Model object'
+        return(copy.deepcopy(self))
+
 class Footprint(object):
 
     def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
@@ -447,11 +512,11 @@ class Footprint(object):
             x - iterable, x coordinates of Footprint
             y - iterable, y coordinates of Footprint
             power_line - bool, True indicates the footprint corresponds to
-                            modeled
+                         a modeled power line or circuit
             of_concern - bool, True if the Footprint represents an area
-                        that is potentially concerned about EMF (homes)
+                         that is potentially concerned about EMF (homes)
             draw_as_loop - bool, True if the footprint should be plotted
-                            as a closed loop
+                           as a closed loop
             group - string, group strings that are identical between
                     Footprint objects designate them as part of the same
                     group for plotting"""

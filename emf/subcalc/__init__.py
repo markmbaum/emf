@@ -22,8 +22,10 @@ from subcalc_funks import (drop_footprint_template,
                         load_model,
                         convert_REF)
 
-from subcalc_plots import (plot_contour,
+from subcalc_plots import (plot_cross_sections,
+                        plot_contour,
                         plot_pcolormesh,
+                        plot_segment,
                         ion,
                         show,
                         close)

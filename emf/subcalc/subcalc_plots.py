@@ -1,6 +1,6 @@
-from .. import np, mpl, plt
+from .. import os, np, mpl, plt, textwrap
 
-from ..emf_plots import _save_fig
+from ..emf_plots import _save_fig, _prepare_fig
 
 import subcalc_funks
 
@@ -18,12 +18,6 @@ mpl.rcParams['xtick.color'] = (.2, .2, .2)
 mpl.rcParams['ytick.color'] = (.2, .2, .2)
 
 #other more specific/dynamic global formatting variables
-_max_fig_width = 18
-_max_fig_height = 10
-_pcolormesh_legend_padding = 6
-_contour_legend_padding = 4
-_default_pcolormesh_cmap_name = 'magma_r' #http://matplotlib.org/examples/color/colormaps_reference.html
-_default_contour_cmap_name = 'viridis_r'
 _contour_linewidths = 2
 _contour_alpha = 0.8
 _pcolor_alpha = 0.35
@@ -39,7 +33,7 @@ _leg_edge_on = False
 _be_concerned = True
 
 #get the colormap
-def get_cmap(cmap_name):
+def _get_cmap(cmap_name):
     """Set the global colormap by passing the name of a matplotlib cmap, see:
     http://matplotlib.org/examples/color/colormaps_reference.html"""
 
@@ -132,14 +126,14 @@ def _equal_ax_objs(x_range, y_range, max_width, max_height, legend_pad):
     #return
     return(fig, ax)
 
-def _plot_footprints(ax, mod, cmap, mlci):
+def _plot_footprints(ax, mod, cmap, ci):
     """Plot and label footprint outlines
     args:
         ax - Axes object to plot in
         mod - Model object containing the Footprint objects
         cmap - Colormap object for coloring points of concern
-        mlci - function for indexing colormap
-               (from _make_linear_color_indexer or _make_log_color_indexer)
+        ci - function for indexing colormap
+               (from _make_color_indexer or _make_color_indexer)
     returns:
         handles - list of plotted handles for legend
         labels - list of labels for the handles"""
@@ -165,7 +159,7 @@ def _plot_footprints(ax, mod, cmap, mlci):
                         zorder=_footprint_zorder)[0]
                 if(power_line_handle_idx is False):
                     handles.append(h)
-                    labels.append(fp.group)
+                    labels.append(textwrap.fill(fp.group, width=25))
                     power_line_handle_idx = len(handles) - 1
                 else:
                     labels[power_line_handle_idx] += ';\n' + fp.group
@@ -187,7 +181,7 @@ def _plot_footprints(ax, mod, cmap, mlci):
                 #store index of max value on footprint
                 idx = np.argmax(B_interp)
                 #get associated color for marker
-                cidx = mlci(B_interp[idx])
+                cidx = ci(B_interp[idx])
                 #stringify the max value
                 m = str(subcalc_funks._sig_figs(B_interp[idx], 3))
                 #plot
@@ -277,9 +271,8 @@ def _write_Bkey(ax, mod):
         mod - Model object"""
     xl, yl = ax.get_xlim(), ax.get_ylim()
     #xmarg, ymarg = 0.005*(xl[1] - xl[0]), 0.005*(yl[1] - yl[0])
-    ax.text(xl[1], yl[1],
-            'Field Component: %s' % mod.Bkey,
-            fontsize=9, ha='right', va='bottom')
+    ax.text(xl[1], yl[1], 'Component: %s' % mod.Bkey,
+            fontsize=7, ha='right', va='bottom')
 
 def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
     """Decorator function to make a lambda function that will map field
@@ -288,14 +281,14 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
         Bmin - the minimum field value, is mapped to 0
         Bmax - the maximum field value, is mapped to the last color in the cmap
         L_cmap - the length of the cmap, or the number of colors in it
-        scale - string, 'log' or 'linear'
+        scale - string, 'log' or 'lin'
     returns:
         f - a function mapping field values to cmap index"""
-    if(scale == 'linear'):
+    if(scale == 'lin'):
         m = float(L_cmap)/(Bmax - Bmin)
         b = - m*Bmin
 
-        def mlci(x):
+        def ci(x):
             idx = int(round(m*x + b))
             if(idx < 0):
                 idx = 0
@@ -307,7 +300,7 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
         m = L_cmap/(np.log10(Bmax) - np.log10(Bmin))
         b = - m*np.log10(Bmin)
 
-        def mlci(x):
+        def ci(x):
             idx = int(round(m*np.log10(x) + b))
             if(idx < 0):
                 idx = 0
@@ -318,56 +311,174 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
     else:
         raise(EMFError("""
         Illegal scale string "%s" passed to _make_color_indexer.
-        Must be 'log' or 'linear'."""))
+        Must be 'log' or 'lin'."""))
 
-    return(mlci)
+    return(ci)
 
-def plot_contour(mod, **kw):
+def plot_cross_sections(mod, p_start, p_end, xs_label_size=12, xs_color='black',
+    map_style='contour', scale='lin', n=101, x_labeling='distance',
+    label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
+    legend_padding=6, **kw):
+    """Generate a map style plot (either contour or pcolormesh) with
+    cross sections labeled on it and generate plots of the fields corresponding
+    to the cross sections
+    args:
+        mod - Model object
+        p_start - iterable of tuples, the starting points of each cross section
+        p_end - iterable of tuples, the ending points of each cross section
+    optional args:
+        xs_label_size - int, fontsize of text labels on the map style figure
+        xs_color - any matplotlib compatible color definition
+        map_style - str, 'contour' or 'pcolormesh', determines which map style
+                    plot is generated with the cross sections labeled on it,
+                    default is 'contour'
+        scale - str, can be 'log' or 'lin', only applies if map_style is
+                'contour' (default is 'lin')
+        n - integer, number of points sampled along the sections (default 101)
+        x_labeling - 'distance' or 'location', for x axis ticks on the cross
+                      section plots labeled according to the distance along
+                      the segment or with the (x,y) coordinates of sample
+                      points, default is 'distance'
+        label_max - bool, toggle labeling of the maximum field location,
+                    default is True
+        cmap - str, name of matplotlib colormap, see:
+               http://matplotlib.org/examples/color/colormaps_reference.html
+        max_fig_width - float/int, inches, maximum width of figure
+        max_fig_height - float/int, inches, maximum height of figure
+        legend_padding - float/int, inches, width left for legend area
+    kw:
+        any keyword arguments that can be passed to plot_contour(),
+        plot_pcolormesh(), or plot_segment()
+
+        note: Only a directory name can be passed to the 'path' keyword to
+              prevent saved plots from overwriting each other. File names are
+              created automatically.
+    returns:
+        A tuple of tuples of plotting objects. The first tuple contains the
+        return arguments of the map plot (contour or pcolormesh) and all the
+        next tuples contain the return arguments of plot_segments, for however
+        many cross sections are created."""
+
+    #separate saving kw from others
+    save_kw = {}
+    for k in ['save', 'path', 'format']:
+        if(k in kw):
+            save_kw[k] = kw[k]
+            kw.pop(k)
+
+    #deal with the saving kw
+    save = False
+    if('path' in save_kw):
+        save_kw['save'] = True
+    if('save' in save_kw):
+        if(save_kw['save']):
+            save = True
+            if('path' not in save_kw):
+                path = ''
+                save_kw['path'] = path
+            else:
+                path = save_kw['path']
+                if(not os.path.isdir(path)):
+                    raise(subcalc_class.EMFError('Keyword argument "path" can only be the path to a directory when using plot_cross_sections().'))
+
+    #check inputs
+    if(len(p_start) != len(p_end)):
+        raise(subcalc_class.EMFError('p_start and p_end must have the same length.'))
+    if(len(p_start) > 26):
+        raise(subcalc_class.EMFError('There cannot be more than 26 cross sections on a single figure.'))
+    for p in (list(p_start) + list(p_end)):
+        if(not mod.in_grid(p[0], p[1])):
+            raise(subcalc_clas.EMFError('The point (%g, %g) is not in the model domain.' % (p[0], p[1])))
+
+    #list of return arguments
+    R = []
+
+    #plot the map style figure
+    if(map_style == 'contour'):
+        r = plot_contour(mod, scale, label_max, cmap, max_fig_width,
+                max_fig_height, legend_padding, **kw)
+        R.append(r)
+        fig, ax = r[0], r[1]
+        fn = 'contour-plot-with-cross-sections'
+    else:
+        r = plot_pcolormesh(mod, label_max, cmap, max_fig_width, max_fig_height,
+                legend_padding, **kw)
+        R.append(r)
+        fig, ax = r[0], r[1]
+        fn = 'pcolormesh-plot-with-cross-sections'
+    #draw cross section traces on the figure
+    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    count = 0
+    for ps, pe in zip(p_start, p_end):
+        x1, y1, x2, y2 = ps[0], ps[1], pe[0], pe[1]
+        #plot the trace
+        ax.plot([x1, x2], [y1, y2], color=xs_color)
+        #label the trace
+        if(x1 < x2):
+            ha1, ha2 = 'right', 'left'
+        else:
+            ha1, ha2 = 'left', 'right'
+        if(y1 < y2):
+            va1, va2 = 'top', 'bottom'
+        else:
+            va1, va2 = 'bottom', 'top'
+        ax.text(x1, y1, alphabet[count], ha=ha1, va=va1,
+                color=xs_color, fontsize=xs_label_size)
+        ax.text(x2, y2, alphabet[count] + "'", ha=ha2, va=va2,
+                color=xs_color, fontsize=xs_label_size)
+
+        count += 1
+    #save or don't
+    if(save):
+        _save_fig(fn, fig, **save_kw)
+
+    #plot the cross sections
+    count = 0
+    for ps, pe in zip(p_start, p_end):
+        r = plot_segment(mod, ps, pe, n, x_labeling, scale, cmap, **kw)
+        R.append(r)
+        fig, ax = r
+        c = alphabet[count]
+        ax.set_title("Cross Section %s-%s'" % (c, c))
+        if(save):
+            _save_fig('cross-section-%s' % c, fig, **save_kw)
+        count += 1
+
+    return(R)
+
+
+def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
+    max_fig_width=12, max_fig_height=8, legend_padding=4, **kw):
     """Generate a contour plot from the magnetic field results and
     Footprint objects stored in a Model object
     args:
         mod - Model object
-    kw:
-        scale - str, can be 'log' or 'linear' (default is 'linear')
-        levels - iterable, determines contour level values
-                    (automatically determined by matplotlib if not used)
-        north_angle - number, direction of north arrow
-                        (0 is along +y axis and clockwise is increasing)
+    optional args:
+        scale - str, can be 'log' or 'lin' (default is 'lin')
+        label_max - bool, toggle labeling of the maximum field location,
+                    default is True
         cmap - str, name of matplotlib colormap, see:
-                http://matplotlib.org/examples/color/colormaps_reference.html
+               http://matplotlib.org/examples/color/colormaps_reference.html
+        max_fig_width - float/int, inches, maximum width of figure
+        max_fig_height - float/int, inches, maximum height of figure
+        legend_padding - float/int, inches, width left for legend area
+    kw:
+        levels - iterable, determines contour level values
+                 (automatically determined by matplotlib if unused)
+        north_angle - number, direction of north arrow
+                      (0 is along +y axis and clockwise is increasing)
+
         save - bool, toggle whether the figure is saved
         path - string, path to directory for saved figure. If set, overrides
                 the 'save' keyword
         format - string, saved plot format/extension (default 'png')
-        max_fig_width - float/int, inches, maximum width of figure
-        max_fig_height - float/int, inches, maximum height of figure
-        legend_padding - float/int, inches, width left for legend area
     returns:
         fig - matplotlib figure object
         ax - matplotlib axes object
         CS - matplotlib QuadContourSet object"""
 
-    #check kw
-    if('scale' in kw):
-        scale = kw['scale']
-    else:
-        scale = 'linear'
-    if('cmap' in kw):
-        _cmap = get_cmap(kw['cmap'])
-    else:
-        _cmap = get_cmap(_default_contour_cmap_name)
-    if('max_fig_width' in kw):
-        max_fig_width = kw['max_fig_width']
-    else:
-        max_fig_width = _max_fig_width
-    if('max_fig_height' in kw):
-        max_fig_height = kw['max_fig_height']
-    else:
-        max_fig_height = _max_fig_height
-    if('legend_padding' in kw):
-        legend_padding = kw['legend_padding']
-    else:
-        legend_padding = _contour_legend_padding
+    #get a colormap object
+    cmap = _get_cmap(cmap)
 
     #generate the plot objects
     fig, ax = _equal_ax_objs(mod.xmax - mod.xmin, mod.ymax - mod.ymin,
@@ -376,44 +487,47 @@ def plot_contour(mod, **kw):
     ax.set_ylim(mod.ymin, mod.ymax)
 
     #get contour plotting keyword arguments
-    contour_kw = {'cmap': _cmap, 'zorder': -1, 'alpha': _contour_alpha}
+    contour_kw = {'cmap': cmap, 'zorder': -1, 'alpha': _contour_alpha}
     #get levels if passed in
     if('levels' in kw):
         contour_kw['levels'] = np.array(kw['levels'], dtype=float)
     #determine contour scaling kwarg
     if(scale == 'log'):
         contour_kw['locator'] = mpl.ticker.LogLocator()
-    elif(scale == 'linear'):
+    elif(scale == 'lin'):
         contour_kw['locator'] = mpl.ticker.MaxNLocator()
     else:
         raise(EMFError("""
         Invalid value passed to keyword argument 'scale.'
-        Must be 'log' or 'linear.'"""))
+        Must be 'log' or 'lin.'"""))
 
     #plot
     CS = ax.contour(mod.X, mod.Y, mod.B, **contour_kw)
 
     #get color indexer from decorator along the way
-    mlci = _make_color_indexer(np.min(CS.cvalues), np.max(CS.cvalues),
-                            len(_cmap.colors), scale)
+    ci = _make_color_indexer(np.min(CS.cvalues), np.max(CS.cvalues),
+                            len(cmap.colors), scale)
 
     #set the contour linewidths private variable...
     for c in ax.collections:
         c._linewidths = (_contour_linewidths,)
 
-    #plot location of maximum field
+    #keep list of handles and labels for the legend
     handles, labels = [], []
-    peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
-    peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
-    handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
-            markersize=_field_marker_size,
-            markerfacecolor=_cmap.colors[-1],
-            markeredgewidth=_field_marker_edgewidth,
-            markeredgecolor='r')[0])
-    labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
+
+    #plot location of maximum field
+    if(label_max):
+        peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
+        peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
+        handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
+                markersize=_field_marker_size,
+                markerfacecolor=cmap.colors[-1],
+                markeredgewidth=_field_marker_edgewidth,
+                markeredgecolor='r')[0])
+        labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, mod, _cmap, mlci)
+    H, L = _plot_footprints(ax, mod, cmap, ci)
     handles += H
     labels += L
 
@@ -429,9 +543,6 @@ def plot_contour(mod, **kw):
     elif('north_angle' in kw):
         _draw_north_arrow(ax, kw['north_angle'])
 
-    #write Bkey note
-    _write_Bkey(ax, mod)
-
     #axes text
     ax.set_xlabel('X (ft)')
     ax.set_ylabel('Y (ft)')
@@ -439,28 +550,35 @@ def plot_contour(mod, **kw):
     #final formatting
     _format_ax(ax)
 
+    #write Bkey note
+    _write_Bkey(ax, mod)
+
     #saving
-    _save_fig('contour_plot', fig, **kw)
+    _save_fig('contour-plot', fig, **kw)
 
     return(fig, ax, CS)
 
-def plot_pcolormesh(mod, **kw):
+def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
+    max_fig_height=8, legend_padding=6, **kw):
     """Generate a color mesh plot of the magnetic field results and
     Footprint objects stored in a Model object
     args:
         mod - Model object
+    optional args:
+        label_max - bool, toggle labeling of the maximum field location,
+                    default is True
+        cmap - str, name of matplotlib colormap, see:
+               http://matplotlib.org/examples/color/colormaps_reference.html
+        max_fig_width - float/int, inches, maximum width of figure
+        max_fig_height - float/int, inches, maximum height of figure
+        legend_padding - float/int, inches, width left for legend area
     kw:
         north_angle - number, direction of north arrow
                         (0 is along +y axis and clockwise is increasing)
-        cmap - str, name of matplotlib colormap, see:
-                http://matplotlib.org/examples/color/colormaps_reference.html
         save - bool, toggle whether the figure is saved
         path - string, path to directory for saved figure. If set, overrides
                 the 'save' keyword
         format - string, saved plot format/extension (default 'png')
-        max_fig_width - float/int, inches, maximum width of figure
-        max_fig_height - float/int, inches, maximum height of figure
-        legend_padding - float/int, inches, width left for legend area
     returns:
         fig - matplotlib figure object
         ax - matplotlib axes object
@@ -468,23 +586,8 @@ def plot_pcolormesh(mod, **kw):
         cbar - matplotlib Axes that the colorbar is drawn in (to which
                 legend is attached)"""
 
-    #check kw
-    if('cmap' in kw):
-        _cmap = get_cmap(kw['cmap'])
-    else:
-        _cmap = get_cmap(_default_pcolormesh_cmap_name)
-    if('max_fig_width' in kw):
-        max_fig_width = kw['max_fig_width']
-    else:
-        max_fig_width = _max_fig_width
-    if('max_fig_height' in kw):
-        max_fig_height = kw['max_fig_height']
-    else:
-        max_fig_height = _max_fig_height
-    if('legend_padding' in kw):
-        legend_padding = kw['legend_padding']
-    else:
-        legend_padding = _pcolormesh_legend_padding
+    #get a colormap object
+    cmap = _get_cmap(cmap)
 
     #generate the plot objects
     fig, ax = _equal_ax_objs(mod.xmax - mod.xmin, mod.ymax - mod.ymin,
@@ -493,29 +596,32 @@ def plot_pcolormesh(mod, **kw):
     ax.set_ylim(mod.ymin, mod.ymax)
 
     #get plotting keyword arguments
-    pcolor_kw = {'cmap': _cmap, 'alpha': _pcolor_alpha, 'zorder': -1,
+    pcolor_kw = {'cmap': cmap, 'alpha': _pcolor_alpha, 'zorder': -1,
                     'shading': 'gouraud'}
 
     #plot
     QM = ax.pcolormesh(mod.X, mod.Y, mod.B, **pcolor_kw)
 
     #get color indexer from decorator along the way
-    mlci = _make_color_indexer(np.min(mod.B), np.max(mod.B),
-                            len(_cmap.colors), 'linear')
+    ci = _make_color_indexer(np.min(mod.B), np.max(mod.B),
+                            len(cmap.colors), 'lin')
+
+    #keep list of handles and labels for the legend
+    handles, labels = [], []
 
     #plot location of maximum field
-    handles, labels = [], []
-    peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
-    peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
-    handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
-            markersize=_field_marker_size,
-            markerfacecolor=_cmap.colors[-1],
-            markeredgewidth=_field_marker_edgewidth,
-            markeredgecolor='r')[0])
-    labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
+    if(label_max):
+        peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
+        peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
+        handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
+                markersize=_field_marker_size,
+                markerfacecolor=cmap.colors[-1],
+                markeredgewidth=_field_marker_edgewidth,
+                markeredgecolor='r')[0])
+        labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, mod, _cmap, mlci)
+    H, L = _plot_footprints(ax, mod, cmap, ci)
     handles += H
     labels += L
 
@@ -537,9 +643,6 @@ def plot_pcolormesh(mod, **kw):
     elif('north_angle' in kw):
         _draw_north_arrow(ax, kw['north_angle'])
 
-    #write Bkey note
-    _write_Bkey(ax, mod)
-
     #axes text
     ax.set_xlabel('X (ft)')
     ax.set_ylabel('Y (ft)')
@@ -547,7 +650,76 @@ def plot_pcolormesh(mod, **kw):
     #final formatting
     _format_ax(ax)
 
+    #write Bkey note
+    _write_Bkey(ax, mod)
+
     #saving
-    _save_fig('contour_plot', fig, **kw)
+    _save_fig('pcolormesh-plot', fig, **kw)
 
     return(fig, ax, QM, cbar)
+
+def plot_segment(mod, p1, p2, n=101, x_labeling='distance', scale='lin',
+    cmap='viridis_r', **kw):
+    """Plot a Model object's fields along a line segment in the model domian,
+    essentially a cross section of the fields
+    args:
+        p1 - iterable, an x-y pair
+        p2 - iterable, an x-y pair
+        n - integer, number of points sampled (default 101)
+        x_labeling - 'distance' or 'location', for x axis ticks labeled
+                      according to the distance along the segment or with
+                      the (x,y) coordinates of sample points,
+                      default is 'distance'
+        scale - str, color scaling, can be 'log' or 'lin' (default is 'lin')
+        cmap - str, name of matplotlib colormap, see:
+               http://matplotlib.org/examples/color/colormaps_reference.html
+    kw:
+        ax - target Axes
+        fig - Figure object, target figure for plotting, overridden by 'ax'
+        save - bool, toggle whether the figure is saved
+        path - string, path to directory for saved figure. If set, overrides
+                the 'save' keyword
+        format - string, saved plot format/extension (default 'png')
+    returns:
+        fig - Figure object
+        ax - Axes object"""
+
+    #get a colormap object
+    cmap = _get_cmap(cmap)
+
+    #compute the segment
+    x, y, B_interp = mod.segment(p1, p2, n=n)
+
+    #get plotting objects
+    fig, ax = _prepare_fig(**kw)
+
+    #plot
+    dist = np.sqrt((x - x[0])**2 + (y - y[0])**2)
+    ci = _make_color_indexer(min(B_interp), max(B_interp), len(cmap.colors), scale)
+    colors = [cmap.colors[ci(i)] for i in B_interp]
+    ax.scatter(dist, B_interp, s=15, c=colors, edgecolors='none')
+
+    #label
+    ax.set_ylabel('Magnetic Field ($mG$)')
+    sf = subcalc_funks._sig_figs
+    if(x_labeling == 'location'):
+        xt = [i for i in ax.get_xticks() if ((i < len(x)) and (i >= 0))]
+        ax.set_xticks(xt)
+        ax.set_xticklabels([str((sf(x[int(i)], 3), sf(y[int(i)], 3))) for i in xt])
+        ax.set_xlabel('X, Y Location ($ft$)')
+    else:
+        ax.set_xlabel('Distance Along Segment ($ft$)')
+    ax.set_title('Magnetic Field along %s ft Segment from (%s, %s) to (%s, %s)'
+            % (str(sf(np.sqrt((x[0] - x[-1])**2 + (y[0] - y[-1])**2), 3)),
+            str(sf(x[0],3)), str(sf(y[0],3)), str(sf(x[-1],3)), str(sf(y[-1],3))))
+
+    #format
+    ax.margins(0.025)
+    ax.grid(b=True)
+    _format_ax(ax)
+    #write Bkey
+    _write_Bkey(ax, mod)
+    #save or not
+    _save_fig('segment-plot', fig, **kw)
+
+    return(fig, ax)

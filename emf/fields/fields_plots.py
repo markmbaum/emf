@@ -32,8 +32,7 @@ _colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
             (0.9290, 0.6940, 0.1250),(0.4940, 0.1840, 0.5560),
             (0.4660, 0.6740, 0.1880),(0.3010, 0.7450, 0.9330),
             (0.6350, 0.0780, 0.1840)]
-#useful globals for the CrossSection plotting routines, unlikely to collide
-#with other variables of the same name
+#useful globals for the CrossSection plotting routines
 _fields_plots_xs_headspace = 0.45 #space at the top of plots for legend
 _include_headspace = True #toggle scaling to make legend overlap unlikely
 _fields_plots_xs_wireperc = 0.3 #percent of max field value to scale wire height
@@ -454,47 +453,32 @@ def _plot_DAT_comparison(xs, pan, **kw):
         path - string, destination/filename for saved figure
         format - string, saved plot format/extension (default 'png')"""
 
-    #figure object and axes
-    fig = plt.figure()
-    ax_abs = fig.add_subplot(2,1,1)
-    ax_per = ax_abs.twinx()
-    ax_mag = fig.add_subplot(2,1,2)
-    #Bmax
-    #init handles and labels lists for legend
-    kw['H'], kw['L'] = [], []
-    _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Bmax', '$(mG)$', **kw)
-    _plot_wires(ax_mag, xs.hot, xs.gnd, pan['python_results']['Bmax'], **kw)
-    _check_und_conds([xs], [ax_mag], **kw)
-    ax_abs.set_title('Absolute and Percent Difference, Max Magnetic Field')
-    ax_mag.set_ylabel('Bmax $(mG)$')
-    ax_mag.set_title('Model Results, Magnetic Field')
-    ax_mag.legend(kw['H'], kw['L'], numpoints=1)
-    _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'firebrick')
-    _format_line_axes_legends(ax_abs, ax_per, ax_mag)
-    _format_twin_axes(ax_abs, ax_per)
-    _save_fig(xs.sheet + '-DAT_comparison_Bmax', fig, **kw)
-    plt.close(fig)
+    pans = ['Bmax', 'Emax']
+    units = ['$(mG)$', '$(kV/m)$']
+    title_app = [', Max Magnetic Field', ', Max Electric Field']
+    save_suf = ['-DAT-comparison-Bmax', '-DAT-comparison-Emax']
 
-    #figure object and axes
-    fig = plt.figure()
-    ax_abs = fig.add_subplot(2,1,1)
-    ax_per = ax_abs.twinx()
-    ax_mag = fig.add_subplot(2,1,2)
-    #Emax
-    #init handles and labels lists for legend
-    kw['H'], kw['L'] = [], []
-    _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, 'Emax', '$(kV/m)$', **kw)
-    _plot_wires(ax_mag, xs.hot, xs.gnd, pan['python_results']['Emax'], **kw)
-    _check_und_conds([xs], [ax_mag], **kw)
-    ax_abs.set_title('Absolute and Percent Difference, Max Electric Field')
-    ax_mag.set_ylabel('Emax $(kV/m)$')
-    ax_mag.set_title('Model Results, Electric Field')
-    ax_mag.legend(kw['H'], kw['L'], numpoints=1)
-    _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'firebrick')
-    _format_line_axes_legends(ax_abs, ax_per, ax_mag)
-    _format_twin_axes(ax_abs, ax_per)
-    _save_fig(xs.sheet + '-DAT_comparison_Emax', fig, **kw)
-    plt.close(fig)
+    for p,u,t,s in zip(pans, units, title_app, save_suf):
+        #figure object and axes
+        fig = plt.figure()
+        ax_abs = fig.add_subplot(2,1,1)
+        ax_per = ax_abs.twinx()
+        ax_mag = fig.add_subplot(2,1,2)
+        #Bmax
+        #init handles and labels lists for legend
+        kw['H'], kw['L'] = [], []
+        _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, p, u, **kw)
+        _plot_wires(ax_mag, xs.hot, xs.gnd, pan['python_results'][p], **kw)
+        _check_und_conds([xs], [ax_mag], **kw)
+        ax_abs.set_title('Absolute and Percent Difference' + t)
+        ax_mag.set_ylabel(p + ' ' + u)
+        ax_mag.set_title('Model Results' + t)
+        ax_mag.legend(kw['H'], kw['L'], numpoints=1)
+        _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'firebrick')
+        _format_line_axes_legends(ax_abs, ax_per, ax_mag)
+        #_format_twin_axes(ax_abs, ax_per)
+        _save_fig(xs.sheet + s, fig, **kw)
+        plt.close(fig)
 
 #-------------------------------------------------------------------------------
 #plotting routines working primarily with a SectionBook object
@@ -672,77 +656,48 @@ def plot_groups(sb, **kw):
     if('groups' in kw):
         groups = set(kw['groups'])
 
+    flags = [B_flag, E_flag]
+    fields = ['Bmax', 'Emax']
+    ylabels = ['Maximum Magnetic Field $(mG)$', 'Maximum Electric Field $(kV/m)$']
+    title_pre = ['Maximum Magnetic Field - ',
+                'Maximum Electric Field - ']
+    keys = ['B', 'E']
+    it = zip(flags, fields, ylabels, title_pre, keys)
+
     #iterate over groups with more than 1 CrossSection
     for xss in sb.tag_groups:
-
         if(xss[0].tag in groups):
-
-            #BMAX
-            if(B_flag):
-                #get plotting objects
-                fig = plt.figure()
-                ax = fig.add_subplot(1,1,1)
-                #init handles and labels lists for legend
-                kw['H'], kw['L'] = [], []
-                #plot the Bmax results for each xs in the group
-                _plot_group_fields(ax, xss, 'Bmax', **kw)
-                #plot wires
-                max_field = max([xs.fields['Bmax'].max() for xs in xss])
-                _plot_group_wires(ax, xss, max_field, **kw)
-                #adjust axis limits if called for
-                if(_include_headspace):
-                    yl = ax.get_ylim()
-                    ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
-                #plot ROW lines
-                _plot_group_ROW_edges(ax, xss, **kw)
-                #set axis text and legend
-                ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
-                ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
-                t = 'Maximum Magnetic Field - %s' % str(xss[0].tag)
-                ax.set_title(textwrap.fill(t))
-                ax.legend(kw['H'], kw['L'], numpoints=1)
-                _format_line_axes_legends(ax)
-                #save the figure if keyword 'save' == True, and append fig
-                _save_fig('group_%s-Bmax' % str(xss[0].tag), fig, **kw)
-                #store the fig or close it
-                if(return_figs):
-                    figs['B'][xss[0].tag] = fig
-                else:
-                    plt.close(fig)
-
-            #EMAX
-            if(E_flag):
-                #get plotting objects
-                fig = plt.figure()
-                ax = fig.add_subplot(1,1,1)
-                #init handles and labels lists for legend
-                kw['H'], kw['L'] = [], []
-                #plot the Bmax results for each xs in the group
-                _plot_group_fields(ax, xss, 'Emax', **kw)
-                #plot wires
-                max_field = max([xs.fields['Emax'].max() for xs in xss])
-                _plot_group_wires(ax, xss, max_field, **kw)
-                #adjust axis limits if called for
-                if(_include_headspace):
-                    yl = ax.get_ylim()
-                    ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
-                #plot ROW lines
-                _plot_group_ROW_edges(ax, xss, **kw)
-                #set axis text and legendf
-                ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
-                ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
-                t = 'Maximum Electric Field - %s' % str(xss[0].tag)
-                ax.set_title(textwrap.fill(t))
-                ax.legend(kw['H'], kw['L'], numpoints=1)
-                _format_line_axes_legends(ax)
-
-                #save the figure if keyword 'save' == True or a path string is passed
-                _save_fig('group_%s-Emax' % str(xss[0].tag), fig, **kw)
-                #store the fig or close it
-                if(return_figs):
-                    figs['E'][xss[0].tag] = fig
-                else:
-                    plt.close(fig)
+            for (fl, fi, yl, ti, k) in it:
+                if(fl):
+                    #get plotting objects
+                    fig = plt.figure()
+                    ax = fig.add_subplot(1,1,1)
+                    #init handles and labels lists for legend
+                    kw['H'], kw['L'] = [], []
+                    #plot the Bmax results for each xs in the group
+                    _plot_group_fields(ax, xss, fi, **kw)
+                    #plot wires
+                    max_field = max([xs.fields[fi].max() for xs in xss])
+                    _plot_group_wires(ax, xss, max_field, **kw)
+                    #adjust axis limits if called for
+                    if(_include_headspace):
+                        ylim = ax.get_ylim()
+                        ax.set_ylim(ylim[0], (1 + _fields_plots_xs_headspace)*ylim[1])
+                    #plot ROW lines
+                    _plot_group_ROW_edges(ax, xss, **kw)
+                    #set axis text and legend
+                    ax.set_xlabel('Distance from Center of ROW $(ft)$')
+                    ax.set_ylabel(yl)
+                    ax.set_title(textwrap.fill(ti + str(xss[0].tag)))
+                    ax.legend(kw['H'], kw['L'], numpoints=1)
+                    _format_line_axes_legends(ax)
+                    #save the figure if keyword 'save' == True, and append fig
+                    _save_fig('group_%s-%s' % (str(xss[0].tag), fi), fig, **kw)
+                    #store the fig or close it
+                    if(return_figs):
+                        figs[k][xss[0].tag] = fig
+                    else:
+                        plt.close(fig)
 
     if(return_figs):
         return(figs)
@@ -804,7 +759,7 @@ def _plot_group_bars(ax, xss, field, side):
             bottom=0.0, align='center', alpha=0.8, width=0.6)
     ax.set_xticks(x)
     ax.set_xticklabels([textwrap.fill(xs.sheet, 15) for xs in xss],
-            rotation='vertical', fontsize=10)
+            rotation='vertical', fontsize=11)
 
 def _generate_ROW_value_plot_objects(xss):
     """generate figure and axes for plot_groups_at_ROW
@@ -891,6 +846,14 @@ def plot_groups_at_ROW(sb, **kw):
     if('groups' in kw):
         groups = set(kw['groups'])
 
+    flags = [B_flag, E_flag]
+    fields = ['Bmax', 'Emax']
+    ylabels = ['Maximum Magnetic Field $(mG)$', 'Maximum Electric Field $(kV/m)$']
+    suptitle_pre = ['Maximum Magnetic Fields at ROW Edges - ',
+                    'Maximum Electric Fields at ROW Edges - ']
+    keys = ['B', 'E']
+    it = zip(flags, fields, ylabels, suptitle_pre, keys)
+
     #iterate over groups with more than 1 CrossSection
     for xss in sb.tag_groups:
 
@@ -899,43 +862,24 @@ def plot_groups_at_ROW(sb, **kw):
             #get reordered CrossSection list
             xss = _reorder_xss(xss, **kw)
 
-            #plot Bmax
-            if(B_flag):
-                fig, axl, axr = _generate_ROW_value_plot_objects(xss)
-                _plot_group_bars(axl, xss, 'Bmax', 'left')
-                _plot_group_bars(axr, xss, 'Bmax', 'right')
-                #format
-                _format_bar_axes_legends(axl, axr)
-                #apply text
-                axl.set_ylabel(r'Maximum Magnetic Field $(mG)$')
-                fig.suptitle('Maximum Magnetic Fields at ROW Edges - %s' %
-                        xss[0].tag, fontsize=18)
-                #save?
-                _save_fig('group_%s-ROW-Bmax' % str(xss[0].tag), fig, **kw)
-                #store the fig or close it
-                if(return_figs):
-                    figs['B'][xss[0].tag] = fig
-                else:
-                    plt.close(fig)
+            for (fl, fi, yl, su, k) in it:
 
-            #plot Emax
-            if(E_flag):
-                fig, axl, axr = _generate_ROW_value_plot_objects(xss)
-                _plot_group_bars(axl, xss, 'Emax', 'left')
-                _plot_group_bars(axr, xss, 'Emax', 'right')
-                #format
-                _format_bar_axes_legends(axl, axr)
-                #apply text
-                axl.set_ylabel(r'Maximum Electric Field $(kV/m)$')
-                fig.suptitle('Maximum Electric Fields at ROW Edges - %s' %
-                        xss[0].tag, fontsize=18)
-                #save?
-                _save_fig('group_%s-ROW-Emax' % str(xss[0].tag), fig, **kw)
-                #store the fig or close it
-                if(return_figs):
-                    figs['E'][xss[0].tag] = fig
-                else:
-                    plt.close(fig)
+                if(fl):
+                    fig, axl, axr = _generate_ROW_value_plot_objects(xss)
+                    _plot_group_bars(axl, xss, fi, 'left')
+                    _plot_group_bars(axr, xss, fi, 'right')
+                    #format
+                    _format_bar_axes_legends(axl, axr)
+                    #apply text
+                    axl.set_ylabel(yl)
+                    fig.suptitle(su + str(xss[0].tag), fontsize=18)
+                    #save?
+                    _save_fig('group_%s-ROW-%s' % (str(xss[0].tag), fi), fig, **kw)
+                    #store the fig or close it
+                    if(return_figs):
+                        figs[k][xss[0].tag] = fig
+                    else:
+                        plt.close(fig)
 
     if(return_figs):
         return(figs)

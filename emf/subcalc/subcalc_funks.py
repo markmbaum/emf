@@ -92,11 +92,11 @@ def load_model(*args, **kw):
         #initialize Model object
         mod = subcalc_class.Model(data, info, Bkey=Bkey)
         #check for footprints
-        if('footprints' in dfs):
-            mod.load_footprints(dfs['footprints'])
-        elif(len(args) > 1):
+        if(len(args) > 1):
             #check for footprint file path and load if present
             mod.load_footprints(args[1])
+        elif('footprints' in dfs):
+            mod.load_footprints(dfs['footprints'])
 
     else:
         raise(subcalc_class.EMFError("""
@@ -153,8 +153,8 @@ def read_REF(file_path):
         for line in ifile:
             for k in keys:
                 if(k == line[:len(k)]):
-                    L = line[line.index(':')+1:]
-                    data[k].append([float(i) for i in L.split()])
+                    L = line[8:].rstrip()
+                    data[k].append([float(L[i:i+8]) for i in range(0, len(L)-1, 8)])
 
     #flatten the lists in data
     for k in data:
@@ -214,9 +214,12 @@ def _bilinear_interp(mod, x, y):
     B21 = mod.B[yidx[1], xidx[0]]
     B22 = mod.B[yidx[1], xidx[1]]
     #interpolate
-    B_interp = (1.0/((x2 - x1)*(y2 - y1)))*(
-        B11*(x2 - x)*(y2 - y) + B21*(x - x1)*(y2 - y)
-        + B12*(x2 - x)*(y - y1) + B22*(x - x1)*(y - y1))
+    ym1 = y - y1
+    xm1 = x - x1
+    y2m = y2 - y
+    x2m = x2 - x
+    B_interp = ((1.0/((x2 - x1)*(y2 - y1)))
+                *(x2m*(B11*y2m + B12*ym1) + xm1*(B21*y2m + B22*ym1)))
 
     return(B_interp)
 

@@ -32,7 +32,7 @@ def _save_fig(filename_if_needed, fig, **kw):
                 fmt = 'png'
             #save the plot
             fn += '.' + fmt
-            plt.savefig(fn, format = fmt)
+            plt.savefig(fn, format=fmt)
             print('plot saved to: %s' % fn)
 
 def _prepare_fig(**kw):

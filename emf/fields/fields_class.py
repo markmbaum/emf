@@ -384,6 +384,10 @@ class CrossSection(object):
         return(self.fields.loc[[self.lROW, self.rROW]])
     ROW_edge_fields = property(_get_ROW_edge_fields, None, None, """Slice the 'fields' DataFrame and return another DataFrame with only the results at the left and right right-of-way (ROW) edges, the locations of which are set in 'lROW' and 'rROW'.""")
 
+    def _get_ROW_edge_max(self):
+        return(self.ROW_edge_fields[['Bmax','Emax']])
+    ROW_edge_max = property(_get_ROW_edge_max, None, None, """Slice the 'fields' DataFrame and return another DataFrame with only the maximum field results at the left and right right-of-way edges, the locations of which are set by the 'lROW' and 'rROW' property""")
+
     def _check_complete(self):
         """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.
         returns:
