@@ -40,7 +40,6 @@ class Model(object):
             #check keys
             s = set(['X','Y','Bmax','Bres','Bx','By','Bz'])
             if(any([(i not in s) for i in args[0].keys()])):
-                print args[0].keys()
                 raise(EMFError("""If passing a dictionary to initialize a Model object, the dict must have the following keys only:
                     %s""" % str(s)))
             #store data
@@ -149,6 +148,22 @@ class Model(object):
         return(np.min(self.y))
     ymin = property(_get_ymin, None, None, 'Minimum vertical coordinate in model')
 
+    def _get_Bmax(self): return(subcalc_funks._2Dmax(self.B)[0])
+    Bmax = property(_get_Bmax, None, None, 'Maximum value of Model.B')
+
+    def _get_loc_Bmax(self):
+        m,i,j = subcalc_funks._2Dmax(self.B)
+        return(self.x[j], self.y[j])
+    loc_Bmax = property(_get_loc_Bmax, None, None, 'x,y coordinates of maximum of Model.B')
+
+    def _get_idx_Bmax(self):
+        m,i,j = subcalc_funks._2Dmax(self.B)
+        return(i, j)
+    idx_Bmax = property(_get_idx_Bmax, None, None, 'indices of maximum of Model.B, along the 0th axis then the 1st axis')
+
+    def _get_Bmin(self): return(subcalc_funks._2Dmin(self.B)[0])
+    Bmin = property(_get_Bmin, None, None, 'Maximum value of Model.B')
+
     def _get_north_angle(self):
         return(self._north_angle)
     def _set_north_angle(self, angle):
@@ -220,7 +235,6 @@ class Model(object):
             #check that certain fields only contain a single entry
             for f in fields:
                 if(len(s[f].unique()) > 1):
-                    print s[f].unique()
                     raise(EMFError(message % (f,n)))
             fp = Footprint(n, s['X'].values, s['Y'].values,
                     bool(s['Power Line?'].unique()[0]),
@@ -229,14 +243,12 @@ class Model(object):
                     s['Group'].unique()[0])
             self.footprints.append(fp)
 
-    def path(self, x, y, n=101, close_path=False):
+    def path(self, points, n=101, close_path=False):
         """Interpolate the field along a path defined by lists of x and y
         coordinates
         args:
-            x - iterable of x coordinates representing the start and end
-                points of segments along the path
-            y - iterable of y coordinates representing the start and end
-                points of segments along the path
+            points - an iterable of x,y pairs representing a path through the
+                     model domain to plot, for example: [(1,2), (1,3), (2,4)]
         optional args:
             n - integer, approximate total number of points sampled. Each
                 segment will have at least two samples (the beginning and end
@@ -250,29 +262,31 @@ class Model(object):
                 include all input coordinates
             B_interp - interpolated values corresponding to the input
                        coordinates"""
-        #check inputs
-        if(len(x) != len(y)):
-            raise(EMFError("""There must be an equal number of x and y coordinates"""))
         #check closing path kw
         if(close_path):
-            x, y = list(x), list(y)
-            x.append(x[0])
-            y.append(y[0])
-        L = len(x) - 1
+            points = list(points)
+            points.append(points[-1])
+        L = len(points) - 1
         rL = range(L)
-        #calculate distances of each segment
-        d = np.array([np.sqrt((x[i] - x[i+1])**2 + (y[i] - y[i+1])**2) for i in rL])
-        #convert distances to fractions
-        d = d/sum(d)
-        #approximately distribute the total number of points to each segment
-        n = np.ceil(n*d)
-        #make sure there are at least two samples in each segment
-        n[n < 2] = 2
+        #distribute point count for multiple segements, or don't
+        if(L > 1):
+            #get x and y
+            x, y = zip(*points)
+            #calculate distances of each segment
+            d = np.array([np.sqrt((x[i]-x[i+1])**2+(y[i]-y[i+1])**2) for i in rL])
+            #convert distances to fractions
+            d = d/sum(d)
+            #approximately distribute the total number of points to each segment
+            n = np.ceil(n*d)
+            #make sure there are at least two samples in each segment
+            n[n < 2] = 2
+        else:
+            n = [n]
         #interpolate over each segment
-        segs = [self.segment((x[i], y[i]), (x[i+1], y[i+1]), n=n[i]) for i in rL]
+        segs = [self.segment(points[i], points[i+1], n[i]) for i in rL]
         x, y, B_interp = (subcalc_funks._flatten(i) for i in zip(*segs))
-        return(x, y, B_interp)
 
+        return(np.array(x), np.array(y), np.array(B_interp))
 
     def segment(self, p1, p2, n=101):
         """Interpolate the field along a line between two points

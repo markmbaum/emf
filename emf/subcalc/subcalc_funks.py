@@ -62,7 +62,7 @@ def load_model(*args, **kw):
         #pull data from the REF file
         data, info = read_REF(args[0])
         #get the gridded arrays
-        data = _meshgrid(data)
+        data = meshgrid(data)
         #initialize Model object
         mod = subcalc_class.Model(data, info, Bkey=Bkey)
         #check for footprint file path and load if present
@@ -165,22 +165,21 @@ def read_REF(file_path):
 
     return(data, info)
 
-def _meshgrid(flat_data):
+def meshgrid(flat_data):
     """Convert raw grid data read from a SubCalc output file (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates and their corresponding B field values
     args:
         flat_data - dict, keyed by 'x','y','bx','by','bz','bmax','bres'
     returns:
-        grid_data - dict with gridded arrays keyed by
+        grid_data - dict with 2D arrays keyed by
                 'X','Y','Bx','By','Bz','Bmax','Bres'"""
 
     #find the number of points in a row
     x = flat_data['x']
     y = flat_data['y']
     count = 0
-    v = y[count]
-    while(y[count+1] == y[count]):
+    v = y[0]
+    while(y[count] == v):
         count += 1
-    count += 1
     #get ncols and nrows
     L = len(x)
     ncols = count
@@ -224,7 +223,7 @@ def _bilinear_interp(mod, x, y):
     return(B_interp)
 
 def _2Dmax(G):
-    """Find the indices of the maximum value in a 2 dimensional array
+    """Find the indices and value of the maximum value in a 2 dimensional array
     args:
         G - 2D numpy array
     returns:
@@ -240,6 +239,24 @@ def _2Dmax(G):
                 imax = i
                 jmax = j
     return(m, imax, jmax)
+
+def _2Dmin(G):
+    """Find the indices and value of the minimum value in a 2 dimensional array
+    args:
+        G - 2D numpy array
+    returns:
+        m - the minimum value
+        i - index of max along 0th axis
+        j - index of max along 1st axis"""
+    imin, jmin = 0, 0
+    m = np.max(G)
+    for i in range(G.shape[0]):
+        for j in range(G.shape[1]):
+            if(G[i,j] < m):
+                m = G[i,j]
+                imin = i
+                jmin = j
+    return(m, imin, jmin)
 
 def _double_min(v):
     """Find the lowest two values in an array and their indices
@@ -268,3 +285,28 @@ def _double_min(v):
             idxs[1] = i
 
     return(mins, idxs)
+
+_dist = lambda x1, x2, y1, y2: np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
+def cumulative_distance(*args):
+    """calculate the cumlative linear distances along a path of x,y coordinates, including the first point (the returned array always starts with zero)
+    args:
+        either a single iterable of x,y pairs or two iterables representing
+        x and y coordinates seperately
+    returns:
+        dist - array, cumulative distance along the points"""
+
+    if(len(args) == 1):
+        p = args[0]
+        d = np.zeros((len(p),), dtype=float)
+        for i in range(1, len(args[0])):
+            d[i] = _dist(p[i][0], p[i-1][0], p[i][1], p[i-1][1]) + d[i-1]
+    elif(len(args) == 2):
+        x, y = args[0], args[1]
+        d = np.zeros((len(x),), dtype=float)
+        for i in range(1, len(x)):
+            d[i] = _dist(x[i], x[i-1], y[i], y[i-1]) + d[i-1]
+    else:
+        raise(emf_class.EMFError('cumulative_distance only accepts 1 or 2 arguments.'))
+
+    return(d)

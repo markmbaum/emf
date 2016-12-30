@@ -271,7 +271,7 @@ class CrossSection(object):
     tag = property(_get_tag, _set_tag, None, """Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same tag properties are grouped for functions that involve comparisons.""")
 
     def _get_title(self):
-        if(self._title == ''):
+        if(not (self._title)):
             return(self.tag)
         else:
             return(self._title)
@@ -286,7 +286,7 @@ class CrossSection(object):
         old_value = self._max_dist
         self._max_dist = self._check_to_float(new_value, 'max_dist')
         self._reset_fields(old_value, new_value)
-    max_dist = property(_get_max_dist, _set_max_dist, None, """Maximum horizontal distance of sample points for EMF calculations (ft), default is 100. Resolution is controlled by the 'step' property.""")
+    max_dist = property(_get_max_dist, _set_max_dist, None, """Maximum horizontal distance of sample points for EMF calculations (ft), default is 100. Resolution or step size is controlled by the 'step' property.""")
 
     def _get_step(self): return(self._step)
     def _set_step(self, new_value):

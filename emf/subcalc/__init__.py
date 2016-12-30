@@ -19,13 +19,15 @@ from subcalc_class import (Model,
 
 from subcalc_funks import (drop_footprint_template,
 						read_REF,
+                        meshgrid,
                         load_model,
-                        convert_REF)
+                        convert_REF,
+                        cumulative_distance)
 
 from subcalc_plots import (plot_cross_sections,
                         plot_contour,
                         plot_pcolormesh,
-                        plot_segment,
+                        plot_path,
                         ion,
                         show,
                         close)

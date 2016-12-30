@@ -54,9 +54,7 @@ def show():
     plt.show()
 
 def close(*args):
-    """Call plt.close() on any Figure objects or lists of Figure objects
-    passed in. If nothing is passed, all Figure objects are closed with
-    plt.close('all')"""
+    """Call plt.close() on any Figure objects or lists of Figure objects passed in. If nothing is passed, all Figure objects are closed with plt.close('all')"""
     if(args):
         for a in args:
             if(hasattr(a, '__len__')):
@@ -66,6 +64,25 @@ def close(*args):
                 plt.close(a.number)
     else:
         plt.close('all')
+
+def _get_text_alignment(point1, point2):
+    """Get the horizontal and vertical text alignment keywords for text placed at the end of a line segment from point1 to point2
+    args:
+        point1 - x,y pair
+        point2 - x,y pair
+    returns:
+        ha - horizontal alignment string
+        va - vertical alignment string"""
+    x1, x2, y1, y2 = point1[0], point2[0], point1[1], point2[1]
+    if(x1 < x2):
+        ha = 'left'
+    else:
+        ha = 'right'
+    if(y1 < y2):
+        va = 'bottom'
+    else:
+        va = 'top'
+    return(ha, va)
 
 def _format_ax(ax):
     #apply legend formatting
@@ -315,138 +332,6 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
 
     return(ci)
 
-def plot_cross_sections(mod, p_start, p_end, xs_label_size=12, xs_color='black',
-    map_style='contour', scale='lin', n=101, x_labeling='distance',
-    label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
-    legend_padding=6, **kw):
-    """Generate a map style plot (either contour or pcolormesh) with
-    cross sections labeled on it and generate plots of the fields corresponding
-    to the cross sections
-    args:
-        mod - Model object
-        p_start - iterable of tuples, the starting points of each cross section
-        p_end - iterable of tuples, the ending points of each cross section
-    optional args:
-        xs_label_size - int, fontsize of text labels on the map style figure
-        xs_color - any matplotlib compatible color definition
-        map_style - str, 'contour' or 'pcolormesh', determines which map style
-                    plot is generated with the cross sections labeled on it,
-                    default is 'contour'
-        scale - str, can be 'log' or 'lin', only applies if map_style is
-                'contour' (default is 'lin')
-        n - integer, number of points sampled along the sections (default 101)
-        x_labeling - 'distance' or 'location', for x axis ticks on the cross
-                      section plots labeled according to the distance along
-                      the segment or with the (x,y) coordinates of sample
-                      points, default is 'distance'
-        label_max - bool, toggle labeling of the maximum field location,
-                    default is True
-        cmap - str, name of matplotlib colormap, see:
-               http://matplotlib.org/examples/color/colormaps_reference.html
-        max_fig_width - float/int, inches, maximum width of figure
-        max_fig_height - float/int, inches, maximum height of figure
-        legend_padding - float/int, inches, width left for legend area
-    kw:
-        any keyword arguments that can be passed to plot_contour(),
-        plot_pcolormesh(), or plot_segment()
-
-        note: Only a directory name can be passed to the 'path' keyword to
-              prevent saved plots from overwriting each other. File names are
-              created automatically.
-    returns:
-        A tuple of tuples of plotting objects. The first tuple contains the
-        return arguments of the map plot (contour or pcolormesh) and all the
-        next tuples contain the return arguments of plot_segments, for however
-        many cross sections are created."""
-
-    #separate saving kw from others
-    save_kw = {}
-    for k in ['save', 'path', 'format']:
-        if(k in kw):
-            save_kw[k] = kw[k]
-            kw.pop(k)
-
-    #deal with the saving kw
-    save = False
-    if('path' in save_kw):
-        save_kw['save'] = True
-    if('save' in save_kw):
-        if(save_kw['save']):
-            save = True
-            if('path' not in save_kw):
-                path = ''
-                save_kw['path'] = path
-            else:
-                path = save_kw['path']
-                if(not os.path.isdir(path)):
-                    raise(subcalc_class.EMFError('Keyword argument "path" can only be the path to a directory when using plot_cross_sections().'))
-
-    #check inputs
-    if(len(p_start) != len(p_end)):
-        raise(subcalc_class.EMFError('p_start and p_end must have the same length.'))
-    if(len(p_start) > 26):
-        raise(subcalc_class.EMFError('There cannot be more than 26 cross sections on a single figure.'))
-    for p in (list(p_start) + list(p_end)):
-        if(not mod.in_grid(p[0], p[1])):
-            raise(subcalc_clas.EMFError('The point (%g, %g) is not in the model domain.' % (p[0], p[1])))
-
-    #list of return arguments
-    R = []
-
-    #plot the map style figure
-    if(map_style == 'contour'):
-        r = plot_contour(mod, scale, label_max, cmap, max_fig_width,
-                max_fig_height, legend_padding, **kw)
-        R.append(r)
-        fig, ax = r[0], r[1]
-        fn = 'contour-plot-with-cross-sections'
-    else:
-        r = plot_pcolormesh(mod, label_max, cmap, max_fig_width, max_fig_height,
-                legend_padding, **kw)
-        R.append(r)
-        fig, ax = r[0], r[1]
-        fn = 'pcolormesh-plot-with-cross-sections'
-    #draw cross section traces on the figure
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    count = 0
-    for ps, pe in zip(p_start, p_end):
-        x1, y1, x2, y2 = ps[0], ps[1], pe[0], pe[1]
-        #plot the trace
-        ax.plot([x1, x2], [y1, y2], color=xs_color)
-        #label the trace
-        if(x1 < x2):
-            ha1, ha2 = 'right', 'left'
-        else:
-            ha1, ha2 = 'left', 'right'
-        if(y1 < y2):
-            va1, va2 = 'top', 'bottom'
-        else:
-            va1, va2 = 'bottom', 'top'
-        ax.text(x1, y1, alphabet[count], ha=ha1, va=va1,
-                color=xs_color, fontsize=xs_label_size)
-        ax.text(x2, y2, alphabet[count] + "'", ha=ha2, va=va2,
-                color=xs_color, fontsize=xs_label_size)
-
-        count += 1
-    #save or don't
-    if(save):
-        _save_fig(fn, fig, **save_kw)
-
-    #plot the cross sections
-    count = 0
-    for ps, pe in zip(p_start, p_end):
-        r = plot_segment(mod, ps, pe, n, x_labeling, scale, cmap, **kw)
-        R.append(r)
-        fig, ax = r
-        c = alphabet[count]
-        ax.set_title("Cross Section %s-%s'" % (c, c))
-        if(save):
-            _save_fig('cross-section-%s' % c, fig, **save_kw)
-        count += 1
-
-    return(R)
-
-
 def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
     max_fig_width=12, max_fig_height=8, legend_padding=4, **kw):
     """Generate a contour plot from the magnetic field results and
@@ -658,13 +543,14 @@ def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
 
     return(fig, ax, QM, cbar)
 
-def plot_segment(mod, p1, p2, n=101, x_labeling='distance', scale='lin',
+def plot_path(mod, points, n=101, x_labeling='distance', scale='lin',
     cmap='viridis_r', **kw):
     """Plot a Model object's fields along a line segment in the model domian,
     essentially a cross section of the fields
     args:
-        p1 - iterable, an x-y pair
-        p2 - iterable, an x-y pair
+        mod - Model object
+        points - an iterable of x,y pairs representing a path through the model
+                 domain to plot, for example: [(1,2), (1,3), (2,4)]
         n - integer, number of points sampled (default 101)
         x_labeling - 'distance' or 'location', for x axis ticks labeled
                       according to the distance along the segment or with
@@ -687,39 +573,178 @@ def plot_segment(mod, p1, p2, n=101, x_labeling='distance', scale='lin',
     #get a colormap object
     cmap = _get_cmap(cmap)
 
-    #compute the segment
-    x, y, B_interp = mod.segment(p1, p2, n=n)
+    #compute the path
+    x, y, B_interp = mod.path(points, n)
 
     #get plotting objects
     fig, ax = _prepare_fig(**kw)
 
     #plot
-    dist = np.sqrt((x - x[0])**2 + (y - y[0])**2)
-    ci = _make_color_indexer(min(B_interp), max(B_interp), len(cmap.colors), scale)
+    dist = subcalc_funks.cumulative_distance(x, y)
+    ci = _make_color_indexer(mod.Bmin, mod.Bmax, len(cmap.colors), scale)
     colors = [cmap.colors[ci(i)] for i in B_interp]
-    ax.scatter(dist, B_interp, s=15, c=colors, edgecolors='none')
+    ax.scatter(dist, B_interp, s=15, c=colors, edgecolors='gray')
 
     #label
     ax.set_ylabel('Magnetic Field ($mG$)')
     sf = subcalc_funks._sig_figs
+    dist = subcalc_funks.cumulative_distance(points)
+    x, y = zip(*points)
+    point_strings = [str((sf(x[i],3), sf(y[i],3))) for i in range(len(points))]
     if(x_labeling == 'location'):
-        xt = [i for i in ax.get_xticks() if ((i < len(x)) and (i >= 0))]
-        ax.set_xticks(xt)
-        ax.set_xticklabels([str((sf(x[int(i)], 3), sf(y[int(i)], 3))) for i in xt])
+        ax.set_xticks(dist)
+        ax.set_xticklabels(point_strings, rotation=45, ha='right')
         ax.set_xlabel('X, Y Location ($ft$)')
     else:
-        ax.set_xlabel('Distance Along Segment ($ft$)')
-    ax.set_title('Magnetic Field along %s ft Segment from (%s, %s) to (%s, %s)'
-            % (str(sf(np.sqrt((x[0] - x[-1])**2 + (y[0] - y[-1])**2), 3)),
-            str(sf(x[0],3)), str(sf(y[0],3)), str(sf(x[-1],3)), str(sf(y[-1],3))))
+        ax.set_xlabel('Distance Along Path ($ft$)')
+    ax.set_title('Magnetic Field along %s ft Path from %s' %
+            (str(sf(dist[-1], 3)), ' to '.join(point_strings)))
 
     #format
     ax.margins(0.025)
     ax.grid(b=True)
     _format_ax(ax)
+    #tight layout
+    fig.tight_layout()
     #write Bkey
     _write_Bkey(ax, mod)
     #save or not
     _save_fig('segment-plot', fig, **kw)
 
     return(fig, ax)
+
+def plot_cross_sections(mod, paths, xs_label_size=12, xs_color='black',
+    map_style='contour', scale='lin', n=101, x_labeling='distance',
+    label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
+    legend_padding=6, **kw):
+    """Generate a map style plot (either contour or pcolormesh) with
+    cross sections labeled on it and generate plots of the fields corresponding
+    to the cross sections
+    args:
+        mod - Model object
+        paths - An iterable of iterables of x,y pairs representing paths through
+                the model domain to plot as cross sections. For example,
+                    ([(1,2), (3,5)], [(2,5), (9,3), (4,7)], [(5,3), (9,2)])
+    optional args:
+        xs_label_size - int, fontsize of text labels on the map style figure
+        xs_color - any matplotlib compatible color definition
+        map_style - str, 'contour' or 'pcolormesh', determines which map style
+                    plot is generated with the cross sections labeled on it,
+                    default is 'contour'
+        scale - str, can be 'log' or 'lin', only applies if map_style is
+                'contour' (default is 'lin')
+        n - integer, number of points sampled along the sections (default 101)
+        x_labeling - 'distance' or 'location', for x axis ticks on the cross
+                      section plots labeled according to the distance along
+                      the segment or with the (x,y) coordinates of sample
+                      points, default is 'distance'
+        label_max - bool, toggle labeling of the maximum field location,
+                    default is True
+        cmap - str, name of matplotlib colormap, see:
+               http://matplotlib.org/examples/color/colormaps_reference.html
+        max_fig_width - float/int, inches, maximum width of figure
+        max_fig_height - float/int, inches, maximum height of figure
+        legend_padding - float/int, inches, width left for legend area
+    kw:
+        prefix - string prepended to the file names of saved plots
+        suffix - string appended to the file names of saved plots
+
+            and
+
+        any keyword arguments that can be passed to plot_contour(),
+        plot_pcolormesh(), or plot_segment()
+
+        note: Only a directory name can be passed to the 'path' keyword to
+              prevent saved plots from overwriting each other. File names are
+              created automatically.
+    returns:
+        A tuple of tuples of plotting objects. The first tuple contains the
+        return arguments of the map plot (contour or pcolormesh) and all the
+        next tuples contain the return arguments of plot_segments, for however
+        many cross sections are created."""
+
+    #separate saving kw from others
+    save_kw = {}
+    for k in ['save', 'path', 'format', 'prefix', 'suffix']:
+        if(k in kw):
+            save_kw[k] = kw[k]
+            kw.pop(k)
+
+    #deal with the saving kw
+    save = False
+    if('path' in save_kw):
+        save_kw['save'] = True
+    if('save' in save_kw):
+        if(save_kw['save']):
+            save = True
+            if('path' not in save_kw):
+                path = ''
+                save_kw['path'] = path
+            else:
+                path = save_kw['path']
+                if(not os.path.isdir(path)):
+                    raise(subcalc_class.EMFError('Keyword argument "path" can only be the path to a directory when using plot_cross_sections().'))
+    if('prefix' in save_kw):
+        fn_prefix = save_kw['prefix']
+        if(fn_prefix[-1] != '-'):
+            fn_prefix = fn_prefix + '-'
+    else:
+        fn_prefix = ''
+    if('suffix' in save_kw):
+        fn_suffix = save_kw['suffix']
+        if(fn_suffix[0] != '-'):
+            fn_suffix = '-' + fn_suffix
+    else:
+        fn_suffix = ''
+
+    #check inputs
+    if(len(paths) > 26):
+        raise(subcalc_class.EMFError('There cannot be more than 26 cross sections on a single figure.'))
+
+    #list of return arguments
+    R = []
+
+    #plot the map style figure
+    if(map_style == 'contour'):
+        r = plot_contour(mod, scale, label_max, cmap, max_fig_width,
+                max_fig_height, legend_padding, **kw)
+        R.append(r)
+        fig, ax = r[0], r[1]
+        fn = fn_prefix + 'contour-with-cross-sections' + fn_suffix
+    else:
+        r = plot_pcolormesh(mod, label_max, cmap, max_fig_width, max_fig_height,
+                legend_padding, **kw)
+        R.append(r)
+        fig, ax = r[0], r[1]
+        fn = fn_prefix + 'pcolormesh-with-cross-sections' + fn_suffix
+    #draw cross section traces on the figure
+    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    for i, path in enumerate(paths):
+        #get x,y
+        x, y = zip(*path)
+        xb, xe, yb, ye = x[0], x[-1], y[0], y[-1]
+        #plot the trace
+        ax.plot(x, y, color=xs_color)
+        #label the trace
+        hab, vab = _get_text_alignment(path[1], path[0])
+        hae, vae = _get_text_alignment(path[-2], path[-1])
+        ax.text(xb, yb, alphabet[i], ha=hab, va=vab,
+                color=xs_color, fontsize=xs_label_size)
+        ax.text(xe, ye, alphabet[i] + "'", ha=hae, va=vae,
+                color=xs_color, fontsize=xs_label_size)
+    #save or don't
+    if(save):
+        _save_fig(fn, fig, **save_kw)
+
+    #plot the cross sections
+    for i, path in enumerate(paths):
+        r = plot_path(mod, path, n, x_labeling, scale, cmap, **kw)
+        R.append(r)
+        fig, ax = r
+        c = alphabet[i]
+        ax.set_title("Cross Section %s-%s'" % (c, c))
+        if(save):
+            fn = '%scross-section-%s' % (fn_prefix, c + fn_suffix)
+            _save_fig(fn, fig, **save_kw)
+
+    return(tuple(R))
