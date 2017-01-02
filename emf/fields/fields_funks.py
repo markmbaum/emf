@@ -9,7 +9,7 @@ import fields_calcs
 import fields_plots
 
 def drop_template(*args, **kw):
-    """Copy the emf.fields template in the current directory or a directory specified by an input string
+    """Copy the emf.fields template into the current directory or a directory specified by an input string
     args:
         drop_path - string, path of copied template file"""
     #check inputs
@@ -19,8 +19,7 @@ def drop_template(*args, **kw):
         kw = {'path': args[0]}
     #get template file path
     fn_temp = os.path.dirname(os.path.dirname(__file__))
-    fn_temp = os.path.join(fn_temp, 'templates')
-    fn_temp = os.path.join(fn_temp, 'fields-template.xlsx')
+    fn_temp = os.path.join(fn_temp, 'templates', 'fields-template.xlsx')
     #get drop path
     fn_drop = _path_manage('fields-template', 'xlsx', **kw)
     #check for existing files

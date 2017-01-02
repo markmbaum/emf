@@ -54,7 +54,9 @@ In addition to being quicker to use and more flexible than FIELDS, this code fur
 * `emf.fields.optimize_phasing()` optimizes the phasing arrangement of selected conductors in a cross section by calculating fields for every possible phasing permutation at the ROW edges. Conductors can be grouped arbitrarily into circuits (usually groups of three for three-phase circuits). Because this method performs brute force testing of the ROW edge fields for all possible permutations and scales poorly, it's slow when optimizing more than about five (three phase) circuits at a time, but CrossSections with more than a few circuits are very rare.
 * `emf.fields.target_fields()` finds any additional conductor height needed to bring maximum fields down to target levels. This method also allows for selection of specific conductors and uses a simple root finding method, increasing the height of selected conductors and reevaluating theoretical fields at right-of-way (ROW) edges until the desired precision is achieved.
 
-Finally, `emf.fields` has several plotting functions that work on `CrossSection` and `SectionBook` objects. Some examples are below:
+Finally, `emf.fields` has several plotting functions that work on `CrossSection` and `SectionBook` objects. Some examples are below.
+
+#### Example `emf.fields` plots
 
 Simulated maximum electric and magnetic fields across a ROW, with the field magnitudes on split vertical axes, using `emf.fields.plot_max_fields()`. Conductor positions are shown in true horizontal units but false/scaled vertical units:
 ![plot_max_fields](docs/plots/und_P.png)
@@ -84,6 +86,11 @@ A heatmap or colormesh plot of the same SUBCALC results again, using `emf.subcal
 Another heatmap using results from the same model as above, but with only the
 horizontal (x) component of the magnetic field plotted, and using the "magma" colormap.
 ![plot_pcolormesh-2](docs/plots/Bx_magma.png)
+
+Finally, a heatmap of substation model results with two cross sections drawn. The fields along the cross sections are shown in the two subsequent plots. All three plots were automatically generated.
+![plot_cross_section_map](docs/plots/pcolormesh-with-cross-sections.png)
+![plot_cross_section_A](docs/plots/cross-section-A.png)
+![plot_cross_section_B](docs/plots/cross-section-B.png)
 
 ###### EPRI's "Red Book"
 

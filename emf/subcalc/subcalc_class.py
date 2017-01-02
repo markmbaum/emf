@@ -9,11 +9,13 @@ class Model(object):
 
     Model objects have a 'Bkey' property that determines which component of the magnetic field results is accessed by the Model.B property. For example, when Model.Bkey == 'Bmax' all operations involving the grid of magnetic field results accessed by Model.B will operate on the 'max' field component. When Bmax == 'Bz' all operations deal with the vertical 'z' component of the field, and so on. This includes plotting.
 
-    Footprints of objects in the Model domain like buildings, the power lines, fences, etc. can also be stored in Model objects. Data for these objects must be saved in csv template files. The path of the footprint csv files can be passed to subcalc.load_model for automatic inclusion in a newly generated Model object or it can be passed to an existing Model with Model.load_footprints. The footprint data is stored in Footprint objects that have very little functionality and are mostly just organizational objects.
+    Footprints of objects in the Model domain like buildings, the power lines, fences, etc. can also be stored in Model objects. Data for these objects can be saved in csv template files. The path of the footprint csv files can be passed to subcalc.load_model for automatic inclusion in a newly generated Model object or it can be passed to an existing Model with Model.load_footprints. The footprint data is stored in Footprint objects that have very little functionality and are mostly just organizational objects.
 
-    Several methods are available for interpolating new values from the grid of field results: Model.interp, Model.resample, and Model.cross_section.
+    Several methods are available for interpolating new values from the grid of field results: Model.interp, Model.segment, Model.path, and Model.resample.
 
-    Contour plots of the results can be automatically generated with subcalc.plot_contour(Model) and colormesh plots can be automatically generated with subcalc.plot_pcolormesh(Model)."""
+    There are also two methods for selecting a subset of a Model object's domain and for shifting its x,y coordinates. These are Model.zoom and Model.rereference respectively.
+
+    Contour plots of the results (Model.B) can be automatically generated with subcalc.plot_contour(Model) and colormesh plots can be automatically generated with subcalc.plot_pcolormesh(Model). The fields along a path through the Model domain (essentially a cross section) can be plotted with subcalc.plot_path. A contour or pcolormesh can be combined with cross sections using the subcalc.plot_cross_sections function."""
 
     def __init__(self, *args, **kw):
         """Grid data must be passed in

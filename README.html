@@ -133,7 +133,10 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <code>emf.fields.target_fields()</code> finds any additional conductor height needed to bring maximum fields down to target levels. This method also allows for selection of specific conductors and uses a simple root finding method, increasing the height of selected conductors and reevaluating theoretical fields at right-of-way (ROW) edges until the desired precision is achieved.</li>
 </ul>
 
-<p>Finally, <code>emf.fields</code> has several plotting functions that work on <code>CrossSection</code> and <code>SectionBook</code> objects. Some examples are below:</p>
+<p>Finally, <code>emf.fields</code> has several plotting functions that work on <code>CrossSection</code> and <code>SectionBook</code> objects. Some examples are below.</p>
+
+<h4>
+<a id="user-content-example-emffields-plots" class="anchor" href="#example-emffields-plots" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example <code>emf.fields</code> plots</h4>
 
 <p>Simulated maximum electric and magnetic fields across a ROW, with the field magnitudes on split vertical axes, using <code>emf.fields.plot_max_fields()</code>. Conductor positions are shown in true horizontal units but false/scaled vertical units:
 <a href="docs/plots/und_P.png" target="_blank"><img src="docs/plots/und_P.png" alt="plot_max_fields" style="max-width:100%;"></a></p>
@@ -164,6 +167,11 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <p>Another heatmap using results from the same model as above, but with only the
 horizontal (x) component of the magnetic field plotted, and using the "magma" colormap.
 <a href="docs/plots/Bx_magma.png" target="_blank"><img src="docs/plots/Bx_magma.png" alt="plot_pcolormesh-2" style="max-width:100%;"></a></p>
+
+<p>Finally, a heatmap of substation model results with two cross sections drawn. The fields along the cross sections are shown in the two subsequent plots. All three plots were automatically generated.
+<a href="docs/plots/pcolormesh-with-cross-sections.png" target="_blank"><img src="docs/plots/pcolormesh-with-cross-sections.png" alt="plot_cross_section_map" style="max-width:100%;"></a>
+<a href="docs/plots/cross-section-A.png" target="_blank"><img src="docs/plots/cross-section-A.png" alt="plot_cross_section_A" style="max-width:100%;"></a>
+<a href="docs/plots/cross-section-B.png" target="_blank"><img src="docs/plots/cross-section-B.png" alt="plot_cross_section_B" style="max-width:100%;"></a></p>
 
 <h6>
 <a id="user-content-epris-red-book" class="anchor" href="#epris-red-book" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>EPRI's "Red Book"</h6>
