@@ -164,7 +164,7 @@ class Model(object):
     idx_Bmax = property(_get_idx_Bmax, None, None, 'indices of maximum of Model.B, along the 0th axis then the 1st axis')
 
     def _get_Bmin(self): return(subcalc_funks._2Dmin(self.B)[0])
-    Bmin = property(_get_Bmin, None, None, 'Maximum value of Model.B')
+    Bmin = property(_get_Bmin, None, None, 'Minimum value of Model.B')
 
     def _get_north_angle(self):
         return(self._north_angle)

@@ -15,13 +15,14 @@ class Conductor(object):
         """
         args:
             tag - scalar hashable, mandatory, essentially just a name
-            params - dict or list, available Conductor parameters are:
+            params - dict or list, a list of Conductor parameters can be
+                     retrieved with Conductor.params, and they are:
 
                     x, y, subconds, d_cond, d_bund, V, I, phase
 
                 A list can be passed with the values of any number of the above
                 paremeters (in the order listed above) or a dict can be passed
-                with any number of those parameter strings as keys.
+                with any number of those parameters as keys.
 
             cond - an existing Conductor object, parameters that are not set
                     with the second arg will be borrowed from the Conductor"""
@@ -45,18 +46,18 @@ class Conductor(object):
         if(len(args) > 1):
 
             a = args[1]
-            p = ['x', 'y', 'subconds', 'd_cond', 'd_bund', 'V', 'I', 'phase']
+            p = self.params
 
             if(type(a) is list):
                 for i in range(len(a)):
-                    exec('self.%s = %s' % (p[i], str(a[i])))
+                    exec('self.%s = %s' % (p[i], repr(str(a[i]))))
                 p = p[i+1:]
 
             elif(type(a) is dict):
                 for k in a:
                     if(k not in p):
                         raise(EMFError("""Unexpected dictionary key "%s" encountered in Conductor initialization."""% str(k)))
-                    exec('self.%s = %s' % (k, str(a[k])))
+                    exec('self.%s = %s' % (k, repr(str(a[k]))))
                     p.remove(k)
 
             else:
@@ -73,17 +74,17 @@ class Conductor(object):
     #---------------------------------------------------------------------------
     #PROPERTIES
 
+    def _get_params(self): return(['x', 'y', 'subconds', 'd_cond', 'd_bund', 'V', 'I', 'phase'])
+    params = property(_get_params, None, None, 'Get a list of the parameter/property names for Conductor objects')
+
     def _check_complete(self):
         """Check if all Conductor variables have been set
         returns:
             b - bool, True if all physical parameters are not None
             v - name of first unset parameter or None"""
-        d = vars(self)
-        keys = d.keys()
-        for k in keys:
-            if('xs' not in k):
-                if(d[k] is None):
-                    return(False, k)
+        for p in self.params:
+            if(eval('self.%s' % p) is None):
+                return(False, p)
         return(True, None)
     complete = property(_check_complete)
 
@@ -93,13 +94,13 @@ class Conductor(object):
             self._xs._fields = None
 
     def _check_to_float(self, value, prop):
-        """check that an incoming value can be converted to a float and return the float version of it, or raise an error"""
+        """check that an incoming value can be converted to a float and return the float version of it or raise an error"""
         if(not fields_funks._is_number(value)):
             raise(EMFError("""Conductor property '%s' must be numeric. It cannot be set to: %s""" % (prop, repr(value))))
         return(float(value))
 
     def _check_to_int(self, x, prop):
-        """check that an incoming value can be converted to an integer and returne the int version of it, or raise an error"""
+        """check that an incoming value can be converted to an integer and return the int version of it or raise an error"""
         if(not fields_funks._is_number(x)):
             raise(EMFError("""Conductor property '%s' must be numeric. It cannot be set to: %s""" % (prop, repr(x))))
         elif(int(x) != float(x)):
@@ -148,11 +149,13 @@ class Conductor(object):
         old_value = self._d_cond
         self._d_cond = self._check_to_float(new_value, 'd_cond')
         self._reset_xs_fields(old_value, new_value)
-        if((self.subconds == 1) and (self.d_bund is None)):
-            self.d_bund = new_value
     d_cond = property(_get_d_cond, _set_d_cond, None, """Diameter of the conductor or a single subconductor if subconds > 1 (inches)""")
 
-    def _get_d_bund(self): return(self._d_bund)
+    def _get_d_bund(self):
+        if(self.subconds == 1):
+            if(self._d_bund is None):
+                return(self.d_cond)
+        return(self._d_bund)
     def _set_d_bund(self, new_value):
         old_value = self._d_bund
         self._d_bund = self._check_to_float(new_value, 'd_bund')

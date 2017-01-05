@@ -87,8 +87,8 @@ Another heatmap using results from the same model as above, but with only the
 horizontal (x) component of the magnetic field plotted, and using the "magma" colormap.
 ![plot_pcolormesh-2](docs/plots/Bx_magma.png)
 
-Finally, a heatmap of substation model results with two cross sections drawn. The fields along the cross sections are shown in the two subsequent plots. All three plots were automatically generated.
-![plot_cross_section_map](docs/plots/pcolormesh-with-cross-sections.png)
+Finally, a contour plot of substation model results with two cross sections drawn on it. The fields along the cross sections are shown in the two subsequent plots. All three plots were automatically generated.
+![plot_cross_section_map](docs/plots/contour-with-cross-sections.png)
 ![plot_cross_section_A](docs/plots/cross-section-A.png)
 ![plot_cross_section_B](docs/plots/cross-section-B.png)
 
