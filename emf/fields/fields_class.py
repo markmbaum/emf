@@ -11,10 +11,11 @@ import FIELDS_io
 class Conductor(object):
     """A single power line object representing an infintely long conductor and storing basic physical parameters like the line's 2D coordinates, size, voltage, current, phase angle, etc. The Conductor class is the functional unit of emf.fields. Groups of Conductors are organized by higher level CrossSection objects to form complete 2D EMF models of parellel sets of power lines. CrossSection objects use the physical parameters stored in Conductor objects to compute predicted EMF values at a fixed height across a preset distance perpendicular to the power lines."""
 
-    def __init__(self, *args):
+    def __init__(self, name, params=None, copy_cond=None):
         """
         args:
-            tag - scalar hashable, mandatory, essentially just a name
+            name - scalar hashable, mandatory, essentially just a name
+        optional args:
             params - dict or list, available Conductor parameters are:
 
                     x, y, subconds, d_cond, d_bund, V, I, phase
@@ -23,12 +24,13 @@ class Conductor(object):
                 paremeters (in the order listed above) or a dict can be passed
                 with any number of those parameter strings as keys.
 
-            cond - an existing Conductor object, parameters that are not set
-                    with the second arg will be borrowed from the Conductor"""
+            copy_cond - an existing Conductor object, parameters that are not
+                        set with the second arg will be borrowed from the
+                        Conductor"""
 
         if(len(args) == 0):
-            raise(EMFError("""Conductor objects must be initialized with 1-3 args, the first of which must be the Conductor 'tag'. The second arg can be a dict or list setting the Conductor's paremeters. See the Conductor class doc string for more info on the second arg."""))
-        self._tag = None #conductor label
+            raise(EMFError("""Conductor objects must be initialized with 1-3 args, the first of which must be the Conductor name. The second arg can be a dict or list setting the Conductor's paremeters. See the Conductor class doc string for more info on the second arg."""))
+        self._name = None #conductor label
         self._xs = None #parent CrossSection object
         self._freq = 60.0 #phase frequency in Hertz
         self._x = None #x coordinate
@@ -39,13 +41,13 @@ class Conductor(object):
         self._V = None #line voltage
         self._I = None #line current
         self._phase = None #phase angle in degrees
-        #set tag property
-        self.tag = args[0]
+        #set name property
+        self.name = args[0]
         #set other parameters
-        if(len(args) > 1):
+        if(params is not None):
 
-            a = args[1]
-            p = ['x', 'y', 'subconds', 'd_cond', 'd_bund', 'V', 'I', 'phase']
+            a = params
+            p = self.params
 
             if(type(a) is list):
                 for i in range(len(a)):
@@ -62,13 +64,13 @@ class Conductor(object):
             else:
                 raise(EMFError("""The second argument to Conductor initialization must be a list or dict. See the Conductor class doc string for more info on the second arg."""))
 
-        if(len(args) > 2):
-            c = args[2]
-            if(type(c) is not type(self)):
+        if(copy_cond is not None):
+            copy_cond = args[2]
+            if(type(copy_cond) is not type(self)):
                 raise(EMFError("""The third argument must be an existing Conductor object from which all unset parameters in the newly created Conductor are copied."""))
             for q in p:
-                if(eval('c.%s' % q) is not None):
-                    exec('self.%s = c.%s' % (q, q))
+                if(eval('copy_cond.%s' % q) is not None):
+                    exec('self.%s = copy_cond.%s' % (q, q))
 
     #---------------------------------------------------------------------------
     #PROPERTIES
@@ -106,18 +108,18 @@ class Conductor(object):
             raise(EMFError("""Conductor property '%s' must be an integer. It cannot be set to: %s""" % (prop, repr(x))))
         return(int(x))
 
-    def _get_tag(self): return(self._tag)
-    def _set_tag(self, new_tag):
-        if(not new_tag):
-            raise(EMFError("""Conductor tags cannot be implicitly False objects."""))
+    def _get_name(self): return(self._name)
+    def _set_name(self, new_name):
+        if(not new_name):
+            raise(EMFError("""Conductor names cannot be implicitly False objects."""))
         if(self._xs is not None):
-            if(new_tag in self._xs.tags):
-                raise(EMFError("""Cannot change Conductor tag from "%s" to "%s" because the latter is alread present in the Conductor's parent CrossSection object. CrossSections must contain Conductors with unique tags.""" % (str(self._tag), str(new_tag))))
-        old_tag = self._tag
-        self._tag = new_tag
-        if((new_tag != old_tag) and (self._xs is not None)):
-            self._xs._update_tag2idx()
-    tag = property(_get_tag, _set_tag, None, """Conductor object identification, usually a string but can be anything hashable""")
+            if(new_name in self._xs.names):
+                raise(EMFError("""Cannot change Conductor name from "%s" to "%s" because the latter is alread present in the Conductor's parent CrossSection object. CrossSections must contain Conductors with unique names.""" % (str(self._name), str(new_name))))
+        old_name = self._name
+        self._name = new_name
+        if((new_name != old_name) and (self._xs is not None)):
+            self._xs._update_name2idx()
+    name = property(_get_name, _set_name, None, """Conductor object identification, usually a string but can be anything hashable""")
 
     def _get_freq(self): return(self._freq)
     freq = property(_get_freq, None, None, """Conductor frequency (Hz), cannot be set because Conductors in the same CrossSection are assumed to have equal frequencies, making the frequency irrelevant. This is a stand in value that does not currently affect EMF calculations in any way.""")
@@ -190,7 +192,7 @@ class Conductor(object):
         if(type(self) is not type(other)):
             return(False)
         vs, vo = copy.deepcopy(vars(self)), copy.deepcopy(vars(other))
-        del(vs['_tag'])
+        del(vs['_name'])
         for k in vs:
             if(vs[k] != vo[k]):
                 return(False)
@@ -201,15 +203,20 @@ class Conductor(object):
         return(copy.deepcopy(self))
 
 class CrossSection(object):
-    """An object representing a single model of a set of parellel power lines. CrossSections are containers for Conductor objects, providing dict-like access to the Conductors by their 'tag' properties, which also store modeling information like the sampling locations and the horizontal locations of right-of-way (ROW) edges, which usually mark the edge of the utility company's property and the location of regulatory interest. CrossSections use the physical parameters stored in Conductor objects to compute predicted EMF values."""
+    """An object representing a single model of a set of parellel power lines. CrossSections are containers for Conductor objects, providing dict-like access to the Conductors by their 'name' properties, which also store modeling information like the sampling locations and the horizontal locations of right-of-way (ROW) edges, which usually mark the edge of the utility company's property and the location of regulatory interest. CrossSections use the physical parameters stored in Conductor objects to compute predicted EMF values."""
 
-    def __init__(self, sheet, *args):
+    def __init__(self, sheet, conds=[], title='', group=None):
         """CrossSection must be initialized with a sheet string, and a list of Conductor objects can optionally be passed in in the second arg
         args:
-            sheet - string, the name of the CrossSection
-            conds - optional list of Conducor objects to copy into the xs"""
-        self._sheet = sheet #mandatory, short, template worksheet name
-        self._tag = None #identifier linking multiple CrossSection objects
+            sheet - string, sets CrossSection.sheet (basically a name)
+        optional args:
+            conds - optional list of Conductor objects to copy into the xs
+            title - string, sets CrossSection.title
+            group - group name, sets CrossSection.group"""
+        if(len(args) == 0):
+            raise(EMFError('CrossSection objects must be initialized with at least one argument, the objects name.'))
+        self._sheet = args[0] #mandatory, short, template worksheet name
+        self._group = None #identifier linking multiple CrossSection objects
         self._title = '' #longer form, used for plotting text
         self._sb = None #parent SectionBook object
         self.soil_resistivity = 100.0 #?
@@ -219,16 +226,17 @@ class CrossSection(object):
         self._lROW = -50.0 #exact coordinate of the left ROW edge
         self._rROW = 50.0 #exact coordinate of the left ROW edge
         self._conds = [] #list of Conductor objects
-        #dictionary mapping Conductor tags to Conductor objects
-        self._tag2idx = dict()
+        #dictionary mapping Conductor names to Conductor objects
+        self._name2idx = dict()
         #integer indexer
         self._i = _IntegerIndexer(self.conds)
         #DataFrame storing results, populated with _calculate_fields()
         self._fields = None
         #add conductors if they're passed in
-        if(len(args) == 1):
-            for c in args[0]:
-                self.add_conductor(c)
+        for c in conds:
+            self.add_conductor(c)
+        self.title = title
+        self.group = group
 
     #---------------------------------------------------------------------------
     #PROPERTIES
@@ -256,8 +264,8 @@ class CrossSection(object):
     def _get_i(self): return(self._i)
     i = property(_get_i, None, None, """Use CrossSection.i[] to retrieve Conductor objects by the integer order in which they were added to the CrossSection. For example, CrossSection.i[0] gets the first Conductor added, CrossSection.i[4] gets the fifth one added, etc.""")
 
-    def _get_tags(self): return([xs.tag for xs in self.conds])
-    tags = property(_get_tags, None, None, 'Return a list of the tags of Conductors in the CrossSection, in the order in which the Conductors were added')
+    def _get_names(self): return([c.name for c in self.conds])
+    names = property(_get_names, None, None, 'Return a list of the names of Conductors in the CrossSection, in the order in which the Conductors were added')
 
     def _get_sheet(self): return(self._sheet)
     def _set_sheet(self, new_value):
@@ -266,17 +274,17 @@ class CrossSection(object):
         self._update_parent_sb_sheets(old_value, new_value)
     sheet = property(_get_sheet, _set_sheet, None, 'The principle identification variable of a CrossSection, should be a string briefly identifying the object. CrossSections are retrieved from SectionBook objects by their sheet strings.')
 
-    def _get_tag(self): return(self._tag)
-    def _set_tag(self, value): self._tag = value
-    tag = property(_get_tag, _set_tag, None, """Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same tag properties are grouped for functions that involve comparisons.""")
+    def _get_group(self): return(self._group)
+    def _set_group(self, value): self._group = value
+    group = property(_get_group, _set_group, None, """Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same group properties are grouped for functions that involve comparisons.""")
 
     def _get_title(self):
         if(not (self._title)):
-            return(self.tag)
+            return(self.sheet)
         else:
             return(self._title)
     def _set_title(self, value): self._title = value
-    title = property(_get_title, _set_title, None, """Longer form identification string, used in plot titles and such. If unset, will fall back to CrossSection.tag""")
+    title = property(_get_title, _set_title, None, """Longer form identification string, used in plot titles and such. If unset, will fall back to CrossSection.sheet""")
 
     def _get_max_dist(self): return(self._max_dist)
     def _set_max_dist(self, new_value):
@@ -392,12 +400,12 @@ class CrossSection(object):
         """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.
         returns:
             b - True if all Conductors are complete, False if not
-            t - tag of first incomplete Conductor, if any, else None
+            n - name of first incomplete Conductor, if any, else None
             v - variable name of first unset variable in first incomplete Conductor, if any, else None"""
         for c in self.conds:
             b, v = c.complete
             if(b is False):
-                return(b, c.tag, v)
+                return(b, c.name, v)
         return(True, None, None)
     complete = property(_check_complete)
 
@@ -409,9 +417,9 @@ class CrossSection(object):
     def __getitem__(self, key):
         #check in the hot dict
         try:
-            idx = self._tag2idx[key]
+            idx = self._name2idx[key]
         except(KeyError):
-            raise(KeyError('There are no Conductors with the tag "%s" in CrossSection "%s"' % (key, self.sheet)))
+            raise(KeyError('There are no Conductors with the name "%s" in CrossSection "%s"' % (key, self.sheet)))
         else:
             return(self.conds[idx])
         #return None if no xs is found
@@ -422,27 +430,27 @@ class CrossSection(object):
             yield(c)
 
     def add_conductor(self, cond):
-        """Add a copy of a Conductor object to the CrossSection, which can be accessed by indexing the CrossSection like a dictionary, using the Conductor's 'tag' attribute.
+        """Add a copy of a Conductor object to the CrossSection, which can be accessed by indexing the CrossSection like a dictionary, using the Conductor's 'name' attribute.
         args:
             cond - Conductor object to add"""
         #check if the Conductor is complete
         b, v = cond.complete
         if(not b):
             raise(EMFError("""Cannot add Conductor "%s" to the CrossSection because it is not complete. The parameter "%s" is not set."""
-            % (cond.tag, v[1:])))
-        #check if the tag has already been used
-        if(cond.tag in self._tag2idx):
-            raise(EMFError("""A Conductor with tag "%s" is already in CrossSection "%s". Another Conductor with the same tag cannot be added."""
-            % (cond.tag, self.sheet)))
+            % (cond.name, v[1:])))
+        #check if the name has already been used
+        if(cond.name in self._name2idx):
+            raise(EMFError("""A Conductor with name "%s" is already in CrossSection "%s". Another Conductor with the same name cannot be added."""
+            % (cond.name, self.sheet)))
         #see if the conductor is grounded
         if(cond.V == 0):
             #probably shouldn't have current if grounded
             if(cond.I != 0):
                 print cond.I
-                print("""Conductor with tag "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?"""
-                % (cond.tag, self.sheet))
+                print("""Conductor with name "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?"""
+                % (cond.name, self.sheet))
         #add to self.conds and indexing dict
-        self._tag2idx[cond.tag] = len(self.conds)
+        self._name2idx[cond.name] = len(self.conds)
         self.conds.append(copy.deepcopy(cond))
         #associate xs with the conductor
         self.conds[-1]._xs = self
@@ -450,22 +458,22 @@ class CrossSection(object):
     def remove_conductor(self, key):
         """Remove a Conductor object from the CrossSection
         args:
-            key - Conductor tag or Conductor object to remove"""
+            key - Conductor name or Conductor object to remove"""
         #check input
         if(type(key) is Conductor):
-            key = key.tag
+            key = key.name
         #check in the hot dict
         try:
-            idx = self._tag2idx[key]
+            idx = self._name2idx[key]
         except(KeyError):
             pass
         else:
             self.conds[idx]._xs = None
             self.conds.pop(idx)
-            self._update_tag2idx()
+            self._update_name2idx()
 
-    def _update_tag2idx(self):
-        self._tag2idx = dict(zip(self.tags, range(len(self.conds))))
+    def _update_name2idx(self):
+        self._name2idx = dict(zip(self.names, range(len(self.conds))))
 
     def _calculate_fields(self):
         """Calculate electric and magnetic fields across the ROW and store the results in the self.fields DataFrame"""
@@ -568,20 +576,21 @@ class CrossSection(object):
         print('Cross section fields written to: %s' % fn)
 
 class SectionBook(object):
-    """A top level class organizing a group of CrossSection objects. It provides dict-like access to child CrossSection objects by their 'sheet' properties. It also maintains a table of maximum field results at the ROW edges of each CrossSection added (the ROW_edge_max property), provides exporting methods, and can be passed to plotting functions to generate plots comparing groups of CrossSections. CrossSections in a SectionBook are grouped by their 'tag' properties. Those with identical tags are automatically grouped."""
+    """A top level class organizing a group of CrossSection objects. It provides dict-like access to child CrossSection objects by their 'sheet' properties. It also maintains a table of maximum field results at the ROW edges of each CrossSection added (the ROW_edge_max property), provides exporting methods, and can be passed to plotting functions to generate plots comparing groups of CrossSections. CrossSections in a SectionBook are grouped by their 'group' properties. Those with identical groups are automatically grouped."""
 
-    def __init__(self, name, *args):
+    def __init__(self, name, xss=[]):
         """SectionBooks must be initialized with a name string, with the option to pass a list of CrossSection objects in the second arg that will be copied into the new object
         args:
             name - string, name of SectionBook
-            xs - list of CrossSection objects to copy into the SectionBook"""
+        optional args:
+            xss - list of CrossSection objects to copy into the SectionBook"""
 
         self._name = name #mandatory identification field
         self._xss = [] #list of cross section objects
         self._sheet2idx = dict() #for CrossSection retrieval
         self._i = _IntegerIndexer(self.xss)
         #add CrossSections if they're passed in
-        if(len(args) == 1):
+        if(xss):
             for xs in args[0]:
                 self.add_section(xs)
 
@@ -601,20 +610,21 @@ class SectionBook(object):
     def _get_sheets(self): return([xs.sheet for xs in self.xss])
     sheets = property(_get_sheets, None, None, """A list of CrossSection sheet strings, in the same order as 'xss'""")
 
-    def _get_tags(self): return(set([xs.tag for xs in self.xss]))
-    tags = property(_get_tags, None, None, 'A set of unique CrossSection tags')
+    def _get_unique_group_names(self):
+        return(set([xs.group for xs in self.xss]))
+    unique_group_names = property(_get_unique_group_names, None, None,
+            'A set of unique CrossSection groups')
 
     def _get_titles(self): return([xs.title for xs in self.xss])
     titles = property(_get_titles, None, None, """A list of CrossSection titles, in the same order as 'xss'""")
 
-    def _get_tag_groups(self):
-        u = list(set(self.tags)) #get unique CrossSection tags
-        tag_groups = []
-        tag_groups = [[] for i in range(len(u))]
+    def _get_groups(self):
+        u = list(self.unique_group_namesC) #unique CrossSection groups
+        groups = [[] for i in range(len(u))]
         for i in range(len(self.xss)):
-            tag_groups[u.index(self.xss[i].tag)].append(self.xss[i])
-        return(tag_groups)
-    tag_groups = property(_get_tag_groups, None, None, 'A list of lists of grouped CrossSection objects')
+            groups[u.index(self.xss[i].group)].append(self.xss[i])
+        return(groups)
+    groups = property(_get_groups, None, None, 'A list of lists of grouped CrossSection objects')
 
     def _get_ROW_edge_max(self):
         #gather ROW edge results
@@ -635,14 +645,14 @@ class SectionBook(object):
         returns:
             b - True if all xcs are complete, False if not
             sheet - sheet of first incomplete xs, if any, else None
-            ctag - tag of first incomplete Conductor in first incomplete xs,
+            cname - name of first incomplete Conductor in first incomplete xs,
                     if any, else None
             v - variable name of first unset variable in first incomplete
                 Conductor in first incomplete xs, if any, else None"""
         for xs in self:
-            b, ctag, v = xs.complete
+            b, cname, v = xs.complete
             if(b is False):
-                return(b, xs.sheet, ctag, v)
+                return(b, xs.sheet, cname, v)
         return(True, None, None, None)
     complete = property(_check_complete)
 
@@ -779,6 +789,5 @@ class _IntegerIndexer(object):
 
     def __getitem__(self, key):
         if(type(key) is not int):
-            raise(EMFError("""
-            can only receive integer indices"""))
+            raise(EMFError("""can only receive integer indices"""))
         return(self._L[key])

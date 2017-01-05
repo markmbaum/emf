@@ -20,7 +20,7 @@ def _str_Conductor(z):
         xs = repr(None)
 
     return("""  Conductor object
-    tag:                     %s
+    name:                    %s
     parent CrossSection:     %s
     frequency (Hz):          %s
     x coordinate (ft):       %s
@@ -31,7 +31,7 @@ def _str_Conductor(z):
     voltage (V):             %s
     current (I):             %s
     phase angle (deg):       %s""" %
-        (repr(z.tag), xs, repr(z.freq), repr(z.x), repr(z.y),
+        (repr(z.name), xs, repr(z.freq), repr(z.x), repr(z.y),
         repr(z.subconds), repr(z.d_cond), repr(z.d_bund),
         repr(z.V), repr(z.I), repr(z.phase)))
 
@@ -58,7 +58,7 @@ def _str_CrossSection(z):
 
     sheet:                         %s
     parent SectionBook:            %s
-    tag:                           %s
+    group:                         %s
     title:                         %s
     soil resistivity (?):          %s
     max distance from center (ft): %s
@@ -71,9 +71,9 @@ def _str_CrossSection(z):
 %s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s
 
     fields sample (see CrossSection.fields for all EMF results)\n%s""" % (
-        z.sheet, sb, z.tag, z.title, z.soil_resistivity,
+        z.sheet, sb, z.group, z.title, z.soil_resistivity,
         z.max_dist, z.step, z.sample_height, z.lROW, z.rROW, len(z.conds),
-        _table_iterable_fill('      tags:                  ', z.tags),
+        _table_iterable_fill('      names:                 ', z.names),
         _table_iterable_fill('      frequencies (Hz):      ', z.freq),
         _table_iterable_fill('      x coordinates (ft):    ', z.x),
         _table_iterable_fill('      y coordinates (ft):    ', z.y),
@@ -86,19 +86,19 @@ def _str_CrossSection(z):
 
 def _str_SectionBook(z):
 
-    b, sheet, ctag, v = z.complete
+    b, sheet, cname, v = z.complete
     if(b):
         f = ' '*6 + str(z.ROW_edge_max).replace('\n', '\n' + ' '*6)
     else:
         f = """      ROW edge max fields unavailable.
       Attribute "%s"
         in Conductor "%s"
-          in CrossSection "%s" is unset""" % (v[1:], ctag, sheet)
+          in CrossSection "%s" is unset""" % (v[1:], cname, sheet)
 
     return("""  SectionBook object
       name:        %s\n%s\n%s
 
     maximum fields at CrossSection ROW edges:\n%s""" %
     (repr(z.name),
-    _table_iterable_fill('      sheets:      ', z.sheets),
-    _table_iterable_fill('      unique tags: ', z.tags), f))
+    _table_iterable_fill('      sheets:       ', z.sheets),
+    _table_iterable_fill('      unique groups:', set([xs.group for xs in z.xss])), f))

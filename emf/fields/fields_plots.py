@@ -638,7 +638,7 @@ def plot_groups(sb, **kw):
                         default is False
     returns:
         figs - dict of dicts, keys are 'E' and 'B', which are each keyed
-                by group tags, leading to Figure objects"""
+                by xs group names, leading to Figure objects"""
 
     #check kws
     return_figs = False
@@ -652,9 +652,9 @@ def plot_groups(sb, **kw):
     E_flag = True
     if('E' in kw):
         E_flag = kw['E']
-    groups = sb.tags
+    ugroups = sb.unique_group_names
     if('groups' in kw):
-        groups = set(kw['groups'])
+        ugroups = set(kw['groups'])
 
     flags = [B_flag, E_flag]
     fields = ['Bmax', 'Emax']
@@ -665,8 +665,8 @@ def plot_groups(sb, **kw):
     it = zip(flags, fields, ylabels, title_pre, keys)
 
     #iterate over groups with more than 1 CrossSection
-    for xss in sb.tag_groups:
-        if(xss[0].tag in groups):
+    for xss in sb.groups:
+        if(xss[0].group in ugroups):
             for (fl, fi, yl, ti, k) in it:
                 if(fl):
                     #get plotting objects
@@ -688,14 +688,14 @@ def plot_groups(sb, **kw):
                     #set axis text and legend
                     ax.set_xlabel('Distance from Center of ROW $(ft)$')
                     ax.set_ylabel(yl)
-                    ax.set_title(textwrap.fill(ti + str(xss[0].tag)))
+                    ax.set_title(textwrap.fill(ti + str(xss[0].group)))
                     ax.legend(kw['H'], kw['L'], numpoints=1)
                     _format_line_axes_legends(ax)
                     #save the figure if keyword 'save' == True, and append fig
-                    _save_fig('group_%s-%s' % (str(xss[0].tag), fi), fig, **kw)
+                    _save_fig('group_%s-%s' % (str(xss[0].group), fi), fig, **kw)
                     #store the fig or close it
                     if(return_figs):
-                        figs[k][xss[0].tag] = fig
+                        figs[k][xss[0].group] = fig
                     else:
                         plt.close(fig)
 
@@ -707,7 +707,7 @@ def _reorder_xss(xss, **kw):
     args:
         xss - list of CrossSections corresponding to a group
     kw:
-        xs_order - dict, if any keys are the same as the tag of the
+        xs_order - dict, if any keys are the same as the group of the
                     CrossSection group represented by xss, they should map
                     to a list of strings with CrossSection sheet names
                     specifiying an order to plot in.
@@ -717,11 +717,11 @@ def _reorder_xss(xss, **kw):
     #see if there is an xs_order kwarg
     if('xs_order' in kw):
         xs_order = kw['xs_order']
-        tag = xss[0].tag
+        group = xss[0].group
         #see if it corresponds to the group represented by xss
-        if(tag in xs_order):
+        if(group in xs_order):
             #get the order
-            order = xs_order[tag]
+            order = xs_order[group]
             #compile xs sheet names
             sheets = [xs.sheet for xs in xss]
             #make a dict for later
@@ -818,7 +818,7 @@ def plot_groups_at_ROW(sb, **kw):
         B - bool, toggle magnetic field plots, default is True
         E - bool, toggle electric field plots, default is True
         groups - a list of group names to plot, default is all groups
-        xs_order - dict, keys are CrossSection group tags, which map to
+        xs_order - dict, keys are CrossSection groups, which map to
                     lists of CrossSection sheets specifying the order of the
                     plotted CrossSection bars (left to right). Not all
                     CrossSections in a group must be listed.
@@ -828,7 +828,7 @@ def plot_groups_at_ROW(sb, **kw):
                     default is False
     returns:
         figs - dict of dicts, keys are 'E' and 'B', which are each keyed
-                by group tags, leading to Figure objects"""
+                by group groups, leading to Figure objects"""
 
     #check kws
     return_figs = False
@@ -842,9 +842,9 @@ def plot_groups_at_ROW(sb, **kw):
     E_flag = True
     if('E' in kw):
         E_flag = kw['E']
-    groups = sb.tags
+    ugroups = sb.unique_group_names
     if('groups' in kw):
-        groups = set(kw['groups'])
+        ugroups = set(kw['groups'])
 
     flags = [B_flag, E_flag]
     fields = ['Bmax', 'Emax']
@@ -855,10 +855,8 @@ def plot_groups_at_ROW(sb, **kw):
     it = zip(flags, fields, ylabels, suptitle_pre, keys)
 
     #iterate over groups with more than 1 CrossSection
-    for xss in sb.tag_groups:
-
-        if(xss[0].tag in groups):
-
+    for xss in sb.groups:
+        if(xss[0].group in ugroups):
             #get reordered CrossSection list
             xss = _reorder_xss(xss, **kw)
 
@@ -872,12 +870,12 @@ def plot_groups_at_ROW(sb, **kw):
                     _format_bar_axes_legends(axl, axr)
                     #apply text
                     axl.set_ylabel(yl)
-                    fig.suptitle(su + str(xss[0].tag), fontsize=18)
+                    fig.suptitle(su + str(xss[0].group), fontsize=18)
                     #save?
-                    _save_fig('group_%s-ROW-%s' % (str(xss[0].tag), fi), fig, **kw)
+                    _save_fig('group_%s-ROW-%s' % (str(xss[0].group), fi), fig, **kw)
                     #store the fig or close it
                     if(return_figs):
-                        figs[k][xss[0].tag] = fig
+                        figs[k][xss[0].group] = fig
                     else:
                         plt.close(fig)
 

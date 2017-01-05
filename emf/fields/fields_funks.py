@@ -92,7 +92,7 @@ def load_template(file_path, **kw):
         df = frames[k]
         xs = fields_class.CrossSection(k)
         misc = df[1].values
-        xs.tag = misc[0]
+        xs.group = misc[0]
         xs.title = str(misc[1])
         #check for duplicate title inputs
         if(xs.title in titles):
@@ -106,16 +106,16 @@ def load_template(file_path, **kw):
         xs.lROW = misc[7]
         xs.rROW = misc[8]
         #load hot conductors
-        tags, x, y = [], [], []
+        names, x, y = [], [], []
         for i in range(df[3].dropna().shape[0]):
             #initialize a Conductor
             cond = fields_class.Conductor(df[2].iat[i])
-            #check for conductors with identical tags (names/labels)
-            if(cond.tag in tags):
-                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique tags. The conductor tag "%s" in sheet:     "%s" is used at least twice."""
-                % (cond.tag, k)))
+            #check for conductors with identical names
+            if(cond.name in names):
+                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique names. The conductor name "%s" in sheet:     "%s" is used at least twice."""
+                % (cond.name, k)))
             else:
-                tags.append(cond.tag)
+                names.append(cond.name)
             #cond.freq = misc[2]
             cond.x = df[3].iat[i]
             cond.y = df[4].iat[i]
@@ -124,7 +124,7 @@ def load_template(file_path, **kw):
                 idx = x.index(cond.x)
                 if(cond.y == y[idx]):
                     raise(fields_class.EMFError("""Conductors cannot have identical x,y coordinates. Conductor "%s" is in the exact same place as conductor "%s"."""
-                % (cond.tag, tags[idx])))
+                % (cond.name, names[idx])))
             else:
                 x.append(cond.x)
                 y.append(cond.y)
@@ -136,16 +136,16 @@ def load_template(file_path, **kw):
             cond.phase = df.iat[i,10]
             xs.add_conductor(cond)
         #load grounded conductors
-        tags, x, y = [], [], []
+        names, x, y = [], [], []
         for i in range(df[12].dropna().shape[0]):
             #initialize a Conductor
             cond = fields_class.Conductor(df.iat[i,11])
-            #check for conductors with identical tags (names/labels)
-            if(cond.tag in tags):
-                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique tags. The conductor tag "%s" in sheet: "%s" is used at least twice."""
-                % (cond.tag, k)))
+            #check for conductors with identical names (names/labels)
+            if(cond.name in names):
+                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique names. The conductor name "%s" in sheet: "%s" is used at least twice."""
+                % (cond.name, k)))
             else:
-                tags.append(cond.tag)
+                names.append(cond.name)
             #cond.freq = misc[2]
             cond.x = df.iat[i,12]
             cond.y = df.iat[i,13]
@@ -154,7 +154,7 @@ def load_template(file_path, **kw):
                 idx = x.index(cond.x)
                 if(cond.y == y[idx]):
                     raise(fields_class.EMFError("""Conductors cannot have identical x,y coordinates. Conductor "%s" is in the exact same place as conductor "%s"."""
-                % (cond.tag, tags[idx])))
+                % (cond.name, names[idx])))
             else:
                 x.append(cond.x)
                 y.append(cond.y)
@@ -175,8 +175,8 @@ def optimize_phasing(xs, circuits, **kw):
     """Permute the phasing of non-grounded conductors and find the arrangement that results in the lowest fields at the left and right edge of the ROW. The number of hot conductors must be a multiple of three. The phases of consecutive groups of three conductors are swapped around, assuming that those groups represent a single three-phase transfer circuit.
     args:
         xs - target CrossSection object
-        circuits - list of lists of Conductor tags, or 'all'. If a list of
-                    lists, each sublist contains the Conductor tags of the
+        circuits - list of lists of Conductor names, or 'all'. If a list of
+                    lists, each sublist contains the Conductor names of the
                     Conductors comprising a single circuit. If 'all',
                     circuits are assumed to be consecutive groups of three
                     conductors. (consecutive according to the order in which
@@ -205,20 +205,20 @@ def optimize_phasing(xs, circuits, **kw):
         circuits = [[] for i in range(G)]
         for i in range(G):
             for j in range(3):
-                circuits[i].append(hot[i*3 + j].tag)
+                circuits[i].append(hot[i*3 + j].name)
     else:
-        #check that all conductor tags are present and refer to hot conds
+        #check that all conductor names are present and refer to hot conds
         gnd = xs.gnd
         for circ in circuits:
-            for tag in circ:
-                if(xs[tag] is None):
-                    raise(fields_class.EMFError("""Unrecognized conductor tag: %s All conductor tags must refer to Conductor objects in the target CrossSecton object.""" % repr(tag)))
-                if(xs[tag] in gnd):
-                    raise(fields_class.EMFError("""Only phasing of non-grounded Conductors can be permuted. Tag "%s" refers to a grounded Conductor""" % repr(tag)))
-    #convert the conductor tags to integer indices in xs.conds
+            for name in circ:
+                if(xs[name] is None):
+                    raise(fields_class.EMFError("""Unrecognized conductor name: %s All conductor names must refer to Conductor objects in the target CrossSecton object.""" % repr(name)))
+                if(xs[name] in gnd):
+                    raise(fields_class.EMFError("""Only phasing of non-grounded Conductors can be permuted. Name "%s" refers to a grounded Conductor""" % repr(name)))
+    #convert the conductor names to integer indices in xs.conds
     for i in range(len(circuits)):
         for j in range(len(circuits[i])):
-            circuits[i][j] = xs._tag2idx[circuits[i][j]]
+            circuits[i][j] = xs._name2idx[circuits[i][j]]
     #all permutations of the phases of each circuit
     perm = []
     for c in circuits:
@@ -267,13 +267,13 @@ def optimize_phasing(xs, circuits, **kw):
         'Optimal Phasing - Bmax Right ROW Edge': phase[B_right_arr],
         'Optimal Phasing - Emax Left ROW Edge': phase[E_left_arr],
         'Optimal Phasing - Emax Right ROW Edge': phase[E_right_arr]},
-        index=[xs.conds[i].tag for i in conds])
+        index=[xs.conds[i].name for i in conds])
     #compile a new sectionbook with the optimal phasings
     fn = _path_str_condition(xs.sheet).replace(' ', '-')
     xs = xs.copy()
     opt = fields_class.SectionBook(xs.sheet + '-optimal_phasing')
     xs.sheet += ' (original)'
-    xs.tag = 'Phase Optimized'
+    xs.group = 'Phase Optimized'
     opt.add_section(xs)
     names = ['Optimized for Bmax left','Optimized for Bmax right',
             'Optimized for Emax left','Optimized for Emax right']
@@ -281,10 +281,10 @@ def optimize_phasing(xs, circuits, **kw):
         #copy the input xs
         new_xs = xs.copy()
         #change the identification fields
-        new_xs.sheet, new_xs.title, new_xs.tag = n, ti, 'Phase Optimized'
+        new_xs.sheet, new_xs.title, new_xs.group = n, ti, 'Phase Optimized'
         #swap the conductor phasings
         for c in new_xs.hot:
-            t = c.tag
+            t = c.name
             if(t in results.index):
                 c.phase = results.at[t, ti]
         #store new_xs in the SectionBook
@@ -296,7 +296,7 @@ def optimize_phasing(xs, circuits, **kw):
         if(kw['save']):
             fn = _path_manage(fn + '_phase_optimization', 'xlsx', **kw)
             xl = pd.ExcelWriter(fn, engine='xlsxwriter')
-            results.to_excel(xl, index_label='Conductor Tag',
+            results.to_excel(xl, index_label='Conductor Name',
                 sheet_name='phase_assignments')
             opt.ROW_edge_export(xl=xl)
             abs_dif, rel_dif = sb_xs_compare(opt, opt.sheets[0])
@@ -309,11 +309,11 @@ def optimize_phasing(xs, circuits, **kw):
 
     return(results, opt)
 
-def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
+def target_fields(xs, names, B_l, B_r, E_l, E_r, **kw):
     """Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.
     args:
         xs - CrossSection object to perform adjustments on
-        tags - iterable of Conductor tags, identifying which ones to raise,
+        names - iterable of Conductor names, identifying which ones to raise,
                or 'all' to include all Conductors in the CrossSection
         B_l - magnetic field threshold at left ROW edge*
         B_r - magnetic field threshold at right ROW edge*
@@ -339,11 +339,11 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
         adj - a new SectionBook object with the adjusted conductor heights
                 for each scenario in a CrossSection"""
     #convert 'all' inputs to numeric indices
-    if(tags == 'all'):
-        tags = xs.tags
+    if(names == 'all'):
+        names = xs.names
     #flattened indices
-    temp = xs.tags
-    conds = np.array([temp.index(i) for i in tags])
+    temp = xs.names
+    conds = np.array([temp.index(i) for i in names])
     #maximum number of iterations and relative error tolerance
     if('max_iter' in kw):
         max_iter = kw['max_iter']
@@ -378,7 +378,7 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
     xs = xs.copy()
     adj = fields_class.SectionBook('%s-height_adjusted' % xs.sheet)
     xs.sheet += ' (original)'
-    xs.tag = 'Height Adjusted'
+    xs.group = 'Height Adjusted'
     adj.add_section(xs)
     sheets = ['Adjusted for Bmax left','Adjusted for Bmax right',
                 'Adjusted for Emax left','Adjusted for Emax right']
@@ -386,16 +386,16 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
                 'Height Adjusted for %g mG at right ROW edge' % B_r,
                 'Height Adjusted for %g kV/m at left ROW edge' % E_l,
                 'Height Adjusted for %g kV/m at right ROW edge' % E_r]
-    xs_tags = ['Height Adjusted']*4
-    for s, ti, a, t in zip(sheets, titles, h, xs_tags):
+    xs_groups = ['Height Adjusted']*4
+    for s, ti, a, t in zip(sheets, titles, h, xs_groups):
         if(a is not None):
             #copy the input xs
             new_xs = xs.copy()
             #change the identification fields
-            new_xs.sheet, new_xs.title, new_xs.tag = s, ti, t
+            new_xs.sheet, new_xs.title, new_xs.group = s, ti, t
             #adjust conductor heights
-            for c_tag in tags:
-                new_xs[c_tag].y += a
+            for c_name in names:
+                new_xs[c_name].y += a
             #store new_xs in the SectionBook
             adj.add_section(new_xs)
     #deal with saving
@@ -408,10 +408,10 @@ def target_fields(xs, tags, B_l, B_r, E_l, E_r, **kw):
             pd.DataFrame(data={'Height Addition (ft)': list(h)},
                     index=sheets).to_excel(xl, sheet_name='Adjustments')
             pd.DataFrame(dict(zip(['Height - '+s+' (ft)' for s in adj.sheets],
-                    [[adj[s][j].y for j in tags] for s in adj.sheets])),
-                    index=tags).to_excel(xl,
+                    [[adj[s][j].y for j in names] for s in adj.sheets])),
+                    index=names).to_excel(xl,
                             sheet_name='Adjusted Conductor Heights',
-                            index_label='Conductor Tag')
+                            index_label='Conductor Names')
             adj.ROW_edge_export(xl=xl)
             abs_dif, rel_dif = sb_xs_compare(adj, adj.sheets[0])
             abs_dif.to_excel(xl, sheet_name='Abs Difference at ROW Edges')
