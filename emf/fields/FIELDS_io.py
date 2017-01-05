@@ -57,11 +57,11 @@ def to_FLD(xs, **kw):
     _write_FLD_entries(ofile, Lgrounds)
     #write the hot and gnd conductor data in the same format
     for c in xs.hot + xs.gnd:
-        _write_FLD_entries(ofile, c.tag, c.x, c.y, c.subconds, c.d_cond,
+        _write_FLD_entries(ofile, c.name, c.x, c.y, c.subconds, c.d_cond,
                 c.d_bund, 'ED!(I)', c.I, c.V, c.phase)
     #write the ground wire data a second time, in a different format
     for c in xs.gnd:
-        _write_FLD_entries(ofile, c.tag, c.x, c.y, c.d_cond, 0, 0)
+        _write_FLD_entries(ofile, c.name, c.x, c.y, c.d_cond, 0, 0)
     #close/save
     ofile.close()
     print('FLD file generated: %s' % fn)
