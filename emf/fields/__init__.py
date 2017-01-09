@@ -18,9 +18,9 @@ from fields_funks import (drop_template,
 from fields_calcs import (E_field,
                         B_field,
                         phasors_to_magnitudes,
-                        EPSILON,
+                        EPSILON_0,
                         electric_prefactor,
-                        MU,
+                        MU_0,
                         magnetic_prefactor)
 
 from fields_plots import (plot_Bmax,

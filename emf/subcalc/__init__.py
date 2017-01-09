@@ -24,6 +24,9 @@ from subcalc_funks import (drop_footprint_template,
                         convert_REF,
                         cumulative_distance)
 
+from subcalc_calcs import (B_field_segment,
+                        phasors_to_magnitudes)
+
 from subcalc_plots import (plot_cross_sections,
                         plot_contour,
                         plot_pcolormesh,

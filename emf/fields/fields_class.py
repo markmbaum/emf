@@ -28,8 +28,6 @@ class Conductor(object):
                         set with the second arg will be borrowed from the
                         Conductor"""
 
-        if(len(args) == 0):
-            raise(EMFError("""Conductor objects must be initialized with 1-3 args, the first of which must be the Conductor name. The second arg can be a dict or list setting the Conductor's paremeters. See the Conductor class doc string for more info on the second arg."""))
         self._name = None #conductor label
         self._xs = None #parent CrossSection object
         self._freq = 60.0 #phase frequency in Hertz
@@ -41,9 +39,10 @@ class Conductor(object):
         self._V = None #line voltage
         self._I = None #line current
         self._phase = None #phase angle in degrees
-        #set name property
-        self.name = args[0]
-        #set other parameters
+
+        #set properties property
+        self.name = name
+        #parameters
         if(params is not None):
 
             a = params
@@ -64,8 +63,9 @@ class Conductor(object):
             else:
                 raise(EMFError("""The second argument to Conductor initialization must be a list or dict. See the Conductor class doc string for more info on the second arg."""))
 
+        #conductor to copy from
         if(copy_cond is not None):
-            copy_cond = args[2]
+
             if(type(copy_cond) is not type(self)):
                 raise(EMFError("""The third argument must be an existing Conductor object from which all unset parameters in the newly created Conductor are copied."""))
             for q in p:
@@ -90,7 +90,7 @@ class Conductor(object):
     complete = property(_check_complete)
 
     def _reset_xs_fields(self, old_value, new_value):
-        '''if the Conductor has a parent CrossSection, set the parent object's fields property to None'''
+        """if the Conductor has a parent CrossSection, set the parent object's fields property to None"""
         if((self._xs is not None) and (old_value != new_value)):
             self._xs._fields = None
 
@@ -215,18 +215,17 @@ class CrossSection(object):
             conds - optional list of Conductor objects to copy into the xs
             title - string, sets CrossSection.title
             group - group name, sets CrossSection.group"""
-        if(len(args) == 0):
-            raise(EMFError('CrossSection objects must be initialized with at least one argument, the objects name.'))
-        self._sheet = args[0] #mandatory, short, template worksheet name
+
+        self._sheet = None #mandatory, short, template worksheet name
         self._group = None #identifier linking multiple CrossSection objects
         self._title = '' #longer form, used for plotting text
         self._sb = None #parent SectionBook object
         self.soil_resistivity = 100.0 #?
-        self._max_dist = 100.0 #maximum simulated distance from the ROW center
+        self._max_dist = None #maximum simulated distance from the ROW center
         self._step = 1.0 #step size for calculations
         self._sample_height = 3.0 #uniform sample height
-        self._lROW = -50.0 #exact coordinate of the left ROW edge
-        self._rROW = 50.0 #exact coordinate of the left ROW edge
+        self._lROW = None #exact coordinate of the left ROW edge
+        self._rROW = None #exact coordinate of the left ROW edge
         self._conds = [] #list of Conductor objects
         #dictionary mapping Conductor names to Conductor objects
         self._name2idx = dict()
@@ -234,7 +233,9 @@ class CrossSection(object):
         self._i = _IntegerIndexer(self.conds)
         #DataFrame storing results, populated with _calculate_fields()
         self._fields = None
-        #add conductors if they're passed in
+
+        #set properties
+        self.sheet = sheet
         for c in conds:
             self.add_conductor(c)
         self.title = title
@@ -271,6 +272,8 @@ class CrossSection(object):
 
     def _get_sheet(self): return(self._sheet)
     def _set_sheet(self, new_value):
+        if(not new_value):
+            raise(EMFError('The CrossSection sheet property cannot be implicitly False.'))
         old_value = self._sheet
         self._sheet = new_value
         self._update_parent_sb_sheets(old_value, new_value)
@@ -290,11 +293,18 @@ class CrossSection(object):
 
     def _get_max_dist(self): return(self._max_dist)
     def _set_max_dist(self, new_value):
-        if(((self.lROW is not None) and (new_value < abs(self.lROW))) or
-            ((self.rROW is not None) and (new_value < abs(self.rROW)))):
-            raise(EMFError("""CrossSection max_dist must be greater than the magnitudes of lROW and rROW."""))
+        #check input
+        new_value = self._check_to_float(new_value, 'max_dist')
+        if(new_value < 0):
+            raise(EMFError('max_dist must be a positive number.'))
+        #make sure max_dist will not cut out the ROW edge locations
+        if((self.lROW is not None) and (abs(self.lROW) > new_value)):
+            raise(EMFError('A max_dist value of %s would cut off the left ROW edge location of %s. The max_dist value must be greater than or equal to the magnitudes of each ROW edge location.' % (new_value, self.lROW)))
+        if((self.rROW is not None) and (abs(self.rROW) > new_value)):
+            raise(EMFError('A max_dist value of %s would cut off the right ROW edge location of %s. The max_dist value must be greater than or equal to the magnitudes of each ROW edge location.' % (new_value, self.rROW)))
+        #set
         old_value = self._max_dist
-        self._max_dist = self._check_to_float(new_value, 'max_dist')
+        self._max_dist = new_value
         self._reset_fields(old_value, new_value)
     max_dist = property(_get_max_dist, _set_max_dist, None, """Maximum horizontal distance of sample points for EMF calculations (ft), default is 100. Resolution or step size is controlled by the 'step' property.""")
 
@@ -303,32 +313,43 @@ class CrossSection(object):
         old_value = self._step
         self._step = self._check_to_float(new_value, 'step')
         self._reset_fields(old_value, new_value)
-    step = property(_get_step, _set_step, None, """Horizontal distance between sample points for EMF calculations (ft), default is 1""")
+    step = property(_get_step, _set_step, None, 'Horizontal distance between sample points for EMF calculations (ft), default is 1')
 
     def _get_sample_height(self): return(self._sample_height)
     def _set_sample_height(self, new_value):
-        if(new_value <= 0):
-            raise(EMFError("""CrossSection sample_height must be greater than zero."""))
+        new_value = self._check_to_float(new_value, 'sample_height')
+        if(new_value < 0):
+            raise(EMFError('CrossSection sample_height must be greater than or equal to zero.'))
         old_value = self._sample_height
-        self._sample_height = self._check_to_float(new_value, 'sample_height')
+        self._sample_height = new_value
         self._reset_fields(old_value, new_value)
-    sample_height = property(_get_sample_height, _set_sample_height, None, """Height of all sample points (ft), default is 3""")
+    sample_height = property(_get_sample_height, _set_sample_height, None, 'Height of all sample points (ft), default is 3')
 
     def _get_lROW(self): return(self._lROW)
     def _set_lROW(self, new_value):
+        #check input
+        new_value = self._check_to_float(new_value, 'lROW')
         if((self.rROW is not None) and (new_value >= self.rROW)):
-            raise(EMFError("""lROW must be less than rROW."""))
+            raise(EMFError('lROW must be less than rROW.'))
+        if((self.max_dist is not None) and (abs(new_value) > self.max_dist)):
+            raise(EMFError('The magnitude of lROW cannot exceed max_dist.'))
+        #set
         old_value = self._lROW
-        self._lROW = self._check_to_float(new_value, 'lROW')
+        self._lROW = new_value
         self._reset_fields(old_value, new_value)
     lROW = property(_get_lROW, _set_lROW, None, """Horizontal location of the left (negative x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)""")
 
     def _get_rROW(self): return(self._rROW)
     def _set_rROW(self, new_value):
+        #check input
+        new_value = self._check_to_float(new_value, 'rROW')
         if((self.lROW is not None) and (new_value <= self.lROW)):
-            raise(EMFError("""rROW must be greater than lROW."""))
+            raise(EMFError('rROW must be greater than lROW.'))
+        if((self.max_dist is not None) and (abs(new_value) > self.max_dist)):
+            raise(EMFError('The magnitude of rROW cannot exceed max_dist.'))
+        #set
         old_value = self._rROW
-        self._rROW = self._check_to_float(new_value, 'rROW')
+        self._rROW = new_value
         self._reset_fields(old_value, new_value)
     rROW = property(_get_rROW, _set_rROW, None, """Horizontal location of the right (positive x) edge of the right-of-way (ROW), a point of interest on the left side of the model (ft)""")
 
@@ -593,7 +614,7 @@ class SectionBook(object):
         self._i = _IntegerIndexer(self.xss)
         #add CrossSections if they're passed in
         if(xss):
-            for xs in args[0]:
+            for xs in xss:
                 self.add_section(xs)
 
     #---------------------------------------------------------------------------
@@ -621,7 +642,7 @@ class SectionBook(object):
     titles = property(_get_titles, None, None, """A list of CrossSection titles, in the same order as 'xss'""")
 
     def _get_groups(self):
-        u = list(self.unique_group_namesC) #unique CrossSection groups
+        u = list(self.unique_group_names) #unique CrossSection groups
         groups = [[] for i in range(len(u))]
         for i in range(len(self.xss)):
             groups[u.index(self.xss[i].group)].append(self.xss[i])
