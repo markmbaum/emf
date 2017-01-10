@@ -48,7 +48,9 @@ mod = sc.Model(dict(X=X, Y=Y,
         Bres=Bres[:,:,0],
         Bmax=Bmax[:,:,0]))
 
-print mod.B"""
+print mod.B
+sc.plot_contour(mod, save=1)
+"""
 
 cProfile.run(code, filename='profile')
 pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

@@ -25,7 +25,8 @@ from subcalc_funks import (drop_footprint_template,
                         cumulative_distance)
 
 from subcalc_calcs import (B_field_segment,
-                        phasors_to_magnitudes)
+                        phasors_to_magnitudes,
+                        _B_integral)
 
 from subcalc_plots import (plot_cross_sections,
                         plot_contour,
