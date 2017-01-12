@@ -35,22 +35,35 @@ class Model(object):
                     ('Bmax', 'Bres', 'Bx', 'By', 'Bz')."""
 
         largs = len(args)
+
+        self._name = None
+
+        #inputs must correspond to the second case, dictionary of data and
+        #optional dict of metadata
         if(largs <= 2):
             #check args[0]
             if(type(args[0]) is not dict):
                 raise(EMFError("""The first argument to Model() must be a dictionary of model result information when passing 1 or 2 arguments to initialize the Model, not %s""" % type(args[0])))
             #check keys
             s = set(['X','Y','Bmax','Bres','Bx','By','Bz'])
-            if(any([(i not in s) for i in args[0].keys()])):
-                raise(EMFError("""If passing a dictionary to initialize a Model object, the dict must have the following keys only:
+            k = set(args[0].keys())
+            if(any([(i not in s) for i in k])):
+                raise(EMFError("""If passing a dictionary to initialize a Model object, the dict can have the following keys only:
                     %s""" % str(s)))
+            if(('X' not in k) or ('Y' not in k)):
+                raise(EMFError("""If passing a dictionary to initialize a Model object, the dictionary must have 'X' and 'Y' keys, which lead to grid coordinate arrays."""))
+            if(len(k) < 3):
+                raise(EMFError("""If passing a dictionary to initialize a Model object, the dictionary must be keyed by 'X', 'Y', and any number of the following keys:
+                    %s""" % str(['Bmax','Bres','Bx','By','Bz'])))
             #store data
             self._grid = args[0]
             #deal with Bkey
             if('Bkey' in kw):
                 self.Bkey = kw['Bkey']
-            else:
+            elif('Bmax' in k):
                 self.Bkey = 'Bmax'
+            else:
+                self.Bkey = list(k)[0]
             #store the info dict if present
             if(largs == 2):
                 if(type(args[1]) is not dict):
@@ -58,9 +71,11 @@ class Model(object):
                 self._info = args[1]
             else:
                 self._info = None
+
+        #inputs must correspond to the first case, grids passed in directly
         elif(largs <= 4):
             #check input types
-            mgs = """If passing three or four arguments to initialize a Model, the first three arguments must be 2D numpy arrays representing X, Y, and B grids respectively, each with the same shape."""
+            msg = """If passing three or four arguments to initialize a Model, the first three arguments must be 2D numpy arrays representing X, Y, and B grids respectively, each with the same shape."""
             for i in range(3):
                 if(type(args[i]) is not np.ndarray):
                     raise(EMFError(msg))
@@ -92,22 +107,34 @@ class Model(object):
 
     #---------------------------------------------------------------------------
     #properties
+
+    def _get_name(self):
+        if(self._name is None):
+            return('unnamed-model')
+        else:
+            return(self._name)
+    def _set_name(self, value):
+        if(not value):
+            raise(EMFError('Model.name should be a string.'))
+        self._name = str(value)
+    name = property(_get_name, _set_name, None, 'Name of model object, used for filenames when exporting')
+
     def _get_B(self):
         return(self._grid[self._Bkey])
-    B = property(_get_B, None, None, '2D grid of magnetic field results')
+    B = property(_get_B, None, None, '2D grid of magnetic field results with y-coordinates decreasing down the rows and x-coordinates inreasing along the columns. For example, B[0,0] retrieves the result at the lowest x value and highest y value and B[-1,-1] retrieves the result at the higest x value and lowest y value. The grid is arranged so that the coordinate arrays print in the same way they are arranged on a cartesian plane.')
 
     def _get_Bkeys(self):
         k = self._grid.keys()
         k.remove('X')
         k.remove('Y')
-        return(k)
-    Bkeys = property(_get_Bkeys, None, None, 'A list of available Bkey values in the Model')
+        return(set(k))
+    Bkeys = property(_get_Bkeys, None, None, 'A set of available Bkey values in the Model')
 
     def _get_Bkey(self):
         return(self._Bkey)
     def _set_Bkey(self, value):
         if(value not in self.Bkeys):
-            raise(EMFError("""Bkey must be set to one of the following elements:\n%s""" % str(self.Bkeys)))
+            raise(EMFError('Bkey must be set to one of the following elements:\n%s' % str(self.Bkeys)))
         else:
             self._Bkey = value
     Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field accessed by the B property')
@@ -186,6 +213,12 @@ class Model(object):
     footprint_groups = property(_get_footprint_groups)
 
     #---------------------------------------------------------------------------
+
+    def __str__(self):
+        return(
+        'Model object\n    name: %s\n    components/Bkeys: %s\n    B field range (%s): %g to %g mG\n    x limits: [%g, %g] ft\n    y limits: [%g, %g] ft\n    total samples: %d' %
+        (repr(self.name), str(self.Bkeys), self.Bkey, self.Bmin, self.Bmax, self.xmin, self.xmax, self.ymin, self.ymax, len(self.x)*len(self.y))
+        )
 
     def load_footprints(self, footprint_info, **kw):
         """Read footprint data from a csv file and organize it in Footprint objects stored in self.footprints
@@ -453,6 +486,10 @@ class Model(object):
                           be rereferenced to begin at that value. If True, the
                           spatial grids are rereferenced to begin at zero."""
         #check the ranges
+        if(x_range is False):
+            x_range = (self.xmin, self.xmax)
+        if(y_range is False):
+            y_range = (self.ymin, self.ymax)
         x_range, y_range = sorted(x_range), sorted(y_range)
         p1, p2 = (x_range[0], y_range[0]), (x_range[1], y_range[1])
         if((not self.in_grid(p1[0], p1[1]) or (not self.in_grid(p2[0], p2[1])))):
@@ -494,8 +531,7 @@ class Model(object):
         kw:
             path - string, output destination/filename for workbook"""
         #get appropriate export filename
-        fn = os.path.basename(self.info['REF_path'])
-        fn = subcalc_funks._path_manage(fn, '.xlsx', **kw)
+        fn = subcalc_funks._path_manage(self.name, '.xlsx', **kw)
         #create excel writing object
         xl = pd.ExcelWriter(fn, engine='xlsxwriter')
         #write grid data
@@ -554,7 +590,7 @@ class Footprint(object):
         if(self.draw_as_loop):
             return(self._x + [self._x[0]])
         else:
-            return(self._x)
+            return(list(self._x))
     def _set_x(self, value):
         self._x = value
     x = property(_get_x, _set_x, None, 'x coordinates of Footprint vertices')
@@ -563,7 +599,7 @@ class Footprint(object):
         if(self.draw_as_loop):
             return(self._y + [self._y[0]])
         else:
-            return(self._y)
+            return(list(self._y))
     def _set_y(self, value):
         self._y = value
     y = property(_get_y, _set_y, None, 'y coordinates of Footprint vertices')

@@ -1,56 +1,31 @@
-import cProfile
-import pstats
+#import cProfile
+#import pstats
 
-code = """
 import numpy as np
-from emf import subcalc as sc
+import matplotlib.pyplot as plt
 
-#circuit 1 points
-p1A_a, p1A_b = np.array([50, 60, 10.0]), np.array([100, 110, 20.0])
-p1B_a, p1B_b = np.array([50, 50, 20.0]), np.array([100, 100, 30.0])
-p1C_a, p1C_b = np.array([50, 40, 10.0]), np.array([100, 90, 20.0])
+import emf.subcalc as sc
 
-#circuit 2 points
-p2A_a, p2A_b = np.array([190, 200, 10.0]), np.array([190, 50, 20.0])
-p2B_a, p2B_b = np.array([200, 200, 20.0]), np.array([200, 50, 30.0])
-p2C_a, p2C_b = np.array([210, 200, 10.0]), np.array([210, 50, 20.0])
+Nx, Ny = 225, 100
+x = np.linspace(0, 100, Nx)
+y = np.linspace(0, 100, Ny)
+a = np.array([20, 50., 10.], dtype=float)
+b = np.array([90, 20, 10.], dtype=float)
 
-#samples
-x = np.arange(251, dtype=float)
-y = np.arange(251, dtype=float)
-z = np.array([3.28])
+Ph_x_1, Ph_y_1, Ph_z_1 = sc.B_field_segment(a, b, 100., 0., x, y, 0.)
+Ph_x_2, Ph_y_2, Ph_z_2 = sc.B_field_segment(a+5, b+10, 100., -0., x, y, 0.)
+Ph_x_3, Ph_y_3, Ph_z_3 = sc.B_field_segment(a+5, b+10, 100., 0., x, y, 0.)
+Ph_x = Ph_x_1 + Ph_x_2 + Ph_x_3
+Ph_y = Ph_y_1 + Ph_y_2 + Ph_y_3
+Ph_z = Ph_z_1 + Ph_z_2 + Ph_z_3
 
-#circuit 1 phasors
-B_1A = sc.B_field_segment(p1A_a, p1A_b, 100, 0, x, y, z)
-B_1B = sc.B_field_segment(p1B_a, p1B_b, 100, -120, x, y, z)
-B_1C = sc.B_field_segment(p1C_a, p1C_b, 100, 120, x, y, z)
+Ph_x, Ph_y, Ph_z, X, Y = sc.grid_segment_results(Ph_x, Ph_y, Ph_z, x, y)
 
-#circuit 2 phasors
-B_2A = sc.B_field_segment(p2A_a, p2A_b, 100, 120, x, y, z)
-B_2B = sc.B_field_segment(p2B_a, p2B_b, 100, -120, x, y, z)
-B_2C = sc.B_field_segment(p2C_a, p2C_b, 100, 0, x, y, z)
+B = sc.phasors_to_magnitudes(Ph_x, Ph_y, Ph_z)
 
-#combine phasors
-Ph_x = B_1A[0] + B_1B[0] + B_1C[0] + B_2A[0] + B_2B[0] + B_2C[0]
-Ph_y = B_1A[1] + B_1B[1] + B_1C[1] + B_2A[1] + B_2B[1] + B_2C[1]
-Ph_z = B_1A[2] + B_1B[2] + B_1C[2] + B_2A[2] + B_2B[2] + B_2C[2]
+mod = sc.Model(X, Y, B[-1])
 
-#calc magnitudes
-Bx, By, Bz, Bres, Bmax = sc.phasors_to_magnitudes(Ph_x, Ph_y, Ph_z)
+sc.plot_cross_sections(mod, ([(10,10), (10,45), (60,50)],), path='../')
 
-X, Y = np.meshgrid(x, y, indexing='xy')
-Y = Y[::-1,:]
-
-mod = sc.Model(dict(X=X, Y=Y,
-        Bx=Bx[:,:,0],
-        By=By[:,:,0],
-        Bz=Bz[:,:,0],
-        Bres=Bres[:,:,0],
-        Bmax=Bmax[:,:,0]))
-
-print mod.B
-sc.plot_contour(mod, save=1)
-"""
-
-cProfile.run(code, filename='profile')
-pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)
+#cProfile.run(code, filename='profile')
+#pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

@@ -53,19 +53,22 @@
 <a id="user-content-emf" class="anchor" href="#emf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>emf</code>
 </h1>
 
+<p><a href="docs/img/both-equations.jpg" target="_blank"><img src="docs/img/both-equations.jpg" alt="biot-savart" style="max-width:100%;"></a></p>
+
 <p>The <code>emf</code> package is a container for two subpackages (documentation accessible <a href="http://mbaum1122.github.io/emf/">here</a>):</p>
 
 <ol>
-<li><p><code>emf.fields</code> was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, <code>emf.fields</code> would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations. <code>emf.fields</code> still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does and more, including the EMF calculations, and it does them better.</p></li>
+<li><p><code>emf.fields</code> was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS. That old program predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. So, <code>emf.fields</code> was initially an extension of the old FIELDS program that made it easier to work with the modeling files and do things like plot the results. In its first versions, <code>emf.fields</code> was used to read power line information from specially formatted excel templates, create input files that could be used by FIELDS to compute EMF results, then manage the FIELDS results. The package did everything except perform the actual EMF calculations. In its current versions, <code>emf.fields</code> still contains functions streamlining the use of FIELDS <em>and</em> it performs all of the necessary calculations on its own. It also has a significant amount of fuctionality that FIELDS lacks, like functions to optimize the phasing arrangement of a cross section model, compute conductor heights needed to lower fields to target levels, and create a handful of different plots. For someone that knows a little Python, <code>emf.fields</code> is signifantly more flexible and more powerful than the old FIELDS program.</p></li>
 <li>
-<p><code>emf.subcalc</code> is currently similar to the original versions of <code>emf.fields</code> because it supplements another modeling program without fully replacing it. In this case, the other modeling program is <a href="http://www.enertech.net/html/emfw.html">SUBCALC</a> (developed by <a href="http://www.enertech.net/html/emfw.html">Enertech</a>, sponsored by <a href="http://www.epri.com">EPRI</a>). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. <code>emf.subcalc</code>'s primary functions are to:</p>
+<p><code>emf.subcalc</code> is currently similar to the original versions of <code>emf.fields</code> because it supplements another modeling program without fully replacing it yet. In this case, the other modeling program is <a href="http://www.enertech.net/html/emfw.html">SUBCALC</a> (developed by <a href="http://www.enertech.net/html/emfw.html">Enertech</a>, sponsored by <a href="http://www.epri.com">EPRI</a>). SUBCALC predicts EMF over a fixed-height 2 dimensional grid and can model many non-parallel segments of power lines. It is generally used to model EMF near electrical substations, where circuit arrangements can be complex. The functions needed to fully replace SUBCALC have been written and tested, but there is not currently a framework for building models and using them efficiently. Alas, the primary functions of current versions of <code>emf.subcalc</code> are to:</p>
 
 <ul>
 <li>read the text file output of SUBCALC models and associate the results with <code>Footprint</code> objects (outlines of nearby objects in the model domain, like houses)</li>
-<li>generate contour and colormesh plots of the results, with maximum fields annotated along <code>Footprint</code> objects</li>
-<li>convert results to excel files (much smaller file size)</li>
-<li>interpolate the grid (at points, along lines, or complete resampling)
-It would be nice to build the calculations into <code>emf.subcalc</code> and totally replace SUBCALC, but that hasn't been done yet.</li>
+<li>generate contour and colormesh plots of the results with some options for annotations like maximum field markers, footprint outlines, and cross sections</li>
+<li>convert results to excel files (much smaller file size and easier to work with than formatted text)</li>
+<li>interpolate the results grid (at points, along line segments, along paths, or complete resampling)</li>
+<li>manipulate the results grid (zoom, rereference)
+As mentioned above, the code for fully replacing SUBCALC and giving <code>emf.subcalc</code> the tools to create standalone models is well underway.</li>
 </ul>
 </li>
 </ol>
@@ -91,9 +94,9 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <p><code>emf.fields</code> performs the same calculations as FIELDS, but removes the frustrating issues listed above (for a person who knows some Python). The FIELDS source code isn't released, so a line-by-line replication of its calculations isn't possible, but <code>emf.fields</code> produces nearly identical results for the same input. The calculations follow the conceptual guidelines laid out in the Electric Power Research Institute's "Red Book" (some more information on this source below).</p>
 
 <p>Comparisons between FIELDS results and <code>emf.fields</code> results have shown error on the order FIELDS output roundoff (rounded/truncated to thousandths digit) in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic. Notice that the magnitude of the error is never more than 0.0005 mG, exactly what one expects if one set of results is only recorded to a maximum precision of 0.001 mG.
-<a href="docs/plots/raise1-DAT_comparison_Bmax.png" target="_blank"><img src="docs/plots/raise1-DAT_comparison_Bmax.png" alt="roundoff-error-1" style="max-width:100%;"></a>
+<a href="docs/img/raise1-DAT_comparison_Bmax.png" target="_blank"><img src="docs/img/raise1-DAT_comparison_Bmax.png" alt="roundoff-error-1" style="max-width:100%;"></a>
 <code>emf.fields</code> also reproduces nearly identical results for underground conductors, as shown below.
-<a href="docs/plots/und_only-DAT_comparison_Bmax.png" target="_blank"><img src="docs/plots/und_only-DAT_comparison_Bmax.png" alt="roundoff-error-2" style="max-width:100%;"></a></p>
+<a href="docs/img/und_only-DAT_comparison_Bmax.png" target="_blank"><img src="docs/img/und_only-DAT_comparison_Bmax.png" alt="roundoff-error-2" style="max-width:100%;"></a></p>
 
 <p>An engineer on the team that originally developed FIELDS said that the FIELDS program runs 16-bit BASIC, lower precision than modern languages, and that BASIC has known accuracy issues with the sine and cosine functions (used at several points in the calculations). Additionally, because the results of FIELDS simulations are saved to output files with the values rounded or truncated to the thousandths digit, significant precision can be lost simply by exporting. Thus far, all discrepancies between FIELDS results and the results of <code>emf.fields</code> can reasonably be attributed to rounding in the FIELDS results when the field magnitudes are low and possibly to trigonometry inaccuracies in BASIC.</p>
 
@@ -139,19 +142,19 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <a id="user-content-example-emffields-plots" class="anchor" href="#example-emffields-plots" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example <code>emf.fields</code> plots</h4>
 
 <p>Simulated maximum electric and magnetic fields across a ROW, with the field magnitudes on split vertical axes, using <code>emf.fields.plot_max_fields()</code>. Conductor positions are shown in true horizontal units but false/scaled vertical units:
-<a href="docs/plots/und_P.png" target="_blank"><img src="docs/plots/und_P.png" alt="plot_max_fields" style="max-width:100%;"></a></p>
+<a href="docs/img/und_P.png" target="_blank"><img src="docs/img/und_P.png" alt="plot_max_fields" style="max-width:100%;"></a></p>
 
 <p>Comparison of simulated magnetic field profiles of two related cross sections, essentially a before-and-after plot, using <code>emf.fields.plot_groups()</code>. This plot shows that switching the rightmost circuit to a "delta" configuration reduces fields significantly:
-<a href="docs/plots/group_hl-Bmax.png" target="_blank"><img src="docs/plots/group_hl-Bmax.png" alt="plot_groups" style="max-width:100%;"></a></p>
+<a href="docs/img/group_hl-Bmax.png" target="_blank"><img src="docs/img/group_hl-Bmax.png" alt="plot_groups" style="max-width:100%;"></a></p>
 
 <p>A comparison of the results of phase optimization through <code>emf.fields.optimize_phasing()</code>, using <code>emf.fields.plot_groups()</code> again. The plot shows magnetic field profiles for each of the four optimization scenarios (optimize for electric field on the left side, electric field on the right, magnetic on the left, and magnetic on the right). Notably, optimization for magnetic fields at the right ROW edge reduces fields quite significantly (about 88 %):
-<a href="docs/plots/group_Phase%20Optimized-Bmax.png" target="_blank"><img src="docs/plots/group_Phase%20Optimized-Bmax.png" alt="plot_phase_optimized_group" style="max-width:100%;"></a></p>
+<a href="docs/img/group_Phase%20Optimized-Bmax.png" target="_blank"><img src="docs/img/group_Phase%20Optimized-Bmax.png" alt="plot_phase_optimized_group" style="max-width:100%;"></a></p>
 
 <p>A plot showing simulated magnetic fields due to an underground group of three conductors, arranged in a triangular or "delta" configuration with 2 feet between the conductors.
-<a href="docs/plots/2%20ft%20Spacing.png" target="_blank"><img src="docs/plots/2%20ft%20Spacing.png" alt="2-ft-spacing" style="max-width:100%;"></a></p>
+<a href="docs/img/2%20ft%20Spacing.png" target="_blank"><img src="docs/img/2%20ft%20Spacing.png" alt="2-ft-spacing" style="max-width:100%;"></a></p>
 
 <p>If the conductors in the plot above are moved closer together, the simulated magnetic fields decrease. The bar charts below show decreasing field values at both ROW edges due to decreasing conductor spacing. Interestingly, there appears to be a roughly linear relationship between the maximum field strength and the conductor spacing. The plot was generated with <code>emf.fields.plot_groups_at_ROW()</code>:
-<a href="docs/plots/group_Delta%20Spacing-ROW-Bmax.png" target="_blank"><img src="docs/plots/group_Delta%20Spacing-ROW-Bmax.png" alt="plot_groups_at_ROW" style="max-width:100%;"></a></p>
+<a href="docs/img/group_Delta%20Spacing-ROW-Bmax.png" target="_blank"><img src="docs/img/group_Delta%20Spacing-ROW-Bmax.png" alt="plot_groups_at_ROW" style="max-width:100%;"></a></p>
 
 <p>These plots were all automatically generated.</p>
 
@@ -159,19 +162,19 @@ It would be nice to build the calculations into <code>emf.subcalc</code> and tot
 <a id="user-content-example-emfsubcalc-plots" class="anchor" href="#example-emfsubcalc-plots" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example <code>emf.subcalc</code> plots</h4>
 
 <p>Contour plot of SUBCALC magnetic field results and structures of interest using <code>emf.subcalc.plot_contours()</code>, where the contours are colored on a logarithmic scale using the "viridis" colormap:
-<a href="docs/plots/contour_plot_log.png" target="_blank"><img src="docs/plots/contour_plot_log.png" alt="plot_contours-1" style="max-width:100%;"></a></p>
+<a href="docs/img/contour_plot_log.png" target="_blank"><img src="docs/img/contour_plot_log.png" alt="plot_contours-1" style="max-width:100%;"></a></p>
 
 <p>A heatmap or colormesh plot of the same SUBCALC results again, using <code>emf.subcalc.plot_pcolormesh()</code>:
-<a href="docs/plots/pcolormesh_plot.png" target="_blank"><img src="docs/plots/pcolormesh_plot.png" alt="plot_pcolormesh-1" style="max-width:100%;"></a></p>
+<a href="docs/img/pcolormesh_plot.png" target="_blank"><img src="docs/img/pcolormesh_plot.png" alt="plot_pcolormesh-1" style="max-width:100%;"></a></p>
 
 <p>Another heatmap using results from the same model as above, but with only the
 horizontal (x) component of the magnetic field plotted, and using the "magma" colormap.
-<a href="docs/plots/Bx_magma.png" target="_blank"><img src="docs/plots/Bx_magma.png" alt="plot_pcolormesh-2" style="max-width:100%;"></a></p>
+<a href="docs/img/Bx_magma.png" target="_blank"><img src="docs/img/Bx_magma.png" alt="plot_pcolormesh-2" style="max-width:100%;"></a></p>
 
-<p>Finally, a heatmap of substation model results with two cross sections drawn. The fields along the cross sections are shown in the two subsequent plots. All three plots were automatically generated.
-<a href="docs/plots/pcolormesh-with-cross-sections.png" target="_blank"><img src="docs/plots/pcolormesh-with-cross-sections.png" alt="plot_cross_section_map" style="max-width:100%;"></a>
-<a href="docs/plots/cross-section-A.png" target="_blank"><img src="docs/plots/cross-section-A.png" alt="plot_cross_section_A" style="max-width:100%;"></a>
-<a href="docs/plots/cross-section-B.png" target="_blank"><img src="docs/plots/cross-section-B.png" alt="plot_cross_section_B" style="max-width:100%;"></a></p>
+<p>Finally, a contour plot of substation model results with two cross sections drawn on it. The fields along the cross sections are shown in the two subsequent plots. All three plots were automatically generated.
+<a href="docs/img/contour-with-cross-sections.png" target="_blank"><img src="docs/img/contour-with-cross-sections.png" alt="plot_cross_section_map" style="max-width:100%;"></a>
+<a href="docs/img/cross-section-A.png" target="_blank"><img src="docs/img/cross-section-A.png" alt="plot_cross_section_A" style="max-width:100%;"></a>
+<a href="docs/img/cross-section-B.png" target="_blank"><img src="docs/img/cross-section-B.png" alt="plot_cross_section_B" style="max-width:100%;"></a></p>
 
 <h6>
 <a id="user-content-epris-red-book" class="anchor" href="#epris-red-book" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>EPRI's "Red Book"</h6>
@@ -192,6 +195,7 @@ horizontal (x) component of the magnetic field plotted, and using the "magma" co
 <li><code>glob</code></li>
 <li><code>numpy</code></li>
 <li><code>scipy</code></li>
+<li><code>ctypes</code></li>
 <li><code>shutil</code></li>
 <li><code>pandas</code></li>
 <li><code>textwrap</code></li>

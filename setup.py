@@ -15,7 +15,7 @@ setup(
     zip_safe=False,
     license='MIT',
     install_requires=['os', 'copy', 'glob', 'shutil', 'itertools', 'numpy',
-                                'pandas', 'matplotlib', 'scipy'],
+                            'pandas', 'matplotlib', 'scipy', 'ctypes'],
     classifiers=['Natural Language :: English',
                 'Programming Language :: Python :: 2.7',
                 'Topic :: Scientific/Engineering',

@@ -671,25 +671,23 @@ def plot_cross_sections(mod, paths, xs_label_size=12, xs_color='black',
             kw.pop(k)
 
     #deal with the saving kw
-    save = False
-    if('path' in save_kw):
-        save_kw['save'] = True
     if('save' in save_kw):
-        if(save_kw['save']):
-            save = True
-            if('path' not in save_kw):
-                path = ''
-                save_kw['path'] = path
-            else:
-                path = save_kw['path']
-                if(not os.path.isdir(path)):
-                    raise(subcalc_class.EMFError('Keyword argument "path" can only be the path to a directory when using plot_cross_sections().'))
+        save = save_kw['save']
+    elif('path' in save_kw):
+        if(not os.path.isdir(save_kw['path'])):
+            raise(EMFError('The path keyword argument to plot_cross_sections must be a directory path. Plot names are created automatically, with some control available through the prefix and suffix keyword arguments.'))
+        save_kw['save'] = True
+        save = True
+    else:
+        save = False
+
     if('prefix' in save_kw):
         fn_prefix = save_kw['prefix']
         if(fn_prefix[-1] != '-'):
             fn_prefix = fn_prefix + '-'
     else:
         fn_prefix = ''
+
     if('suffix' in save_kw):
         fn_suffix = save_kw['suffix']
         if(fn_suffix[0] != '-'):

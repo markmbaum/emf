@@ -85,12 +85,16 @@ def load_model(*args, **kw):
         for k in bkeys:
             data[str(k)] = dfs[k].values
         #slice out info dictionary
-        info = dfs['info']
-        params = info[info.columns[0]].values
-        values = info[info.columns[1]].values
-        info = dict(zip(params, values))
-        #initialize Model object
-        mod = subcalc_class.Model(data, info, Bkey=Bkey)
+        if('info' in dfs):
+            info = dfs['info']
+            params = info[info.columns[0]].values
+            values = info[info.columns[1]].values
+            info = dict(zip(params, values))
+            #initialize Model with metadata
+            mod = subcalc_class.Model(data, info, Bkey=Bkey)
+        #initialize Model object without metadata dict
+        mod = subcalc_class.Model(data, Bkey=Bkey)
+
         #check for footprints
         if(len(args) > 1):
             #check for footprint file path and load if present
