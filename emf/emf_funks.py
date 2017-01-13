@@ -1,4 +1,4 @@
-from . import os, np
+from . import os, np, pd
 
 import emf_class
 
@@ -106,6 +106,8 @@ def _is_int(x):
 def _sig_figs(v, figs):
     if(v == 0):
         return(0)
+    if(pd.isnull(v)):
+        return(v)
     w = round(v, int(figs - np.ceil(np.log10(np.abs(v)))))
     if(w == round(w)):
         return(int(w))

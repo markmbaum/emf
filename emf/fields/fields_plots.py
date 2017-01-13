@@ -269,7 +269,7 @@ def plot_Bmax(xs, **kw):
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #set axis text and legend
-    ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
+    ax.set_xlabel(r'Distance $(ft)$')
     ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
     ax.set_title(textwrap.fill('Maximum Magnetic Field - %s' % xs.title))
     ax.legend(kw['H'], kw['L'], numpoints=1)
@@ -312,7 +312,7 @@ def plot_Emax(xs, **kw):
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #set axis text and legend
-    ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
+    ax.set_xlabel(r'Distance $(ft)$')
     ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
     ax.set_title(textwrap.fill('Maximum Electric Field - %s' % xs.title))
     ax.legend(kw['H'], kw['L'], numpoints=1)
@@ -362,7 +362,7 @@ def plot_max_fields(xs, **kw):
     #plot ROW lines
     _plot_ROW_edges(ax_B, xs.lROW, xs.rROW, **kw)
     #set axis text
-    ax_B.set_xlabel(r'Distance from Center of ROW $(ft)$')
+    ax_B.set_xlabel(r'Distance $(ft)$')
     ax_B.set_ylabel(r'Maximum Magnetic Field $(mG)$', color=_B_color)
     ax_E.set_ylabel(r'Maximum Electric Field $(kV/m)$', color=_E_color)
     ax_B.set_title(textwrap.fill('Maximum Magnetic and Electric Fields - %s' % xs.title))
@@ -405,7 +405,7 @@ def plot_xs(xs, **kw):
     _check_und_conds([xs], [ax], **kw)
     #set axis text and legend
     ax.set_title(textwrap.fill('Cross Section Configuration - %s' % xs.title))
-    ax.set_xlabel(r'Distance from Center of ROW $(ft)$')
+    ax.set_xlabel(r'Distance $(ft)$')
     ax.set_ylabel(r'Height Above Ground $(ft)$')
     ax.legend(kw['H'], kw['L'], numpoints=1)
     #format
@@ -686,7 +686,7 @@ def plot_groups(sb, **kw):
                     #plot ROW lines
                     _plot_group_ROW_edges(ax, xss, **kw)
                     #set axis text and legend
-                    ax.set_xlabel('Distance from Center of ROW $(ft)$')
+                    ax.set_xlabel('Distance $(ft)$')
                     ax.set_ylabel(yl)
                     ax.set_title(textwrap.fill(ti + str(xss[0].group)))
                     ax.legend(kw['H'], kw['L'], numpoints=1)

@@ -1,6 +1,6 @@
 # `emf`
 
-![biot-savart](docs/img/both-equations.jpg)
+![biot-savart](docs/img/both-equations.png)
 
 The `emf` package is a container for two subpackages (documentation accessible [here](http://mbaum1122.github.io/emf/)):
 
@@ -30,7 +30,7 @@ FIELDS is useful for performing the EMF calculations, but the rest of the progra
 
 `emf.fields` performs the same calculations as FIELDS, but removes the frustrating issues listed above (for a person who knows some Python). The FIELDS source code isn't released, so a line-by-line replication of its calculations isn't possible, but `emf.fields` produces nearly identical results for the same input. The calculations follow the conceptual guidelines laid out in the Electric Power Research Institute's "Red Book" (some more information on this source below).
 
-Comparisons between FIELDS results and `emf.fields` results have shown error on the order FIELDS output roundoff (rounded/truncated to thousandths digit) in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic. Notice that the magnitude of the error is never more than 0.0005 mG, exactly what one expects if one set of results is only recorded to a maximum precision of 0.001 mG.
+Comparisons between FIELDS results and `emf.fields` results have shown error on the order of FIELDS output roundoff (rounded/truncated to thousandths digit) in almost all cases. The plot below shows FIELDS results and results of this code for the same cross section. They can't be distinguished by eye and the error is clearly not systematic. Notice that the magnitude of the error is never more than 0.0005 mG, exactly what one expects if one set of results is only recorded to a maximum precision of 0.001 mG.
 ![roundoff-error-1](docs/img/raise1-DAT_comparison_Bmax.png)
 `emf.fields` also reproduces nearly identical results for underground conductors, as shown below.
 ![roundoff-error-2](docs/img/und_only-DAT_comparison_Bmax.png)

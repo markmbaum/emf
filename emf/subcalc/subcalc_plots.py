@@ -143,11 +143,11 @@ def _equal_ax_objs(x_range, y_range, max_width, max_height, legend_pad):
     #return
     return(fig, ax)
 
-def _plot_footprints(ax, mod, cmap, ci):
+def _plot_footprints(ax, res, cmap, ci):
     """Plot and label footprint outlines
     args:
         ax - Axes object to plot in
-        mod - Model object containing the Footprint objects
+        res - Results object containing the Footprint objects
         cmap - Colormap object for coloring points of concern
         ci - function for indexing colormap
                (from _make_color_indexer or _make_color_indexer)
@@ -156,13 +156,13 @@ def _plot_footprints(ax, mod, cmap, ci):
         labels - list of labels for the handles"""
 
     #get margins for labeling
-    xmarg, ymarg = (mod.xmax - mod.xmin)*0.005, (mod.ymax - mod.ymin)*0.005
+    xmarg, ymarg = (res.xmax - res.xmin)*0.005, (res.ymax - res.ymin)*0.005
 
     handles, labels = [], []
     #plot footprints
     of_concern = False #flag for appending handles to legend list
     power_line_handle_idx = False
-    for fps in mod.footprint_groups:
+    for fps in res.footprint_groups:
 
         group_name = fps[0].group
         #plot powerline footprings
@@ -194,7 +194,7 @@ def _plot_footprints(ax, mod, cmap, ci):
                 x = fp.x
                 y = fp.y
                 #interpolate
-                B_interp = mod.interp(x, y)
+                B_interp = res.interp(x, y)
                 #store index of max value on footprint
                 idx = np.argmax(B_interp)
                 #get associated color for marker
@@ -279,16 +279,16 @@ def _draw_north_arrow(ax, angle):
             xycoords='data', zorder=2, color='black',
             ha='center', va='center', fontsize=16)
 
-def _write_Bkey(ax, mod):
+def _write_Bkey(ax, res):
     """Place a small text object just outside the upper right corner of the
     axes indicating the component of the magnetic field represented by
     the results
     args:
         ax - Axes to plot in
-        mod - Model object"""
+        res - Results object"""
     xl, yl = ax.get_xlim(), ax.get_ylim()
     #xmarg, ymarg = 0.005*(xl[1] - xl[0]), 0.005*(yl[1] - yl[0])
-    ax.text(xl[1], yl[1], 'Component: %s' % mod.Bkey,
+    ax.text(xl[1], yl[1], 'Component: %s' % res.Bkey,
             fontsize=7, ha='right', va='bottom')
 
 def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
@@ -332,12 +332,12 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
 
     return(ci)
 
-def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
+def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
     max_fig_width=12, max_fig_height=8, legend_padding=4, **kw):
     """Generate a contour plot from the magnetic field results and
-    Footprint objects stored in a Model object
+    Footprint objects stored in a Results object
     args:
-        mod - Model object
+        res - Results object
     optional args:
         scale - str, can be 'log' or 'lin' (default is 'lin')
         label_max - bool, toggle labeling of the maximum field location,
@@ -366,10 +366,10 @@ def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
     cmap = _get_cmap(cmap)
 
     #generate the plot objects
-    fig, ax = _equal_ax_objs(mod.xmax - mod.xmin, mod.ymax - mod.ymin,
+    fig, ax = _equal_ax_objs(res.xmax - res.xmin, res.ymax - res.ymin,
             max_fig_width, max_fig_height, legend_padding)
-    ax.set_xlim(mod.xmin, mod.xmax)
-    ax.set_ylim(mod.ymin, mod.ymax)
+    ax.set_xlim(res.xmin, res.xmax)
+    ax.set_ylim(res.ymin, res.ymax)
 
     #get contour plotting keyword arguments
     contour_kw = {'cmap': cmap, 'zorder': -1, 'alpha': _contour_alpha}
@@ -387,7 +387,7 @@ def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
         Must be 'log' or 'lin.'"""))
 
     #plot
-    CS = ax.contour(mod.X, mod.Y, mod.B, **contour_kw)
+    CS = ax.contour(res.X, res.Y, res.B, **contour_kw)
 
     #get color indexer from decorator along the way
     ci = _make_color_indexer(np.min(CS.cvalues), np.max(CS.cvalues),
@@ -402,9 +402,9 @@ def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
 
     #plot location of maximum field
     if(label_max):
-        peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
+        peak_B, yidx, xidx = subcalc_funks._2Dmax(res.B)
         peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
-        handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
+        handles.append(ax.plot(res.x[xidx], res.y[yidx], 'o',
                 markersize=_field_marker_size,
                 markerfacecolor=cmap.colors[-1],
                 markeredgewidth=_field_marker_edgewidth,
@@ -412,7 +412,7 @@ def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
         labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, mod, cmap, ci)
+    H, L = _plot_footprints(ax, res, cmap, ci)
     handles += H
     labels += L
 
@@ -423,8 +423,8 @@ def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
             numpoints=1)
 
     #north arrow
-    if(mod.north_angle is not None):
-        _draw_north_arrow(ax, mod.north_angle)
+    if(res.north_angle is not None):
+        _draw_north_arrow(ax, res.north_angle)
     elif('north_angle' in kw):
         _draw_north_arrow(ax, kw['north_angle'])
 
@@ -436,19 +436,19 @@ def plot_contour(mod, scale='lin', label_max=True, cmap='viridis_r',
     _format_ax(ax)
 
     #write Bkey note
-    _write_Bkey(ax, mod)
+    _write_Bkey(ax, res)
 
     #saving
     _save_fig('contour-plot', fig, **kw)
 
     return(fig, ax, CS)
 
-def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
+def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
     max_fig_height=8, legend_padding=6, **kw):
     """Generate a color mesh plot of the magnetic field results and
-    Footprint objects stored in a Model object
+    Footprint objects stored in a Results object
     args:
-        mod - Model object
+        res - Results object
     optional args:
         label_max - bool, toggle labeling of the maximum field location,
                     default is True
@@ -475,20 +475,20 @@ def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
     cmap = _get_cmap(cmap)
 
     #generate the plot objects
-    fig, ax = _equal_ax_objs(mod.xmax - mod.xmin, mod.ymax - mod.ymin,
+    fig, ax = _equal_ax_objs(res.xmax - res.xmin, res.ymax - res.ymin,
             max_fig_width, max_fig_height, legend_padding)
-    ax.set_xlim(mod.xmin, mod.xmax)
-    ax.set_ylim(mod.ymin, mod.ymax)
+    ax.set_xlim(res.xmin, res.xmax)
+    ax.set_ylim(res.ymin, res.ymax)
 
     #get plotting keyword arguments
     pcolor_kw = {'cmap': cmap, 'alpha': _pcolor_alpha, 'zorder': -1,
                     'shading': 'gouraud'}
 
     #plot
-    QM = ax.pcolormesh(mod.X, mod.Y, mod.B, **pcolor_kw)
+    QM = ax.pcolormesh(res.X, res.Y, res.B, **pcolor_kw)
 
     #get color indexer from decorator along the way
-    ci = _make_color_indexer(np.min(mod.B), np.max(mod.B),
+    ci = _make_color_indexer(np.min(res.B), np.max(res.B),
                             len(cmap.colors), 'lin')
 
     #keep list of handles and labels for the legend
@@ -496,9 +496,9 @@ def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
 
     #plot location of maximum field
     if(label_max):
-        peak_B, yidx, xidx = subcalc_funks._2Dmax(mod.B)
+        peak_B, yidx, xidx = subcalc_funks._2Dmax(res.B)
         peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
-        handles.append(ax.plot(mod.x[xidx], mod.y[yidx], 'o',
+        handles.append(ax.plot(res.x[xidx], res.y[yidx], 'o',
                 markersize=_field_marker_size,
                 markerfacecolor=cmap.colors[-1],
                 markeredgewidth=_field_marker_edgewidth,
@@ -506,7 +506,7 @@ def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
         labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, mod, cmap, ci)
+    H, L = _plot_footprints(ax, res, cmap, ci)
     handles += H
     labels += L
 
@@ -523,8 +523,8 @@ def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
     _format_ax(cbar.ax)
 
     #north arrow
-    if(mod.north_angle is not None):
-        _draw_north_arrow(ax, mod.north_angle)
+    if(res.north_angle is not None):
+        _draw_north_arrow(ax, res.north_angle)
     elif('north_angle' in kw):
         _draw_north_arrow(ax, kw['north_angle'])
 
@@ -536,20 +536,20 @@ def plot_pcolormesh(mod, label_max=True, cmap='magma_r', max_fig_width=12,
     _format_ax(ax)
 
     #write Bkey note
-    _write_Bkey(ax, mod)
+    _write_Bkey(ax, res)
 
     #saving
     _save_fig('pcolormesh-plot', fig, **kw)
 
     return(fig, ax, QM, cbar)
 
-def plot_path(mod, points, n=101, x_labeling='distance', scale='lin',
+def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
     cmap='viridis_r', **kw):
-    """Plot a Model object's fields along a line segment in the model domian,
+    """Plot a Results object's fields along a line segment in the results domian,
     essentially a cross section of the fields
     args:
-        mod - Model object
-        points - an iterable of x,y pairs representing a path through the model
+        res - Results object
+        points - an iterable of x,y pairs representing a path through the results
                  domain to plot, for example: [(1,2), (1,3), (2,4)]
         n - integer, number of points sampled (default 101)
         x_labeling - 'distance' or 'location', for x axis ticks labeled
@@ -574,14 +574,14 @@ def plot_path(mod, points, n=101, x_labeling='distance', scale='lin',
     cmap = _get_cmap(cmap)
 
     #compute the path
-    x, y, B_interp = mod.path(points, n)
+    x, y, B_interp = res.path(points, n)
 
     #get plotting objects
     fig, ax = _prepare_fig(**kw)
 
     #plot
     dist = subcalc_funks.cumulative_distance(x, y)
-    ci = _make_color_indexer(mod.Bmin, mod.Bmax, len(cmap.colors), scale)
+    ci = _make_color_indexer(res.Bmin, res.Bmax, len(cmap.colors), scale)
     colors = [cmap.colors[ci(i)] for i in B_interp]
     ax.scatter(dist, B_interp, s=15, c=colors, edgecolors='gray')
 
@@ -607,13 +607,13 @@ def plot_path(mod, points, n=101, x_labeling='distance', scale='lin',
     #tight layout
     fig.tight_layout()
     #write Bkey
-    _write_Bkey(ax, mod)
+    _write_Bkey(ax, res)
     #save or not
     _save_fig('segment-plot', fig, **kw)
 
     return(fig, ax)
 
-def plot_cross_sections(mod, paths, xs_label_size=12, xs_color='black',
+def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
     map_style='contour', scale='lin', n=101, x_labeling='distance',
     label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
     legend_padding=6, **kw):
@@ -621,9 +621,9 @@ def plot_cross_sections(mod, paths, xs_label_size=12, xs_color='black',
     cross sections labeled on it and generate plots of the fields corresponding
     to the cross sections
     args:
-        mod - Model object
+        res - Results object
         paths - An iterable of iterables of x,y pairs representing paths through
-                the model domain to plot as cross sections. For example,
+                the results domain to plot as cross sections. For example,
                     ([(1,2), (3,5)], [(2,5), (9,3), (4,7)], [(5,3), (9,2)])
     optional args:
         xs_label_size - int, fontsize of text labels on the map style figure
@@ -704,13 +704,13 @@ def plot_cross_sections(mod, paths, xs_label_size=12, xs_color='black',
 
     #plot the map style figure
     if(map_style == 'contour'):
-        r = plot_contour(mod, scale, label_max, cmap, max_fig_width,
+        r = plot_contour(res, scale, label_max, cmap, max_fig_width,
                 max_fig_height, legend_padding, **kw)
         R.append(r)
         fig, ax = r[0], r[1]
         fn = fn_prefix + 'contour-with-cross-sections' + fn_suffix
     else:
-        r = plot_pcolormesh(mod, label_max, cmap, max_fig_width, max_fig_height,
+        r = plot_pcolormesh(res, label_max, cmap, max_fig_width, max_fig_height,
                 legend_padding, **kw)
         R.append(r)
         fig, ax = r[0], r[1]
@@ -736,7 +736,7 @@ def plot_cross_sections(mod, paths, xs_label_size=12, xs_color='black',
 
     #plot the cross sections
     for i, path in enumerate(paths):
-        r = plot_path(mod, path, n, x_labeling, scale, cmap, **kw)
+        r = plot_path(res, path, n, x_labeling, scale, cmap, **kw)
         R.append(r)
         fig, ax = r
         c = alphabet[i]

@@ -2,30 +2,49 @@
 #import pstats
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 import emf.subcalc as sc
 
-Nx, Ny = 225, 100
-x = np.linspace(0, 100, Nx)
-y = np.linspace(0, 100, Ny)
-a = np.array([20, 50., 10.], dtype=float)
-b = np.array([90, 20, 10.], dtype=float)
+A = [(20, 30, 10),
+    (20, 20, 20),
+    (20, 10, 10),
+    (50, 60, 10),
+    (50, 50, 20),
+    (50, 40, 10)]
 
-Ph_x_1, Ph_y_1, Ph_z_1 = sc.B_field_segment(a, b, 100., 0., x, y, 0.)
-Ph_x_2, Ph_y_2, Ph_z_2 = sc.B_field_segment(a+5, b+10, 100., -0., x, y, 0.)
-Ph_x_3, Ph_y_3, Ph_z_3 = sc.B_field_segment(a+5, b+10, 100., 0., x, y, 0.)
-Ph_x = Ph_x_1 + Ph_x_2 + Ph_x_3
-Ph_y = Ph_y_1 + Ph_y_2 + Ph_y_3
-Ph_z = Ph_z_1 + Ph_z_2 + Ph_z_3
+B = [(50, 60, 10),
+    (50, 50, 20),
+    (50, 40, 10),
+    (90, 60, 30),
+    (90, 50, 40),
+    (90, 40, 50)]
+
+Ph = [0., -120., 120., 0., -120., 120.]
+
+A = [np.array(a, dtype=float) for a in A]
+B = [np.array(b, dtype=float) for b in B]
+I = 100.
+
+x = np.linspace(0, 100, 500)
+y = np.linspace(0, 100, 500)
+z = 3.28
+
+Ph_x, Ph_y, Ph_z = sc.B_field_segment(A[0], B[0], I, Ph[0], x, y, z)
+for (a,b,ph) in zip(A[1:], B[1:], Ph[1:]):
+    Ph = sc.B_field_segment(a, b, I, ph, x, y, z)
+    Ph_x += Ph[0]
+    Ph_y += Ph[1]
+    Ph_z += Ph[2]
 
 Ph_x, Ph_y, Ph_z, X, Y = sc.grid_segment_results(Ph_x, Ph_y, Ph_z, x, y)
 
-B = sc.phasors_to_magnitudes(Ph_x, Ph_y, Ph_z)
+Bx, By, Bz, Bres, Bmax = sc.phasors_to_magnitudes(Ph_x, Ph_y, Ph_z)
 
-mod = sc.Model(X, Y, B[-1])
+mod = sc.Results(dict(X=X, Y=Y, Bx=Bx, By=By, Bz=Bz, Bres=Bres, Bmax=Bmax))
 
-sc.plot_cross_sections(mod, ([(10,10), (10,45), (60,50)],), path='../')
+mod.Bkey = 'Bx'
+
+sc.plot_contour(mod, max_fig_height=5, save=True)
 
 #cProfile.run(code, filename='profile')
 #pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)
