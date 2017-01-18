@@ -136,8 +136,8 @@ def _Levenshtein_group(V, W):
         V - vector of strings
         W - vector of strings, can be longer than V but not shorter
     returns:
-        list of matches in the same order as V"""
-    print V, W
+        list of matches in the same order as V, comprising elements of W"""
+
     #set up some loop variables
     vmask = np.ones((len(V),), dtype = bool)
     vrange = np.arange(len(V))

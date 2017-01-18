@@ -22,7 +22,7 @@ from subcalc_class import (Model,
 
 from subcalc_funks import (drop_footprint_template,
 						read_REF,
-                        meshgrid,
+                        mesh_dict_grids,
                         load_results,
                         convert_REF,
                         cumulative_distance)

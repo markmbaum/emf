@@ -171,7 +171,6 @@ def read_FLD(file_path):
                         go = False
                         n -= 1
                 n += 1
-            print fld[n]
 
     return(xs)
 

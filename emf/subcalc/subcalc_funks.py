@@ -1,7 +1,7 @@
 from .. import os, np, pd, shutil
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
-                        _check_intable, _flatten, _sig_figs)
+                        _check_intable, _flatten, _sig_figs, _Levenshtein_group)
 
 import subcalc_class
 
@@ -62,7 +62,7 @@ def load_results(*args, **kw):
         #pull data from the REF file
         data, info = read_REF(args[0])
         #get the gridded arrays
-        data = meshgrid(data)
+        data = mesh_dict_grids(data)
         #initialize Results object
         res = subcalc_class.Results(data, info, Bkey=Bkey)
         #check for footprint file path and load if present
@@ -105,6 +105,12 @@ def load_results(*args, **kw):
     else:
         raise(subcalc_class.EMFError("""
         Results must be loaded from .REF file or excel files"""))
+
+    #set the Results object's name with the input filename
+    n = os.path.basename(args[0])
+    if('.' in n):
+        n = n[:n.rfind('.')]
+    res.name = n
 
     #return
     return(res)
@@ -169,7 +175,7 @@ def read_REF(file_path):
 
     return(data, info)
 
-def meshgrid(flat_data):
+def mesh_dict_grids(flat_data):
     """Convert raw grid data read from a SubCalc output file (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates and their corresponding B field values
     args:
         flat_data - dict, keyed by 'x','y','bx','by','bz','bmax','bres'

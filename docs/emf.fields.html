@@ -1489,7 +1489,6 @@
                         <span class="n">go</span> <span class="o">=</span> <span class="bp">False</span>
                         <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">print</span> <span class="n">fld</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
 
     <span class="k">return</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
 </pre></div>
@@ -1949,7 +1948,6 @@
         <span class="k">if</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">V</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
             <span class="c1">#probably shouldn&#39;t have current if grounded</span>
             <span class="k">if</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">I</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">print</span> <span class="n">cond</span><span class="o">.</span><span class="n">I</span>
                 <span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Conductor with name &quot;</span><span class="si">%s</span><span class="s2">&quot; in CrossSection &quot;</span><span class="si">%s</span><span class="s2">&quot; is</span>
 <span class="s2">                grounded (V = 0) but has nonzero current?&quot;&quot;&quot;</span>
                 <span class="o">%</span> <span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheet</span><span class="p">))</span>

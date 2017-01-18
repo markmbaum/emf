@@ -3,10 +3,340 @@ from .. import np, pd, os, copy, _interpn
 from ..emf_class import EMFError
 
 import subcalc_funks
+import subcalc_calcs
 
 class Model(object):
     """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing model results and returning them in a Results object."""
-    pass
+
+    def __init__(self, name='unnamed-model', **kw):
+        """
+        optional args:
+            name - string, a name identifying the Model, used for filenames
+        kw:
+            towers - an iterable of Tower objects to include in the Model
+            conductors - an iterable of Conductor objects to include in the Model
+            xmin - float, the minimum x value in the Model area, default is zero (ft)
+            xmax - float, the maximum x value in the Model area, will use
+                   Tower and Conductor information to pick value automatically
+                   if left unset and return None if left unset with no Towers or
+                   Conductors in the Model
+            ymin - float, the minimum y value in the Model area, default is zero (ft)
+            ymax - float, the maximum y value in the Model area, will use
+                   Tower and Conductor information to pick value automatically
+                   if left unset and return None if left unset with no Towers or
+                   Conductors in the Model
+            z - float, the vertical height to calculate magnetic fields at (ft),
+                defaults to 3.28 ft (the SUBCALC default)
+            spacing - float, the spacing between grid points, defaults to 1 (ft)"""
+
+        self._name = None
+        self._towers = []
+        self._conductors = []
+        self._xmin = None
+        self._xmax = None
+        self._ymin = None
+        self._ymax = None
+        self._z = 3.28
+        self._spacing = None
+
+        self.name = name
+        if('towers' in kw):
+            for t in kw['towers']:
+                self.add_tower(t)
+        if('conductors' in kw):
+            for c in kw['conductors']:
+                self.add_conductor(c)
+        if('xmin' in kw):
+            self.xmin = kw['xmin']
+        if('xmax' in kw):
+            self.xmax = kw['xmax']
+        if('ymin' in kw):
+            self.ymin = kw['ymin']
+        if('ymax' in kw):
+            self.ymax = kw['ymax']
+        if('z' in kw):
+            self.z = kw['z']
+        if('spacing' in kw):
+            self.spacing = kw['spacing']
+
+    #---------------------------------------------------------------------------
+    #properties
+
+    def _get_name(self): return(self._name)
+    def _set_name(self, value): self._name = str(value)
+    name = property(_get_name, _set_name, None, 'A string identifying the Model, used for filenames')
+
+    def _get_towers(self): return(self._towers)
+    towers = property(_get_towers, None, None, 'List of Tower objects in the Model')
+
+    def _get_tower_groups(self):
+        """Generate a list of lists of Tower objects with identical group
+        strings, with the sublists sorted according to the Tower seq property"""
+        u = list(set([t.group for t in self.towers]))
+        groups = [[] for i in range(len(u))]
+        #create the groups
+        for i in range(len(self.towers)):
+            t = self.towers[i]
+            groups[u.index(t.group)].append(t)
+        #sort the groups by seq
+        k = lambda t: t.seq
+        for i in range(len(groups)):
+            groups[i] = sorted(groups[i], key=k)
+        return(groups)
+    tower_groups = property(_get_tower_groups, None, None, 'A list of lists of Tower objects with identical group strings, with the sublists sorted according to the Tower seq property')
+
+    def _get_conductors(self): return(self._conductors)
+    conductors = property(_get_conductors, None, None, 'List of Conductor objects in the Model')
+
+    def _get_xmin(self):
+        if(self._xmin is None):
+            return(0.0)
+        else:
+            return(self._xmin)
+    def _set_xmin(self, value):
+        if(value >= self.xmax):
+            raise(EMFError('xmin must be less than xmax.'))
+        self._xmin = float(value)
+    xmin = property(_get_xmin, _set_xmin, None, 'The minimum x value in the Model area in feet, defualts to zero')
+
+    def _get_xmax(self):
+        if(self._xmax is None):
+            if((not self.conductors) and (not self.towers)):
+                return(None)
+            else:
+                ma = -np.inf
+                mi = np.inf
+                for t in self.towers:
+                    o = np.max(t.conductor_x)
+                    if(o > ma):
+                        ma = o
+                    o = np.min(t.conductor_x)
+                    if(o < mi):
+                        mi = o
+                for c in self.conductors:
+                    o = np.max(c.x)
+                    if(o > ma):
+                        ma = o
+                    o = np.min(c.x)
+                    if(o < mi):
+                        mi = o
+
+                return(ma + abs(mi - self.xmin))
+    def _set_xmax(self, value):
+        if(value <= self.xmin):
+            raise(EMFError('xmax must be greater than xmin'))
+        self._xmax = float(value)
+    xmax = property(_get_xmax, _set_xmax, None, 'The maximum x value in the Model area in feet, will use Tower and Conductor information to pick value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
+
+    def _get_ymin(self):
+        if(self._ymin is None):
+            return(0.0)
+        else:
+            return(self._ymin)
+    def _set_ymin(self, value):
+        if(value >= self.ymax):
+            raise(EMFError('ymin must be less than ymax.'))
+        self._ymin = float(value)
+    ymin = property(_get_ymin, _set_ymin, None, 'The minimum y value in the Model area in feet, defualts to zero')
+
+    def _get_ymax(self):
+        if(self._ymax is None):
+            if((not self.conductors) and (not self.towers)):
+                return(None)
+            else:
+                ma = -np.inf
+                mi = np.inf
+                for t in self.towers:
+                    o = np.max(t.conductor_y)
+                    if(o > ma):
+                        ma = o
+                    o = np.min(t.conductor_y)
+                    if(o < mi):
+                        mi = o
+                for c in self.conductors:
+                    o = np.max(c.y)
+                    if(o > ma):
+                        ma = o
+                    o = np.min(c.y)
+                    if(o < mi):
+                        mi = o
+
+                return(ma + abs(mi - self.ymin))
+        else:
+            return(self._ymax)
+    def _set_ymax(self, value):
+        if(value <= self.ymin):
+            raise(EMFError('ymax must be greater than ymin.'))
+        self._ymax = float(value)
+    ymax = property(_get_ymax, _set_ymax, None, 'The maximum y value in the Model area in feet, will use Tower and Conductor information to pick value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
+
+    def _get_z(self): return(self._z)
+    def _set_z(self, value):
+        self._z = float(z)
+    z = property(_get_z, _set_z, None, 'Vertical (z) coordinate to calculate magnetic fields at (ft)')
+
+    def _get_spacing(self):
+        if(self._spacing is None):
+            return(1.0)
+        else:
+            return(self._spacing)
+    def _set_spacing(self, value):
+        s = float(value)
+        if(s <= 0):
+            raise(EMFError)
+        self._spacing = float(value)
+    spacing = property(_get_spacing, _set_spacing, None, 'Spacing between sample points along x and y axes of the Model grid (ft)')
+
+    def _get_x(self):
+        if((self.xmax is None) or (self.xmin is None)):
+            return(None)
+        inc = self.spacing/2.0
+        x = np.arange(self.xmin, self.xmax + inc, self.spacing, dtype=float)
+        return(x)
+    x = property(_get_x, None, None, 'Array of unique x coordinates in the Model grid')
+
+    def _get_y(self):
+        if((self.ymax is None) or (self.ymin is None)):
+            return(None)
+        inc = self.spacing/2.0
+        y = np.arange(self.ymin, self.ymax + inc, self.spacing, dtype=float)
+        return(y[::-1])
+    y = property(_get_y, None, None, 'Array of unique y coordinates in the Model grid')
+
+    def _get_X(self):
+        x, y = self.x, self.y
+        if((x is None) or (y is None)):
+            return(None)
+        X = np.tile(x, (len(y),1))
+        return(X)
+    X = property(_get_X, None, None, '2D array of x coordinates in the Model Grid')
+
+    def _get_Y(self):
+        x, y = self.x, self.y
+        if((x is None) or (y is None)):
+            return(None)
+        Y = np.tile(np.reshape(y, (len(y),1)), (1,len(x)))
+        return(Y)
+    Y = property(_get_Y, None, None, '2D array of y coordinates in the Model Grid')
+
+    def _get_segments(self):
+        """Parse lists of Conductor and Tower objects in the Model into individual wire segments, for emf calculations. A list of tuples is returned, each representing a single wire and containing the wire's start and end points (a and b), the current amplitude, and the phase:
+
+            ((xa, ya, za), (xb, yb, zb), I, phase)"""
+        segs = []
+        #create segments from the list of Towers
+        tg = self.tower_groups
+        if(any([(len(g) < 2) for g in tg])):
+            raise(EMFError('Tower groups must have more than one tower in them. A single Tower cannot be parsed into wire segments.'))
+        for g in tg:
+            #check lengths
+            if(any([(len(g[i]) != len(g[i+1])) for i in range(len(g) - 1)])):
+                raise(EMFError('All Towers with the same group must have the same length. Group "%s" contains Towers with unequal lengths.' % g[0].group))
+            #check currents and phases
+            for i in range(len(g[0])):
+                if(any([(g[j].I[i] != g[j+1].I[i]) for j in range(len(g) - 1)])):
+                    raise(EMFError("""Wires with different currents were found between Towers in group "%s". Check the currents.""" % g[0].group))
+                if(any([(g[j].phase[i] != g[j+1].phase[i]) for j in range(len(g) - 1)])):
+                    raise(EMFError("""Wires with different phases were found between Towers in group "%s". Check the phasing.""" % g[0].group))
+            #parse to segments
+            for i in range(len(g) - 1):
+                t1, t2 = g[i], g[i+1]
+                x1, y1, z1 = t1.conductor_x, t1.conductor_y, t1.conductor_z
+                x2, y2, z2 = t2.conductor_x, t2.conductor_y, t2.conductor_z
+                for j in range(len(t1)):
+                    segs.append(
+                        (
+                            np.array([x1[j], y1[j], z1[j]]),
+                            np.array([x2[j], y2[j], z2[j]]),
+                            t1.I[j],
+                            t1.phase[j]
+                        )
+                    )
+        #create segments from Conductors
+        for c in self.conductors:
+            for i in range(len(c) - 1):
+                segs.append(
+                    (
+                        np.array([c.x[i], c.y[i], c.z[i]]),
+                        np.array([c.x[i+1], c.y[i+1], c.z[i+1]]),
+                        c.I,
+                        c.phase
+                    )
+                )
+
+        return(segs)
+    segments = property(_get_segments, None, None, '')
+
+    #---------------------------------------------------------------------------
+    #methods
+
+    def add_tower(self, t):
+        """Add a Tower object to the Model
+        args:
+            t - Tower object to add (a copy is added)"""
+        if(type(t) is not Tower):
+            raise(EMFError('The add_tower method of Model objects can only add Tower objects.'))
+        self._towers.append(copy.deepcopy(t))
+
+    def add_conductor(self, c):
+        """Add a Conductor object to the Model
+        args:
+            c - Conductor object to add (a copy is added)"""
+        if(type(c) is not Conductor):
+            raise(EMFError('The add_conductor method of Model objects can only add Conductor objects.'))
+        self._conductors.append(copy.deepcopy(c))
+
+    def calculate(self, *args):
+        """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments in the model domain
+        optional args:
+            footprints - string, path to the footprint csv/excel data.
+                        If footprint data is in an excel workbook with,
+                        multiple sheets, the sheet name must be passed
+                        to the kwarg 'sheet'
+
+                            or
+
+                        an existing DataFrame with footprint data
+        returns:
+            res - a Results object"""
+        #check properties
+        if((not self.conductors) and (not self.towers)):
+            raise(EMFError('Cannot calculate fields because there are no Tower or Conductor objects in the Model. All fields would be zero.'))
+        scc = subcalc_calcs
+        #get wire segments
+        S = self.segments
+        #get sample points
+        x, y, z = self.x, np.sort(self.y), self.z
+        #compute one set of phasors to get arrays started
+        Ph_x, Ph_y, Ph_z = scc.B_field_segment(S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
+        #compute the fields of all other segments and add the phasors
+        for i in range(1,len(S)):
+            Ph = scc.B_field_segment(S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
+            Ph_x += Ph[0]
+            Ph_y += Ph[1]
+            Ph_z += Ph[2]
+        #convert the results into a 2D grid
+        Ph_x, Ph_y, Ph_z, X, Y = scc.grid_segment_results(Ph_x, Ph_y, Ph_z, x, y)
+        #get the real components
+        Bx, By, Bz, Bres, Bmax = scc.phasors_to_magnitudes(Ph_x, Ph_y, Ph_z)
+        #return a Results object
+        data = dict(X=X, Y=Y, Bx=Bx, By=By, Bz=Bz, Bres=Bres, Bmax=Bmax)
+        info = {'Z Height (ft)': z,
+                'Minimum X Coordinate': np.min(x),
+                'Minimum Y Coordinate': np.min(y),
+                'Maximum X Coordinate': np.max(x),
+                'Maximum Y Coordinate': np.max(y),
+                'X Grid Increment': self.spacing,
+                'Y Grid Increment': self.spacing,
+                'Number X Grid Points': len(x),
+                'Number Y Grid Points': len(y),
+                'Total Grid Points': len(x)*len(y),
+                'Distance Units': 'feet',
+                'B-Field Units': 'mG'}
+        res = Results(data, info)
+        if(len(args) > 0):
+            res.load_footprints(args[0])
+        return(res)
 
 class Tower(object):
     """Tower objects are used to define the locations of power lines in a Model.
@@ -15,7 +345,7 @@ class Tower(object):
 
     The sequence of Towers in a group is defined by thier 'seq' property. Current is assumed to flow from the Tower with Tower with the lowest 'seq' value to the Tower with the next lowest 'seq' value, and so on."""
 
-    def __init__(self, num, x, y, rot, h, v, I, phase, group):
+    def __init__(self, group, seq, tower_x, tower_y, rot, h, v, I, phase):
         """
         args:
             group - str, a string used to group towers together into continuous
@@ -39,8 +369,8 @@ class Tower(object):
 
         self._group = None
         self._seq = None
-        self._x = None
-        self._y = None
+        self._tower_x = None
+        self._tower_y = None
         self._rot = None
         self._h = None
         self._v = None
@@ -49,8 +379,8 @@ class Tower(object):
 
         self.group = group
         self.seq = seq
-        self.x = x
-        self.y = y
+        self.tower_x = tower_x
+        self.tower_y = tower_y
         self.rot = rot
         self.h = h
         self.v = v
@@ -68,22 +398,22 @@ class Tower(object):
     def _set_seq(self, value): self._seq = int(value)
     seq = property(_get_seq, _set_seq, None, 'Integer describing the position of this tower among other towers in the same group, where current is assumed to run from the 0th tower to the 1st, 2nd, ...')
 
-    def _get_x(self): return(self._x)
-    def _set_x(self, value): self._x = float(value)
-    x = property(_get_x, _set_x, None, 'Tower x coordinate within the model domain (ft)')
+    def _get_tower_x(self): return(self._tower_x)
+    def _set_tower_x(self, value): self._tower_x = float(value)
+    tower_x = property(_get_tower_x, _set_tower_x, None, 'Tower x coordinate within the model domain (ft)')
 
-    def _get_y(self): return(self._y)
-    def _set_y(self, value): self._y = float(value)
-    y = property(_get_y, _set_y, None, 'Tower y coordinate within the model domain (ft)')
+    def _get_tower_y(self): return(self._tower_y)
+    def _set_tower_y(self, value): self._tower_y = float(value)
+    tower_y = property(_get_tower_y, _set_tower_y, None, 'Tower y coordinate within the model domain (ft)')
 
-    def _get_conductor_x(self): return(self.x + np.cos(self.rot_rad)*self.h)
-    conductor_x = property(_get_conductor_x, None, None, 'x-axis coordinates of the conductors on the tower in the model domain, calculated from Tower.x, Tower.h, and Tower.rot')
+    def _get_conductor_x(self): return(self.tower_x + np.cos(self.rot_rad)*self.h)
+    conductor_x = property(_get_conductor_x, None, None, 'x-axis coordinates of the conductors on the tower in the model domain, calculated from Tower.x, Tower.h, and Tower.rot (ft)')
 
-    def _get_conductor_y(self): return(self.y + np.sin(self.rot_rad)*self.h)
-    conductor_y = property(_get_conductor_y, None, None, 'y-axis coordinates of the conductors on the tower in the model domain, calculated from Tower.y, Tower.h, and Tower.rot')
+    def _get_conductor_y(self): return(self.tower_y + np.sin(self.rot_rad)*self.h)
+    conductor_y = property(_get_conductor_y, None, None, 'y-axis coordinates of the conductors on the tower in the model domain, calculated from Tower.y, Tower.h, and Tower.rot (ft)')
 
-    def _get_conductor_z(self): return(self.h)
-    conductor_z = property(_get_conductor_z, None, None, 'z-axis coordinates of the conductors on the tower in the model domain, identical to Tower.h')
+    def _get_conductor_z(self): return(self.v)
+    conductor_z = property(_get_conductor_z, None, None, 'z-axis coordinates of the conductors on the tower in the model domain, identical to Tower.h (ft)')
 
     def _get_rot(self): return(self._rot)
     def _set_rot(self, value): self._rot = float(value)
@@ -103,11 +433,19 @@ class Tower(object):
 
     def _get_I(self): return(self._I)
     def _set_I(self, value): self._I = np.array(value, dtype=float)
-    I = property(_get_h, _set_h, None, 'Current amplitudes of conductors on the tower (Amps)')
+    I = property(_get_I, _set_I, None, 'Current amplitudes of conductors on the tower (Amps)')
 
     def _get_phase(self): return(self._phase)
     def _set_phase(self, value): self._phase = np.array(value, dtype=float)
     phase = property(_get_phase, _set_phase, None, 'Phase angles of conductors on the tower (degrees)')
+
+    #---------------------------------------------------------------------------
+    #methods
+
+    def __len__(self):
+        if(not (len(self.h) == len(self.v) == len(self.I) == len(self.phase))):
+            raise(EMFError("""The 'h', 'v', 'I', and 'phase' arrays of a Tower object must have the same length. Tower with group '%s' and seq '%s' has nonuniform array lengths for those properties.""" % (self.group, str(self.seq))))
+        return(len(self.h))
 
 
 class Conductor(object):
@@ -143,8 +481,8 @@ class Conductor(object):
 
     def _get_x(self): return(self._x)
     def _set_x(self, value):
-        if(not hasattr(value, len)):
-            raise(EMFError('The x property of a Conductor must be a iterable of at least two numbers.'))
+        if(not hasattr(value, '__len__')):
+            raise(EMFError('The x property of a Conductor must be an iterable of at least two numbers.'))
         elif(len(value) < 2):
             raise(EMFError('The x property of a Conductor must have at least two numeric elements.'))
         self._x = np.array(value, dtype=float)
@@ -152,8 +490,8 @@ class Conductor(object):
 
     def _get_y(self): return(self._y)
     def _set_y(self, value):
-        if(not hasattr(value, len)):
-            raise(EMFError('The y property of a Conductor must be a iterable of at least two numbers.'))
+        if(not hasattr(value, '__len__')):
+            raise(EMFError('The y property of a Conductor must be an iterable of at least two numbers.'))
         elif(len(value) < 2):
             raise(EMFError('The y property of a Conductor must have at least two numeric elements.'))
         self._y = np.array(value, dtype=float)
@@ -161,8 +499,8 @@ class Conductor(object):
 
     def _get_z(self): return(self._z)
     def _set_z(self, value):
-        if(not hasattr(value, len)):
-            raise(EMFError('The z property of a Conductor must be a iterable of at least two numbers.'))
+        if(not hasattr(value, '__len__')):
+            raise(EMFError('The z property of a Conductor must be an iterable of at least two numbers.'))
         elif(len(value) < 2):
             raise(EMFError('The z property of a Conductor must have at least two numeric elements.'))
         self._z = np.array(value, dtype=float)
@@ -181,6 +519,14 @@ class Conductor(object):
             raise(EMFError('The phase property of Conductor objects must be a number defining the phase angle of the current (degrees).'))
         self._phase = float(value)
     phase = property(_get_phase, _set_phase, None, 'the phase angle of the current flow (degrees)')
+
+    #---------------------------------------------------------------------------
+    #methods
+
+    def __len__(self):
+        if(not (len(self.x) == len(self.y) == len(self.z))):
+            raise(EMFError("Conductor arrays in the 'x', 'y', and 'z' properties must have the same lengths."))
+        return(len(self.x))
 
 class Results(object):
     """Results objects store the results of magnetic field modeling generated by the SubCalc program. A Results can be created by passing grid results directly or by passing a dictionary of grid results. The function subcalc.load_results is the best way to generate a Results object from a .REF file containing SubCalc results. The Results object can be saved to a more flexible (and smaller) excel file with Results.export(). Then the excel file can be read back into a Results object using subcalc.load_results.
@@ -208,6 +554,7 @@ class Results(object):
                             keyed by 'X','Y','Bmax','Bres','Bx','By','Bz'
                 info - dict, optional, dictionary of results metadata
         kw:
+            name - str, name for the object, used for filenames and such
             Bkey - str, selects which component of field results to use
                     or defines which component is passed as grid arrays
                     ('Bmax', 'Bres', 'Bx', 'By', 'Bz')."""
@@ -215,6 +562,8 @@ class Results(object):
         largs = len(args)
 
         self._name = None
+        if('name' in kw):
+            self.name = kw['name']
 
         #inputs must correspond to the second case, dictionary of data and
         #optional dict of metadata
@@ -371,6 +720,14 @@ class Results(object):
     def _get_Bmin(self): return(subcalc_funks._2Dmin(self.B)[0])
     Bmin = property(_get_Bmin, None, None, 'Minimum value of Results.B')
 
+    def _get_spacing(self):
+        sx = abs(self.x[1] - self.x[0])
+        sy = abs(self.y[1] - self.y[0])
+        if(sx != sy):
+            raise(EMFError('Sample spacing is different in the x and y dimensions.'))
+        return(sx)
+    spacing = property(_get_spacing, None, None, 'Distance between grid points along the x and y axes (ft)')
+
     def _get_north_angle(self):
         return(self._north_angle)
     def _set_north_angle(self, angle):
@@ -399,63 +756,77 @@ class Results(object):
         (repr(self.name), str(self.Bkeys), self.Bkey, self.Bmin, self.Bmax, self.xmin, self.xmax, self.ymin, self.ymax, len(self.x)*len(self.y))
         )
 
-    def load_footprints(self, footprint_info, **kw):
-        """Read footprint data from a csv file and organize it in Footprint objects stored in self.footprints
+    def load_footprints(self, footprints, **kw):
+        """Read footprint data from a csv/excel file and organize it in Footprint objects stored in self.footprints
         args:
-            footprint_info - string, path to the footprint csv/excel data.
-                            If footprint data is in an excel workbook with,
-                            multiple sheets, the sheet name must be passed
-                            to the kwarg 'sheet'
+            footprints - string, path to the footprint csv/excel data.
+                        If footprint data is in an excel workbook with,
+                        multiple sheets, the sheet name must be passed
+                        to the keyword argumment 'sheet'
 
-                                or
+                            or
 
-                            an existing DataFrame with footprint data"""
-        #load file if footprint_info is not a DataFrame
-        if(not (type(footprint_info) is pd.DataFrame)):
-            #check extension
-            footprint_info = subcalc_funks._check_extension(footprint_info,
-                'csv', 'Footprint files must be csv files.')
-            #load data
-            df = pd.read_csv(footprint_info)
+                        an existing DataFrame with footprint data
+        kw:
+            sheet - str, specifies the target sheet if an excel workbook with
+                    multiple sheets is passed in"""
+        #load file if footprints is not a DataFrame
+        t = type(footprints)
+        if(t is pd.DataFrame):
+            df = footprints
+        elif((t is str) or (t is unicode)):
+            if('.' in footprints):
+                ext = footprints[footprints.rfind('.')+1:]
+                if(ext == 'xlsx'):
+                    dfs = pd.read_excel(footprints, sheetname=None)
+                    if(len(dfs.keys()) > 1):
+                        if('sheet' in kw):
+                            df = dfs[kw['sheet']]
+                        else:
+                            raise(EMFError("""If an excel file with multiple sheets is passed to Results.load_footprints, the target sheet must be specified with the keyword argument 'sheet'."""))
+                    else:
+                        df = dfs[dfs.keys()[0]]
+                elif(ext == 'csv'):
+                    df = pd.read_csv(footprints)
+                else:
+                    raise(EMFError("Only csv and xlsx files can be passed to Results.load_footprints."))
+            else:
+                raise(EMFError("""No extension was detected at the end of file name "%s" passed to Results.load_footprints. File names passed to load_footprints must have .csv or .xlsx extensions.""" % str(footprints)))
         else:
-            df = footprint_info
+            raise(EMFError('Only pandas DataFrames and strings can be passed to Results.load_footprints, not type "%s"' % str(t)))
+
+        #do a little data conditioning
+        df.fillna(method='ffill', inplace=True)
         #store the DataFrame
         self.footprint_df = df
-        #check all columns are present
-        cols = ['Group', 'Name', 'X', 'Y', 'Power Line?', 'Of Concern?',
-                'Draw as Loop?', 'Group']
-        if(set(cols) - set(df.columns)):
-            raise(EMFError("""
-            Footprint csv files must have the following column names:
-            %s
-            The footprint csv file with path:
-            %s
-            is missing or misspells these columns:
-            %s""" % (str(cols), footprint_info,
-                    str(list(set(cols) - set(df.columns))))))
-        message = """
+        #match columns with string distance method
+        cols = ['Group', 'Name', 'X', 'Y', 'Power Line?',
+                'Of Concern?', 'Draw as Loop?']
+        df.columns = subcalc_funks._Levenshtein_group(df.columns.values, cols)
+        #store an error message
+        msg = """
             The column:
                 "%s"
-            must contain only one repeated value for each footprint.
-            It contained multiple values for footprint name:
+            must contain only a single value for each unique footprint.
+            The value should simply be repeated to fill all cells.
+            The column contains multiple values for footprint name:
                 "%s" """
         #pick out some columns
         fields = cols[4:]
         #clear the footprints list
         self._footprints = []
-        #create a footprint for unique entries in the 'Name' field
-        for n in df['Name'].unique():
-            s = df[df['Name'] == n]
+        #create a footprint out of rows with the same "Name"
+        for name, df in df.groupby('Name'):
             #check that certain fields only contain a single entry
             for f in fields:
-                if(len(s[f].unique()) > 1):
-                    raise(EMFError(message % (f,n)))
-            fp = Footprint(n, s['X'].values, s['Y'].values,
-                    bool(s['Power Line?'].unique()[0]),
-                    bool(s['Of Concern?'].unique()[0]),
-                    bool(s['Draw as Loop?'].unique()[0]),
-                    s['Group'].unique()[0])
-            self.footprints.append(fp)
+                if(len(df[f].unique()) > 1):
+                    raise(EMFError(msg % (f,n)))
+            #create a footprint object
+            row = df.iloc[0]
+            fp = Footprint(name, row['Group'], df['X'].values, df['Y'].values,
+                    row['Power Line?'], row['Of Concern?'], row['Draw as Loop?'])
+            #append the Footprint to the Results object's list
+            self._footprints.append(fp)
 
     def path(self, points, n=101, close_path=False):
         """Interpolate the field along a path defined by lists of x and y
@@ -687,7 +1058,7 @@ class Results(object):
             res._grid[k] = res._grid[k][by,:][:,bx]
         #check rereferencing
         if((type(rereference) is int) or (type(rereference) is float)):
-            res.rereference(rereference, inplace=True)
+            res.rereference(rereference, rereference, inplace=True)
         elif(rereference):
             res.rereference(inplace=True)
         if(not inplace):
@@ -737,10 +1108,13 @@ class Results(object):
 
 class Footprint(object):
 
-    def __init__(self, name, x, y, power_line, of_concern, draw_as_loop, group):
+    def __init__(self, name, group, x, y, power_line, of_concern, draw_as_loop):
         """
         args:
             name - string, the name of the Footprint, i.e. "Substation"
+            group - string, group strings that are identical between
+                    Footprint objects designate them as part of the same
+                    group for plotting, i.e. "Nearby Houses"
             x - iterable, x coordinates of Footprint
             y - iterable, y coordinates of Footprint
             power_line - bool, True indicates the footprint corresponds to
@@ -748,23 +1122,50 @@ class Footprint(object):
             of_concern - bool, True if the Footprint represents an area
                          that is potentially concerned about EMF (homes)
             draw_as_loop - bool, True if the footprint should be plotted
-                           as a closed loop
-            group - string, group strings that are identical between
-                    Footprint objects designate them as part of the same
-                    group for plotting"""
+                           as a closed loop"""
         #check x and y are the same length
         if(len(x) != len(y)):
             raise(EMFError("""
             Footprints must have the same number of x and y values to form
             spatial coordinates"""))
+
+        #init variables
+        self._name = None
+        self._group = None
+        self._x = None
+        self._y = None
+        self._power_line = None
+        self._of_concern = None
+        self._draw_as_loop = None
+
+        self._res = None #parent Results object
+
         #set attributes
-        self.name = str(name) #string
-        self._x = [float(i) for i in x]
-        self._y = [float(i) for i in y]
-        self.power_line = bool(power_line) #bool
-        self.of_concern = bool(of_concern) #bool
-        self.draw_as_loop = bool(draw_as_loop) #bool
-        self._group = group #string
+        self.name = name
+        self.group = group
+        self.x = x
+        self.y = y
+        self.power_line = power_line
+        self.of_concern = of_concern
+        self.draw_as_loop = draw_as_loop
+
+    def _get_name(self): return(self._name)
+    def _set_name(self, value):
+        if(not value):
+            raise(EMFError("""Cannot set Footprint 'name' property to an implicitly False object. Use a string"""))
+        self._name = str(value)
+    name = property(_get_name, _set_name, None, 'Footprint name')
+
+    def _get_group(self):
+        if(pd.isnull(self._group) or (self._group is None)):
+            return('')
+        else:
+            return(self._group)
+    def _set_group(self, value):
+        if(not value):
+            raise(EMFError("""Cannot set Footprint 'group' property to an implicitly False object. Use a string."""))
+        self._group = str(value)
+    group = property(_get_group, _set_group, None, 'Footprint group')
 
     def _get_x(self):
         if(self.draw_as_loop):
@@ -772,7 +1173,7 @@ class Footprint(object):
         else:
             return(list(self._x))
     def _set_x(self, value):
-        self._x = value
+        self._x = [float(i) for i in value]
     x = property(_get_x, _set_x, None, 'x coordinates of Footprint vertices')
 
     def _get_y(self):
@@ -781,17 +1182,20 @@ class Footprint(object):
         else:
             return(list(self._y))
     def _set_y(self, value):
-        self._y = value
+        self._y = [float(i) for i in value]
     y = property(_get_y, _set_y, None, 'y coordinates of Footprint vertices')
 
-    def _get_group(self):
-        if(pd.isnull(self._group) or (self._group is None)):
-            return('')
-        else:
-            return(self._group)
-    def _set_group(self, value):
-        self._group = value
-    group = property(_get_group, _set_group, None, 'Group name')
+    def _get_power_line(self): return(self._power_line)
+    def _set_power_line(self, value): self._power_line = bool(value)
+    power_line = property(_get_power_line, _set_power_line, None, 'bool, flag indicating whether the Footprint represents the path of a power line or circuit (1 = yes)')
+
+    def _get_of_concern(self): return(self._of_concern)
+    def _set_of_concern(self, value): self._of_concern = bool(value)
+    of_concern = property(_get_of_concern, _set_of_concern, None, 'bool, flag indicating whether the Footprint is "of concern," which means that the maximum fields along its border will be annoted on plots')
+
+    def _get_draw_as_loop(self): return(self._draw_as_loop)
+    def _set_draw_as_loop(self, value): self._draw_as_loop = bool(value)
+    draw_as_loop = property(_get_draw_as_loop, _set_draw_as_loop, None, 'bool, flag indicating whether the Footprint should be drawn as a closed loop')
 
     def __str__(self):
         """quick and dirty printing"""

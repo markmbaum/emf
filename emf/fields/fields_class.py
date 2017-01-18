@@ -469,7 +469,6 @@ class CrossSection(object):
         if(cond.V == 0):
             #probably shouldn't have current if grounded
             if(cond.I != 0):
-                print cond.I
                 print("""Conductor with name "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?"""
                 % (cond.name, self.sheet))
         #add to self.conds and indexing dict
