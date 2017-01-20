@@ -5,13 +5,13 @@ import copy
 import glob
 import ctypes
 import shutil
+import datetime
 import textwrap
 import itertools
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from scipy.integrate import quad as _quad
 from scipy.interpolate import interpn as _interpn
 
 import fields

@@ -40,10 +40,3 @@ from FIELDS_io import (to_FLD,
                         read_DAT,
                         convert_DAT,
                         convert_DAT_crawl)
-
-del(fields_class,
-    fields_funks,
-    fields_calcs,
-    fields_plots,
-    FIELDS_io,
-    fields_print)

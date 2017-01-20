@@ -30,7 +30,7 @@ _field_marker_edgewidth = 1.5
 _ax_frameon = True
 _ax_ticks_on = False
 _leg_edge_on = False
-_be_concerned = True
+be_concerned = True
 
 #get the colormap
 def _get_cmap(cmap_name):
@@ -190,7 +190,7 @@ def _plot_footprints(ax, res, cmap, ci):
                     alpha=_footprint_alpha,
                     zorder=_footprint_zorder)
             #mark maximum field if the footprint is 'of concern'
-            if(fp.of_concern and _be_concerned):
+            if(fp.of_concern and be_concerned):
                 x = fp.x
                 y = fp.y
                 #interpolate

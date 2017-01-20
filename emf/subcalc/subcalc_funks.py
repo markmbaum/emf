@@ -25,7 +25,75 @@ def drop_footprint_template(*args, **kw):
         raise(subcalc_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_footprint_template().' % fn_drop))
     #copy and notify
     shutil.copyfile(fn_temp, fn_drop)
-    print('emf.fields template written to: %s' % fn_drop)
+    print('subcalc footprint template written to: %s' % fn_drop)
+
+def drop_tower_template(*args, **kw):
+    """Copy the emf.subcalc tower template in the current directory or a directory specified by an input string
+    args:
+        drop_path - string, path of copied template file"""
+    #check inputs
+    if(len(args) > 1):
+        raise(fields_class.EMFError("""drop_tower_template only accepts zero or one input argument. A string can be passed to specify the directory in which the template file is copied. With no arguments, the template file is copied into the current directory."""))
+    elif(len(args) == 1):
+        kw = {'path': args[0]}
+    #get template file path
+    fn_temp = os.path.dirname(os.path.dirname(__file__))
+    fn_temp = os.path.join(fn_temp, 'templates')
+    fn_temp = os.path.join(fn_temp, 'subcalc-tower-template.xlsx')
+    #get drop path
+    fn_drop = _path_manage('subcalc-tower-template', 'xlsx', **kw)
+    #check for existing files
+    if(os.path.isfile(fn_drop)):
+        raise(subcalc_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_tower_template().' % fn_drop))
+    #copy and notify
+    shutil.copyfile(fn_temp, fn_drop)
+    print('subcalc tower template written to: %s' % fn_drop)
+
+def load_towers(fn, return_model=False, **kw):
+    """Read a subcalc tower template and create a new list of Tower objects. The list of Tower objects is returned by default, but a new Model object containing the Tower objects can be returned by using return_model=True.
+    args:
+        fn - string, the path string to the subcalc tower template file (excel or csv)
+    optional args:
+        return_model - bool, if False, a list of Tower objects is returned. If True,
+                       a new Model object containing the Towers is returned.
+    kw:
+        sheet - string, if the template file is an excel workbook with multiple sheets,
+                the target sheet must be specified"""
+    #load the template file into a DataFrame
+    if('.' in fn):
+        ext = fn[fn.rfind('.')+1:]
+        if(ext == 'xlsx'):
+            dfs = pd.read_excel(fn, sheetname=None)
+            if(len(dfs.keys()) > 1):
+                if('sheet' in kw):
+                    df = dfs[kw['sheet']]
+                else:
+                    raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed to load_towers, the target sheet must be specified with the keyword argument 'sheet'."""))
+            else:
+                df = dfs[dfs.keys()[0]]
+        elif(ext == 'csv'):
+            df = pd.read_csv(fn)
+        else:
+            raise(subcalc_class.EMFError("Only csv and xlsx files can be passed to load_towers."))
+    else:
+        raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s" passed to load_towers. File names passed to load_towers must have .csv or .xlsx extensions.""" % fn))
+    #condition data a little
+    df.fillna(method='ffill', inplace=True)
+    #match the columns with string distance method
+    cols = ['group', 'sequence', 'tower x', 'tower y', 'rotation', 'h', 'v', 'I', 'phase']
+    df.columns = _Levenshtein_group(df.columns, cols)
+    #parse to Towers
+    towers = []
+    for (group, seq), df in df.groupby(['group','sequence']):
+        row = df.iloc[0]
+        t = subcalc_class.Tower(group, seq, row['tower x'], row['tower y'], row['rotation'],
+                df['h'].values, df['v'].values, df['I'].values, df['phase'].values)
+        towers.append(t)
+    #return Towers directly or in a Model
+    if(return_model):
+        return(subcalc_class.Model(towers=towers))
+    else:
+        return(towers)
 
 def load_results(*args, **kw):
     """Read a .REF output file and load the data into a Results object
@@ -55,7 +123,6 @@ def load_results(*args, **kw):
     except(subcalc_class.EMFError):
         fn = _check_extension(args[0], '.xlsx', """
         Can only load Results from .REF or .xlsx files""")
-
 
     if(fn[-3:] == 'REF'):
 

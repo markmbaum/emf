@@ -1,4 +1,4 @@
-from .. import os, np, ctypes, _quad
+from .. import os, np, ctypes
 
 #magnetic permeability constant, in SI units
 MU_0 = 4*np.pi*1e-7

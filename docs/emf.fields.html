@@ -1909,7 +1909,7 @@
         <span class="c1">#dictionary mapping Conductor names to Conductor objects</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name2idx</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="c1">#integer indexer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="n">_IntegerIndexer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="n">_IntegerIndexer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conds</span><span class="p">)</span>
         <span class="c1">#DataFrame storing results, populated with _calculate_fields()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -2114,7 +2114,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="c1">#mandatory identification field</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_xss</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#list of cross section objects</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sheet2idx</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="c1">#for CrossSection retrieval</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="n">_IntegerIndexer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="n">_IntegerIndexer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_xss</span><span class="p">)</span>
         <span class="c1">#add CrossSections if they&#39;re passed in</span>
         <span class="k">if</span><span class="p">(</span><span class="n">xss</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">xs</span> <span class="ow">in</span> <span class="n">xss</span><span class="p">:</span>

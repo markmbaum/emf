@@ -20,8 +20,10 @@ from subcalc_class import (Model,
                         Results,
                         Footprint)
 
-from subcalc_funks import (drop_footprint_template,
-						read_REF,
+from subcalc_funks import (drop_tower_template,
+                        drop_footprint_template,
+                        load_towers,
+                        read_REF,
                         mesh_dict_grids,
                         load_results,
                         convert_REF,
@@ -37,6 +39,5 @@ from subcalc_plots import (plot_cross_sections,
                         plot_path,
                         ion,
                         show,
-                        close)
-
-del(subcalc_class, subcalc_funks, subcalc_plots)
+                        close,
+                        be_concerned)

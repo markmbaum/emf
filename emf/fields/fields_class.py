@@ -230,7 +230,7 @@ class CrossSection(object):
         #dictionary mapping Conductor names to Conductor objects
         self._name2idx = dict()
         #integer indexer
-        self._i = _IntegerIndexer(self.conds)
+        self._i = _IntegerIndexer(self._conds)
         #DataFrame storing results, populated with _calculate_fields()
         self._fields = None
 
@@ -610,7 +610,7 @@ class SectionBook(object):
         self._name = name #mandatory identification field
         self._xss = [] #list of cross section objects
         self._sheet2idx = dict() #for CrossSection retrieval
-        self._i = _IntegerIndexer(self.xss)
+        self._i = _IntegerIndexer(self._xss)
         #add CrossSections if they're passed in
         if(xss):
             for xs in xss:
