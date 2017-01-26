@@ -331,6 +331,17 @@
 
 .highlight .c1 {color: #5C6370;}
 </style>
+            <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67200904-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
     	</head>
         <body onresize="arrange()" onload="arrange()">
 
@@ -1494,7 +1505,7 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id="run"><p class="function-str"><span class="function-name">run</span>(<span class="function-arg">template_path</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Import the templates in an excel file with the path 'template_path' then generate a workbook of all fields results and lots of plots. Use the 'path' keyword argument to specify a destination for the output, otherwise it will be saved to the template's directory. Returns a SectionBook object.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;template_path - path to cross section template excel workbook<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sheets - a list of sheet names to load, default is all sheets<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, destination/filename for saved files<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;format - string, saved plot format (usually 'png' or 'pdf')<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xmax - cutoff distance from ROW center in plots</p>
+                </div></div><div class="function" id="run"><p class="function-str"><span class="function-name">run</span>(<span class="function-arg">template_path</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Import the templates in an excel file with the path 'template_path' then generate a workbook of all fields results and lots of plots. Use the 'path' keyword argument to specify a destination for the output, otherwise it will be saved to the template's directory. Returns a SectionBook object.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;template_path - path to cross section template excel workbook<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sheets - a list of sheet names to load, default is all sheets<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, destination/filename for saved files<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;format - string, saved plot format (usually 'png' or 'pdf')<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xmax - cutoff distance from ROW center in plots<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sb - SectionBook object created from the template file</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
@@ -1509,12 +1520,16 @@
 <span class="sd">        sheets - a list of sheet names to load, default is all sheets</span>
 <span class="sd">        path - string, destination/filename for saved files</span>
 <span class="sd">        format - string, saved plot format (usually &#39;png&#39; or &#39;pdf&#39;)</span>
-<span class="sd">        xmax - cutoff distance from ROW center in plots&quot;&quot;&quot;</span>
+<span class="sd">        xmax - cutoff distance from ROW center in plots</span>
+<span class="sd">    returns:</span>
+<span class="sd">        sb - SectionBook object created from the template file&quot;&quot;&quot;</span>
     <span class="c1">#force saving for the plotting functions if there is no &#39;path&#39; keyword</span>
     <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="s1">&#39;path&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">)):</span>
         <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;save&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="c1">#also direct output files to the same directory as the template</span>
-        <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">template_path</span><span class="p">)</span>
+        <span class="n">template_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">template_path</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">template_dir</span><span class="p">):</span>
+            <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">template_dir</span>
     <span class="c1">#import templates</span>
     <span class="n">sb</span> <span class="o">=</span> <span class="n">load_template</span><span class="p">(</span><span class="n">template_path</span><span class="p">)</span>
     <span class="c1">#export the full results workbook</span>
@@ -1685,7 +1700,7 @@
                 <span class="n">xs</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">xs</span><span class="o">.</span><span class="n">sheet</span><span class="p">,</span>
                         <span class="n">index_label</span><span class="o">=</span><span class="s1">&#39;Distance (ft)&#39;</span><span class="p">)</span>
             <span class="n">xl</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Optimal phasing results written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Height adjustment results written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
 
     <span class="k">return</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
 </pre></div>

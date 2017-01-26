@@ -1,9 +1,10 @@
-from .. import np, pd, os, copy, datetime, _interpn
+from .. import np, pd, os, copy, datetime, textwrap, _interpn
 
 from ..emf_class import EMFError
 
 import subcalc_funks
 import subcalc_calcs
+import subcalc_print
 
 class Model(object):
     """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing model results and returning them in a Results object."""
@@ -38,7 +39,7 @@ class Model(object):
         self._z = 3.28
         self._spacing = None
 
-        self._auto_limit_frac = 0.1
+        self._auto_lim_frac = 0.1
 
         if('name' in kw):
             self.name = kw['name']
@@ -81,7 +82,7 @@ class Model(object):
     def _get_tower_groups(self):
         """Generate a list of lists of Tower objects with identical group
         strings, with the sublists sorted according to the Tower seq property"""
-        u = list(self.unique_tower_group_names)
+        u = list(self.tower_group_names)
         groups = [[] for i in range(len(u))]
         #create the groups
         for i in range(len(self.towers)):
@@ -94,9 +95,9 @@ class Model(object):
         return(groups)
     tower_groups = property(_get_tower_groups, None, None, 'A list of lists of Tower objects with identical group strings, with the sublists sorted according to the Tower seq property')
 
-    def _get_unique_tower_group_names(self):
+    def _get_tower_group_names(self):
         return(set([t.group for t in self.towers]))
-    unique_tower_group_names = property(_get_unique_tower_group_names, None, None, 'Set of unique group strings representing the Towers in Model.towers')
+    tower_group_names = property(_get_tower_group_names, None, None, 'Set of unique group strings representing the Towers in Model.towers')
 
     def _get_conductors(self): return(self._conductors)
     conductors = property(_get_conductors, None, None, 'List of Conductor objects in the Model')
@@ -106,85 +107,101 @@ class Model(object):
             xr, yr = self._xy_ranges()
             if((xr is not None) and (yr is not None)):
                 m = max([xr[1] - xr[0], yr[1] - yr[0]])
-                pad = m*self.auto_limit_frac
+                pad = m*self.auto_lim_frac
                 return(xr[0] - pad)
             else:
                 return(None)
         else:
             return(self._xmin)
     def _set_xmin(self, value):
-        if(self.xmax is not None):
-            if(value >= self.xmax):
-                raise(EMFError('xmin must be less than xmax.'))
-        self._xmin = float(value)
-    xmin = property(_get_xmin, _set_xmin, None, 'The minimum x value in the Model area in feet, defualts to zero')
+        if(value is None):
+            self._xmin = None
+        elif(float(value) >= self.xmax):
+            raise(EMFError('xmin must be less than xmax.'))
+        else:
+            self._xmin = float(value)
+    xmin = property(_get_xmin, _set_xmin, None, 'The minimum x value in the Model area in feet, will use Tower and Conductor information to pick a value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
 
     def _get_xmax(self):
         if(self._xmax is None):
             xr, yr = self._xy_ranges()
             if((xr is not None) and (yr is not None)):
                 m = max([xr[1] - xr[0], yr[1] - yr[0]])
-                pad = m*self.auto_limit_frac
+                pad = m*self.auto_lim_frac
                 return(xr[1] + pad)
             else:
                 return(None)
         else:
             return(self._xmax)
     def _set_xmax(self, value):
-        if(self.xmin is not None):
-            if(value <= self.xmin):
-                raise(EMFError('xmax must be greater than xmin'))
-        self._xmax = float(value)
-    xmax = property(_get_xmax, _set_xmax, None, 'The maximum x value in the Model area in feet, will use Tower and Conductor information to pick value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
+        if(value is None):
+            self._xmax = None
+        elif(float(value) <= self.xmin):
+            raise(EMFError('xmax must be greater than xmin.'))
+        else:
+            self._xmax = float(value)
+    xmax = property(_get_xmax, _set_xmax, None, 'The maximum x value in the Model area in feet, will use Tower and Conductor information to pick a value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
+
+    def _get_xlim(self): return(self.xmin, self.xmax)
+    def _set_xlim(self, value): self.xmin, self.xmax = value
+    xlim = property(_get_xlim, _set_xlim, None, 'The range of x coordinates in the Model: (xmin, xmax)')
 
     def _get_ymin(self):
         if(self._ymin is None):
             xr, yr = self._xy_ranges()
             if((xr is not None) and (yr is not None)):
                 m = max([xr[1] - xr[0], yr[1] - yr[0]])
-                pad = m*self.auto_limit_frac
+                pad = m*self.auto_lim_frac
                 return(yr[0] - pad)
             else:
                 return(None)
         else:
             return(self._ymin)
     def _set_ymin(self, value):
-        if(self.ymax is not None):
-            if(value >= self.ymax):
-                raise(EMFError('ymin must be less than ymax.'))
-        self._ymin = float(value)
-    ymin = property(_get_ymin, _set_ymin, None, 'The minimum y value in the Model area in feet, defualts to zero')
+        if(value is None):
+            self._ymin = None
+        elif(float(value) >= self.ymax):
+            raise(EMFError('ymin must be less than ymax.'))
+        else:
+            self._ymin = float(value)
+    ymin = property(_get_ymin, _set_ymin, None, 'The minimum y value in the Model area in feet, will use Tower and Conductor information to pick a value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
 
     def _get_ymax(self):
         if(self._ymax is None):
             xr, yr = self._xy_ranges()
             if((xr is not None) and (yr is not None)):
                 m = max([xr[1] - xr[0], yr[1] - yr[0]])
-                pad = m*self.auto_limit_frac
+                pad = m*self.auto_lim_frac
                 return(yr[1] + pad)
             else:
                 return(None)
         else:
             return(self._ymax)
     def _set_ymax(self, value):
-        if(self.ymin is not None):
-            if(value <= self.ymin):
-                raise(EMFError('ymax must be greater than ymin.'))
-        self._ymax = float(value)
-    ymax = property(_get_ymax, _set_ymax, None, 'The maximum y value in the Model area in feet, will use Tower and Conductor information to pick value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
+        if(value is None):
+            self._ymax = None
+        elif(float(value) <= self.xmin):
+            raise(EMFError('ymax must be greater than ymin.'))
+        else:
+            self._ymax = float(value)
+    ymax = property(_get_ymax, _set_ymax, None, 'The maximum y value in the Model area in feet, will use Tower and Conductor information to pick a value automatically if left unset and return None if left unset with no Towers or Conductors in the Model')
 
-    def _get_auto_limit_frac(self): return(self._auto_limit_frac)
-    def _set_auto_limit_frac(self, value):
+    def _get_ylim(self): return(self.ymin, self.ymax)
+    def _set_ylim(self, value): self.ymin, self.ymax = value
+    ylim = property(_get_ylim, _set_ylim, None, 'The range of y coordinates in the Model: (ymin, ymax)')
+
+    def _get_auto_lim_frac(self): return(self._auto_lim_frac)
+    def _set_auto_lim_frac(self, value):
         if(not subcalc_funks._is_number(value)):
-            raise(EMFError("auto_limit_frac must be a nubmer greater than or equal to zero."))
+            raise(EMFError("auto_lim_frac must be a nubmer greater than or equal to zero."))
         if(value < 0):
-            raise(EMFError("auto_limit_frac must be a nubmer greater than or equal to zero."))
-        self._auto_limit_frac = float(value)
-    auto_limit_frac = property(_get_auto_limit_frac, _set_auto_limit_frac, None, 'When xmin, xmax, ymin, and ymax are left unset, they are automatically determined by the ranges of x and y coordinates of Tower and Conductor objects in the Model. They are set to the edges of those ranges with some padding. auto_limit_frac determines how much padding is automatically used between the limits of the Model domain and the wires in the Model.')
+            raise(EMFError("auto_lim_frac must be a nubmer greater than or equal to zero."))
+        self._auto_lim_frac = float(value)
+    auto_lim_frac = property(_get_auto_lim_frac, _set_auto_lim_frac, None, 'When xmin, xmax, ymin, and ymax are left unset, they are automatically determined by the ranges of x and y coordinates of Tower and Conductor objects in the Model. They are set to the edges of those ranges with some padding. auto_lim_frac determines how much padding is automatically used between the limits of the Model domain and the wires in the Model.')
 
     def _get_z(self): return(self._z)
     def _set_z(self, value):
-        self._z = float(z)
+        self._z = float(value)
     z = property(_get_z, _set_z, None, 'Vertical (z) coordinate to calculate magnetic fields at (ft)')
 
     def _get_spacing(self):
@@ -198,6 +215,9 @@ class Model(object):
             raise(EMFError)
         self._spacing = float(value)
     spacing = property(_get_spacing, _set_spacing, None, 'Spacing between sample points along x and y axes of the Model grid (ft)')
+
+    def _get_N(self): return(len(self.x)*len(self.y))
+    N = property(_get_N, None, None, 'The total number of sample points in the Model. Cannot be set directly (use Model.spacing to adjust).')
 
     def _get_x(self):
         if((self.xmax is None) or (self.xmin is None)):
@@ -270,14 +290,24 @@ class Model(object):
         return(segs)
     segments = property(_get_segments, None, None, "Parse lists of Conductor and Tower objects in the Model into individual wire segments, for emf calculations. A list of tuples is returned, each representing a single wire and containing the wire's start and end points (a and b), the current amplitude, and the phase: ((xa, ya, za), (xb, yb, zb), I, phase)")
 
+    def _get_footprints(self):
+        fps = []
+        #create Footprints from Tower objects
+        for g in self.tower_groups:
+            fps.append(Footprint(g[0].group, g[0].group,
+                    [t.tower_x for t in g], [t.tower_y for t in g],
+                    True, False, False))
+        #create Footprints from Conductor objects
+        for c in self.conductors:
+            fps.append(Footprint(c.name, c.name, c.x, c.y, True, False, False))
+        return(fps)
+    footprints = property(_get_footprints, None, None, 'List of Footprint objects create from Tower and Conductor objects in the Model.')
+
     #---------------------------------------------------------------------------
     #methods
 
     def __str__(self):
-        return(
-        'Model object\n    name: %s\n    x limits: %g to %g ft\n    y limits: %g to %g ft\n    total samples: %d\n    sample spacing: %g ft\n    number of Tower objects: %d\n    tower groups: %s\n    number of Condutor objects: %s\n    total number of wire segments: %s' %
-        (repr(self.name), self.xmin, self.xmax, self.ymin, self.ymax, len(self.x)*len(self.y), self.spacing, len(self.towers), ', '.join([repr(i) for i in self.unique_tower_group_names]), len(self.conductors), len(self.segments))
-        )
+        return(subcalc_print._str_Model(self))
 
     def add_tower(self, tnew):
         """Add a Tower object to the Model
@@ -289,7 +319,7 @@ class Model(object):
         #check that the Tower's number of conductors, configuration of currents,
         #and configuration of phases matches those of conductors in the same
         #group
-        group_names = self.unique_tower_group_names
+        group_names = self.tower_group_names
         if(tnew.group in group_names):
             #collect Towers in the same group
             group = [t for t in self.towers if (t.group == tnew.group)]
@@ -327,24 +357,35 @@ class Model(object):
             c - Conductor object to add (a copy is added)"""
         if(type(c) is not Conductor):
             raise(EMFError('The add_conductor method of Model objects can only add Conductor objects.'))
+        if(c.name in [i.name for i in self.conductors]):
+            raise(EMFError('Cannot add conductors with identical names. The name %s is already used.' % c.name))
         self._conductors.append(copy.deepcopy(c))
 
-    def calculate(self, *args, **kw):
-        """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments in the model domain
+    def calculate(self, extra_footprints=None, clear=False, **kw):
+        """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments in the model domain, returning a Results object. The Tower and Conductor objects will also be converted to Footprint objects in the newly created Results object.
         optional args:
-            footprints - string, path to the footprint csv/excel data.
-                        If footprint data is in an excel workbook with,
+            extra_footprints - string, path to the footprint csv/excel data.
+                        If footprint data is in an excel workbook with
                         multiple sheets, the sheet name must be passed
                         to the kwarg 'sheet'
 
                             or
 
                         an existing DataFrame with footprint data
+            clear - bool, if False, loaded Footprints will be appended to the
+                    list of Footprints created from Tower and Conductor objects.
+                    The default is False. If True, only the loaded Footprints
+                    are used.
+        kw:
+            sheet - str, specifies the target sheet if an excel workbook with
+                    multiple sheets is passed in
         returns:
             res - a Results object"""
         #check properties
         if((not self.conductors) and (not self.towers)):
             raise(EMFError('Cannot calculate fields because there are no Tower or Conductor objects in the Model. All fields would be zero.'))
+        #start time
+        t_start = datetime.datetime.now()
         #get wire segments
         S = self.segments
         #get sample points
@@ -352,12 +393,15 @@ class Model(object):
         #compute one set of phasors to get arrays started
         Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_segment(
                 S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
+        #updates
+        print('segment calculations complete: 1/%d' % len(S)),
         #compute the fields of all other segments and add the phasors
         for i in range(1,len(S)):
             Ph = subcalc_calcs.B_field_segment(S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
             Ph_x += Ph[0]
             Ph_y += Ph[1]
             Ph_z += Ph[2]
+            print('\rsegment calculations complete: %d/%d' % (i+1, len(S))),
         #convert the results into a 2D grid
         Ph_x,Ph_y,Ph_z,X,Y = subcalc_calcs.grid_segment_results(Ph_x,Ph_y,Ph_z,x,y)
         #get the real components
@@ -378,12 +422,22 @@ class Model(object):
                 'Distance Units': 'feet',
                 'B-Field Units': 'mG'}
         res = Results(data, info)
-        #load footprints if called for
-        if(len(args) > 0):
-            res.load_footprints(args[0])
+        #load Footprints
+        if(extra_footprints is not None):
+            if(clear):
+                res.load_footprints(extra_footprints, True, **kw)
+            else:
+                res._footprints = self.footprints
+                res.load_footprints(extra_footprints, False, **kw)
+        else:
+            res._footprints = self.footprints
         #copy the name over if it has been set
         if(self._name):
             res.name = self.name
+        #print elapsed time
+        t_end = datetime.datetime.now()
+        print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
+        #return
         return(res)
 
     def _xy_ranges(self):
@@ -516,6 +570,9 @@ class Tower(object):
     #---------------------------------------------------------------------------
     #methods
 
+    def __str__(self):
+        return(subcalc_print._str_Tower(self))
+
     def __len__(self):
         if(not (len(self.h) == len(self.v) == len(self.I) == len(self.phase))):
             raise(EMFError("""The 'h', 'v', 'I', and 'phase' arrays of a Tower object must have the same length. Tower with group '%s' and seq '%s' has nonuniform array lengths for those properties.""" % (self.group, str(self.seq))))
@@ -525,9 +582,10 @@ class Tower(object):
 class Conductor(object):
     """Conductor objects represent single wires running through a Model domain. They can be used to specify the coordinates of conductor paths directly, instead of through the properties of a Tower object. Tower and Conductor objects together are the means of creating wires in a model domain."""
 
-    def __init__(self, x, y, z, I, phase):
+    def __init__(self, name, x, y, z, I, phase):
         """
         args:
+            name - string, name of the conductor (i.e. 'Wire 1')
             x - iterable of at least two numbers, the x coordinates of the
                 Conductor path in the model domain (ft)
             y - iterable of at least two numbers, the y coordinates of the
@@ -538,12 +596,14 @@ class Conductor(object):
                 flow from (x[0], y[0], z[0]) to (x[-1], y[-1], z[-1]) (Amps)
             phase - float, the phase angle of the current flow (degrees)"""
 
+        self._name = None
         self._x = None
         self._y = None
         self._z = None
         self._I = None
         self._phase = None
 
+        self.name = name
         self.x = x
         self.y = y
         self.z = z
@@ -552,6 +612,10 @@ class Conductor(object):
 
     #---------------------------------------------------------------------------
     #properties
+
+    def _get_name(self): return(self._name)
+    def _set_name(self, value): self._name = str(value)
+    name = property(_get_name, _set_name, None, 'Name of the Conductor')
 
     def _get_x(self): return(self._x)
     def _set_x(self, value):
@@ -596,6 +660,9 @@ class Conductor(object):
 
     #---------------------------------------------------------------------------
     #methods
+
+    def __str__(self):
+        return(subcalc_print._str_Conductor(self))
 
     def __len__(self):
         if(not (len(self.x) == len(self.y) == len(self.z))):
@@ -783,7 +850,7 @@ class Results(object):
 
     def _get_loc_Bmax(self):
         m,i,j = subcalc_funks._2Dmax(self.B)
-        return(self.x[j], self.y[j])
+        return(self.x[j], self.y[i])
     loc_Bmax = property(_get_loc_Bmax, None, None, 'x,y coordinates of maximum of Results.B')
 
     def _get_idx_Bmax(self):
@@ -797,10 +864,13 @@ class Results(object):
     def _get_spacing(self):
         sx = abs(self.x[1] - self.x[0])
         sy = abs(self.y[1] - self.y[0])
-        if(sx != sy):
+        if(abs(sx - sy) > (sx*1e-6)):
             raise(EMFError('Sample spacing is different in the x and y dimensions.'))
         return(sx)
     spacing = property(_get_spacing, None, None, 'Distance between grid points along the x and y axes (ft)')
+
+    def _get_N(self): return(self.B.shape[0]*self.B.shape[1])
+    N = property(_get_N, None, None, 'The total number of sample points in the Results grid')
 
     def _get_north_angle(self):
         return(self._north_angle)
@@ -813,7 +883,7 @@ class Results(object):
 
     def _get_footprint_groups(self):
         """Generate a list of lists of Footprints with identical tags"""
-        u = list(set([f.group for f in self.footprints]))
+        u = list(self.footprint_group_names)
         groups = [[] for i in range(len(u))]
         for i in range(len(self.footprints)):
             fp = self.footprints[i]
@@ -821,16 +891,16 @@ class Results(object):
         return(groups)
     footprint_groups = property(_get_footprint_groups)
 
+    def _get_footprint_group_names(self): return(set([fp.group for fp in self.footprints]))
+    footprint_group_names = property(_get_footprint_group_names, None, None, 'A set of the unique footprint group names in the Results object')
+
     #---------------------------------------------------------------------------
     #methods
 
     def __str__(self):
-        return(
-        'Results object\n    name: %s\n    components/Bkeys: %s\n    B field range (%s): %g to %g mG\n    x limits: %g to %g ft\n    y limits: %g to %g ft\n    total samples: %d\n    sample spacing: %g ft' %
-        (repr(self.name), ', '.join([repr(i) for i in self.Bkeys]), self.Bkey, self.Bmin, self.Bmax, self.xmin, self.xmax, self.ymin, self.ymax, len(self.x)*len(self.y), self.spacing)
-        )
+        return(subcalc_print._str_Results(self))
 
-    def load_footprints(self, footprints, **kw):
+    def load_footprints(self, footprints, clear=True, **kw):
         """Read footprint data from a csv/excel file and organize it in Footprint objects stored in self.footprints
         args:
             footprints - string, path to the footprint csv/excel data.
@@ -841,6 +911,10 @@ class Results(object):
                             or
 
                         an existing DataFrame with footprint data
+        optional args:
+            clear - bool, True will replace all existing footprints with the
+                    loaded ones, False will simply add loaded footprints to
+                    the list of existing ones.
         kw:
             sheet - str, specifies the target sheet if an excel workbook with
                     multiple sheets is passed in"""
@@ -888,7 +962,8 @@ class Results(object):
         #pick out some columns
         fields = cols[4:]
         #clear the footprints list
-        self._footprints = []
+        if(clear):
+            self._footprints = []
         #create a footprint out of rows with the same "Name"
         for name, df in df.groupby('Name'):
             #check that certain fields only contain a single entry
@@ -901,6 +976,30 @@ class Results(object):
                     row['Power Line?'], row['Of Concern?'], row['Draw as Loop?'])
             #append the Footprint to the Results object's list
             self._footprints.append(fp)
+
+    def concern_points(self, n=101):
+        """Find the maximum fields at all footprint objects in the Results with
+        their "of_concern" properties set to True.
+        optional args:
+            n - int, number of samples to interpolate along each footprint
+        returns:
+            x_concern - array, x coordinates of the concern points
+            y_concern - array, y coordinates of the concern points
+            B_concern - array, the magnetic field magnitudes at the points"""
+        #get footprints of concern
+        fps = [fp for fp in self.footprints if (fp.of_concern)]
+        L = len(fps)
+        #find the maximum field along each footprints path
+        x_concern = np.empty((L,), dtype=float)
+        y_concern = np.empty((L,), dtype=float)
+        B_concern = np.empty((L,), dtype=float)
+        for i in range(L):
+            fp = fps[i]
+            x, y, B = self.path(zip(fp.x, fp.y), n=n)
+            idx = np.argmax(B)
+            x_concern[i], y_concern[i], B_concern[i] = x[i], y[i], B[i]
+        return(x_concern, y_concern, B_concern)
+
 
     def path(self, points, n=101, close_path=False):
         """Interpolate the field along a path defined by lists of x and y
@@ -1154,14 +1253,20 @@ class Results(object):
     def export(self, **kw):
         """Export the grid data and accompanying info to an excel file with tabs for each Bfield component, another for the info dict, and a final one for footprints if they're present
         kw:
+            Bkeys - iterable of strings, selects which components to export.
             path - string, output destination/filename for workbook"""
         #get appropriate export filename
         fn = subcalc_funks._path_manage(self.name, '.xlsx', **kw)
+        #get components to export
+        if('Bkeys' in kw):
+            Bkeys = set(kw['Bkeys'])
+        else:
+            Bkeys = self.Bkeys
         #create excel writing object
         xl = pd.ExcelWriter(fn, engine='xlsxwriter')
         #write grid data
         for k in self._grid:
-            if((k != 'X') and (k != 'Y')):
+            if((k != 'X') and (k != 'Y') and (k in Bkeys)):
                 pd.DataFrame(self._grid[k], columns=self.x, index=self.y
                         ).to_excel(xl, sheet_name=k)
         #write results information if present
@@ -1271,11 +1376,8 @@ class Footprint(object):
     def _set_draw_as_loop(self, value): self._draw_as_loop = bool(value)
     draw_as_loop = property(_get_draw_as_loop, _set_draw_as_loop, None, 'bool, flag indicating whether the Footprint should be drawn as a closed loop')
 
+    #---------------------------------------------------------------------------
+    #methods
+
     def __str__(self):
-        """quick and dirty printing"""
-        v = vars(self)
-        keys = v.keys()
-        s = '\n'
-        for k in keys:
-            s += str(k) + ': ' + str(v[k]) + '\n'
-        return(s)
+        return(subcalc_print._str_Footprint(self))

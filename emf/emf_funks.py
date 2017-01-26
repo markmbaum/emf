@@ -99,7 +99,7 @@ def _is_number(s):
 
 def _is_int(x):
     if(_is_number(x)):
-        if(float(x) == int(x)):
+        if(float(x) == int(float(x))):
             return(True)
     return(False)
 

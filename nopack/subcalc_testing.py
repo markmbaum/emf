@@ -3,20 +3,24 @@
 
 import emf.subcalc as sc
 
-mod = sc.Model(name='test',
-    towers=[
-        sc.Tower('line1', 0, 10, 10, -90, [-1,0,1], [10,20,10], [10,11,12], [0,120,240]),
-        sc.Tower('line1', 1, 140, 200, 0, [-10,0,10], [20,10,20], [10,11,12], [0,120,240]),
-        sc.Tower('line1', 2, 300, 250, -45, [-1,0,1], [20,20,20], [10,11,12], [0,120,240]),
-        sc.Tower('line2', 0, 90, 300, 0, [-3,-5,-3], [10,20,30], [10,11,12], [0,120,240]),
-        sc.Tower('line2', 1, 110, 250, 0, [-3,-5,-3], [10,20,30], [10,11,12], [0,120,240]),
-    ],
-    spacing=1
-)
+mod = sc.read_INP(r"P:\MBaum\Programming\Python\python_code\emf\working_files\subcalc\SUB211P.INP", return_model=True)
 
-res = mod.calculate()
+mod.xlim = 350, 1200
+mod.ylim = 300, 850
+mod.spacing = 1.25
 
-sc.plot_pcolormesh(res, save=True)
+sc.plot_cross_sections(
+    mod.calculate(),
+    [[(400, 700), (1000, 800)], [(400, 400), (700, 350), (1150, 550)]],
+    n=250,
+    max_fig_height=10,
+    max_fig_width=16,
+    x_labeling='location',
+    levels=[0.1, 0.5, 1, 5, 10, 25, 50, 100],
+    label_max=False,
+    save=True)
+
+sc.show()
 
 #cProfile.run(code, filename='profile')
 #pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

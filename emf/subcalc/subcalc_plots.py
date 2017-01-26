@@ -2,6 +2,7 @@ from .. import os, np, mpl, plt, textwrap
 
 from ..emf_plots import _save_fig, _prepare_fig
 
+import subcalc_class
 import subcalc_funks
 
 #rcparams for more static global formatting changes
@@ -25,7 +26,8 @@ _footprint_alpha = .75
 _footprint_zorder = -1
 _footprint_label_fontsize = 15
 _POPC_label_fontsize = 13 #points of potential concern on footprints
-_field_marker_size = 8 #marker size for points of potential concern
+_field_scatter_size = 25 #marker size for points of potential concern
+_field_marker_size = 8 #marker size for max field point
 _field_marker_edgewidth = 1.5
 _ax_frameon = True
 _ax_ticks_on = False
@@ -149,8 +151,7 @@ def _plot_footprints(ax, res, cmap, ci):
         ax - Axes object to plot in
         res - Results object containing the Footprint objects
         cmap - Colormap object for coloring points of concern
-        ci - function for indexing colormap
-               (from _make_color_indexer or _make_color_indexer)
+        ci - function for indexing colormap (from _make_color_indexer)
     returns:
         handles - list of plotted handles for legend
         labels - list of labels for the handles"""
@@ -168,53 +169,61 @@ def _plot_footprints(ax, res, cmap, ci):
         #plot powerline footprings
         i = 0
         L = len(fps)
+        #count the number of power line footprints
+        N_power_lines = sum(1 for i in res.footprints if (i.power_line))
+        #only label each power line if there are fewer than 8
+        if(N_power_lines < 8):
+            label_all_power_lines = True
+        else:
+            label_all_power_lines = False
+        count = 0
         while(i < L):
             fp = fps[i]
             if(fp.power_line):
+                count += 1
                 h = ax.plot(fp.x, fp.y, 'k--', linewidth=2,
                         alpha=_footprint_alpha,
                         zorder=_footprint_zorder)[0]
                 if(power_line_handle_idx is False):
                     handles.append(h)
-                    labels.append(textwrap.fill(fp.group, width=25))
+                    if((not label_all_power_lines) and (count == 1)):
+                        labels.append('Power Line Paths')
+                    else:
+                        labels.append(textwrap.fill(fp.group, width=25))
                     power_line_handle_idx = len(handles) - 1
-                else:
+                elif(label_all_power_lines):
                     labels[power_line_handle_idx] += ';\n' + fp.group
                 #remove the power line footprint
                 fps.pop(i)
                 L -= 1
                 i -= 1
             i += 1
+        #plot footprint outlines
         for fp in fps:
             ax.plot(fp.x, fp.y, 'k',
                     alpha=_footprint_alpha,
                     zorder=_footprint_zorder)
-            #mark maximum field if the footprint is 'of concern'
-            if(fp.of_concern and be_concerned):
-                x = fp.x
-                y = fp.y
-                #interpolate
-                B_interp = res.interp(x, y)
-                #store index of max value on footprint
-                idx = np.argmax(B_interp)
-                #get associated color for marker
-                cidx = ci(B_interp[idx])
-                #stringify the max value
-                m = str(subcalc_funks._sig_figs(B_interp[idx], 3))
-                #plot
-                h = ax.plot(x[idx], y[idx], 'o',
-                        markeredgecolor='k',
-                        markerfacecolor=cmap.colors[cidx],
-                        markeredgewidth=_field_marker_edgewidth,
-                        markersize=_field_marker_size)[0]
-                ax.text(x[idx] + xmarg, y[idx] + ymarg, m,
-                        fontsize=_POPC_label_fontsize)
-                if(of_concern is False):
-                    handles.append(h)
-                    labels.append('Nearest Points of\nNeighboring Structures')
-                    of_concern = True
-        #deal with labeling
+
+        #label the footprints themselves
         _label_footprint_group(ax, fps)
+
+    #mark maximum fields on footprints 'of concern'
+    if(be_concerned):
+        #get fields
+        x, y, B = res.concern_points()
+        #plot points and label
+        for i in range(len(x)):
+            h, = ax.plot(x[i], y[i], 'o',
+                    markersize=_field_marker_size,
+                    markerfacecolor=cmap.colors[ci(B[i])],
+                    markeredgewidth=_field_marker_edgewidth,
+                    markeredgecolor='k')
+            ax.text(x[i], y[i], str(subcalc_funks._sig_figs(B[i], 2)),
+                    fontsize=_POPC_label_fontsize)
+            if(i == 0):
+                handles.append(h)
+                labels.append('Maximum Fields Along\nStructures of Concern')
+
     #return the legend items
     return(handles, labels)
 
@@ -326,7 +335,7 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
             return(idx)
 
     else:
-        raise(EMFError("""
+        raise(subcalc_class.EMFError("""
         Illegal scale string "%s" passed to _make_color_indexer.
         Must be 'log' or 'lin'."""))
 
@@ -382,7 +391,7 @@ def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
     elif(scale == 'lin'):
         contour_kw['locator'] = mpl.ticker.MaxNLocator()
     else:
-        raise(EMFError("""
+        raise(subcalc_class.EMFError("""
         Invalid value passed to keyword argument 'scale.'
         Must be 'log' or 'lin.'"""))
 
@@ -517,6 +526,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
     w = 0.35/fig_size[0]
     cbar.set_position([box.x0 + box.width + w, box.y0, w, box.height])
     cbar = fig.colorbar(QM, cax=cbar, drawedges=False)
+    cbar.solids.set_edgecolor('face')
     cbar.ax.legend(handles, labels,
             loc='center left', bbox_to_anchor=(2.5, 0.5),
             numpoints=1)
@@ -675,7 +685,7 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
         save = save_kw['save']
     elif('path' in save_kw):
         if(not os.path.isdir(save_kw['path'])):
-            raise(EMFError('The path keyword argument to plot_cross_sections must be a directory path. Plot names are created automatically, with some control available through the prefix and suffix keyword arguments.'))
+            raise(subcalc_class.EMFError('The path keyword argument to plot_cross_sections must be a directory path. Plot names are created automatically, with some control available through the prefix and suffix keyword arguments.'))
         save_kw['save'] = True
         save = True
     else:

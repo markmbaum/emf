@@ -37,12 +37,16 @@ def run(template_path, **kw):
         sheets - a list of sheet names to load, default is all sheets
         path - string, destination/filename for saved files
         format - string, saved plot format (usually 'png' or 'pdf')
-        xmax - cutoff distance from ROW center in plots"""
+        xmax - cutoff distance from ROW center in plots
+    returns:
+        sb - SectionBook object created from the template file"""
     #force saving for the plotting functions if there is no 'path' keyword
     if(not ('path' in kw)):
         kw['save'] = True
         #also direct output files to the same directory as the template
-        kw['path'] = os.path.dirname(template_path)
+        template_dir = os.path.dirname(template_path)
+        if(template_dir):
+            kw['path'] = template_dir
     #import templates
     sb = load_template(template_path)
     #export the full results workbook
@@ -420,7 +424,7 @@ def target_fields(xs, names, B_l, B_r, E_l, E_r, **kw):
                 xs.fields.to_excel(xl, sheet_name=xs.sheet,
                         index_label='Distance (ft)')
             xl.save()
-            print('Optimal phasing results written to: %s' % fn)
+            print('Height adjustment results written to: %s' % fn)
 
     return(h, adj)
 

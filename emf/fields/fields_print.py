@@ -96,9 +96,9 @@ def _str_SectionBook(z):
           in CrossSection "%s" is unset""" % (v[1:], cname, sheet)
 
     return("""  SectionBook object
-      name:        %s\n%s\n%s
+      name:         %s\n%s\n%s
 
     maximum fields at CrossSection ROW edges:\n%s""" %
     (repr(z.name),
-    _table_iterable_fill('      sheets:       ', z.sheets),
-    _table_iterable_fill('      unique groups:', set([xs.group for xs in z.xss])), f))
+    _table_iterable_fill('      sheets:        ', z.sheets),
+    _table_iterable_fill('      unique groups: ', set([xs.group for xs in z.xss])), f))

@@ -18,8 +18,8 @@ def B_field_segment(a, b, I, ph, x, y, z):
             of the wire segment (ft)
         I - float, the current of the wire segment (Amps)
         ph - float, the phase of the current (degrees)
-        x - 1D numpy array, sorted x coordinates of sample grid (ft)
-        y - 1D numpy array, sorted y coordinates of sample grid (ft)
+        x - 1D numpy array, sorted unique x coordinates of the sample grid (ft)
+        y - 1D numpy array, sorted unique y coordinates of the sample grid (ft)
         z - float, the sample height (ft)
     returns:
         Ph_x - 1D numpy array of complex numbers, magnetic field phasors in
@@ -84,7 +84,7 @@ def B_field_segment(a, b, I, ph, x, y, z):
             integral.ctypes.data_as(c_double_ptr))
 
     #carry through with the rest of the calculations
-    con = magnetic_prefactor*I*(integral.astype(complex))
+    con = magnetic_prefactor*I*integral
     Ph_x = fac_x*con
     Ph_y = fac_y*con
     Ph_z = fac_z*con
