@@ -767,11 +767,13 @@ class Results(object):
 
         #other reference objects in the results domain, like substatio
         #boundaries, stored in a list of Footprint objects
-        self.footprint_df = None #DataFrame of Footprint information
         self._footprints = []
         #angle of the northern direction with respect to the grid
         #   where 0 degrees is the positive y axis and clockwise is increasing
         self._north_angle = None
+        #private list of column names for parsing and creating footprint dfs
+        self._footprint_cols = ['Name', 'Group', 'X', 'Y', 'Power Line?',
+                                    'Of Concern?', 'Draw as Loop?']
 
     #---------------------------------------------------------------------------
     #properties
@@ -802,7 +804,7 @@ class Results(object):
         return(self._Bkey)
     def _set_Bkey(self, value):
         if(value not in self.Bkeys):
-            raise(EMFError('Bkey must be set to one of the following elements:\n%s' % str(self.Bkeys)))
+            raise(EMFError('Bkey must be set to one of the following elements:\n    %s' % ', '.join(sorted([repr(i) for i in self.Bkeys]))))
         else:
             self._Bkey = value
     Bkey = property(_get_Bkey, _set_Bkey, None, 'Component of magnetic field accessed by the B property')
@@ -837,6 +839,9 @@ class Results(object):
         return(np.min(self.x))
     xmin = property(_get_xmin, None, None, 'Minimum horizontal coordinate in results')
 
+    def _get_xlim(self): return(self.xmin, self.xmax)
+    xlim = property(_get_xlim, None, None, '(xmin, xmax)')
+
     def _get_ymax(self):
         return(np.max(self.y))
     ymax = property(_get_ymax, None, None, 'Maximum vertical coordinate in results')
@@ -844,6 +849,9 @@ class Results(object):
     def _get_ymin(self):
         return(np.min(self.y))
     ymin = property(_get_ymin, None, None, 'Minimum vertical coordinate in results')
+
+    def _get_ylim(self): return(self.ymin, self.ymax)
+    ylim = property(_get_ylim, None, None, '(ymin, ymax)')
 
     def _get_Bmax(self): return(subcalc_funks._2Dmax(self.B)[0])
     Bmax = property(_get_Bmax, None, None, 'Maximum value of Results.B')
@@ -862,12 +870,19 @@ class Results(object):
     Bmin = property(_get_Bmin, None, None, 'Minimum value of Results.B')
 
     def _get_spacing(self):
-        sx = abs(self.x[1] - self.x[0])
-        sy = abs(self.y[1] - self.y[0])
-        if(abs(sx - sy) > (sx*1e-6)):
-            raise(EMFError('Sample spacing is different in the x and y dimensions.'))
-        return(sx)
-    spacing = property(_get_spacing, None, None, 'Distance between grid points along the x and y axes (ft)')
+        if(np.any(np.diff(np.diff(self.x)) > (np.mean(self.x)*1e-6))):
+            sx = 'non-uniform'
+        else:
+            sx = abs(self.x[1] - self.x[0])
+        if(np.any(np.diff(np.diff(self.y)) > (np.mean(self.x)*1e-6))):
+            sy = 'non-uniform'
+        else:
+            sy = abs(self.y[0] - self.y[1])
+        if(sx == sy):
+            return(sx)
+        else:
+            return(sx, sy)
+    spacing = property(_get_spacing, None, None, 'Distance between grid points along the x and y axes (ft). If the spacing is different along the axes, a tuple of two floats is returned. Otherwise only a single float is returned. If the spacing along an axis is non-uniform (can be done with resampling), a string is returned.')
 
     def _get_N(self): return(self.B.shape[0]*self.B.shape[1])
     N = property(_get_N, None, None, 'The total number of sample points in the Results grid')
@@ -893,6 +908,27 @@ class Results(object):
 
     def _get_footprint_group_names(self): return(set([fp.group for fp in self.footprints]))
     footprint_group_names = property(_get_footprint_group_names, None, None, 'A set of the unique footprint group names in the Results object')
+
+    def _get_footprint_df(self):
+        #create a df for each fp
+        cols = self._footprint_cols
+        dfs = []
+        for fp in self.footprints:
+            x, y = fp.x, fp.y
+            r = range(len(x))
+            dfs.append(pd.DataFrame({
+                cols[0]: [fp.name for i in r],
+                cols[1]: [fp.group for i in r],
+                cols[2]: x,
+                cols[3]: y,
+                cols[4]: [int(fp.power_line) for i in r],
+                cols[5]: [int(fp.of_concern) for i in r],
+                cols[6]: [int(fp.draw_as_loop) for i in r]
+            }))
+        #concatenate the dfs and return
+        df = pd.concat(dfs, axis=0, ignore_index=True)
+        return(df)
+    footprint_df = property(_get_footprint_df, None, None, 'A DataFrame of Footprint information in the same format as the emf.subcalc footprint template')
 
     #---------------------------------------------------------------------------
     #methods
@@ -945,11 +981,8 @@ class Results(object):
 
         #do a little data conditioning
         df.fillna(method='ffill', inplace=True)
-        #store the DataFrame
-        self.footprint_df = df
         #match columns with string distance method
-        cols = ['Group', 'Name', 'X', 'Y', 'Power Line?',
-                'Of Concern?', 'Draw as Loop?']
+        cols = self._footprint_cols
         df.columns = subcalc_funks._Levenshtein_group(df.columns.values, cols)
         #store an error message
         msg = """
@@ -965,15 +998,16 @@ class Results(object):
         if(clear):
             self._footprints = []
         #create a footprint out of rows with the same "Name"
-        for name, df in df.groupby('Name'):
+        for name, df in df.groupby(cols[0]):
             #check that certain fields only contain a single entry
             for f in fields:
                 if(len(df[f].unique()) > 1):
                     raise(EMFError(msg % (f,n)))
             #create a footprint object
             row = df.iloc[0]
-            fp = Footprint(name, row['Group'], df['X'].values, df['Y'].values,
-                    row['Power Line?'], row['Of Concern?'], row['Draw as Loop?'])
+            fp = Footprint(row[cols[0]], row[cols[1]],
+                    df[cols[2]].values, df[cols[3]].values,
+                    row[cols[4]], row[cols[5]], row[cols[6]])
             #append the Footprint to the Results object's list
             self._footprints.append(fp)
 
@@ -1121,23 +1155,33 @@ class Results(object):
                     - overrides x and y kw
                     - preserves approx ratio of number of x and y values
                     - rounds up to nearest possible whole number of points
+            inplace - resample in place or return a new object, default is False
         returns:
             res_resample - a new Results object containing the resampled grid"""
 
         #check inputs
-        if(not kw):
-            raise(EMFError('Keyword arguments are required by Results.resample'))
+        if(('x' not in kw) and ('y' not in kw) and ('N' not in kw)):
+            raise(EMFError('Keyword arguments x, y, or N are required by Results.resample'))
+        if('inplace' in kw):
+            inplace = bool(kw['inplace'])
+        else:
+            inplace = False
+        #in place or not
+        if(inplace):
+            res = self
+        else:
+            res = copy.deepcopy(self)
         #store grid x,y extents
-        xmin, xmax = self.xmin, self.xmax
-        ymin, ymax = self.ymin, self.ymax
+        xmin, xmax = res.xmin, res.xmax
+        ymin, ymax = res.ymin, res.ymax
         #get 1D vectors of x and y coordinates to resample at, from kw
         if('N' in kw):
             N = kw['N']
             if(not subcalc_funks._is_int(N)):
                 raise(EMFError('Keyword argument "N" must be a whole number'))
             N = float(N)
-            aspect = float(self.B.shape[0])/self.B.shape[1]
-            N_y = np.ceil(np.sqrt(N/aspect))
+            aspect = float(ymax - ymin)/(xmax - xmin)
+            N_y = np.ceil(np.sqrt(N*aspect))
             N_x = np.ceil(N/N_y)
             x = np.linspace(xmin, xmax, N_x)
             y = np.linspace(ymin, ymax, N_y)
@@ -1146,29 +1190,34 @@ class Results(object):
                 x = kw['x']
                 if(subcalc_funks._is_int(x)):
                     x = np.linspace(xmin, xmax, x)
+                else:
+                    x = np.sort(np.array(x, dtype=float))
             else:
-                x = self.x
+                x = res.x
             if('y' in kw):
                 y = kw['y']
                 if(subcalc_funks._is_int(y)):
                     y = np.linspace(ymin, ymax, y)
+                else:
+                    y = np.sort(np.array(y, dtype=float))
             else:
-                y = self.y
+                y = res.y
         #flip y coordinates so that Y prints intuitively
         y = y[::-1]
-        #resample the grid
         X, Y = np.meshgrid(x, y)
-        #some arrays have to be flipped to conform to conventions of _interpn
-        B_resample = _interpn((self.y[::-1], self.x),
-                                self.B[::-1,:],
-                                (Y[::-1,:], X))
+        #resample each grid
+        for k in res._grid:
+            if((k != 'X') and (k != 'Y')):
+                #some arrays are flipped to conform to _interpn conventions
+                res._grid[k] = _interpn((res.y[::-1], res.x), res._grid[k],
+                                            (Y[::-1,:], X))
+        #spatial grids
+        res._grid['X'] = X
+        res._grid['Y'] = Y
 
-        #return with re-flipped results
-        res_resample = Results(X, Y, B_resample[::-1,:],
-                copy.deepcopy(self.info),
-                Bkey=self.Bkey)
-        res_resample.load_footprints(self.footprint_df)
-        return(res_resample)
+        #return
+        if(not inplace):
+            return(res)
 
     def rereference(self, x_ref=0, y_ref=0, inplace=False):
         """Redefine the coordinates of the bottom left corner of the results grid (the lowest values along each axis) and increment values in the spatial grids accordingly. If no value is provided, spatial grids are adjusted start at (0, 0).
@@ -1189,8 +1238,8 @@ class Results(object):
         Y -= ydif
         for i in range(len(res.footprints)):
             x, y = res._footprints[i]._x, res._footprints[i]._y
-            res._footprints[i]._x = [j - xdif for j in x]
-            res._footprints[i]._y = [j - ydif for j in y]
+            res._footprints[i]._x = [(j - xdif) for j in x]
+            res._footprints[i]._y = [(j - ydif) for j in y]
         if(not inplace):
             return(res)
 
@@ -1269,14 +1318,15 @@ class Results(object):
             if((k != 'X') and (k != 'Y') and (k in Bkeys)):
                 pd.DataFrame(self._grid[k], columns=self.x, index=self.y
                         ).to_excel(xl, sheet_name=k)
-        #write results information if present
+        #write metadata if present
         if(self.info):
             pd.DataFrame([self.info[k] for k in self.info], index=self.info.keys(),
                     columns=['Parameter Value']).sort_index().to_excel(
                             xl, sheet_name='info', index_label='Parameter Name')
-        #write footprint DataFrame if present
-        if(self.footprint_df is not None):
-            self.footprint_df.to_excel(xl, sheet_name='footprints', index=False)
+        #write footprints if present
+        if(self.footprints):
+            self.footprint_df.to_excel(xl, sheet_name='footprints', index=False,
+                    columns=self._footprint_cols)
         #save and print
         xl.save()
         print('results saved to: %s' % fn)
@@ -1316,8 +1366,6 @@ class Footprint(object):
         self._power_line = None
         self._of_concern = None
         self._draw_as_loop = None
-
-        self._res = None #parent Results object
 
         #set attributes
         self.name = name

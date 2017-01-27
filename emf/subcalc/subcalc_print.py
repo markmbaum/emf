@@ -44,6 +44,21 @@ def _str_Model(mod):
 
 def _str_Results(res):
 
+    spacing = res.spacing
+    if(type(spacing) is tuple):
+        if(type(spacing[0]) is str):
+            sx = spacing[0]
+        else:
+            sx = perc_g(spacing[0]) + ' ft'
+        if(type(spacing[1]) is str):
+            sy = spacing[1]
+        else:
+            sy = perc_g(spacing[1]) + ' ft'
+        spacing = '%s along x axis, %s along y axis' % (sx, sy)
+    else:
+        if(type(spacing) is not str):
+            spacing = '%g ft' % spacing
+
     return(
         '\n    '.join(
             ['Results object',
@@ -53,7 +68,7 @@ def _str_Results(res):
             'x limits: %g to %g ft' % (res.xmin, res.xmax),
             'y limits: %g to %g ft' % (res.ymin, res.ymax),
             'total samples: %d' % res.N,
-            'sample spacing: %g ft' % res.spacing,
+            'sample spacing: %s' % spacing,
             'number of Footprints: %d' % len(res.footprints),
             'Footprint groups: %s' % _element_fill_join_indent(
                     res.footprint_group_names, 22, repr)]
