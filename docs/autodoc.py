@@ -7,8 +7,9 @@ from odpydoc import doc
 doc('emf', script='ga.js')
 
 #remove the old index file
-os.remove('index.html')
-print('index.html removed')
+if(os.path.isfile('index.html')):
+    os.remove('index.html')
+    print('index.html removed')
 
 #make emf.html the index file
 os.rename('emf.html', 'index.html')

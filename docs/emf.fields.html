@@ -571,17 +571,17 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id="convert_DAT_crawl"><p class="function-str"><span class="function-name">convert_DAT_crawl</span>(<span class="function-arg">dir_name</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">crawl a directory and all of its subdirectories for .DAT files that can be passed to DAT_to_csv() for output re-formatting and optional plotting.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dir_name - Directory to initiate the crawl in.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;To designate the current directory, use '*'<br>&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bundle - bool, if True, all DAT files found in the same directory<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;are written to a common excel workbook. If False or absent,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the DAT files are simply written to individual csv files.</p>
+                </div></div><div class="function" id="convert_DAT_crawl"><p class="function-str"><span class="function-name">convert_DAT_crawl</span>(<span class="function-arg">dir_name</span>, <span class="function-arg">bundle</span>=<span class="function-arg">True</span>)</p><p class="docstr">crawl a directory and all of its subdirectories for .DAT files that can be passed to DAT_to_csv() for output re-formatting and optional plotting.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dir_name - Directory to initiate the crawl in.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;To designate the current directory, use '*'<br>&ensp;&ensp;&ensp;&ensp;optional args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;bundle - bool, if True, all DAT files found in the same directory<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;are written to a common excel workbook. If False or absent,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the DAT files are simply written to individual csv files.</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
-                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">convert_DAT_crawl</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">convert_DAT_crawl</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">bundle</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;crawl a directory and all of its subdirectories for .DAT files that can be</span>
 <span class="sd">    passed to DAT_to_csv() for output re-formatting and optional plotting.</span>
 <span class="sd">    args:</span>
 <span class="sd">        dir_name - Directory to initiate the crawl in.</span>
 <span class="sd">                    To designate the current directory, use &#39;*&#39;</span>
-<span class="sd">    kw:</span>
+<span class="sd">    optional args:</span>
 <span class="sd">        bundle - bool, if True, all DAT files found in the same directory</span>
 <span class="sd">                are written to a common excel workbook. If False or absent,</span>
 <span class="sd">                the DAT files are simply written to individual csv files.&quot;&quot;&quot;</span>
@@ -589,11 +589,6 @@
     <span class="c1">#get input directory&#39;s file and subdir names</span>
     <span class="n">dir_contents</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
 
-    <span class="c1">#get the bundling option</span>
-    <span class="k">if</span><span class="p">(</span><span class="s1">&#39;bundle&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">):</span>
-        <span class="n">bundle</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;bundle&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">bundle</span> <span class="o">=</span> <span class="bp">False</span>
     <span class="c1">#if bundle is True, set a flag for the existence of an ExcelWriter object</span>
     <span class="k">if</span><span class="p">(</span><span class="n">bundle</span><span class="p">):</span>
         <span class="n">xl_flag</span> <span class="o">=</span> <span class="bp">False</span>
@@ -621,7 +616,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1">#if there&#39;s a period in the dir_element, it&#39;s not a directory</span>
             <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dir_element</span><span class="p">)):</span>
-                <span class="n">convert_DAT_crawl</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_element</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">),</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+                <span class="n">convert_DAT_crawl</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_element</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">),</span> <span class="n">bundle</span><span class="p">)</span>
     <span class="c1">#close/save the excel bundles DAT results</span>
     <span class="k">if</span><span class="p">(</span><span class="n">bundle</span> <span class="ow">and</span> <span class="n">xl_flag</span><span class="p">):</span>
         <span class="n">xl</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
@@ -1442,12 +1437,15 @@
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id="read_FLD"><p class="function-str"><span class="function-name">read_FLD</span>(<span class="function-arg">file_path</span>)</p><p class="docstr">Read a FLD file in to a CrossSection object<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;file_path - string, path to FLD file<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - CrossSection object representing the information in the FLD file</p>
+                </div></div><div class="function" id="read_FLD"><p class="function-str"><span class="function-name">read_FLD</span>(<span class="function-arg">file_path</span>)</p><p class="docstr">Read a FLD file in to a CrossSection object. Use this function with caution. It has generally worked as intended, but the eccentricities in some FLD files are inexplicable. Whether all of the possible FLD eccentricies have been accounted for is uncertain.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;file_path - string, path to FLD file<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - CrossSection object representing the information in the FLD file</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_FLD</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read a FLD file in to a CrossSection object</span>
+    <span class="sd">&quot;&quot;&quot;Read a FLD file in to a CrossSection object. Use this function with</span>
+<span class="sd">    caution. It has generally worked as intended, but the eccentricities in some</span>
+<span class="sd">    FLD files are inexplicable. Whether all of the possible FLD eccentricies have</span>
+<span class="sd">    been accounted for is uncertain.</span>
 <span class="sd">    args:</span>
 <span class="sd">        file_path - string, path to FLD file</span>
 <span class="sd">    returns:</span>

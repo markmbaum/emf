@@ -118,7 +118,7 @@ def to_FLDs_crawl(dir_name, **kw):
 #FUNCTIONS FOR READING/CONVERTING .FLD FILES
 
 def read_FLD(file_path):
-    """Read a FLD file in to a CrossSection object
+    """Read a FLD file in to a CrossSection object. Use this function with caution. It has generally worked as intended, but the eccentricities in some FLD files are inexplicable. Whether all of the possible FLD eccentricies have been accounted for is uncertain.
     args:
         file_path - string, path to FLD file
     returns:
@@ -235,12 +235,12 @@ def convert_DAT(file_path, **kw):
         df.to_csv(ofile, index_label = 'Distance (ft)')
         print('DAT converted to csv: "%s"' % fn)
 
-def convert_DAT_crawl(dir_name, **kw):
+def convert_DAT_crawl(dir_name, bundle=True):
     """crawl a directory and all of its subdirectories for .DAT files that can be passed to DAT_to_csv() for output re-formatting and optional plotting.
     args:
         dir_name - Directory to initiate the crawl in.
                     To designate the current directory, use '*'
-    kw:
+    optional args:
         bundle - bool, if True, all DAT files found in the same directory
                 are written to a common excel workbook. If False or absent,
                 the DAT files are simply written to individual csv files."""
@@ -248,11 +248,6 @@ def convert_DAT_crawl(dir_name, **kw):
     #get input directory's file and subdir names
     dir_contents = glob.glob(dir_name)
 
-    #get the bundling option
-    if('bundle' in kw):
-        bundle = kw['bundle']
-    else:
-        bundle = False
     #if bundle is True, set a flag for the existence of an ExcelWriter object
     if(bundle):
         xl_flag = False
@@ -280,7 +275,7 @@ def convert_DAT_crawl(dir_name, **kw):
         else:
             #if there's a period in the dir_element, it's not a directory
             if(os.path.isdir(dir_element)):
-                convert_DAT_crawl(os.path.join(dir_element, '*'), **kw)
+                convert_DAT_crawl(os.path.join(dir_element, '*'), bundle)
     #close/save the excel bundles DAT results
     if(bundle and xl_flag):
         xl.save()

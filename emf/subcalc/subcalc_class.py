@@ -1,13 +1,14 @@
 from .. import np, pd, os, copy, datetime, textwrap, _interpn
 
 from ..emf_class import EMFError
+from ..emf_funks import _print_str_list
 
 import subcalc_funks
 import subcalc_calcs
 import subcalc_print
 
 class Model(object):
-    """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing model results and returning them in a Results object."""
+    """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing model results and returning them in a Results object. Model objects are designed to make it easy to compute the fields in a uniform height 2 dimensional grid. Model objects store x limits, y limits, a z coordinate/height, and a grid spacing to automatically construct a 2d grid of sample points and calculate magnetic fields at those points. The calculate() method returns a grid of results in the form of a Results object, which can be used to create plots and analyze the grid. Alternatively, an arbitrary set of x, y, z coordinates can be passed to the sample() method to calculate fields at any set of points in 3d space and bypass the Results object entirely."""
 
     def __init__(self, **kw):
         """
@@ -358,13 +359,21 @@ class Model(object):
         if(type(c) is not Conductor):
             raise(EMFError('The add_conductor method of Model objects can only add Conductor objects.'))
         if(c.name in [i.name for i in self.conductors]):
-            raise(EMFError('Cannot add conductors with identical names. The name %s is already used.' % c.name))
+            raise(EMFError('Cannot add conductors with identical names. The name "%s" is already used.' % c.name))
         self._conductors.append(copy.deepcopy(c))
 
-    def calculate(self, extra_footprints=None, clear=False, **kw):
+    def calculate(self, components='all', footprints=None, clear=False, **kw):
         """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments in the model domain, returning a Results object. The Tower and Conductor objects will also be converted to Footprint objects in the newly created Results object.
         optional args:
-            extra_footprints - string, path to the footprint csv/excel data.
+            components - list of components of the field to be included in
+                         the returned Results object. Can be any combination
+                         of 'Bmax', 'Bres', 'Bx', 'By', 'Bz' or it can be
+                         'all' to store all of those options. The default is
+                         'all'. Choosing fewer components will not speed up
+                         calculations, but it will reduce memory demand. The
+                         components chosen will become the available 'Bkeys'
+                         in the returned Results object.
+            footprints - string, path to the footprint csv/excel data.
                         If footprint data is in an excel workbook with
                         multiple sheets, the sheet name must be passed
                         to the kwarg 'sheet'
@@ -378,12 +387,21 @@ class Model(object):
                     are used.
         kw:
             sheet - str, specifies the target sheet if an excel workbook with
-                    multiple sheets is passed in
+                    multiple sheets is passed in to the footprints arg
+                    (not needed for a csv or an excel book with 1 sheet)
         returns:
             res - a Results object"""
         #check properties
         if((not self.conductors) and (not self.towers)):
             raise(EMFError('Cannot calculate fields because there are no Tower or Conductor objects in the Model. All fields would be zero.'))
+        #get components
+        all_components = ['Bmax', 'Bres', 'Bx', 'By', 'Bz']
+        if(components == 'all'):
+            components = all_components
+        else:
+            for c in components:
+                if(c not in all_components):
+                    raise(EMFError("The only valid components are 'Bmax', 'Bres', 'Bx', 'By', and 'Bz'. The input component %s is not valid." % str(c)))
         #start time
         t_start = datetime.datetime.now()
         #get wire segments
@@ -391,13 +409,14 @@ class Model(object):
         #get sample points
         x, y, z = self.x, np.sort(self.y), self.z
         #compute one set of phasors to get arrays started
-        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_segment(
+        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_grid(
                 S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
         #updates
         print('segment calculations complete: 1/%d' % len(S)),
         #compute the fields of all other segments and add the phasors
         for i in range(1,len(S)):
-            Ph = subcalc_calcs.B_field_segment(S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
+            Ph = subcalc_calcs.B_field_grid(
+                    S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
             Ph_x += Ph[0]
             Ph_y += Ph[1]
             Ph_z += Ph[2]
@@ -407,7 +426,9 @@ class Model(object):
         #get the real components
         Bx,By,Bz,Bres,Bmax = subcalc_calcs.phasors_to_magnitudes(Ph_x,Ph_y,Ph_z)
         #create a Results object with info about the original calculations
-        data = dict(X=X, Y=Y, Bx=Bx, By=By, Bz=Bz, Bres=Bres, Bmax=Bmax)
+        data = dict(X=X, Y=Y)
+        for c in components:
+            exec("data['%s'] = %s" % (c, c))
         info = {'Created on': str(datetime.datetime.now()),
                 'Z Height (ft)': z,
                 'Minimum X Coordinate': np.min(x),
@@ -423,12 +444,12 @@ class Model(object):
                 'B-Field Units': 'mG'}
         res = Results(data, info)
         #load Footprints
-        if(extra_footprints is not None):
+        if(footprints is not None):
             if(clear):
-                res.load_footprints(extra_footprints, True, **kw)
+                res.load_footprints(footprints, True, **kw)
             else:
                 res._footprints = self.footprints
-                res.load_footprints(extra_footprints, False, **kw)
+                res.load_footprints(footprints, False, **kw)
         else:
             res._footprints = self.footprints
         #copy the name over if it has been set
@@ -439,6 +460,59 @@ class Model(object):
         print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
         #return
         return(res)
+
+    def sample(self, *args):
+        """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments at an arbitrary set of points in 3d space, defined by the x, y, and z inputs.
+        args:
+            x - iterable of numbers or a single number, the x coordinate(s)
+                of the sample point(s)
+            y - iterable of numbers or a single number, the y coordinate(s)
+                of the sample point(s)
+            z - iterable of numbers or a single number, the z coordinate(s)
+                of the sample point(s)
+
+                note: if any of the inputs are iterables, they must have
+                      the same length as other iterable inputs.
+        returns:
+            df - pandas DataFrame containing all components of the computed
+                 fields and the sampled coordinates"""
+
+        #start time
+        t_start = datetime.datetime.now()
+        #deal with lengths and make sure to work with np arrays
+        args = [subcalc_funks._check_to_array(i) for i in args]
+        L = max([len(i) for i in args])
+        if(L != 1):
+            for i in range(len(args)):
+                if(len(args[i]) == 1):
+                    args[i] = np.array([float(args[i][0])]*L)
+                elif(len(args[i]) != L):
+                    raise(EMFError("The sample method cannot parse inputs if multiple inputs are iterables (vectors) and they have different lenghts. Inputs must be numbers or iterables with the same length as other iterable inputs."))
+        x, y, z = args[0], args[1], args[2]
+        #get wire segments
+        S = self.segments
+        #compute one set of phasors to get arrays started
+        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_general(
+                S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
+        #updates
+        print('segment calculations complete: 1/%d' % len(S)),
+        #compute the fields of all other segments and add the phasors
+        for i in range(1,len(S)):
+            Ph = subcalc_calcs.B_field_general(
+                    S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
+            Ph_x += Ph[0]
+            Ph_y += Ph[1]
+            Ph_z += Ph[2]
+            print('\rsegment calculations complete: %d/%d' % (i+1, len(S))),
+        #get the real components
+        Bx,By,Bz,Bres,Bmax = subcalc_calcs.phasors_to_magnitudes(Ph_x,Ph_y,Ph_z)
+        #create a dataframe
+        df = pd.DataFrame(dict(x=x, y=y, z=z, Bmax=Bmax, Bres=Bres, Bx=Bx, By=By, Bz=Bz))
+        #print elapsed time
+        t_end = datetime.datetime.now()
+        print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
+        #return
+        return(df)
 
     def _xy_ranges(self):
         'Find the range of x and y coordinaes occupied by Tower and Conductor objects in the Model'
@@ -674,13 +748,13 @@ class Results(object):
 
     Results objects have a 'Bkey' property that determines which component of the magnetic field results is accessed by the Results.B property. For example, when Results.Bkey == 'Bmax' all operations involving the grid of magnetic field results accessed by Results.B will operate on the 'max' field component. When Bmax == 'Bz' all operations deal with the vertical 'z' component of the field, and so on. This includes plotting.
 
-    Footprints of objects in the Results domain like buildings, the power lines, fences, etc. can also be stored in Results objects. Data for these objects can be saved in csv template files. The path of the footprint csv files can be passed to subcalc.load_results for automatic inclusion in a newly generated Results object or it can be passed to an existing Results with Results.load_footprints. The footprint data is stored in Footprint objects that have very little functionality and are mostly just organizational objects.
+    Footprints of objects in the Results domain like buildings, the power lines, fences, etc. can also be stored in Results objects. Data for these objects can be saved in csv template files. The path of the footprint csv files can be passed to subcalc.load_results() for automatic inclusion in a newly generated Results object or it can be passed to an existing Results with Results.load_footprints(). The footprint data is stored in Footprint objects that have very little functionality and are mostly just organizational objects.
 
-    Several methods are available for interpolating new values from the grid of field results: Results.interp, Results.segment, Results.path, and Results.resample.
+    Several methods are available for interpolating new values from the grid of field results: Results.interp(), Results.segment(), Results.path(), and Results.resample().
 
-    There are also methods for selecting a subset of a Results object's domain and for shifting its x,y coordinates. These are Results.zoom and Results.rereference respectively.
+    There are also methods for selecting a subset of a Results object's domain and for shifting its x,y coordinates. These are Results.zoom() and Results.rereference() respectively.
 
-    Contour plots of the results (Results.B) can be automatically generated with subcalc.plot_contour(Results) and colormesh plots can be automatically generated with subcalc.plot_pcolormesh(Results). The fields along a path through the Results domain (essentially a cross section) can be plotted with subcalc.plot_path. A contour or pcolormesh can be combined with cross sections using the subcalc.plot_cross_sections function."""
+    Contour plots of the fields (Results.B) can be automatically generated with subcalc.plot_contour() and colormesh plots can be automatically generated with subcalc.plot_pcolormesh(), both of which accept Results objects. The fields along a path through the Results domain (essentially a cross section) can be plotted with subcalc.plot_path. A contour or pcolormesh can be combined with cross sections using the subcalc.plot_cross_sections() function."""
 
     def __init__(self, *args, **kw):
         """Grid data must be passed in
@@ -713,7 +787,7 @@ class Results(object):
             if(type(args[0]) is not dict):
                 raise(EMFError("""The first argument to Results() must be a dictionary of result information when passing 1 or 2 arguments to initialize the Results, not %s""" % type(args[0])))
             #check keys
-            s = set(['X','Y','Bmax','Bres','Bx','By','Bz'])
+            s = set(['X', 'Y', 'Bmax', 'Bres', 'Bx', 'By', 'Bz'])
             k = set(args[0].keys())
             if(any([(i not in s) for i in k])):
                 raise(EMFError("""If passing a dictionary to initialize a Results object, the dict can have the following keys only:
@@ -731,7 +805,10 @@ class Results(object):
             elif('Bmax' in k):
                 self.Bkey = 'Bmax'
             else:
-                self.Bkey = list(k)[0]
+                k = list(k)
+                k.remove('X')
+                k.remove('Y')
+                self.Bkey = k[0]
             #store the info dict if present
             if(largs == 2):
                 if(type(args[1]) is not dict):
@@ -980,7 +1057,7 @@ class Results(object):
             raise(EMFError('Only pandas DataFrames and strings can be passed to Results.load_footprints, not type "%s"' % str(t)))
 
         #do a little data conditioning
-        df.fillna(method='ffill', inplace=True)
+        df = df.dropna(how='all').fillna(method='ffill')
         #match columns with string distance method
         cols = self._footprint_cols
         df.columns = subcalc_funks._Levenshtein_group(df.columns.values, cols)
@@ -1309,6 +1386,10 @@ class Results(object):
         #get components to export
         if('Bkeys' in kw):
             Bkeys = set(kw['Bkeys'])
+            s = self.Bkeys
+            for k in Bkeys:
+                if(k not in s):
+                    raise(EMFError('The only acceptable Bkeys are %s. The input "%s" is not valid.' % (_print_str_list(s), k)))
         else:
             Bkeys = self.Bkeys
         #create excel writing object

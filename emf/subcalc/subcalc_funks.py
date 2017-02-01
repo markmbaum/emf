@@ -1,7 +1,8 @@
 from .. import os, np, pd, shutil
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
-                        _check_intable, _flatten, _sig_figs, _Levenshtein_group)
+                        _check_intable, _flatten, _sig_figs, _check_to_array,
+                        _Levenshtein_group)
 
 import subcalc_class
 import SUBCALC_io
@@ -68,6 +69,9 @@ def load_towers(fn, return_model=False, **kw):
     #check if the target file is an INP
     if('.INP' in fn):
         towers = SUBCALC_io.read_INP(fn)
+        name = os.path.basename(fn)
+        if('.' in name):
+            name = name[:name.rfind('.')]
     else:
         #load the template file into a DataFrame
         if('.' in fn):
@@ -76,22 +80,26 @@ def load_towers(fn, return_model=False, **kw):
                 dfs = pd.read_excel(fn, sheetname=None)
                 if(len(dfs.keys()) > 1):
                     if('sheet' in kw):
-                        df = dfs[kw['sheet']]
+                        name = kw['sheet']
+                        df = dfs[name]
                     else:
                         raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed to load_towers, the target sheet must be specified with the keyword argument 'sheet'."""))
                 else:
                     df = dfs[dfs.keys()[0]]
             elif(ext == 'csv'):
                 df = pd.read_csv(fn)
+                name = os.path.basename(fn)
+                if('.' in name):
+                    name = name[:name.rfind('.')]
             else:
                 raise(subcalc_class.EMFError("Only csv and xlsx files can be passed to load_towers."))
         else:
             raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s" passed to load_towers. File names passed to load_towers must have .csv or .xlsx extensions.""" % fn))
         #condition data a little
-        df.fillna(method='ffill', inplace=True)
+        df = df.dropna(how='all').fillna(method='ffill')
         #match the columns with string distance method
         cols = ['group', 'sequence', 'tower x', 'tower y', 'rotation', 'h', 'v', 'I', 'phase']
-        df.columns = subcalc_funks._Levenshtein_group(df.columns, cols)
+        df.columns = _Levenshtein_group(df.columns, cols)
         #parse to Towers
         towers = []
         for (group, seq), df in df.groupby(['group','sequence']):
@@ -102,9 +110,6 @@ def load_towers(fn, return_model=False, **kw):
 
     #return Towers directly or in a Model
     if(return_model):
-        name = os.path.basename(fn)
-        if('.' in name):
-            name = name[:name.rfind('.')]
         return(subcalc_class.Model(name=name, towers=towers))
     else:
         return(towers)

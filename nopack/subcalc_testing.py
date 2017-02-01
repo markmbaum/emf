@@ -1,20 +1,18 @@
 #import cProfile
 #import pstats
 
+import numpy as np
+
 import emf.subcalc as sc
 
-res = sc.load_results(r"P:\MBaum\Programming\Python\python_code\emf\working_files\subcalc\TEST2.REF")
+mod = sc.load_towers(r"P:\MBaum\Programming\Python\python_code\emf\docs\notebooks\subcalc\towers.csv", True)
 
-N = res.N
+mod.spacing = 5
 
-resres = res.resample(N=int(N/250.0))
+df = mod.sample(1, np.linspace(10,1000,25), np.linspace(1, 100, 25))
+#df = mod.sample(1, 2, 3)
 
-print res.N, resres.N
-
-sc.plot_contour(res)
-sc.plot_contour(resres)
-
-sc.show()
+print df
 
 #cProfile.run(code, filename='profile')
 #pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

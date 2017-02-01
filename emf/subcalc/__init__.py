@@ -19,7 +19,8 @@ from subcalc_funks import (drop_tower_template,
                         load_towers,
                         cumulative_distance)
 
-from subcalc_calcs import (B_field_segment,
+from subcalc_calcs import (B_field_general,
+                        B_field_grid,
                         grid_segment_results,
                         phasors_to_magnitudes)
 

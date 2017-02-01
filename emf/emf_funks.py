@@ -120,6 +120,14 @@ def _check_intable(f):
     else:
         return(float(f))
 
+def _check_to_array(x):
+    """convert an iterable to a numpy array of type float or put a single
+    number into an array"""
+    if(hasattr(x, '__iter__')):
+        return(np.array(x, dtype=float))
+    else:
+        return(np.array([float(x)]))
+
 #Flatten a list of lists. Only works on a list and the first level of
 #sublists, not recursively on all levels
 _flatten = lambda L: [item for sublist in L for item in sublist]
@@ -129,6 +137,14 @@ _to_alphanumeric = lambda s: ''.join(ch for ch in s if ch.isalnum())
 def _path_str_condition(s):
 	s = s.replace(' ', '-')
 	return(_to_alphanumeric(s))
+
+def _print_str_list(L):
+    s = [repr(i) for i in L]
+    if(len(s) > 2):
+        s = ', '.join(s[:-1]) + ', and ' + s[-1]
+    else:
+        s = ' and '.join(s)
+    return(s)
 
 def _Levenshtein_group(V, W):
     """Match each string in vector V to a string in vector W, using global

@@ -19,6 +19,7 @@ Both `fields` and `subcalc` were originally meant to supplement older modeling p
 * [Further discussion](http://mbaum1122.github.io/emf/README-subcalc.html)
 * [Documentation](http://mbaum1122.github.io/emf/emf.subcalc.html)
 * [Tutorial - build a model, compute results, and make plots](https://github.com/mbaum1122/emf/blob/master/docs/notebooks/subcalc/small-model-tutorial.ipynb)
+* [Example - using `emf.subcalc` templates](https://github.com/mbaum1122/emf/blob/master/docs/notebooks/subcalc/tower-and-footprint-templates.ipynb)
 
 ##### Other Things
 

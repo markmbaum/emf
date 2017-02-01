@@ -1,4 +1,4 @@
-from .. import os, np, mpl, plt, textwrap
+from .. import os, np, mpl, plt, textwrap, _Rectangle
 
 from ..emf_plots import _save_fig, _prepare_fig
 
@@ -341,8 +341,28 @@ def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
 
     return(ci)
 
+def _make_cbar(ax, min_val, max_val, cmap, ci):
+    "fill an axis in with colored rectangles to make a colorbar"
+    #number of colors to draw
+    L = len(cmap.colors)
+    #get the height of the divisions to be filled by rectangles
+    h = (max_val - min_val)/L
+    for i in range(L):
+        color = cmap.colors[ci(min_val + i*h)]
+        rect = _Rectangle((0, (i*h)), 1, h*1.01, facecolor=color,
+                edgecolor=color, zorder=(i - L))
+        ax.add_patch(rect)
+    #limits
+    ax.set_xlim(0, 1)
+    ax.set_ylim(min_val, max_val)
+    #formatting
+    ax.set_xticks([])
+    ax.yaxis.tick_right()
+    ax.tick_params(axis='y', direction='out')
+    ax.set_yticklabels([('%g mG' % i) for i in ax.get_yticks()])
+
 def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
-    max_fig_width=12, max_fig_height=8, legend_padding=4, **kw):
+    max_fig_width=12, max_fig_height=8, legend_padding=3, **kw):
     """Generate a contour plot from the magnetic field results and
     Footprint objects stored in a Results object
     args:
@@ -453,7 +473,7 @@ def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
     return(fig, ax, CS)
 
 def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
-    max_fig_height=8, legend_padding=6, **kw):
+    max_fig_height=8, legend_padding=5, **kw):
     """Generate a color mesh plot of the magnetic field results and
     Footprint objects stored in a Results object
     args:
@@ -477,7 +497,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
         fig - matplotlib figure object
         ax - matplotlib axes object
         QM - matplotlib QuadMesh object
-        cbar - matplotlib Axes that the colorbar is drawn in (to which
+        ax_cbar - matplotlib Axes that the colorbar is drawn in (to which
                 legend is attached)"""
 
     #get a colormap object
@@ -520,17 +540,15 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
     labels += L
 
     #colorbar and legend
-    cbar = fig.add_subplot(1,2,2)
+    ax_cbar = fig.add_subplot(1,2,2)
     box = ax.get_position()
-    fig_size = fig.get_size_inches()
-    w = 0.35/fig_size[0]
-    cbar.set_position([box.x0 + box.width + w, box.y0, w, box.height])
-    cbar = fig.colorbar(QM, cax=cbar, drawedges=False)
-    cbar.solids.set_edgecolor('face')
-    cbar.ax.legend(handles, labels,
-            loc='center left', bbox_to_anchor=(2.5, 0.5),
-            numpoints=1)
-    _format_ax(cbar.ax)
+    figsize = fig.get_size_inches()
+    w = 0.2/figsize[0]
+    ax_cbar.set_position([box.x1 + w, box.y0, w, box.height])
+    _make_cbar(ax_cbar, res.Bmin, res.Bmax, cmap, ci)
+    ax_cbar.legend(handles, labels, loc='center left',
+            bbox_to_anchor=(6, 0.5), numpoints=1)
+    _format_ax(ax_cbar)
 
     #north arrow
     if(res.north_angle is not None):
@@ -551,7 +569,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
     #saving
     _save_fig('pcolormesh-plot', fig, **kw)
 
-    return(fig, ax, QM, cbar)
+    return(fig, ax, QM, ax_cbar)
 
 def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
     cmap='viridis_r', **kw):
@@ -607,15 +625,15 @@ def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
         ax.set_xlabel('X, Y Location ($ft$)')
     else:
         ax.set_xlabel('Distance Along Path ($ft$)')
-    ax.set_title('Magnetic Field along %s ft Path from %s' %
-            (str(sf(dist[-1], 3)), ' to '.join(point_strings)))
+    #ax.set_title('Magnetic Field along %s ft Path from %s' %
+    #        (str(sf(dist[-1], 3)), ' to '.join(point_strings)))
 
     #format
     ax.margins(0.025)
     ax.grid(b=True)
     _format_ax(ax)
     #tight layout
-    fig.tight_layout()
+    fig.tight_layout(pad=3)
     #write Bkey
     _write_Bkey(ax, res)
     #save or not
@@ -624,9 +642,9 @@ def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
     return(fig, ax)
 
 def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
-    map_style='contour', scale='lin', n=101, x_labeling='distance',
-    label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
-    legend_padding=6, **kw):
+        map_style='contour', scale='lin', n=101, x_labeling='distance',
+        label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
+        legend_padding=6, **kw):
     """Generate a map style plot (either contour or pcolormesh) with
     cross sections labeled on it and generate plots of the fields corresponding
     to the cross sections
@@ -664,13 +682,13 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
         any keyword arguments that can be passed to plot_contour(),
         plot_pcolormesh(), or plot_segment()
 
-        note: Only a directory name can be passed to the 'path' keyword to
-              prevent saved plots from overwriting each other. File names are
-              created automatically.
+        note: Only a directory name can be passed to the 'path' keyword.
+              File names aren't accepted, which prevents saved plots from
+              overwriting each other. File names are created automatically.
     returns:
         A tuple of tuples of plotting objects. The first tuple contains the
-        return arguments of the map plot (contour or pcolormesh) and all the
-        next tuples contain the return arguments of plot_segments, for however
+        return arguments of the map plot (contour or pcolormesh) and the
+        other tuples contain the return arguments of plot_path, for however
         many cross sections are created."""
 
     #separate saving kw from others
@@ -681,6 +699,22 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
             kw.pop(k)
 
     #deal with the saving kw
+    if('prefix' in save_kw):
+        save_kw['save'] = True
+        fn_prefix = save_kw['prefix']
+        if(fn_prefix[-1] != '-'):
+            fn_prefix = fn_prefix + '-'
+    else:
+        fn_prefix = ''
+
+    if('suffix' in save_kw):
+        save_kw['save'] = True
+        fn_suffix = save_kw['suffix']
+        if(fn_suffix[0] != '-'):
+            fn_suffix = '-' + fn_suffix
+    else:
+        fn_suffix = ''
+
     if('save' in save_kw):
         save = save_kw['save']
     elif('path' in save_kw):
@@ -690,20 +724,6 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
         save = True
     else:
         save = False
-
-    if('prefix' in save_kw):
-        fn_prefix = save_kw['prefix']
-        if(fn_prefix[-1] != '-'):
-            fn_prefix = fn_prefix + '-'
-    else:
-        fn_prefix = ''
-
-    if('suffix' in save_kw):
-        fn_suffix = save_kw['suffix']
-        if(fn_suffix[0] != '-'):
-            fn_suffix = '-' + fn_suffix
-    else:
-        fn_suffix = ''
 
     #check inputs
     if(len(paths) > 26):
