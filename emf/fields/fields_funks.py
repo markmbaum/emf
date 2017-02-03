@@ -63,25 +63,26 @@ def run(template_path, **kw):
     fields_plots.plot_groups_at_ROW(sb, **kw)
     return(sb)
 
-def load_template(file_path, **kw):
+def load_template(file_path, sheets='all'):
     """Import conductor data from an excel template, loading each conductor into a Conductor object, each Conductor into a CrossSection object, and each CrossSection object into a SectionBook object. The SectionBook object is returned.
     args:
         template_path - string, path to cross section template excel
                         workbook
-    kw:
+    optional args:
         sheets - list of strings, a list of sheet names to load, default is
-                all sheets"""
+                'all' sheets"""
     #import the cross sections as a dictionary of pandas DataFrames, also
     #getting a list of the ordered sheets
     file_path = _check_extension(file_path, 'xlsx', """Templates must be excel workbooks. The input target path "%s" is not recognized as an excel file""" % file_path)
     xl = pd.ExcelFile(file_path)
-    sheets = xl.sheet_names
-    frames = xl.parse(sheetname = None, skiprows = [0,1,2,3],
-            parse_cols = 16, header = None)
-    #remove necessary sheets if the 'sheets' keyword is passed in
-    if('sheets' in kw):
-        include = kw['sheets']
-        sheets = [sh for sh in sheets if sh in include]
+    if(sheets == 'all'):
+        sheets = xl.sheet_names
+    else:
+        for sh in sheets:
+            if(sh not in xl.sheet_names):
+                raise(fields_class.EMFError('Input sheet "%s" was not found in the target workbook' % sh))
+    frames = xl.parse(sheetname=None, skiprows=[0,1,2,3],
+            parse_cols=16, header=None)
     #create a SectionBook object to store the CrossSection objects
     basename = os.path.basename(file_path)
     if('.' in basename):
@@ -175,10 +176,11 @@ def load_template(file_path, **kw):
     #return the SectionBook object
     return(sb)
 
-def optimize_phasing(xs, circuits, **kw):
+def optimize_phasing(xs, circuits='all', **kw):
     """Permute the phasing of non-grounded conductors and find the arrangement that results in the lowest fields at the left and right edge of the ROW. The number of hot conductors must be a multiple of three. The phases of consecutive groups of three conductors are swapped around, assuming that those groups represent a single three-phase transfer circuit.
     args:
         xs - target CrossSection object
+    optional args:
         circuits - list of lists of Conductor names, or 'all'. If a list of
                     lists, each sublist contains the Conductor names of the
                     Conductors comprising a single circuit. If 'all',
@@ -313,10 +315,12 @@ def optimize_phasing(xs, circuits, **kw):
 
     return(results, opt)
 
-def target_fields(xs, names, B_l, B_r, E_l, E_r, **kw):
+def target_fields(xs, names='all', B_l=False, B_r=False, E_l=False, E_r=False,
+        max_iter=1e3, rel_err=1.0e-6, hhigh=1.0e6, **kw):
     """Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.
     args:
         xs - CrossSection object to perform adjustments on
+    optional args:
         names - iterable of Conductor names, identifying which ones to raise,
                or 'all' to include all Conductors in the CrossSection
         B_l - magnetic field threshold at left ROW edge*
@@ -328,12 +332,12 @@ def target_fields(xs, names, B_l, B_r, E_l, E_r, **kw):
             combination, return None in the return variable 'h', and cause
             the returned SectionBook to omit that field-edge combo.
 
-    kw:
         max_iter - maximum number of _bisection iterations allowed,
                     default is 1e3
         rel_err - tolerance threshold for relative error (e.g. 0.01 is 1 %),
                     default is 1e-6.
         hhigh - upper limit of the height adjustment, default is 1.0e6
+    kw:
         save - toggle saving of the results DataFrame to an excel book
         path - location/filename for saved results workbook, forces saving
                 even if no 'save' keyword is used.
@@ -349,18 +353,6 @@ def target_fields(xs, names, B_l, B_r, E_l, E_r, **kw):
     temp = xs.names
     conds = np.array([temp.index(i) for i in names])
     #maximum number of iterations and relative error tolerance
-    if('max_iter' in kw):
-        max_iter = kw['max_iter']
-    else:
-        max_iter = 1e3
-    if('rel_err' in kw):
-        rel_err = kw['rel_err']
-    else:
-        rel_err = 1.0e-6
-    if('hhigh' in kw):
-        hhigh = kw['hhigh']
-    else:
-        hhigh = 1.0e6
     hlow = 0.0
     #run secant method to find adjustments for each target
     h_B_l, h_B_r, h_E_l, h_E_r = None, None, None, None

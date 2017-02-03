@@ -461,7 +461,7 @@ class Model(object):
         #return
         return(res)
 
-    def sample(self, *args):
+    def sample(self, *args, **kw):
         """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments at an arbitrary set of points in 3d space, defined by the x, y, and z inputs.
         args:
             x - iterable of numbers or a single number, the x coordinate(s)
@@ -473,9 +473,18 @@ class Model(object):
 
                 note: if any of the inputs are iterables, they must have
                       the same length as other iterable inputs.
+        kw:
+            n - integer, if provided, the input coordinates will be treated
+                as a path and new points will be generated along it with
+                linear interpolation to achieve a total number of points
+                close to "n"
         returns:
             df - pandas DataFrame containing all components of the computed
-                 fields and the sampled coordinates"""
+                 fields, the sampled coordinates, and the cumulative distance
+                 along the sampling path. The samples form a MultiIndex in
+                 the returned DataFrame, which allows the data frame to be
+                 indexed by sampled points
+                    e.g. df[x,y,z]"""
 
         #start time
         t_start = datetime.datetime.now()
@@ -487,7 +496,11 @@ class Model(object):
                 if(len(args[i]) == 1):
                     args[i] = np.array([float(args[i][0])]*L)
                 elif(len(args[i]) != L):
-                    raise(EMFError("The sample method cannot parse inputs if multiple inputs are iterables (vectors) and they have different lenghts. Inputs must be numbers or iterables with the same length as other iterable inputs."))
+                    raise(EMFError("Cannot parse inputs if multiple inputs are iterables (vectors) and they have different lenghts. Inputs must be numbers or iterables with the same length as other iterable inputs."))
+            #check for interpolation
+            if('n' in kw):
+                n = kw['n']
+                args = subcalc_funks._interp_path_3D(args[0], args[1], args[2], n)
         x, y, z = args[0], args[1], args[2]
         #get wire segments
         S = self.segments
@@ -507,7 +520,10 @@ class Model(object):
         #get the real components
         Bx,By,Bz,Bres,Bmax = subcalc_calcs.phasors_to_magnitudes(Ph_x,Ph_y,Ph_z)
         #create a dataframe
-        df = pd.DataFrame(dict(x=x, y=y, z=z, Bmax=Bmax, Bres=Bres, Bx=Bx, By=By, Bz=Bz))
+        dist = subcalc_funks.cumulative_distance(x, y, z)
+        df = pd.DataFrame(
+                data=dict(Bmax=Bmax, Bres=Bres, Bx=Bx, By=By, Bz=Bz, dist=dist),
+                index=pd.MultiIndex.from_arrays([x,y,z], names=['x', 'y', 'z']))
         #print elapsed time
         t_end = datetime.datetime.now()
         print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
@@ -1111,7 +1127,6 @@ class Results(object):
             x_concern[i], y_concern[i], B_concern[i] = x[i], y[i], B[i]
         return(x_concern, y_concern, B_concern)
 
-
     def path(self, points, n=101, close_path=False):
         """Interpolate the field along a path defined by lists of x and y
         coordinates
@@ -1135,25 +1150,10 @@ class Results(object):
         if(close_path):
             points = list(points)
             points.append(points[-1])
-        L = len(points) - 1
-        rL = range(L)
-        #distribute point count for multiple segements, or don't
-        if(L > 1):
-            #get x and y
-            x, y = zip(*points)
-            #calculate distances of each segment
-            d = np.array([np.sqrt((x[i]-x[i+1])**2+(y[i]-y[i+1])**2) for i in rL])
-            #convert distances to fractions
-            d = d/sum(d)
-            #approximately distribute the total number of points to each segment
-            n = np.ceil(n*d)
-            #make sure there are at least two samples in each segment
-            n[n < 2] = 2
-        else:
-            n = [n]
-        #interpolate over each segment
-        segs = [self.segment(points[i], points[i+1], n[i]) for i in rL]
-        x, y, B_interp = (subcalc_funks._flatten(i) for i in zip(*segs))
+        #get sample points
+        x, y = subcalc_funks._interp_path_2D(x, y, n)
+        #interpolate
+        B_interp = self.interp(x, y)
 
         return(np.array(x), np.array(y), np.array(B_interp))
 
@@ -1184,7 +1184,7 @@ class Results(object):
         returns:
             B_interp - array or float, the interpolated field value"""
         #make x,y iterable if scalars are passed in
-        if(not (hasattr(x, '__len__') and hasattr(y, '__len__'))):
+        if(not (hasattr(x, '__iter__') and hasattr(y, '__iter__'))):
             scalar = True
             x = np.array([x], dtype=float)
             y = np.array([y], dtype=float)

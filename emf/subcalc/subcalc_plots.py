@@ -288,16 +288,20 @@ def _draw_north_arrow(ax, angle):
             xycoords='data', zorder=2, color='black',
             ha='center', va='center', fontsize=16)
 
-def _write_Bkey(ax, res):
+def _write_Bkey(*args):
     """Place a small text object just outside the upper right corner of the
     axes indicating the component of the magnetic field represented by
     the results
     args:
         ax - Axes to plot in
-        res - Results object"""
-    xl, yl = ax.get_xlim(), ax.get_ylim()
+        Results object or a string for the key"""
+    xl, yl = args[0].get_xlim(), args[0].get_ylim()
     #xmarg, ymarg = 0.005*(xl[1] - xl[0]), 0.005*(yl[1] - yl[0])
-    ax.text(xl[1], yl[1], 'Component: %s' % res.Bkey,
+    if(type(args[1]) is subcalc_class.Results):
+        s = args[1].Bkey
+    else:
+        s = str(args[1])
+    args[0].text(xl[1], yl[1], 'Component: %s' % s,
             fontsize=7, ha='right', va='bottom')
 
 def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
@@ -491,7 +495,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
                         (0 is along +y axis and clockwise is increasing)
         save - bool, toggle whether the figure is saved
         path - string, path to directory for saved figure. If set, overrides
-                the 'save' keyword
+                Fthe 'save' keyword
         format - string, saved plot format/extension (default 'png')
     returns:
         fig - matplotlib figure object
@@ -571,12 +575,12 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
 
     return(fig, ax, QM, ax_cbar)
 
-def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
-    cmap='viridis_r', **kw):
+def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
+    cmap='viridis_r', edgecolors='gray', **kw):
     """Plot a Results object's fields along a line segment in the results domian,
     essentially a cross section of the fields
     args:
-        res - Results object
+        obj - Results object or Model object
         points - an iterable of x,y pairs representing a path through the results
                  domain to plot, for example: [(1,2), (1,3), (2,4)]
         n - integer, number of points sampled (default 101)
@@ -587,6 +591,8 @@ def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
         scale - str, color scaling, can be 'log' or 'lin' (default is 'lin')
         cmap - str, name of matplotlib colormap, see:
                http://matplotlib.org/examples/color/colormaps_reference.html
+        edgecolors - color or sequence of colors, to set facecolors to
+                     edgecolors, use 'face'
     kw:
         ax - target Axes
         fig - Figure object, target figure for plotting, overridden by 'ax'
@@ -602,16 +608,25 @@ def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
     cmap = _get_cmap(cmap)
 
     #compute the path
-    x, y, B_interp = res.path(points, n)
+    if(type(obj) is subcalc_class.Results):
+        x, y, B_interp = res.path(points, n)
+        bkey = obj.Bkey
+        bmin, bmax = res.Bmin, res.Bmax
+        dist = subcalc_funks.cumulative_distance(x, y)
+    elif(type(obj) is subcalc_class.Model):
+        x, y = zip(*points)
+        df = obj.sample(x, y, obj.z, n=n)
+        B_interp, dist = df['Bmax'].values, df['dist'].values
+        bkey = 'Bmax'
+        bmin, bmax = min(B_interp), max(B_interp)
 
     #get plotting objects
     fig, ax = _prepare_fig(**kw)
 
     #plot
-    dist = subcalc_funks.cumulative_distance(x, y)
-    ci = _make_color_indexer(res.Bmin, res.Bmax, len(cmap.colors), scale)
+    ci = _make_color_indexer(bmin, bmax, len(cmap.colors), scale)
     colors = [cmap.colors[ci(i)] for i in B_interp]
-    ax.scatter(dist, B_interp, s=15, c=colors, edgecolors='gray')
+    ax.scatter(dist, B_interp, s=15, c=colors, edgecolors=edgecolors)
 
     #label
     ax.set_ylabel('Magnetic Field ($mG$)')
@@ -635,7 +650,7 @@ def plot_path(res, points, n=101, x_labeling='distance', scale='lin',
     #tight layout
     fig.tight_layout(pad=3)
     #write Bkey
-    _write_Bkey(ax, res)
+    _write_Bkey(ax, bkey)
     #save or not
     _save_fig('segment-plot', fig, **kw)
 

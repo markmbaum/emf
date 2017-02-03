@@ -324,26 +324,106 @@ def _double_min(v):
     return(mins, idxs)
 
 _dist = lambda x1, x2, y1, y2: np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+_dist3 = lambda x1, x2, y1, y2, z1, z2: np.sqrt((x1 - x2)**2 + (y1 - y2)**2 + (z1 - z2)**2)
+
+def _interp_path_2D(x, y, n):
+    """Interpolate points along linear segments of a path in 2d space so
+    that the total number of points is approximately n by distributing the
+    points along the segments (according to their lenghts). The end points
+    of each segment along the path are preserved.
+    args:
+        x - iterable of x coordinates
+        y - iterable of y coordinates
+        n - target number of samples
+    returns:
+        x_interp - array of x coordinates
+        y_interp - array of y coordinates"""
+    L = len(x) - 1
+    rL = range(L)
+    #calculate distances of each segment
+    d = np.array([_dist(x[i], x[i+1], y[i], y[i+1]) for i in rL])
+    #convert distances to fractions
+    d = d/sum(d)
+    #approximately distribute the total number of points to each segment
+    n = np.ceil(n*d)
+    #make sure there are at least two samples in each segment
+    n[n < 1] = 1
+    #interpolate over each segment
+    x_interp = _flatten([np.linspace(x[i], x[i+1], n[i], False) for i in rL])
+    y_interp = _flatten([np.linspace(y[i], y[i+1], n[i], False) for i in rL])
+    x_interp.append(float(x[-1]))
+    y_interp.append(float(y[-1]))
+    return(np.array(x_interp), np.array(y_interp))
+
+def _interp_path_3D(x, y, z, n):
+    """Interpolate points along linear segments of a path in 2d space so
+    that the total number of points is approximately n by distributing the
+    points along the segments (according to their lenghts). The end points
+    of each segment along the path are preserved.
+    args:
+        x - iterable of x coordinates
+        y - iterable of y coordinates
+        z - iterable of z coordinates
+        n - target number of samples
+    returns:
+        x_interp - array of x coordinates
+        y_interp - array of y coordinates
+        z_interp - array of z coordinates"""
+    L = len(x) - 1
+    rL = range(L)
+    #calculate distances of each segment
+    d = np.array([_dist3(x[i], x[i+1], y[i], y[i+1], z[i], z[i+1]) for i in rL])
+    #convert distances to fractions
+    d = d/sum(d)
+    #approximately distribute the total number of points to each segment
+    n = np.ceil(n*d)
+    #make sure there are at least two samples in each segment
+    n[n < 1] = 1
+    #interpolate over each segment
+    x_interp = _flatten([np.linspace(x[i], x[i+1], n[i], False) for i in rL])
+    y_interp = _flatten([np.linspace(y[i], y[i+1], n[i], False) for i in rL])
+    z_interp = _flatten([np.linspace(z[i], z[i+1], n[i], False) for i in rL])
+    x_interp.append(float(x[-1]))
+    y_interp.append(float(y[-1]))
+    z_interp.append(float(z[-1]))
+    return(np.array(x_interp), np.array(y_interp), np.array(z_interp))
 
 def cumulative_distance(*args):
     """calculate the cumlative linear distances along a path of x,y coordinates, including the first point (the returned array always starts with zero)
     args:
-        either a single iterable of x,y pairs or two iterables representing
-        x and y coordinates seperately
+        either a single iterable of points or separate iterables containing
+        the coordinates. Can accept two or three dimensional input.
     returns:
         dist - array, cumulative distance along the points"""
 
-    if(len(args) == 1):
-        p = args[0]
-        d = np.zeros((len(p),), dtype=float)
-        for i in range(1, len(args[0])):
-            d[i] = _dist(p[i][0], p[i-1][0], p[i][1], p[i-1][1]) + d[i-1]
-    elif(len(args) == 2):
-        x, y = args[0], args[1]
-        d = np.zeros((len(x),), dtype=float)
-        for i in range(1, len(x)):
-            d[i] = _dist(x[i], x[i-1], y[i], y[i-1]) + d[i-1]
+    largs = len(args)
+    if(largs == 1):
+        args = zip(*args[0])
+        if(len(args) == 2):
+            return(_cum_dist_2D(args[0], args[1]))
+        elif(len(args) == 3):
+            return(_cum_dist_3D(args[0], args[1], args[2]))
+        else:
+            raise(subcalc_class.EMFError("Input error. cumulative_distance accepts either a single iterable of points or separate iterables containing the coordinates. Can accept two or three dimensional input."))
+    elif(largs == 2):
+        if(len(args[0]) != len(args[1])):
+            raise(subcalc_class.EMFError("Inputs must have the same length."))
+        return(_cum_dist_2D(args[0], args[1]))
+    elif(largs == 3):
+        if(not (len(args[0]) == len(args[1]) == len(args[2]))):
+            raise(subcalc_class.EMFError("Inputs must have the same length."))
+        return(_cum_dist_3D(args[0], args[1], args[2]))
     else:
-        raise(emf_class.EMFError('cumulative_distance only accepts 1 or 2 arguments.'))
+        raise(subcalc_class.EMFError("Cannot accept more than three inputs."))
 
+def _cum_dist_2D(x, y):
+    d = np.zeros((len(x),), dtype=float)
+    for i in range(1, len(x)):
+        d[i] = _dist(x[i], x[i-1], y[i], y[i-1]) + d[i-1]
+    return(d)
+
+def _cum_dist_3D(x, y, z):
+    d = np.zeros((len(x),), dtype=float)
+    for i in range(1, len(x)):
+        d[i] = _dist3(x[i], x[i-1], y[i], y[i-1], z[i], z[i-1]) + d[i-1]
     return(d)
