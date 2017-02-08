@@ -82,10 +82,13 @@ class Conductor(object):
         """Check if all Conductor variables have been set
         returns:
             b - bool, True if all physical parameters are not None
-            v - name of first unset parameter or None"""
+            s - sentence indicating which parameter is empty"""
         for p in self.params:
             if(eval('self.%s' % p) is None):
-                return(False, p)
+                if(self._xs is not None):
+                    return(False, 'The "%s" parameter in Conductor "%s" in CrossSection "%s" is unset.' % (p, self.name, sh))
+                else:
+                    return(False, 'The "%s" parameter in Conductor "%s" is unset.' % (p, self.name))
         return(True, None)
     complete = property(_check_complete)
 
@@ -218,7 +221,7 @@ class CrossSection(object):
 
         self._sheet = None #mandatory, short, template worksheet name
         self._group = None #identifier linking multiple CrossSection objects
-        self._title = '' #longer form, used for plotting text
+        self._title = None #longer form, used for plotting text
         self._sb = None #parent SectionBook object
         self.soil_resistivity = 100.0 #?
         self._max_dist = None #maximum simulated distance from the ROW center
@@ -243,6 +246,27 @@ class CrossSection(object):
 
     #---------------------------------------------------------------------------
     #PROPERTIES
+
+    def _get_params(self): return(['max_dist', 'step', 'lROW', 'rROW'])
+    params = property(_get_params, None, None, 'Get a list of the parameter/property names which must be set for the object to be "complete".')
+
+    def _check_complete(self):
+        """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.
+        returns:
+            b - True if all Conductors are complete, False if not
+            s - sentence indicating which conductor is unset and which
+                parameter in it is the cause"""
+        if(not self.conds):
+            return(False, 'There are no Conductors in CrossSection "%s".' % self.sheet)
+        for p in self.params:
+            if(eval('self.%s' % p) is None):
+                return(False, 'The "%s" paramter of CrossSection "%s" is unset.' % (p, self.sheet))
+        for c in self.conds:
+            b, s = c.complete
+            if(b is False):
+                return(b, s)
+        return(True, None)
+    complete = property(_check_complete)
 
     def _check_to_float(self, value, prop):
         """check that an incoming value can be converted to a float and return the float version of it, or raise an error"""
@@ -284,7 +308,7 @@ class CrossSection(object):
     group = property(_get_group, _set_group, None, """Very short variable used to group CrossSections in SectionBooks. CrossSection objects in SectionBooks that have the same group properties are grouped for functions that involve comparisons.""")
 
     def _get_title(self):
-        if(not (self._title)):
+        if(not self._title):
             return(self.sheet)
         else:
             return(self._title)
@@ -419,19 +443,6 @@ class CrossSection(object):
         return(self.ROW_edge_fields[['Bmax','Emax']])
     ROW_edge_max = property(_get_ROW_edge_max, None, None, """Slice the 'fields' DataFrame and return another DataFrame with only the maximum field results at the left and right right-of-way edges, the locations of which are set by the 'lROW' and 'rROW' property""")
 
-    def _check_complete(self):
-        """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.
-        returns:
-            b - True if all Conductors are complete, False if not
-            n - name of first incomplete Conductor, if any, else None
-            v - variable name of first unset variable in first incomplete Conductor, if any, else None"""
-        for c in self.conds:
-            b, v = c.complete
-            if(b is False):
-                return(b, c.name, v)
-        return(True, None, None)
-    complete = property(_check_complete)
-
     #---------------------------------------------------------------------------
 
     def __str__(self):
@@ -457,20 +468,17 @@ class CrossSection(object):
         args:
             cond - Conductor object to add"""
         #check if the Conductor is complete
-        b, v = cond.complete
+        b, s = cond.complete
         if(not b):
-            raise(EMFError("""Cannot add Conductor "%s" to the CrossSection because it is not complete. The parameter "%s" is not set."""
-            % (cond.name, v[1:])))
+            raise(EMFError("""Cannot add Conductor "%s" to the CrossSection because it is not complete. %s""" % (cond.name, s)))
         #check if the name has already been used
         if(cond.name in self._name2idx):
-            raise(EMFError("""A Conductor with name "%s" is already in CrossSection "%s". Another Conductor with the same name cannot be added."""
-            % (cond.name, self.sheet)))
+            raise(EMFError("""A Conductor with name "%s" is already in CrossSection "%s". Another Conductor with the same name cannot be added.""" % (cond.name, self.sheet)))
         #see if the conductor is grounded
         if(cond.V == 0):
             #probably shouldn't have current if grounded
             if(cond.I != 0):
-                print("""Conductor with name "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?"""
-                % (cond.name, self.sheet))
+                print("""Conductor with name "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?""" % (cond.name, self.sheet))
         #add to self.conds and indexing dict
         self._name2idx[cond.name] = len(self.conds)
         self.conds.append(copy.deepcopy(cond))
@@ -671,11 +679,13 @@ class SectionBook(object):
                     if any, else None
             v - variable name of first unset variable in first incomplete
                 Conductor in first incomplete xs, if any, else None"""
+        if(not self.xss):
+            return(False, 'There are no CrossSections in SectionBook "%s".' % self.name)
         for xs in self:
-            b, cname, v = xs.complete
+            b, s = xs.complete
             if(b is False):
-                return(b, xs.sheet, cname, v)
-        return(True, None, None, None)
+                return(b, s)
+        return(True, None)
     complete = property(_check_complete)
 
     #---------------------------------------------------------------------------
@@ -717,15 +727,18 @@ class SectionBook(object):
             xs - CrossSection object to add to SectionBook (a copy is added)
         kw:
             sheet - a new sheet name for the added CrossSection"""
+        #prevent adding CrossSections with the same sheets
+        if(xs.sheet in self._sheet2idx):
+            raise(EMFError("""A CrossSection with sheet "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
+        #check completeness
+        b, s = xs.complete
+        if(not b):
+            raise(EMFError('Cannot add CrossSection "%s" to SectionBook "%s". %s' % (xs.sheet, self.name, s)))
         #copy xs
-        xs._fields = None
         xs = copy.deepcopy(xs)
         #get sheet
         if('sheet' in kw):
             xs.sheet = kw['sheet']
-        #Prevent adding CrossSections with the same sheets
-        if(xs.sheet in self._sheet2idx):
-            raise(EMFError("""A CrossSection with sheet "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
         else:
             #add the CrossSection and update indexing dict
             self._sheet2idx[xs.sheet] = len(self.xss)

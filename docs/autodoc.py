@@ -1,6 +1,8 @@
 import os
+from subprocess import Popen
 
 import grip
+import nbconvert
 from odpydoc import doc
 
 #generate documentation html files
@@ -21,3 +23,8 @@ grip.api.export(path='README-subcalc.md', out_filename='README-subcalc.html')
 
 #render the main readme
 grip.api.export(path='../README.md', out_filename='../README.html')
+
+#convert notebooks to html by calling batch file
+print('Exporting notebooks to html')
+p = Popen('autonotebookexport.bat')
+stdout, stderr = p.communicate()

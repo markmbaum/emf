@@ -1,11 +1,17 @@
 import cProfile
 import pstats
 
-import emf.fields as fld
+from emf import fields as fld
 
-sb = fld.load_template(r"P:\MBaum\Programming\Python\python_code\emf\working_files\practice_xcs.xlsx")
+c = fld.Conductor('z', [1,1,1,1,1,1,1,1])
+xs = fld.CrossSection('x', [c])
+xs.max_dist = 100
+xs.lROW = -50
+xs.rROW = 50
+xs.step = 0.1
+sb = fld.SectionBook('test', [xs])
 
-fld.plot_xs(sb['raise1'])
+fld.plot_max_fields(sb.i[0])
 fld.show()
 
 #cProfile.run("""

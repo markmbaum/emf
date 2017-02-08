@@ -464,15 +464,18 @@ class Model(object):
     def sample(self, *args, **kw):
         """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments at an arbitrary set of points in 3d space, defined by the x, y, and z inputs.
         args:
-            x - iterable of numbers or a single number, the x coordinate(s)
+            x* - iterable of numbers or a single number, the x coordinate(s)
                 of the sample point(s)
-            y - iterable of numbers or a single number, the y coordinate(s)
+            y* - iterable of numbers or a single number, the y coordinate(s)
                 of the sample point(s)
-            z - iterable of numbers or a single number, the z coordinate(s)
-                of the sample point(s)
+        optional args:
+            z* - iterable of numbers or a single number, the z coordinate(s)
+                of the sample point(s). If omitted, the Model objects "z"
+                property is used and the returned dataframe is only indexed
+                by the input x and y coordinates.
 
-                note: if any of the inputs are iterables, they must have
-                      the same length as other iterable inputs.
+                *if any of these inputs are iterables, they must have the
+                    same length as other iterable inputs.
         kw:
             n - integer, if provided, the input coordinates will be treated
                 as a path and new points will be generated along it with
@@ -484,10 +487,18 @@ class Model(object):
                  along the sampling path. The samples form a MultiIndex in
                  the returned DataFrame, which allows the data frame to be
                  indexed by sampled points
-                    e.g. df[x,y,z]"""
+                    e.g. df[x,y,z] or df[x,y]"""
 
         #start time
         t_start = datetime.datetime.now()
+        #check for z input
+        noz = False
+        if(len(args) == 2):
+            args = list(args)
+            args.append(self.z)
+            noz = True
+        elif(len(args) != 3):
+            raise(EMFError('Model.sample() accepts two or three arguments only. They are the x, y, and z coordinates to sample and each can be a single number or an iterable of numbers. Iterables passed in must have the same length, and single numbers passed in are used for all sampled points.'))
         #deal with lengths and make sure to work with np arrays
         args = [subcalc_funks._check_to_array(i) for i in args]
         L = max([len(i) for i in args])
@@ -521,9 +532,12 @@ class Model(object):
         Bx,By,Bz,Bres,Bmax = subcalc_calcs.phasors_to_magnitudes(Ph_x,Ph_y,Ph_z)
         #create a dataframe
         dist = subcalc_funks.cumulative_distance(x, y, z)
-        df = pd.DataFrame(
-                data=dict(Bmax=Bmax, Bres=Bres, Bx=Bx, By=By, Bz=Bz, dist=dist),
-                index=pd.MultiIndex.from_arrays([x,y,z], names=['x', 'y', 'z']))
+        data = dict(Bmax=Bmax, Bres=Bres, Bx=Bx, By=By, Bz=Bz, dist=dist)
+        if(noz):
+            index = pd.MultiIndex.from_arrays([x,y], names=['x', 'y'])
+        else:
+            index = pd.MultiIndex.from_arrays([x,y,z], names=['x', 'y', 'z'])
+        df = pd.DataFrame(data=data, index=index)
         #print elapsed time
         t_end = datetime.datetime.now()
         print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())

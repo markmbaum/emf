@@ -37,7 +37,7 @@ def _str_Conductor(z):
 
 def _str_CrossSection(z):
 
-    b, t, v = z.complete
+    b, s = z.complete
     if(b):
         idx = z.fields.index
         locs = sorted(list(set([idx.min(), z.lROW, z.rROW, idx.max()])))
@@ -46,8 +46,7 @@ def _str_CrossSection(z):
         f = ' '*6 + str(f).replace('\n', '\n' + ' '*6)
     else:
         f = """      Cannot compute fields.
-      Attribute "%s"
-        in Conductor "%s" is unset.""" % (t, v[1:])
+      %s""" % (s)
 
     if(z._sb is not None):
         sb = repr(z._sb.name)
@@ -86,7 +85,7 @@ def _str_CrossSection(z):
 
 def _str_SectionBook(z):
 
-    b, sheet, cname, v = z.complete
+    b, s = z.complete
     if(b):
         f = ' '*6 + str(z.ROW_edge_max).replace('\n', '\n' + ' '*6)
     else:
