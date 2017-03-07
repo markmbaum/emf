@@ -176,7 +176,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook demonstrates how the <code>sample</code> method of <code>Model</code> objects can be used to efficiently calculate the fields at a set of points that are not arranged in a grid. The <code>calculate</code> method of <code>Model</code> objects automatically assembles a grid of sample points, calculates fields at all the grid points, then returns them in a <code>Results</code> object. The <code>Results</code> object has several methods for interpolating the results and is the best tool for examining results over the entire domain of a model. However, if an entire grid of results is not necessary, the <code>sample</code> method of <code>Model</code> objects provides an easy way to compute fields at an arbitrary set of points in the 3d space of the model. For example, it might be desireble to have a dense set of results along a fenceline so that the plotted results are nice and smooth. It might also be necessary to compute fields at a non-constant height. The grid of results created by the <code>calculate</code> method has a fixed height (3.28 ft by default). The <code>sample</code> method makes allows for different heights (z coordinates) because it computes fields at an arbitrary set of points in space.</p>
+<p>This notebook demonstrates how the <code>sample</code> method of <code>Model</code> objects can be used to efficiently calculate the fields at a set of points that are not arranged in a grid. The <code>calculate</code> method of <code>Model</code> objects automatically assembles a grid of sample points, calculates fields at all the grid points, then returns them in a <code>Results</code> object. The <code>Results</code> object has several methods for interpolating the results and is the best tool for examining results over the entire domain of a model. However, if an entire grid of results is not necessary, the <code>sample</code> method of <code>Model</code> objects provides an easy way to compute fields at an arbitrary set of points in the 3d space of the model. For example, it might be desirable to have a dense set of results along a fenceline so that the plotted results are nice and smooth. It might also be necessary to compute fields at a non-constant height, because the grid of samples created by the <code>calculate</code> method has a fixed height (3.28 ft by default). The <code>sample</code> method allows for different heights (z coordinates) because it computes fields at an arbitrary set of points in space.</p>
 
 </div>
 </div>
@@ -223,7 +223,7 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>It doesn't really matter what we're modeling for this example, but the towers represent a single circuit running near a substation.</p>
-<p>We can sample the <code>Model</code> object at any point in space that does not lie on the path of the model's wires (which causes divison by zero). Let's just say we want to know the fields at the point (1,2,3).</p>
+<p>We can sample the <code>Model</code> object at any point in space that does not lie on the path of the model's wires (which causes divison by zero). Let's just say we want to know the fields at the point x=1, y=1, and z=3, or (1,2,3).</p>
 
 </div>
 </div>
@@ -309,7 +309,7 @@ total calculation time: 0.013 seconds
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The <code>sample</code> method returns results in a pandas <code>DataFrame</code>. The returned frame has a <code>MultiIndex</code>, and is indexed by the sampled points. If we want just the maximum field at the point (1,2,3), we can get it.</p>
+<p>The <code>sample</code> method returns results in a pandas <code>DataFrame</code>. The returned frame has a <code>MultiIndex</code> and is indexed by the sampled points. If we want just the maximum field at the point (1,2,3), we can get it by indexing the returned DataFrame.</p>
 
 </div>
 </div>
@@ -348,7 +348,7 @@ total calculation time: 0.01 seconds
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It's also possible to omit the last argument to the <code>sample</code> method. In this case, the z coordinate is assumed to be the number stored in the <code>Model</code> object's <code>z</code> property. If the z coordinate is omitted, the returned frame is only indexed by the x and y coordinates.</p>
+<p>It's also possible to omit the third argument to the <code>sample</code> method, which accepts z coordinates. In this case, the z coordinate is assumed to be the number stored in the <code>Model</code> object's <code>z</code> property. If the z coordinate is omitted, the returned frame is only indexed by the x and y coordinates.</p>
 
 </div>
 </div>
@@ -432,7 +432,7 @@ total calculation time: 0.015 seconds
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>It's easy to get results for a single point, with or without a new z coordinate. Now we'll look at getting multiple points.</p>
-<p>As a trivial example, let's get fields for the points (1,2,3), (4,5,6), and (7,8,9).</p>
+<p>As a trivial example, let's get fields for the points (1,2,3), (4,5,6), and (7,8,9). The sample method accepts x coordinates in the first argument, y coordinates in the second, and z coordinates in the third.</p>
 
 </div>
 </div>
@@ -540,7 +540,7 @@ total calculation time: 0.007 seconds
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Easy. Notice that the 'dist' column of the returned frame now has non-zero entries. That column shows the cumulative distance along the sampled points, from first to last. If the sampled points have no relation to one another, the 'dist' column can be ignored. If the sampled points represent a path through space, then the 'dist' column represents the distance along the path for each point, where the path is assumed to consist of straight lines between the points.</p>
+<p>Easy. Now notice that the 'dist' column of the returned frame has non-zero entries. That column shows the cumulative distance along the sampled points, from first to last. If the sampled points have no relation to one another, the 'dist' column can be ignored. If the sampled points represent a path through space, then the 'dist' column represents the distance along the path for each point, where the path is assumed to consist of straight lines between the points.</p>
 <p>When sampling multiple points, the <code>sample</code> method can accept single coordinates or iterables for each argument. For example, if we wanted to sample the same points, but each with an x coordinate of 1, we could simply pass the number 1 to the x argument of <code>sample</code>, as below.</p>
 
 </div>
@@ -810,7 +810,7 @@ x          y
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The samples now include many points interpolated along the path of the input coordinates, for a total of 102 points. The sampled points will always include the input points, and we can get the results for those points by indexing the frame.</p>
+<p>The samples now include many points interpolated along the path of the input coordinates, for a total of 102 points. The set of interpolated points will always include the input points that were interpolated and we can get the results for those points by indexing the frame.</p>
 
 </div>
 </div>

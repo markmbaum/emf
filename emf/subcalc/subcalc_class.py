@@ -8,7 +8,7 @@ import subcalc_calcs
 import subcalc_print
 
 class Model(object):
-    """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing model results and returning them in a Results object. Model objects are designed to make it easy to compute the fields in a uniform height 2 dimensional grid. Model objects store x limits, y limits, a z coordinate/height, and a grid spacing to automatically construct a 2d grid of sample points and calculate magnetic fields at those points. The calculate() method returns a grid of results in the form of a Results object, which can be used to create plots and analyze the grid. Alternatively, an arbitrary set of x, y, z coordinates can be passed to the sample() method to calculate fields at any set of points in 3d space and bypass the Results object entirely."""
+    """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing magnetic fields. Model objects are designed to make it easy to compute the fields over a uniform height 2 dimensional grid. Model objects store x limits, y limits, a z coordinate, and a grid spacing to automatically construct a 2d grid of sample points and calculate magnetic fields at those points. The calculate() method returns a grid of results in the form of a Results object, which can be used to create plots and analyze the grid. Alternatively, an arbitrary set of x, y, z coordinates can be passed to the sample() method to calculate fields at any set of points in 3d space and bypass the Results object entirely."""
 
     def __init__(self, **kw):
         """
@@ -39,6 +39,7 @@ class Model(object):
         self._ymax = None
         self._z = 3.28
         self._spacing = None
+        self._N = 1e5
 
         self._auto_lim_frac = 0.1
 
@@ -207,18 +208,28 @@ class Model(object):
 
     def _get_spacing(self):
         if(self._spacing is None):
-            return(1.0)
+            xmin, xmax = self.xlim
+            ymin, ymax = self.ylim
+            s = np.sqrt((xmax - xmin)*(ymax - ymin)/self._N)
+            return(s)
         else:
             return(self._spacing)
     def _set_spacing(self, value):
         s = float(value)
         if(s <= 0):
-            raise(EMFError)
+            raise(EMFError('spacing cannot be negative'))
         self._spacing = float(value)
+        self._N = len(self.x)*len(self.y)
     spacing = property(_get_spacing, _set_spacing, None, 'Spacing between sample points along x and y axes of the Model grid (ft)')
 
     def _get_N(self): return(len(self.x)*len(self.y))
-    N = property(_get_N, None, None, 'The total number of sample points in the Model. Cannot be set directly (use Model.spacing to adjust).')
+    def _set_N(self, value):
+        value = int(value)
+        if(value < 0):
+            raise(EMFError('sample count cannot be negative'))
+        self._N = value
+        self._spacing = None
+    N = property(_get_N, _set_N, None, 'The total number of sample points in the Model. This property can only be set approximately.')
 
     def _get_x(self):
         if((self.xmax is None) or (self.xmin is None)):
@@ -543,6 +554,45 @@ class Model(object):
         print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
         #return
         return(df)
+
+    def to_tower_template(self, fmt='csv', **kw):
+        """Export the Towers in the Model object to a template file in csv or excel format. Any Conductor objects in the Model will NOT be written to the tower template.
+        optional args:
+            fmt - 'csv' or 'excel'
+        kw:
+            path - string, output destination/filename"""
+        #get filename
+        if(fmt == 'csv'):
+            ext = '.csv'
+        elif(fmt == 'excel'):
+            ext = '.xlsx'
+        else:
+            raise(EMFError("fmt argument must be 'csv' or 'excel'."))
+        fn = subcalc_funks._path_manage(self.name + '-towers', ext, **kw)
+        #compile template dataframe
+        L = sum([len(t) for t in self.towers])
+        cols = ['group', 'sequence', 'tower x', 'tower y', 'rotation',
+                'h', 'v', 'I', 'phase']
+        df = pd.DataFrame(index=range(L), columns=cols)
+        count = 0
+        for t in self.towers:
+            for i in range(len(t)):
+                if(i == 0):
+                    df.at[count,cols[0]] = t.group
+                    df.at[count,cols[1]] = t.seq
+                    df.at[count,cols[2]] = t.tower_x
+                    df.at[count,cols[3]] = t.tower_y
+                    df.at[count,cols[4]] = t.rot
+                df.at[count,cols[5]] = t.h[i]
+                df.at[count,cols[6]] = t.v[i]
+                df.at[count,cols[7]] = t.I[i]
+                df.at[count,cols[8]] = t.phase[i]
+                count += 1
+        if(fmt == 'csv'):
+            df.to_csv(fn, index=False)
+        else:
+            df.to_excel(fn, index=False)
+        print('towers in model "%s" written to: %s' % (self.name, fn))
 
     def _xy_ranges(self):
         'Find the range of x and y coordinaes occupied by Tower and Conductor objects in the Model'
@@ -977,18 +1027,18 @@ class Results(object):
     Bmin = property(_get_Bmin, None, None, 'Minimum value of Results.B')
 
     def _get_spacing(self):
-        if(np.any(np.diff(np.diff(self.x)) > (np.mean(self.x)*1e-6))):
+        x, y = self.x, self.y
+        xr = np.max(x) - np.min(x)
+        yr = np.max(y) - np.min(y)
+        if(np.any(np.abs(np.diff(np.diff(x))) > 1e-9*xr)):
             sx = 'non-uniform'
         else:
-            sx = abs(self.x[1] - self.x[0])
-        if(np.any(np.diff(np.diff(self.y)) > (np.mean(self.x)*1e-6))):
+            sx = abs(x[1] - x[0])
+        if(np.any(np.abs(np.diff(np.diff(y))) > 1e-9*yr)):
             sy = 'non-uniform'
         else:
-            sy = abs(self.y[0] - self.y[1])
-        if(sx == sy):
-            return(sx)
-        else:
-            return(sx, sy)
+            sy = abs(y[0] - y[1])
+        return(sx, sy)
     spacing = property(_get_spacing, None, None, 'Distance between grid points along the x and y axes (ft). If the spacing is different along the axes, a tuple of two floats is returned. Otherwise only a single float is returned. If the spacing along an axis is non-uniform (can be done with resampling), a string is returned.')
 
     def _get_N(self): return(self.B.shape[0]*self.B.shape[1])
@@ -1165,6 +1215,7 @@ class Results(object):
             points = list(points)
             points.append(points[-1])
         #get sample points
+        x, y = zip(*points)
         x, y = subcalc_funks._interp_path_2D(x, y, n)
         #interpolate
         B_interp = self.interp(x, y)
@@ -1172,10 +1223,10 @@ class Results(object):
         return(np.array(x), np.array(y), np.array(B_interp))
 
     def segment(self, p1, p2, n=101):
-        """Interpolate the field along a line between two points
+        """Interpolate the magnetic field results along a line between two x,y points
         args:
-            p1 - iterable, an x-y pair
-            p2 - iterable, an x-y pair
+            p1 - iterable, the fifst x-y pair
+            p2 - iterable, the second pair
         optional args:
             n - integer, number of points sampled (default 101)
         returns:
@@ -1191,7 +1242,7 @@ class Results(object):
         return(x, y, B_interp)
 
     def interp(self, x, y):
-        """Interpolate in the x and y directions to find an estimated B value at an x,y location within the results grid
+        """Use bilinear interpolation to estimate the magnetic field at a given x,y location.
         args:
             x - iterable or scalar, x coordinate(s) to interpolate at
             y - iterable or scalar, y coordinate(s) to interpolate at
@@ -1238,10 +1289,10 @@ class Results(object):
     def resample(self, **kw):
         """Resample the results grid along a new number of x,y values, a new selection of x,y values, or a new number of total values
         kw:
-            x - int or iterable, new number of x samples or new selection of
-                x samples
-            y - int or iterable, new number of y samples or new selection of
-                y samples
+            x - int or iterable, new number of x samples or new
+                selection of x samples
+            y - int or iterable, new number of y samples or new
+                selection of y samples
             N - int, new approximate number of total samples
                     - overrides x and y kw
                     - preserves approx ratio of number of x and y values

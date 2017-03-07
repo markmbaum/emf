@@ -1,7 +1,7 @@
 from .. import np
 
 #electric permeability constant, in SI units
-EPSILON_0 = 8.854e-12
+EPSILON_0 = 8.854187817e-12
 #convenient constant
 electric_prefactor = 1./(2.*np.pi*EPSILON_0)
 
@@ -29,24 +29,24 @@ def E_field(x_cond, y_cond, subconds, d_cond, d_bund, V_cond, p_cond, x, y):
                 the vertical direction (kV/m)"""
 
     #conversions and screening out underground lines
-    ohd = y_cond > 0.
-    x_cond = x_cond[ohd]*0.3048         #convert to meters
-    y_cond = y_cond[ohd]*0.3048         #convert to meters
+    ohd      = (y_cond > 0.)
+    x_cond   = x_cond[ohd]*0.3048       #convert to meters
+    y_cond   = y_cond[ohd]*0.3048       #convert to meters
     subconds = subconds[ohd]
-    d_cond = d_cond[ohd]*0.0254         #convert to meters
-    d_bund = d_bund[ohd]*0.0254         #convert to meters
-    V_cond = V_cond[ohd]/np.sqrt(3.0)   #convert to ground reference from
+    d_cond   = d_cond[ohd]*0.0254       #convert to meters
+    d_bund   = d_bund[ohd]*0.0254       #convert to meters
+    V_cond   = V_cond[ohd]/np.sqrt(3.0) #convert to ground reference from
                                             #line-line reference, leave in kV
-    p_cond = p_cond[ohd]*2*np.pi/360.   #convert to radians
-    x = x*0.3048                        #convert to meters
-    y = y*0.3048                        #convert to meters
+    p_cond   = p_cond[ohd]*2*np.pi/360. #convert to radians
+    x        = x*0.3048                 #convert to meters
+    y        = y*0.3048                 #convert to meters
 
     #array length variables
     N = len(p_cond)     #number of conductors
     Z = len(x)          #number of sample points or x,y pairs
 
     #calculate the effective conductor diameters
-    d_cond  = d_bund*((subconds*d_cond/d_bund)**(1./subconds))
+    d_cond = d_bund*((subconds*d_cond/d_bund)**(1./subconds))
 
     #compute the matrix of potential coefficients
     range_N = range(N)
@@ -124,8 +124,8 @@ def B_field(x_cond, y_cond, I_cond, p_cond, x, y):
     x_cond = x_cond*0.3048          #convert to meters
     y_cond = y_cond*0.3048          #convert to meters
     p_cond = p_cond*2*np.pi/360.    #convert to radians
-    x = x*0.3048                    #convert to meters
-    y = y*0.3048                    #convert to meters
+    x      = x*0.3048               #convert to meters
+    y      = y*0.3048               #convert to meters
 
     #initialize complex current phasors
     I = I_cond*(np.cos(p_cond) + complex(0,1)*np.sin(p_cond))
@@ -166,9 +166,9 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
 
     #amplitude along each component, storing squared magnitudes for later
     mag_x_sq = np.real(Ph_x)**2 + np.imag(Ph_x)**2
-    mag_x = np.sqrt(mag_x_sq)
+    mag_x    = np.sqrt(mag_x_sq)
     mag_y_sq = np.real(Ph_y)**2 + np.imag(Ph_y)**2
-    mag_y = np.sqrt(mag_y_sq)
+    mag_y    = np.sqrt(mag_y_sq)
 
     #phase angle of each component
     phase_x = np.arctan2(np.imag(Ph_x), np.real(Ph_x))
@@ -179,15 +179,15 @@ def phasors_to_magnitudes(Ph_x, Ph_y):
 
     #maximum resultant value found by setting the time derivative of the
     #squared resultant magnitude to zero (Appendix 8.1 EPRI's "Big Red Book")
-    num = mag_x_sq*np.sin(2*phase_x) + mag_y_sq*np.sin(2*phase_y)
-    den = mag_x_sq*np.cos(2*phase_x) + mag_y_sq*np.cos(2*phase_y)
-    t1 = (0.5)*np.arctan2(-num, den)
-    t2 = t1 + np.pi/2
-    x_term = mag_x_sq*(np.cos(t1 + phase_x))**2
-    y_term = mag_y_sq*(np.cos(t1 + phase_y))**2
+    num     = mag_x_sq*np.sin(2*phase_x) + mag_y_sq*np.sin(2*phase_y)
+    den     = mag_x_sq*np.cos(2*phase_x) + mag_y_sq*np.cos(2*phase_y)
+    t1      = (0.5)*np.arctan2(-num, den)
+    t2      = t1 + np.pi/2
+    x_term  = mag_x_sq*(np.cos(t1 + phase_x))**2
+    y_term  = mag_y_sq*(np.cos(t1 + phase_y))**2
     ax_mag1 = np.sqrt(x_term + y_term)
-    x_term = mag_x_sq*(np.cos(t2 + phase_x))**2
-    y_term = mag_y_sq*(np.cos(t2 + phase_y))**2
+    x_term  = mag_x_sq*(np.cos(t2 + phase_x))**2
+    y_term  = mag_y_sq*(np.cos(t2 + phase_y))**2
     ax_mag2 = np.sqrt(x_term + y_term)
 
     #pick out the semi-major axis magnitude from the two semi-axis results

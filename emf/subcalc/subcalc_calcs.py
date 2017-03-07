@@ -39,12 +39,12 @@ def B_field_grid(a, b, I, ph, x, y, z):
     z = np.array([z], dtype=float)
 
     #conversions
-    a = a*0.3048            #convert to meters
-    b = b*0.3048            #convert to meters
-    x = x*0.3048            #convert to meters
-    y = y*0.3048            #convert to meters
-    z = z*0.3048            #convert to meters
-    ph = ph*2*np.pi/360     #convert to radians
+    a  = a*0.3048       #convert to meters
+    b  = b*0.3048       #convert to meters
+    x  = x*0.3048       #convert to meters
+    y  = y*0.3048       #convert to meters
+    z  = z*0.3048       #convert to meters
+    ph = ph*2*np.pi/360 #convert to radians
 
     #pull out the coordinates of the starting and ending point of the wire
     xa, ya, za = a
@@ -84,7 +84,7 @@ def B_field_grid(a, b, I, ph, x, y, z):
             integral.ctypes.data_as(c_double_ptr))
 
     #carry through with the rest of the calculations
-    con = magnetic_prefactor*I*integral
+    con  = magnetic_prefactor*I*integral
     Ph_x = fac_x*con
     Ph_y = fac_y*con
     Ph_z = fac_z*con
@@ -112,12 +112,12 @@ def B_field_general(a, b, I, ph, x, y, z):
                the z direction"""
 
     #conversions
-    a = a*0.3048            #convert to meters
-    b = b*0.3048            #convert to meters
-    x = x*0.3048            #convert to meters
-    y = y*0.3048            #convert to meters
-    z = z*0.3048            #convert to meters
-    ph = ph*2*np.pi/360     #convert to radians
+    a  = a*0.3048       #convert to meters
+    b  = b*0.3048       #convert to meters
+    x  = x*0.3048       #convert to meters
+    y  = y*0.3048       #convert to meters
+    z  = z*0.3048       #convert to meters
+    ph = ph*2*np.pi/360 #convert to radians
 
     #pull out the coordinates of the starting and ending point of the wire
     xa, ya, za = a
@@ -155,7 +155,7 @@ def B_field_general(a, b, I, ph, x, y, z):
             integral.ctypes.data_as(c_double_ptr))
 
     #carry through with the rest of the calculations
-    con = magnetic_prefactor*I*integral
+    con  = magnetic_prefactor*I*integral
     Ph_x = fac_x*con
     Ph_y = fac_y*con
     Ph_z = fac_z*con
@@ -200,11 +200,11 @@ def phasors_to_magnitudes(Ph_x, Ph_y, Ph_z):
 
     #amplitude along each component, storing squared magnitudes for later
     mag_x_sq = np.real(Ph_x)**2 + np.imag(Ph_x)**2
-    mag_x = np.sqrt(mag_x_sq)
+    mag_x    = np.sqrt(mag_x_sq)
     mag_y_sq = np.real(Ph_y)**2 + np.imag(Ph_y)**2
-    mag_y = np.sqrt(mag_y_sq)
+    mag_y    = np.sqrt(mag_y_sq)
     mag_z_sq = np.real(Ph_z)**2 + np.imag(Ph_z)**2
-    mag_z = np.sqrt(mag_z_sq)
+    mag_z    = np.sqrt(mag_z_sq)
 
     #phase angle of each component
     phase_x = np.arctan2(np.imag(Ph_x), np.real(Ph_x))
@@ -216,25 +216,25 @@ def phasors_to_magnitudes(Ph_x, Ph_y, Ph_z):
 
     #maximum resultant value found by setting the time derivative of the
     #squared resultant magnitude to zero (Appendix 8.1 EPRI's "Big Red Book")
-    num = (mag_x_sq*np.sin(2*phase_x)
-            + mag_y_sq*np.sin(2*phase_y)
-            + mag_z_sq*np.sin(2*phase_z))
-    den = (mag_x_sq*np.cos(2*phase_x)
-            + mag_y_sq*np.cos(2*phase_y)
-            + mag_z_sq*np.cos(2*phase_z))
-    t1 = (0.5)*np.arctan2(-num, den)
-    t2 = t1 + np.pi/2
-    x_term = mag_x_sq*(np.cos(t1 + phase_x))**2
-    y_term = mag_y_sq*(np.cos(t1 + phase_y))**2
-    z_term = mag_z_sq*(np.cos(t1 + phase_z))**2
+    num     = (mag_x_sq*np.sin(2*phase_x)
+                + mag_y_sq*np.sin(2*phase_y)
+                + mag_z_sq*np.sin(2*phase_z))
+    den     = (mag_x_sq*np.cos(2*phase_x)
+                + mag_y_sq*np.cos(2*phase_y)
+                + mag_z_sq*np.cos(2*phase_z))
+    t1      = (0.5)*np.arctan2(-num, den)
+    t2      = t1 + np.pi/2
+    x_term  = mag_x_sq*(np.cos(t1 + phase_x))**2
+    y_term  = mag_y_sq*(np.cos(t1 + phase_y))**2
+    z_term  = mag_z_sq*(np.cos(t1 + phase_z))**2
     ax_mag1 = np.sqrt(x_term + y_term + z_term)
-    x_term = mag_x_sq*(np.cos(t2 + phase_x))**2
-    y_term = mag_y_sq*(np.cos(t2 + phase_y))**2
-    z_term = mag_z_sq*(np.cos(t2 + phase_z))**2
+    x_term  = mag_x_sq*(np.cos(t2 + phase_x))**2
+    y_term  = mag_y_sq*(np.cos(t2 + phase_y))**2
+    z_term  = mag_z_sq*(np.cos(t2 + phase_z))**2
     ax_mag2 = np.sqrt(x_term + y_term + z_term)
 
     #pick out the semi-major axis magnitude from the two semi-axis results
     maximum = np.maximum(ax_mag1, ax_mag2)
 
-    #return the 4 output columns
+    #return the 5 output columns
     return(mag_x, mag_y, mag_z, prod, maximum)

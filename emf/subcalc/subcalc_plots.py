@@ -142,6 +142,8 @@ def _equal_ax_objs(x_range, y_range, max_width, max_height, legend_pad):
     fig, ax = plt.subplots(1, 1, figsize=(fig_x,fig_y))
     #adjust the aspect ratio of the axes
     _set_ax_aspect(fig, ax, aspect)
+    #set axis equal
+    ax.axis('equal')
     #return
     return(fig, ax)
 
@@ -293,16 +295,19 @@ def _write_Bkey(*args):
     axes indicating the component of the magnetic field represented by
     the results
     args:
+        fig - figure containing Axes to annotate
         ax - Axes to plot in
         Results object or a string for the key"""
-    xl, yl = args[0].get_xlim(), args[0].get_ylim()
+    fig, ax = args[0], args[1]
+    xl, yl = ax.get_xlim(), ax.get_ylim()
     #xmarg, ymarg = 0.005*(xl[1] - xl[0]), 0.005*(yl[1] - yl[0])
-    if(type(args[1]) is subcalc_class.Results):
-        s = args[1].Bkey
+    if(type(args[2]) is subcalc_class.Results):
+        s = args[2].Bkey
     else:
-        s = str(args[1])
-    args[0].text(xl[1], yl[1], 'Component: %s' % s,
-            fontsize=7, ha='right', va='bottom')
+        s = str(args[2])
+    box = ax.get_position()
+    fig.text(box.x0 + box.width, box.y0 + box.height, 'Component: %s' % s,
+            fontsize=8, ha='right', va='bottom')
 
 def _make_color_indexer(Bmin, Bmax, L_cmap, scale):
     """Decorator function to make a lambda function that will map field
@@ -353,8 +358,8 @@ def _make_cbar(ax, min_val, max_val, cmap, ci):
     h = (max_val - min_val)/L
     for i in range(L):
         color = cmap.colors[ci(min_val + i*h)]
-        rect = _Rectangle((0, (i*h)), 1, h*1.01, facecolor=color,
-                edgecolor=color, zorder=(i - L))
+        rect = _Rectangle((0, i*h + min_val), 1, h*1.01,
+                facecolor=color, edgecolor=color, zorder=(i - L))
         ax.add_patch(rect)
     #limits
     ax.set_xlim(0, 1)
@@ -469,7 +474,7 @@ def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
     _format_ax(ax)
 
     #write Bkey note
-    _write_Bkey(ax, res)
+    _write_Bkey(fig, ax, res)
 
     #saving
     _save_fig('contour-plot', fig, **kw)
@@ -568,7 +573,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
     _format_ax(ax)
 
     #write Bkey note
-    _write_Bkey(ax, res)
+    _write_Bkey(fig, ax, res)
 
     #saving
     _save_fig('pcolormesh-plot', fig, **kw)
@@ -609,9 +614,9 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
 
     #compute the path
     if(type(obj) is subcalc_class.Results):
-        x, y, B_interp = res.path(points, n)
+        x, y, B_interp = obj.path(points, n)
         bkey = obj.Bkey
-        bmin, bmax = res.Bmin, res.Bmax
+        bmin, bmax = obj.Bmin, obj.Bmax
         dist = subcalc_funks.cumulative_distance(x, y)
     elif(type(obj) is subcalc_class.Model):
         x, y = zip(*points)
@@ -650,13 +655,13 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
     #tight layout
     fig.tight_layout(pad=3)
     #write Bkey
-    _write_Bkey(ax, bkey)
+    _write_Bkey(fig, ax, bkey)
     #save or not
     _save_fig('segment-plot', fig, **kw)
 
     return(fig, ax)
 
-def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
+def plot_cross_sections(obj, paths, xs_label_size=12, xs_color='black',
         map_style='contour', scale='lin', n=101, x_labeling='distance',
         label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
         legend_padding=6, **kw):
@@ -664,7 +669,13 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
     cross sections labeled on it and generate plots of the fields corresponding
     to the cross sections
     args:
-        res - Results object
+        obj - Results object or Model object, because the grid of fields
+              in a Results object must be interpolated to compute fields
+              along each cross section, passing a Model object instead will
+              yield smoother profiles of the fields along each cross section.
+              The Model object will, however, be used to compute a grid of
+              fields for the map style plot (contour or pcolormesh), so
+              passing a Model object could be slower.
         paths - An iterable of iterables of x,y pairs representing paths through
                 the results domain to plot as cross sections. For example,
                     ([(1,2), (3,5)], [(2,5), (9,3), (4,7)], [(5,3), (9,2)])
@@ -706,6 +717,12 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
         other tuples contain the return arguments of plot_path, for however
         many cross sections are created."""
 
+    #deal with Model vs Results input
+    if(type(obj) is subcalc_class.Results):
+        res = obj
+    elif(type(obj) is subcalc_class.Model):
+        res = obj.calculate()
+
     #separate saving kw from others
     save_kw = {}
     for k in ['save', 'path', 'format', 'prefix', 'suffix']:
@@ -742,7 +759,7 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
 
     #check inputs
     if(len(paths) > 26):
-        raise(subcalc_class.EMFError('There cannot be more than 26 cross sections on a single figure.'))
+        raise(subcalc_class.EMFError('There cannot be more than 26 cross sections on a single figure. Make sure that your input for the "points" argument has the correct number of levels (sublists).'))
 
     #list of return arguments
     R = []
@@ -781,7 +798,7 @@ def plot_cross_sections(res, paths, xs_label_size=12, xs_color='black',
 
     #plot the cross sections
     for i, path in enumerate(paths):
-        r = plot_path(res, path, n, x_labeling, scale, cmap, **kw)
+        r = plot_path(obj, path, n, x_labeling, scale, cmap, **kw)
         R.append(r)
         fig, ax = r
         c = alphabet[i]

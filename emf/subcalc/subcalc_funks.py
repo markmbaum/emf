@@ -110,7 +110,7 @@ def load_towers(fn, return_model=False, **kw):
 
     #return Towers directly or in a Model
     if(return_model):
-        return(subcalc_class.Model(name=name, towers=towers))
+        return(subcalc_class.Model(name=name.replace('-towers',''), towers=towers))
     else:
         return(towers)
 
@@ -203,13 +203,13 @@ def load_results(*args, **kw):
     return(res)
 
 def mesh_dict_grids(flat_data):
-    """Convert raw grid data read from a SubCalc output file (by subcalc_funks.read_REF) into meshed grids of X, Y coordinates and their corresponding B field values
+    """Convert raw grid data read from a SubCalc output file (by the read_REF function) into meshed grids of X, Y coordinates and their corresponding B field values. This function would generally only be used on the results of subcalc_funks.read_REF to reshape 1D arrays of values pulled from REF files. However, the load_results function calls these functions to read a REF file, reshape the results, and return them in a Results object. Thus, the load_results function is almost always the more convenient way to load REF data into Python objects.
     args:
-        flat_data - dict, keyed by 'x','y','bx','by','bz','bmax','bres'
+        flat_data - dict, keyed by 'x', 'y', 'bx', 'by', 'bz', 'bmax', 'bres'
     returns:
         grid_data - dict with 2D arrays keyed by
-                'X','Y','Bx','By','Bz','Bmax','Bres'"""
-
+                'X', 'Y', 'Bx', 'By', 'Bz', 'Bmax', 'Bres'
+    """
     #find the number of points in a row
     x = flat_data['x']
     y = flat_data['y']
@@ -225,8 +225,9 @@ def mesh_dict_grids(flat_data):
     mapk = dict(zip(['x','y','bx','by','bz','bmax','bres'],
                     ['X','Y','Bx','By','Bz','Bmax','Bres']))
     #replace with 2D arrays
-    grid_data = dict(zip([mapk[k] for k in flat_data],
-                [np.reshape(flat_data[k], (nrows, ncols)) for k in flat_data]))
+    k = [mapk[i] for i in flat_data]
+    v = [np.reshape(flat_data[i], (nrows, ncols)) for i in flat_data]
+    grid_data = dict(zip(k, v))
 
     return(grid_data)
 

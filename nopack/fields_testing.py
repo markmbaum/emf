@@ -3,16 +3,7 @@ import pstats
 
 from emf import fields as fld
 
-c = fld.Conductor('z', [1,1,1,1,1,1,1,1])
-xs = fld.CrossSection('x', [c])
-xs.max_dist = 100
-xs.lROW = -50
-xs.rROW = 50
-xs.step = 0.1
-sb = fld.SectionBook('test', [xs])
-
-fld.plot_max_fields(sb.i[0])
-fld.show()
+print fld.read_FLDs(r'G:\Projects\215106_NeedhamEMF\Models\initial-modeling\FIELDS input and output files')
 
 #cProfile.run("""
 #xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()

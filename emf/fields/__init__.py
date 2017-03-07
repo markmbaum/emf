@@ -35,8 +35,9 @@ from fields_plots import (plot_Bmax,
 
 from FIELDS_io import (to_FLD,
                         to_FLDs,
-                        to_FLDs_crawl,
+                        to_FLDs_walk,
                         read_FLD,
+                        read_FLDs,
                         read_DAT,
                         convert_DAT,
-                        convert_DAT_crawl)
+                        convert_DAT_walk)

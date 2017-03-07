@@ -188,6 +188,8 @@ div#notebook {
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#import fields</span>
 <span class="kn">import</span> <span class="nn">emf.fields</span> <span class="kn">as</span> <span class="nn">fld</span>
+<span class="c1">#special command for the notebook to show plots inline</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
 </pre></div>
 
 </div>
@@ -263,7 +265,7 @@ plot saved to: group_5-ROW-Emax.png
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;emf.fields.fields_class.SectionBook at 0x945fd10&gt;</pre>
+<pre>&lt;emf.fields.fields_class.SectionBook at 0x8c14610&gt;</pre>
 </div>
 
 </div>
@@ -277,7 +279,7 @@ plot saved to: group_5-ROW-Emax.png
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The <code>run</code> function loads a template file into a <code>SectionBook</code> object, which automatically calculates EMF for each cross section, and exports an array of files detailing the results.</p>
+<p>The <code>run</code> function loads a template file into a <code>SectionBook</code> object, which automatically calculates EMF for each cross section, and exports an bunch of files detailing the results.</p>
 <ul>
 <li>The first file is an excel book with a sheet for each cross section in the template. Each sheet contains a table of the fields across the cross section, including all components of the fields (x, y, prod, max).</li>
 <li>The second file is a csv showing the electric and magnetic fields at each cross section's ROW edges, for quick reference.</li>
@@ -321,10 +323,10 @@ plot saved to: group_5-ROW-Emax.png
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>  SectionBook object
-      name:        &apos;template-example&apos;
-      sheets:       u&apos;1E&apos;, u&apos;1P&apos;, u&apos;2E&apos;, u&apos;2P&apos;, u&apos;3E&apos;, u&apos;3P&apos;, u&apos;4E&apos;,
-                    u&apos;4P&apos;, u&apos;5E&apos;, u&apos;5P&apos;
-      unique groups:1, 2, 3, 4, 5
+      name:         &apos;template-example&apos;
+      sheets:        u&apos;1E&apos;, u&apos;1P&apos;, u&apos;2E&apos;, u&apos;2P&apos;, u&apos;3E&apos;, u&apos;3P&apos;, u&apos;4E&apos;,
+                     u&apos;4P&apos;, u&apos;5E&apos;, u&apos;5P&apos;
+      unique groups: 1, 2, 3, 4, 5
 
     maximum fields at CrossSection ROW edges:
                Bmaxl       Bmaxr     Emaxl      Emaxr

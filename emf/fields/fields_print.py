@@ -89,13 +89,10 @@ def _str_SectionBook(z):
     if(b):
         f = ' '*6 + str(z.ROW_edge_max).replace('\n', '\n' + ' '*6)
     else:
-        f = """      ROW edge max fields unavailable.
-      Attribute "%s"
-        in Conductor "%s"
-          in CrossSection "%s" is unset""" % (v[1:], cname, sheet)
+        f = '      ROW edge max fields unavailable.'
 
     return("""  SectionBook object
-      name:         %s\n%s\n%s
+      name:          %s\n%s\n%s
 
     maximum fields at CrossSection ROW edges:\n%s""" %
     (repr(z.name),

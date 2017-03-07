@@ -196,12 +196,16 @@ class Conductor(object):
     def __eq__(self, other):
         if(type(self) is not type(other)):
             return(False)
-        vs, vo = copy.deepcopy(vars(self)), copy.deepcopy(vars(other))
-        del(vs['_name'])
-        for k in vs:
-            if(vs[k] != vo[k]):
+        for p in self.params:
+            if(eval('self.%s' % p) != eval('other.%s' % p)):
                 return(False)
         return(True)
+
+    def __ne__(self, other):
+        if(self == other):
+            return(False)
+        else:
+            return(True)
 
     def copy(self):
         'Return a deep copy of the Conductor object'
@@ -403,7 +407,7 @@ class CrossSection(object):
     x = property(_get_x, None, None, """Generate an array of Conductor x coordinates (ft), in the same order as 'conds'""")
 
     def _get_y(self): return(np.array([c.y for c in self.conds], dtype=float))
-    y = property(_get_y, None, None, """Generate an array of Conductor y coordinate (ft)s, in the same order as 'conds'""")
+    y = property(_get_y, None, None, """Generate an array of Conductor y coordinates (ft), in the same order as 'conds'""")
 
     def _get_subconds(self):
         return(np.array([c.subconds for c in self.conds], dtype=float))
@@ -433,7 +437,7 @@ class CrossSection(object):
         if(self._fields is None):
             self._calculate_fields()
         return(self._fields)
-    fields = property(_get_fields, None, None, """A pandas DataFrame of magnetic and electric field results at the points defined by 'x_sample' and 'y_sample'. The results are calculated and stored upon the first reference to this property. If Conductor objects in the CrossSection are modified in relevant ways, the results are cleared and recalculated when 'fields' is next accessed. All updating/refreshing is done automatically. The DataFrame of results is indexed by the values in 'x_sample' and has the following columns 'Ex', 'Ey', 'Eprod', 'Emax', 'Bx', 'By', 'Bprod', and 'Bmax.' The columns correspond to different components of the electric and magnetic fields (see emf.fields.phasors_to_magnitudes()). The electric fields are reported in units of kV/m and the magnetic fields are reported in units of mG (milliGauss).""")
+    fields = property(_get_fields, None, None, """A pandas DataFrame of magnetic and electric field results at the points defined by 'x_sample' and 'y_sample'. The results are calculated and stored upon the first reference to this property. If Conductor objects in the CrossSection or the CrossSection itself are modified in relevant ways, the results are cleared and will be recalculated when 'fields' is next accessed. All updating/refreshing is done automatically. The DataFrame of results is indexed by the values in 'x_sample' and has the following columns 'Ex', 'Ey', 'Eprod', 'Emax', 'Bx', 'By', 'Bprod', and 'Bmax.' The columns correspond to different components of the electric and magnetic fields (see emf.fields.phasors_to_magnitudes()). The electric fields are reported in units of kV/m and the magnetic fields are reported in units of mG (milliGauss).""")
 
     def _get_ROW_edge_fields(self):
         return(self.fields.loc[[self.lROW, self.rROW]])
@@ -484,6 +488,8 @@ class CrossSection(object):
         self.conds.append(copy.deepcopy(cond))
         #associate xs with the conductor
         self.conds[-1]._xs = self
+        #reset the CrossSection's fields
+        self._fields = None
 
     def remove_conductor(self, key):
         """Remove a Conductor object from the CrossSection
@@ -492,15 +498,18 @@ class CrossSection(object):
         #check input
         if(type(key) is Conductor):
             key = key.name
-        #check in the hot dict
+        #check the key
         try:
             idx = self._name2idx[key]
         except(KeyError):
-            pass
+            raise(KeyError('Conductor name "%s" does not exist in CrossSection "%s".' % (key, self.sheet)))
         else:
-            self.conds[idx]._xs = None
+            #pop the conductor out of the conductor list
             self.conds.pop(idx)
+            #reassemble the naming dictionary
             self._update_name2idx()
+            #reset the CrossSection's fields
+            self._fields = None
 
     def _update_name2idx(self):
         self._name2idx = dict(zip(self.names, range(len(self.conds))))
@@ -540,9 +549,6 @@ class CrossSection(object):
                 the absolute error between, and the relative error between"""
         #load the .DAT file into a dataframe
         df = FIELDS_io.read_DAT(DAT_path)
-        #check dataframe shape compatibility
-        if(df.shape != self.fields.shape):
-            raise(EMFError("""self.fields in CrossSection named "%s" and the imported .DAT DataFrame have different shapes. Be sure to target the correct .DAT file and that it has compatible DIST values.""" % self.sheet))
         #prepare a dictionary to create a Panel
         if(('round' in kw) and ('truncate' in kw)):
             raise(FLDError("""Cannot both round and truncate for DAT comparison. Choose either rounding or truncation."""))
@@ -573,7 +579,7 @@ class CrossSection(object):
                 for f in frames:
                     pan[f].to_excel(xl, index_label='x', sheet_name=f)
                 xl.save()
-                print('DAT comparison book saved to: "%s"' % fn)
+                print('DAT comparison book saved to: %s' % fn)
                 #make plots of the absolute and percent error
                 figs = fields_plots._plot_DAT_comparison(self, pan, **kw)
         #return the Panel
@@ -729,7 +735,7 @@ class SectionBook(object):
             sheet - a new sheet name for the added CrossSection"""
         #prevent adding CrossSections with the same sheets
         if(xs.sheet in self._sheet2idx):
-            raise(EMFError("""A CrossSection with sheet "%s" already exists in the SectionBook. Duplicate names would cause collisions in the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
+            raise(EMFError("""A CrossSection with sheet "%s" already exists in the SectionBook. Duplicate names cannot be added to the lookup dictionary (self._sheet2idx). Use a different name.""" % xs.sheet))
         #check completeness
         b, s = xs.complete
         if(not b):

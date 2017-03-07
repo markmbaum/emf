@@ -28,13 +28,12 @@ _ground_surface_color = 'gray'
 _ax_frameon = False
 _ax_ticks_on = False
 _leg_edge_on = False
+_leg_kw = dict(numpoints=1, loc='center left', bbox_to_anchor=(1.025, 0.5))
 _colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
             (0.9290, 0.6940, 0.1250),(0.4940, 0.1840, 0.5560),
             (0.4660, 0.6740, 0.1880),(0.3010, 0.7450, 0.9330),
             (0.6350, 0.0780, 0.1840)]
 #useful globals for the CrossSection plotting routines
-_fields_plots_xs_headspace = 0.45 #space at the top of plots for legend
-_include_headspace = True #toggle scaling to make legend overlap unlikely
 _fields_plots_xs_wireperc = 0.3 #percent of max field value to scale wire height
 
 #-------------------------------------------------------------------------------
@@ -91,10 +90,11 @@ def _format_bar_axes_legends(*args):
     for ax in args:
         ax.set_ylim(minylim, maxylim)
 
-def _format_line_axes_legends(*args):
+def _format_line_axes_legends(*args, **kw):
     """Apply axis formatting commands to axes objects
     args:
         some number of axes objects with twin x axes"""
+    #format all axes
     for ax in args:
         #apply legend formatting
         leg = ax.get_legend()
@@ -103,6 +103,8 @@ def _format_line_axes_legends(*args):
             if(not _leg_edge_on):
                 rec.set_edgecolor('white')
         #apply axis formatting
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width*0.7, box.height])
         ax.set_frame_on(_ax_frameon)
         if(not _ax_ticks_on):
             ax.tick_params(axis = 'both', which = 'both',
@@ -125,12 +127,13 @@ def _format_twin_axes(*args):
                 yl = ax.get_ylim()
                 ax.set_ylim(frac*yl[1], yl[1])
 
-
 def _check_und_conds(xss, axs, **kw):
     """Check for underground conductors, adding some padding at the bottom of the axes and drawing a ground surface line if there are underground lines, or setting the lower y axis limit to zero if not
     args:
         xss - list of CrossSection objects containing Conductors to check
-        axs - list of Axes object to potentially apply padding to"""
+                (all cross sections with conductors in an axis)
+        axs - list of Axes object to potentially apply padding to
+                (twin axes for join Bfield and Efield plots)"""
     und = []
     for xs in xss:
         und += [(i.y <= 0) for i in xs.conds]
@@ -211,10 +214,10 @@ def _plot_wires(ax, hot, gnd, v, **kw):
             scale = 1.0
     #plot
     if(hot):
-        kw['H'].append(ax.plot(x[:L], scale*y[:L], 'kd')[0])
+        kw['H'].append(ax.plot(x[:L], scale*y[:L], 'ko')[0])
         kw['L'].append('Conductors')
     if(gnd):
-        kw['H'].append(ax.plot(x[L:], scale*y[L:], 'd', color = 'gray')[0])
+        kw['H'].append(ax.plot(x[L:], scale*y[L:], 'o', color='gray')[0])
         kw['L'].append('Grounded Conductors')
 
 def _plot_ROW_edges(ax, lROW, rROW, **kw):
@@ -226,10 +229,10 @@ def _plot_ROW_edges(ax, lROW, rROW, **kw):
     yl = list(ax.get_ylim())
     if(yl[0] > 0):
         yl[0] = 0
-    kw['H'].append(ax.plot([lROW]*2, yl, '--', color = _ROW_color,
-                        linewidth = _ROW_linewidth, zorder = -1)[0])
+    kw['H'].append(ax.plot([lROW]*2, yl, '--', color=_ROW_color,
+                        linewidth=_ROW_linewidth, zorder=-1)[0])
     ax.plot([rROW]*2, yl, '--', color = _ROW_color,
-                linewidth = _ROW_linewidth, zorder = -1)
+                linewidth=_ROW_linewidth, zorder=-1)
     kw['L'].append('ROW Edges')
     xl = ax.get_xlim()
     if((xl[0] == lROW) or (xl[1] == rROW)):
@@ -262,17 +265,13 @@ def plot_Bmax(xs, **kw):
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
     _check_und_conds([xs], [ax], **kw)
-    #adjust axis limits if headspace is called for
-    if(_include_headspace):
-        yl = ax.get_ylim()
-        ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #set axis text and legend
     ax.set_xlabel(r'Distance $(ft)$')
     ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
     ax.set_title(textwrap.fill('Maximum Magnetic Field - %s' % xs.title))
-    ax.legend(kw['H'], kw['L'], numpoints=1)
+    ax.legend(kw['H'], kw['L'], **_leg_kw)
     _format_line_axes_legends(ax)
     #save the fig or don't, depending on keywords
     _save_fig(xs.sheet, fig, **kw)
@@ -305,17 +304,13 @@ def plot_Emax(xs, **kw):
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, xs.fields['Emax'], **kw)
     _check_und_conds([xs], [ax], **kw)
-    #adjust axis limits if headspace is called for
-    if(_include_headspace):
-        yl = ax.get_ylim()
-        ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #set axis text and legend
     ax.set_xlabel(r'Distance $(ft)$')
     ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
     ax.set_title(textwrap.fill('Maximum Electric Field - %s' % xs.title))
-    ax.legend(kw['H'], kw['L'], numpoints=1)
+    ax.legend(kw['H'], kw['L'], **_leg_kw)
     _format_line_axes_legends(ax)
     #save the fig or don't, depending on keywords
     _save_fig(xs.sheet, fig, **kw)
@@ -353,12 +348,6 @@ def plot_max_fields(xs, **kw):
     #plot wires
     _plot_wires(ax_B, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
     _check_und_conds([xs], [ax_B, ax_E], **kw)
-    #adjust axis limits if headspace is called for
-    if(_include_headspace):
-        yl = ax_B.get_ylim()
-        ax_B.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
-        yl = ax_E.get_ylim()
-        ax_E.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
     #plot ROW lines
     _plot_ROW_edges(ax_B, xs.lROW, xs.rROW, **kw)
     #set axis text
@@ -369,7 +358,8 @@ def plot_max_fields(xs, **kw):
     #set color of axis spines and ticklabels
     _color_twin_axes(ax_B, _B_color, ax_E, _E_color)
     #legend
-    ax_B.legend(kw['H'], kw['L'], numpoints=1)
+    ax_B.legend(kw['H'], kw['L'], numpoints=1, loc='center left',
+            bbox_to_anchor=(1.125, 0.5))
     _format_line_axes_legends(ax_B, ax_E)
     _format_twin_axes(ax_B, ax_E)
     #save the fig or don't, depending on keywords
@@ -395,10 +385,6 @@ def plot_xs(xs, **kw):
     kw['H'], kw['L'], kw['scale'] = [], [], False
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, [c.y for c in xs.conds], **kw)
-    #adjust axis limits if headspace is called for
-    if(_include_headspace):
-        yl = ax.get_ylim()
-        ax.set_ylim(yl[0], (1 + _fields_plots_xs_headspace)*yl[1])
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #check underground conductors
@@ -407,7 +393,7 @@ def plot_xs(xs, **kw):
     ax.set_title(textwrap.fill('Cross Section Configuration - %s' % xs.title))
     ax.set_xlabel(r'Distance $(ft)$')
     ax.set_ylabel(r'Height Above Ground $(ft)$')
-    ax.legend(kw['H'], kw['L'], numpoints=1)
+    ax.legend(kw['H'], kw['L'], **_leg_kw)
     #format
     _format_line_axes_legends(ax)
     #save or don't
@@ -433,8 +419,8 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit, **kw):
             color='firebrick', zorder=-1)
     ax_per.set_ylabel('Percent Difference', color='firebrick')
     #set error axes legend
-    ax_per.legend(h_abs + h_per, ['Absolute Difference','Percent Difference'])
-    ax_per.get_legend().set_zorder(1)
+    #ax_per.legend(h_abs + h_per, ['Absolute Difference','Percent Difference'], **_leg_kw)
+    #ax_per.get_legend().set_zorder(1)
     #plot full results profiles
     kw['H'] += [ax_mag.plot(pan['FIELDS_DAT_results'][field],
                     color=_colormap[1])[0],
@@ -473,7 +459,7 @@ def _plot_DAT_comparison(xs, pan, **kw):
         ax_abs.set_title('Absolute and Percent Difference' + t)
         ax_mag.set_ylabel(p + ' ' + u)
         ax_mag.set_title('Model Results' + t)
-        ax_mag.legend(kw['H'], kw['L'], numpoints=1)
+        ax_mag.legend(kw['H'], kw['L'], **_leg_kw)
         _color_twin_axes(ax_abs, mpl.rcParams['axes.labelcolor'], ax_per, 'firebrick')
         _format_line_axes_legends(ax_abs, ax_per, ax_mag)
         #_format_twin_axes(ax_abs, ax_per)
@@ -485,7 +471,6 @@ def _plot_DAT_comparison(xs, pan, **kw):
 
 #useful globals for the section book plotting routine(s), unlikely to collide
 #with other variables of the same name
-_fields_plots_sb_headspace = 0.4 #space at the top of plots for legend
 _fields_plots_sb_wireperc = 0.3 #percent of max field value to scale wire heights
 
 def _plot_group_fields(ax, xss, field, **kw):
@@ -541,7 +526,7 @@ def _plot_group_wires(ax, xss, max_field, **kw):
         y = np.array(y)
         #plot conductors
         scale = _fields_plots_xs_wireperc*max_field/np.max(np.absolute(y))
-        kw['H'].append(ax.plot(x, scale*y, 'd', color = 'k')[0])
+        kw['H'].append(ax.plot(x, scale*y, 'o', color='k')[0])
         kw['L'].append('Conductors')
     elif(len(xss) == 2):
         #get x and y pairs of Conductors in each group
@@ -563,32 +548,30 @@ def _plot_group_wires(ax, xss, max_field, **kw):
         #cross section 0 conductors only
         if(len(xy_0) > 0):
             x,y = zip(*xy_0)
-            kw['H'].append(ax.plot(x, scale*np.array(y), 'd',
-                            color = _colormap[0])[0])
+            kw['H'].append(ax.plot(x, scale*np.array(y), 'o',
+                            color=_colormap[0])[0])
         else:
             #still need a handle for the legend
-            kw['H'].append(mpl.lines.Line2D([], [], marker = 'd',
-                    linestyle = '', color = _colormap[0]))
+            kw['H'].append(mpl.lines.Line2D([], [], marker = 'o',
+                    linestyle='', color=_colormap[0]))
         kw['L'].append('Conductors - ' + xss[0].sheet)
         #cross section 1 conductors only
         if(len(xy_1) > 0):
             x,y = zip(*xy_1)
-            kw['H'].append(ax.plot(x, scale*np.array(y), 'd',
-                            color = _colormap[1])[0])
+            kw['H'].append(ax.plot(x, scale*np.array(y), 'o',
+                            color=_colormap[1])[0])
         else:
             #still need a handle for the legend
-            kw['H'].append(mpl.lines.Line2D([], [], marker = 'd',
-                    linestyle = '', color = _colormap[1]))
+            kw['H'].append(mpl.lines.Line2D([], [], marker='o',
+                    linestyle='', color=_colormap[1]))
         kw['L'].append('Conductors - ' + xss[1].sheet)
         #shared conductors
         if(len(shared) > 0):
             x,y = zip(*shared)
-            ax.plot(x, scale*np.array(y), 'd', color = _colormap[0],
-                        fillstyle = 'left')
-            ax.plot(x, scale*np.array(y), 'd', color = _colormap[1],
-                        fillstyle = 'right')
-        #underground line adjustments
-        _check_und_conds(xss, [ax], **kw)
+            ax.plot(x, scale*np.array(y), 'o', color=_colormap[0],
+                        fillstyle='left')
+            ax.plot(x, scale*np.array(y), 'o', color=_colormap[1],
+                        fillstyle='right')
 
 def _plot_group_ROW_edges(ax, xss, **kw):
     """Plot lines delineating the Right-of-Way boundaries
@@ -605,19 +588,19 @@ def _plot_group_ROW_edges(ax, xss, **kw):
     #handle ROW edges independently
     elif(len(xss) == 2):
         yl = ax.get_ylim()
-        ax.plot([xss[0].lROW]*2, yl, '--', color = _colormap[0],
-                        linewidth = _ROW_linewidth, zorder = -1)
-        ax.plot([xss[1].lROW]*2, yl, '--', color = _colormap[1],
-                    linewidth = _ROW_linewidth, zorder = -1)
+        ax.plot([xss[0].lROW]*2, yl, '--', color=_colormap[0],
+                        linewidth=_ROW_linewidth, zorder=-1)
+        ax.plot([xss[1].lROW]*2, yl, '--', color=_colormap[1],
+                    linewidth=_ROW_linewidth, zorder=-1)
         #check if the left ROW edges are in the same place for both sections
-        ax.plot([xss[0].rROW]*2, yl, '--', color = _colormap[0],
-                        linewidth = _ROW_linewidth, zorder = -1)
-        ax.plot([xss[1].rROW]*2, yl, '--', color = _colormap[1],
-                    linewidth = _ROW_linewidth, zorder = -1)
+        ax.plot([xss[0].rROW]*2, yl, '--', color=_colormap[0],
+                        linewidth=_ROW_linewidth, zorder=-1)
+        ax.plot([xss[1].rROW]*2, yl, '--', color=_colormap[1],
+                    linewidth=_ROW_linewidth, zorder=-1)
         #create a line handle and label for each color of the dashed line
         kw['H'] += [
-                mpl.lines.Line2D([], [], linestyle = '--',color = _colormap[0]),
-                mpl.lines.Line2D([], [], linestyle = '--', color = _colormap[1])
+                mpl.lines.Line2D([], [], linestyle='--',color=_colormap[0]),
+                mpl.lines.Line2D([], [], linestyle='--', color=_colormap[1])
                 ]
         kw['L'] += ['ROW Edges - ' + xss[0].sheet, 'ROW Edges - ' + xss[1].sheet]
 
@@ -634,18 +617,14 @@ def plot_groups(sb, **kw):
         E - bool, toggle electric field plots, default is True
         groups - a list of group names to plot, default is all groups
         return_figs - toggle whether a list of figure objects is returned
-                        instead of closing the figures to clear memory,
-                        default is False
+                      instead of closing the figures to clear memory.
+                      Figures are automatically closed (return figs == False)
+                      if there are more than 4 CrossSection groups.
     returns:
         figs - dict of dicts, keys are 'E' and 'B', which are each keyed
                 by xs group names, leading to Figure objects"""
 
     #check kws
-    return_figs = False
-    if('return_figs' in kw):
-        if(kw['return_figs']):
-            return_figs = True
-            figs = {'E': {}, 'B': {}}
     B_flag = True
     if('B' in kw):
         B_flag = kw['B']
@@ -655,6 +634,18 @@ def plot_groups(sb, **kw):
     ugroups = sb.unique_group_names
     if('groups' in kw):
         ugroups = set(kw['groups'])
+    if('return_figs' in kw):
+        if(kw['return_figs']):
+            return_figs = True
+            figs = {'E': {}, 'B': {}}
+        else:
+            return_figs = False
+    else:
+        if(len(ugroups) <= 4):
+            return_figs = True
+            figs = {'E': {}, 'B': {}}
+        else:
+            return_figs = False
 
     flags = [B_flag, E_flag]
     fields = ['Bmax', 'Emax']
@@ -679,17 +670,16 @@ def plot_groups(sb, **kw):
                     #plot wires
                     max_field = max([xs.fields[fi].max() for xs in xss])
                     _plot_group_wires(ax, xss, max_field, **kw)
-                    #adjust axis limits if called for
-                    if(_include_headspace):
-                        ylim = ax.get_ylim()
-                        ax.set_ylim(ylim[0], (1 + _fields_plots_xs_headspace)*ylim[1])
+                    #draw ground surface if necessary
+                    if(len(xss) <= 2):
+                        _check_und_conds(xss, [ax], **kw)
                     #plot ROW lines
                     _plot_group_ROW_edges(ax, xss, **kw)
                     #set axis text and legend
                     ax.set_xlabel('Distance $(ft)$')
                     ax.set_ylabel(yl)
                     ax.set_title(textwrap.fill(ti + str(xss[0].group)))
-                    ax.legend(kw['H'], kw['L'], numpoints=1)
+                    ax.legend(kw['H'], kw['L'], **_leg_kw)
                     _format_line_axes_legends(ax)
                     #save the figure if keyword 'save' == True, and append fig
                     _save_fig('group_%s-%s' % (str(xss[0].group), fi), fig, **kw)
@@ -831,11 +821,6 @@ def plot_groups_at_ROW(sb, **kw):
                 by group groups, leading to Figure objects"""
 
     #check kws
-    return_figs = False
-    if('return_figs' in kw):
-        if(kw['return_figs']):
-            return_figs = True
-            figs = {'E': {}, 'B': {}}
     B_flag = True
     if('B' in kw):
         B_flag = kw['B']
@@ -845,6 +830,18 @@ def plot_groups_at_ROW(sb, **kw):
     ugroups = sb.unique_group_names
     if('groups' in kw):
         ugroups = set(kw['groups'])
+    if('return_figs' in kw):
+        if(kw['return_figs']):
+            return_figs = True
+            figs = {'E': {}, 'B': {}}
+        else:
+            return_figs = False
+    else:
+        if(len(ugroups) <= 4):
+            return_figs = True
+            figs = {'E': {}, 'B': {}}
+        else:
+            return_figs = False
 
     flags = [B_flag, E_flag]
     fields = ['Bmax', 'Emax']

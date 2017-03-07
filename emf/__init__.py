@@ -6,7 +6,6 @@ Both fields and subcalc were originally meant to supplement older modeling progr
 
 import os
 import copy
-import glob
 import ctypes
 import shutil
 import datetime

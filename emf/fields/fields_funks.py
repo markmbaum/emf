@@ -1,6 +1,6 @@
 from .. import os, np, pd, shutil, itertools
 
-from ..emf_funks import (_path_manage, _check_extension, _is_number,
+from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
                         _check_intable, _flatten, _sig_figs,
                         _path_str_condition)
 
@@ -171,7 +171,8 @@ def load_template(file_path, sheets='all'):
             cond.phase = df.iat[i,16]
             xs.add_conductor(cond)
         #add the CrossSection object to the SectionBook
-        #fields automatically updated upon addition to SectionBook
+        #   Fields are automatically computed or updated once the 'fields'
+        #   property of a CrossSection is accessed (directly or indirectly).
         sb.add_section(xs)
     #return the SectionBook object
     return(sb)
@@ -309,7 +310,8 @@ def optimize_phasing(xs, circuits='all', **kw):
             abs_dif.to_excel(xl, sheet_name='Abs Difference at ROW Edges')
             rel_dif.to_excel(xl, sheet_name='Rel Difference at ROW Edges')
             for xs in opt:
-                xs.fields.to_excel(xl, sheet_name=xs.sheet)
+                xs.fields.to_excel(xl, sheet_name=xs.sheet,
+                        index_label='Distance (ft)')
             xl.save()
             print('Phase optimization results written to: %s' % fn)
 
@@ -317,7 +319,7 @@ def optimize_phasing(xs, circuits='all', **kw):
 
 def target_fields(xs, names='all', B_l=False, B_r=False, E_l=False, E_r=False,
         max_iter=1e3, rel_err=1.0e-6, hhigh=1.0e6, **kw):
-    """Increase conductor y coordinates until fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result.
+    """Increase conductor y coordinates until max fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result. If 
     args:
         xs - CrossSection object to perform adjustments on
     optional args:
@@ -455,14 +457,16 @@ def _bisect(xs, conds, x_sample, funk, target, hlow, hhigh, max_iter, rel_err):
     #check if the iteration limit was hit
     if(count == max_iter):
         raise(fields_class.EMFError("""
-        Failure in _bisection method. The iteration limit of %d was exseeded
-        with a relative error threshold of %g. The final estimate was
-        %g""" % (max_iter, rel_err, fmid)))
+    Failure in bisection method (_bisect). The iteration limit of %d
+    was exceeded with a relative error threshold of %g. The absolute error
+    of the final estimate was %g. Try reducing the relative error
+    threshold (rel_err) or increasing the maximum iteration limit
+    (max_iter).""" % (max_iter, rel_err, fmid)))
     return(hmid)
 
 def _B_funk(h, target, xs, conds, x_sample, y_sample):
     #adjust conductor heights
-    y = xs.y.astype(float, copy = True)
+    y = xs.y.copy()
     y[conds] += h
     #calculate B field at ROW edge
     Bx, By = fields_calcs.B_field(xs.x, y, xs.I, xs.phase,
@@ -472,7 +476,7 @@ def _B_funk(h, target, xs, conds, x_sample, y_sample):
 
 def _E_funk(h, target, xs, conds, x_sample, y_sample):
     #adjust conductor heights
-    y = xs.y.astype(float, copy = True)
+    y = xs.y.copy()
     y[conds] += h
     #calculate E field at ROW edge
     Ex, Ey = fields_calcs.E_field(xs.x, y, xs.subconds, xs.d_cond,
