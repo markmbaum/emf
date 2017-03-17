@@ -199,7 +199,20 @@ class Model(object):
         if(value < 0):
             raise(EMFError("auto_lim_frac must be a nubmer greater than or equal to zero."))
         self._auto_lim_frac = float(value)
-    auto_lim_frac = property(_get_auto_lim_frac, _set_auto_lim_frac, None, 'When xmin, xmax, ymin, and ymax are left unset, they are automatically determined by the ranges of x and y coordinates of Tower and Conductor objects in the Model. They are set to the edges of those ranges with some padding. auto_lim_frac determines how much padding is automatically used between the limits of the Model domain and the wires in the Model.')
+    auto_lim_frac = property(_get_auto_lim_frac, _set_auto_lim_frac, None,
+    """auto_lim_frac determines how much padding is automatically used between
+    the Model domain edges (xmin, xmax, ymin, ymax) and Tower/Conductor
+    objects in the Model. To automatically find xmin and xmax, these steps
+    are taken:
+       1) find the total range of x coordinates for Tower/Conductor objects
+          in the Model
+       2) compute a padding distance by multiplying the total x range by
+          auto_lim_frac
+       3) compute xmin by taking the minimum x coordinate of Tower/Conductor
+          objects in the Model and subtracting the padding distance
+       4) compute xmax by taking the maximum x coordinate of Tower/Conductor
+          objects in the Model and subtracting the padding distance
+    The same steps are taken for the y direction, using the y range instead.""")
 
     def _get_z(self): return(self._z)
     def _set_z(self, value):
@@ -363,6 +376,10 @@ class Model(object):
         for t in subcalc_funks.load_towers(fn, return_model=False, **kw):
             self.add_tower(t)
 
+    def clear_towers(self):
+        """Remove all Tower objects from the Model's list of towers."""
+        self._towers = []
+
     def add_conductor(self, c):
         """Add a Conductor object to the Model
         args:
@@ -373,9 +390,14 @@ class Model(object):
             raise(EMFError('Cannot add conductors with identical names. The name "%s" is already used.' % c.name))
         self._conductors.append(copy.deepcopy(c))
 
+    def clear_towers(self):
+        """Remove all Conductor objects from the Model's list of conductors."""
+        self._conductors = []
+
     def calculate(self, components='all', footprints=None, clear=False, **kw):
         """Parse the Tower and Conductor objects into individual wire segements and compute the magnetic fields produced by the collection of wire segments in the model domain, returning a Results object. The Tower and Conductor objects will also be converted to Footprint objects in the newly created Results object.
         optional args:
+
             components - list of components of the field to be included in
                          the returned Results object. Can be any combination
                          of 'Bmax', 'Bres', 'Bx', 'By', 'Bz' or it can be
@@ -384,6 +406,7 @@ class Model(object):
                          calculations, but it will reduce memory demand. The
                          components chosen will become the available 'Bkeys'
                          in the returned Results object.
+
             footprints - string, path to the footprint csv/excel data.
                         If footprint data is in an excel workbook with
                         multiple sheets, the sheet name must be passed
@@ -392,10 +415,12 @@ class Model(object):
                             or
 
                         an existing DataFrame with footprint data
+
             clear - bool, if False, loaded Footprints will be appended to the
                     list of Footprints created from Tower and Conductor objects.
                     The default is False. If True, only the loaded Footprints
                     are used.
+
         kw:
             sheet - str, specifies the target sheet if an excel workbook with
                     multiple sheets is passed in to the footprints arg
@@ -423,7 +448,7 @@ class Model(object):
         Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_grid(
                 S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
         #updates
-        print('segment calculations complete: 1/%d' % len(S)),
+        print('wire segments complete: 1/%d' % len(S)),
         #compute the fields of all other segments and add the phasors
         for i in range(1,len(S)):
             Ph = subcalc_calcs.B_field_grid(
@@ -431,8 +456,9 @@ class Model(object):
             Ph_x += Ph[0]
             Ph_y += Ph[1]
             Ph_z += Ph[2]
-            print('\rsegment calculations complete: %d/%d' % (i+1, len(S))),
+            print('\rwire segments complete: %d/%d' % (i+1, len(S))),
         #convert the results into a 2D grid
+        print('\rwire segments complete. computing magnitudes from phasors.'),
         Ph_x,Ph_y,Ph_z,X,Y = subcalc_calcs.grid_segment_results(Ph_x,Ph_y,Ph_z,x,y)
         #get the real components
         Bx,By,Bz,Bres,Bmax = subcalc_calcs.phasors_to_magnitudes(Ph_x,Ph_y,Ph_z)
@@ -468,7 +494,8 @@ class Model(object):
             res.name = self.name
         #print elapsed time
         t_end = datetime.datetime.now()
-        print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
+        print('\rall calculations complete. total calculation time: %g seconds.' %
+                (t_end - t_start).total_seconds())
         #return
         return(res)
 

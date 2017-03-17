@@ -7,3 +7,5 @@ Thumbs.db
 .git*
 .ipynb_checkpoints
 ._*
+emf.egg-info
+dist

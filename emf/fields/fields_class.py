@@ -28,17 +28,17 @@ class Conductor(object):
                         set with the second arg will be borrowed from the
                         Conductor"""
 
-        self._name = None #conductor label
+        self._name = None #conductor label (string)
         self._xs = None #parent CrossSection object
-        self._freq = 60.0 #phase frequency in Hertz
-        self._x = None #x coordinate
-        self._y = None #y coordinate
-        self._subconds = 1 #number of subconductors per bundle
-        self._d_cond = None #conductor diameter
-        self._d_bund = None #bundle diameter
-        self._V = None #line voltage
-        self._I = None #line current
-        self._phase = None #phase angle in degrees
+        self._freq = 60.0 #phase frequency (Hz)
+        self._x = None #x coordinate (ft)
+        self._y = None #y coordinate (ft)
+        self._subconds = 1 #number of subconductors per bundle (integer)
+        self._d_cond = None #conductor diameter (inches)
+        self._d_bund = None #bundle diameter (inches)
+        self._V = None #line voltage (kV)
+        self._I = None #line current (Amps)
+        self._phase = None #phase angle (degrees)
 
         #set properties property
         self.name = name
@@ -56,7 +56,7 @@ class Conductor(object):
             elif(type(a) is dict):
                 for k in a:
                     if(k not in p):
-                        raise(EMFError("""Unexpected dictionary key "%s" encountered in Conductor initialization."""% str(k)))
+                        raise(EMFError("""Unexpected dictionary key "%s" encountered in Conductor initialization.""" % str(k)))
                     exec('self.%s = %s' % (k, repr(str(a[k]))))
                     p.remove(k)
 
@@ -84,9 +84,10 @@ class Conductor(object):
             b - bool, True if all physical parameters are not None
             s - sentence indicating which parameter is empty"""
         for p in self.params:
-            if(eval('self.%s' % p) is None):
+            val = eval('self.%s' % p)
+            if((val is None) or pd.isnull(val)):
                 if(self._xs is not None):
-                    return(False, 'The "%s" parameter in Conductor "%s" in CrossSection "%s" is unset.' % (p, self.name, sh))
+                    return(False, 'The "%s" parameter in Conductor "%s" in CrossSection "%s" is unset.' % (p, self.name, self._xs.sheet))
                 else:
                     return(False, 'The "%s" parameter in Conductor "%s" is unset.' % (p, self.name))
         return(True, None)
@@ -99,8 +100,8 @@ class Conductor(object):
 
     def _check_to_float(self, value, prop):
         """check that an incoming value can be converted to a float and return the float version of it or raise an error"""
-        if(not fields_funks._is_number(value)):
-            raise(EMFError("""Conductor property '%s' must be numeric. It cannot be set to: %s""" % (prop, repr(value))))
+        if((not fields_funks._is_number(value)) or pd.isnull(value)):
+            raise(EMFError("""Conductor property '%s' must have a non-null numeric value. It cannot be set to: %s""" % (prop, repr(value))))
         return(float(value))
 
     def _check_to_int(self, x, prop):
@@ -471,18 +472,22 @@ class CrossSection(object):
         """Add a copy of a Conductor object to the CrossSection, which can be accessed by indexing the CrossSection like a dictionary, using the Conductor's 'name' attribute.
         args:
             cond - Conductor object to add"""
+        #check if the name has already been used
+        if(cond.name in self._name2idx):
+            raise(EMFError("""A Conductor with name "%s" is already in CrossSection "%s". Conductors in a CrossSection must have unique names and another Conductor with the same name cannot be added.""" % (cond.name, self.sheet)))
         #check if the Conductor is complete
         b, s = cond.complete
         if(not b):
             raise(EMFError("""Cannot add Conductor "%s" to the CrossSection because it is not complete. %s""" % (cond.name, s)))
-        #check if the name has already been used
-        if(cond.name in self._name2idx):
-            raise(EMFError("""A Conductor with name "%s" is already in CrossSection "%s". Another Conductor with the same name cannot be added.""" % (cond.name, self.sheet)))
         #see if the conductor is grounded
         if(cond.V == 0):
             #probably shouldn't have current if grounded
             if(cond.I != 0):
                 print("""Conductor with name "%s" in CrossSection "%s" is grounded (V = 0) but has nonzero current?""" % (cond.name, self.sheet))
+        #check for other conductors in the same location
+        for c in self.conds:
+            if((cond.x == c.x) and (cond.y == c.y)):
+                raise(EMFError("""Can't add conductor "%s" to CrossSection "%s" because conductor "%s" exists in the exact same location (x = %g, y = %g). Conductors must be in unique locations.""" % (cond.name, self.sheet, c.name, c.x, c.y)))
         #add to self.conds and indexing dict
         self._name2idx[cond.name] = len(self.conds)
         self.conds.append(copy.deepcopy(cond))
@@ -528,9 +533,11 @@ class CrossSection(object):
                                         x_sample, y_sample)
         Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
         #store the values
-        self._fields = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
+        df = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
                                     'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
                                     index=x_sample)
+        df.index.name = 'Distance (ft)'
+        self._fields = df
 
     def compare_DAT(self, DAT_path, **kw):
         """Load a FIELDS output file (.DAT) to calculate absolute and percentage differences between it and the CrossSection object's results. The results in the DAT file must be sampled at the same x coordinates as those in the CrossSection. A panel of comparison results is returned. If the 'save' or 'path' keywords are used, the comparison results will be saved with plots demonstrating the comparisons.
@@ -546,7 +553,8 @@ class CrossSection(object):
             truncate - bool, truncate results after the thousandths digit
         returns:
             pan - pandas Panel with DAT results, results of this code,
-                the absolute error between, and the relative error between"""
+                the absolute error between, and the relative error between
+            figs - two figures comparing electric and magnetic fields results"""
         #load the .DAT file into a dataframe
         df = FIELDS_io.read_DAT(DAT_path)
         #prepare a dictionary to create a Panel
@@ -562,12 +570,15 @@ class CrossSection(object):
                         f[c].loc[i] = float('%.3f' % f[c].loc[i])
         else:
             f = self.fields
+        #create the panel
         frames = ['FIELDS_DAT_results', 'python_results',
                 'Absolute Difference', 'Percent Difference']
         pan = pd.Panel(data={frames[0] : df,
                 frames[1]: f,
                 frames[2]: f - df,
                 frames[3]: 100*(f - df)/f})
+        #make plots of the absolute and percent error
+        figs = fields_plots._plot_DAT_comparison(self, pan, **kw)
         #write data and save figures if called for
         if('path' in kw):
             kw['save'] = True
@@ -577,13 +588,11 @@ class CrossSection(object):
                     '.xlsx', **kw)
                 xl = pd.ExcelWriter(fn, engine='xlsxwriter')
                 for f in frames:
-                    pan[f].to_excel(xl, index_label='x', sheet_name=f)
+                    pan[f].to_excel(xl, index_label='Distance (ft)', sheet_name=f)
                 xl.save()
                 print('DAT comparison book saved to: %s' % fn)
-                #make plots of the absolute and percent error
-                figs = fields_plots._plot_DAT_comparison(self, pan, **kw)
         #return the Panel
-        return(pan)
+        return(pan, figs)
 
     def sample(self, *args):
         """Get a random Conductor  or a list of random Conductors from the CrossSection

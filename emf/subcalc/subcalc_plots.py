@@ -39,7 +39,11 @@ def _get_cmap(cmap_name):
     """Set the global colormap by passing the name of a matplotlib cmap, see:
     http://matplotlib.org/examples/color/colormaps_reference.html"""
 
-    cmap = mpl.cm.get_cmap(cmap_name)
+    try:
+        cmap = plt.get_cmap(cmap_name)
+    except ValueError as e:
+        print(str(e) + '\n\nFalling back to "YlOrRd"')
+        cmap = plt.get_cmap('YlOrRd')
     if(not hasattr(cmap, 'colors')):
         cmap = mpl.colors.ListedColormap(
                 mpl.colors.makeMappingArray(256, cmap),
@@ -588,6 +592,7 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
         obj - Results object or Model object
         points - an iterable of x,y pairs representing a path through the results
                  domain to plot, for example: [(1,2), (1,3), (2,4)]
+    optional args:
         n - integer, number of points sampled (default 101)
         x_labeling - 'distance' or 'location', for x axis ticks labeled
                       according to the distance along the segment or with

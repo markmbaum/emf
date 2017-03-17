@@ -1,0 +1,74 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\begin{document}
+
+Alright I've got it. Set the time derivative of the resultant vector to zero. When the resultant points along the semi-axes of the ellipse that it traces in space, its magnitude hits local maxima and minima. The gory details follow, but you really only need one equation (which I'll point out) to find the times at which the resultant points along the semi-axes, then you just plug those times back into the vector components and find the magnitudes:
+
+So for the resultant vector $R$:
+
+\begin{equation}
+|R|^2 = E_x^2 cos^2(\omega t + \phi_x) + E_y^2 cos^2(\omega t + \phi_y)
+\end{equation}
+
+$R$ and $R^2$ will have extrema (zero slope) at the same points, so you can set the time derivative of $R^2$ to zero because it avoids the square root:
+
+\begin{equation}
+\frac{d(R^2)}{dt} = 0 = 2 \omega E_x^2 cos^2(\omega t + \phi_x) + 2 \omega E_y^2 cos^2(\omega t + \phi_y)
+\end{equation}
+
+Throw away the leading factors of $2 \omega$, they get eaten by the zero on the other side, and use a trig identity for the squared cosines:
+
+\begin{equation}
+0 = E_x^2 cos(\omega t + \phi_x) sin(\omega t + \phi_x) + E_y^2 cos(\omega t + \phi_x) sin(\omega t + \phi_y)
+\end{equation}
+
+Use another trig identity to combine the sines and cosines in each term:
+
+\begin{equation}
+0 = \frac{1}{2}E_x^2 sin(2\omega t + 2\phi_x) + \frac{1}{2}E_y^2 sin(2\omega t + 2\phi_y)
+\end{equation}
+
+Divide away common constants again and use yet another trig identity to break up the two terms inside the trig operators:
+
+\begin{equation}
+0 = E_x^2[sin(2\omega t)cos(2\phi_x) + cos(2\omega t)sin(2\phi_x)] + E_y^2[sin(2\omega t)cos(2\phi_y) + cos(2\omega t)sin(2\phi_y)]
+\end{equation}
+
+Distribute the $E^2$ constants:
+
+\begin{equation}
+0 = E_x^2 sin(2\omega t)cos(2\phi_x) + E_x^2 cos(2\omega t)sin(2\phi_x) + E_y^2 sin(2\omega t)cos(2\phi_y) + E_y^2 cos(2\omega t)sin(2\phi_y)
+\end{equation}
+
+Factor out common terms:
+
+\begin{equation}
+0 = sin(2\omega t)[E_x^2 cos(2\phi_x) + E_y^2 cos(2\phi_y)] + cos(2\omega t)[E_x^2 sin(2\phi_x) + E_y^2 sin(2\phi_y)]
+\end{equation}
+
+Pull one of these terms onto the other side of the equation:
+
+\begin{equation}
+sin(2\omega t)[E_x^2 cos(2\phi_x) + E_y^2 cos(2\phi_y)] = -cos(2\omega t)[E_x^2 sin(2\phi_x) + E_y^2 sin(2\phi_y)]
+\end{equation}
+
+Then divide by the $cos(2\omega t)$ term to get $tan(2\omega t)$ on the other side, and divide by the bracketed term to get the tangent alone:
+
+\begin{equation}
+tan(2\omega t) = [E_x^2 sin(2\phi_x) + E_y^2 sin(2\phi_y)]/[E_x^2 cos(2\phi_x) + E_y^2 cos(2\phi_y)]
+\end{equation}
+
+If you evaluate the mess on the other side of the tangent, which is a combination of known quantities (just component amplitudes and phases), you can take the inverse tangent and find $2\omega t$.
+
+\begin{equation}
+2\omega t = arctan(-[E_x^2 sin(2\phi_x) + E_y^2 sin(2\phi_y)]/[E_x^2 cos(2\phi_x) + E_y^2 cos(2\phi_y)])
+\end{equation}
+
+The inverse tangent technically has an infinite number of solutions, but if you just take the first one it represents the time when the resultant vector $R$ lies along **one** of the semi-axes of its elliptical trace. You don't know whether it's the semi-minor or semi-major axis, but you know that the next axis is $\frac{\pi}{2}$ radians away, so just add $\frac{\pi}{2}$ to the first $t$ solution and you have the time values for when $R$ hits both a semi-minor and semi-major axis. To get what you want, the maximum magnitude of $R$, plug those values for $t$ back into the formula for the magnitude of $R$
+
+\begin{equation}
+R = \sqrt{E_x^2 cos^2(\omega t + \phi_x) + E_y^2 cos^2(\omega t + \phi_y)}
+\end{equation}
+
+and use the bigger one.
+\end{document}

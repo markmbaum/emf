@@ -31,8 +31,11 @@ def _path_manage(filename_if_needed, extension, **kwargs):
     #check if there is a path kwarg
     if('path' in kwargs):
         path = kwargs['path']
+        #check if the path is empty
+        if(not path):
+            return(filename_if_needed + extension)
         #check if the input path is a directory
-        if(os.path.isdir(path)):
+        elif(os.path.isdir(path)):
             #join the directory string, file string, and extension string
             return(os.path.join(path, filename_if_needed + extension))
         else:

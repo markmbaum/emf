@@ -15,8 +15,9 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle as _Rectangle
 from scipy.interpolate import interpn as _interpn
+from matplotlib.patches import Rectangle as _Rectangle
+from pkg_resources import resource_filename as _resource_filename
 
 import fields
 import subcalc

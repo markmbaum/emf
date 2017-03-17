@@ -1,7 +1,7 @@
 """
 emf.fields was originally a small stand-alone package that streamlined the use of an old electromagnetic field (EMF) modeling program called FIELDS, which predicts electric and magnetic fields near parallel sets of power lines by assuming the conductors are infinitely long and computing the fields along a transect perpendicular to the power lines (a cross section model). The old FIELDS program is very difficult to use (details on why below), so it made sense to transplant as much of the modeling process as possible into other programs. Initially, to compute a cross section model, emf.fields would read power line information from excel templates, create input files that could be run through FIELDS to get EMF results, then read the FIELDS output files and provide plots, formatted results, etc. The package did everything except perform the actual EMF calculations.
 
-emf.fields still contains functions streamlining the use of FIELDS, but at this point the package does all the things the old FIELDS program does (including EMF calculations), it does them better, and it has additional features.
+emf.fields still contains functions streamlining the use of FIELDS. At this point though, it does all the things the old FIELDS program does (including EMF calculations), it does them better, and it has additional features.
 """
 
 from fields_class import (Conductor,

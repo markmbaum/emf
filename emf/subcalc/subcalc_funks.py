@@ -1,4 +1,4 @@
-from .. import os, np, pd, shutil
+from .. import os, np, pd, shutil, _resource_filename
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
                         _check_intable, _flatten, _sig_figs, _check_to_array,
@@ -17,16 +17,14 @@ def drop_footprint_template(*args, **kw):
     elif(len(args) == 1):
         kw = {'path': args[0]}
     #get template file path
-    fn_temp = os.path.dirname(os.path.dirname(__file__))
-    fn_temp = os.path.join(fn_temp, 'templates')
-    fn_temp = os.path.join(fn_temp, 'subcalc-footprint-template.xlsx')
+    fn_template = _resource_filename(__name__, 'subcalc-footprint-template.xlsx')
     #get drop path
     fn_drop = _path_manage('subcalc-footprint-template', 'xlsx', **kw)
     #check for existing files
     if(os.path.isfile(fn_drop)):
         raise(subcalc_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_footprint_template().' % fn_drop))
     #copy and notify
-    shutil.copyfile(fn_temp, fn_drop)
+    shutil.copyfile(fn_template, fn_drop)
     print('subcalc footprint template written to: %s' % fn_drop)
 
 def drop_tower_template(*args, **kw):
@@ -39,16 +37,14 @@ def drop_tower_template(*args, **kw):
     elif(len(args) == 1):
         kw = {'path': args[0]}
     #get template file path
-    fn_temp = os.path.dirname(os.path.dirname(__file__))
-    fn_temp = os.path.join(fn_temp, 'templates')
-    fn_temp = os.path.join(fn_temp, 'subcalc-tower-template.xlsx')
+    fn_template = _resource_filename(__name__, 'subcalc-tower-template.xlsx')
     #get drop path
     fn_drop = _path_manage('subcalc-tower-template', 'xlsx', **kw)
     #check for existing files
     if(os.path.isfile(fn_drop)):
         raise(subcalc_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_tower_template().' % fn_drop))
     #copy and notify
-    shutil.copyfile(fn_temp, fn_drop)
+    shutil.copyfile(fn_template, fn_drop)
     print('subcalc tower template written to: %s' % fn_drop)
 
 def load_towers(fn, return_model=False, **kw):
@@ -92,7 +88,7 @@ def load_towers(fn, return_model=False, **kw):
                 if('.' in name):
                     name = name[:name.rfind('.')]
             else:
-                raise(subcalc_class.EMFError("Only csv and xlsx files can be passed to load_towers."))
+                raise(subcalc_class.EMFError("Only csv, xlsx, and INP files can be passed to load_towers."))
         else:
             raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s" passed to load_towers. File names passed to load_towers must have .csv or .xlsx extensions.""" % fn))
         #condition data a little

@@ -70,18 +70,11 @@ def to_FLDs(*args, **kw):
         #load the template
         sb = fields_funks.load_template(args[0])
         if('path' not in kw):
-            kw['path'] = os.path.dirname(args[0])
+            kw['path'] = path = os.path.dirname(args[0])
     elif(isinstance(args[0], fields_class.SectionBook)):
         sb = args[0]
     else:
         raise(fields_class.EMFError("""Input argument to to_FLDs() must be a filepath or a SectionBook."""))
-    #check for duplicate sheets
-    sheets = []
-    for xs in sb:
-        if(xs.sheet in sheets):
-            raise(fields_class.EMFError("""Can't create FLD files because of duplicate CrossSection names. Name "%s" is used at least twice.""" % xs.sheet))
-        else:
-            sheets.append(xs.sheet)
     #generate FLD files
     for xs in sb:
         to_FLD(xs, **kw)
@@ -107,11 +100,7 @@ def to_FLDs_walk(dirname, **kw):
 #FUNCTIONS FOR READING/CONVERTING .FLD FILES
 
 def read_FLD(file_path, group_line=1, title_line=2):
-    """Read a FLD file in to a CrossSection object. The name of the FLD file
-    is used as the 'sheet' of the resulting CrossSection. The 'group' and 'title'
-    of the CrossSection are set with the group_line and title_line arguments,
-    which refer to lines in the FLD file to use for those properties (indexed
-    from 1, not 0). They should only be set to 1 or 2.
+    """Read a FLD file in to a CrossSection object. The name of the FLD file is used as the 'sheet' of the resulting CrossSection. The 'group' and 'title' of the CrossSection are set with the group_line and title_line arguments, which refer to lines in the FLD file to use for those properties (indexed from 1, not 0). They should only be set to 1 or 2. The function will attempt to convert conductor names to integers, leaving them as strings if that fails.
     args:
         file_path - string, path to FLD file
     optional args:
@@ -315,7 +304,7 @@ def read_DAT(file_path):
         return(df)
 
 def convert_DAT(file_path, **kw):
-    """Use the read_DAT function to read a DAT file and write it to a csv in the same directory or to a path specified by the path keyword argument.
+    """Use the read_DAT function to read a DAT file and write it to a csv in the same directory or to a path specified by the "path" keyword argument.
     args:
         file_path - target DAT file
     kw:
@@ -330,7 +319,7 @@ def convert_DAT(file_path, **kw):
     print('DAT converted to csv: "%s"' % fn)
 
 def convert_DAT_walk(dirname, bundle=True):
-    """Walk a directory and all of its subdirectories, calling the read_DAT file on all encountered DAT files. The DAT files in a given directory are either converted to individual csv files or converted to separate sheets in a single excel file, depending on the 'bundle' argument.
+    """Walk a directory and all of its subdirectories, calling the "read_DAT" function on all encountered DAT files. The DAT files in a given directory are either converted to individual csv files or converted to separate sheets in a single excel file, depending on the 'bundle' argument.
     args:
         dirname - directory to initiate the walk in, to designate the
                   current directory, use '.'

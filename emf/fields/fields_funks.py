@@ -1,4 +1,4 @@
-from .. import os, np, pd, shutil, itertools
+from .. import os, np, pd, shutil, itertools, _resource_filename
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
                         _check_intable, _flatten, _sig_figs,
@@ -18,15 +18,14 @@ def drop_template(*args, **kw):
     elif(len(args) == 1):
         kw = {'path': args[0]}
     #get template file path
-    fn_temp = os.path.dirname(os.path.dirname(__file__))
-    fn_temp = os.path.join(fn_temp, 'templates', 'fields-template.xlsx')
+    fn_template = _resource_filename(__name__, 'fields-template.xlsx')
     #get drop path
     fn_drop = _path_manage('fields-template', 'xlsx', **kw)
     #check for existing files
     if(os.path.isfile(fn_drop)):
         raise(fields_class.EMFError('A file with the path "%s" already exists. Move/delete it or pass a new path string to drop_template().' % fn_drop))
     #copy and notify
-    shutil.copyfile(fn_temp, fn_drop)
+    shutil.copyfile(fn_template, fn_drop)
     print('emf.fields template written to: %s' % fn_drop)
 
 def run(template_path, **kw):
@@ -64,7 +63,7 @@ def run(template_path, **kw):
     return(sb)
 
 def load_template(file_path, sheets='all'):
-    """Import conductor data from an excel template, loading each conductor into a Conductor object, each Conductor into a CrossSection object, and each CrossSection object into a SectionBook object. The SectionBook object is returned.
+    """Import conductor data from an excel template, loading each conductor in the template into a Conductor object, each Conductor object into a CrossSection object, and each CrossSection object into a SectionBook object. The SectionBook object is returned.
     args:
         template_path - string, path to cross section template excel
                         workbook
@@ -81,8 +80,7 @@ def load_template(file_path, sheets='all'):
         for sh in sheets:
             if(sh not in xl.sheet_names):
                 raise(fields_class.EMFError('Input sheet "%s" was not found in the target workbook' % sh))
-    frames = xl.parse(sheetname=None, skiprows=[0,1,2,3],
-            parse_cols=16, header=None)
+    frames = xl.parse(sheetname=None, skiprows=4, parse_cols=16, header=None)
     #create a SectionBook object to store the CrossSection objects
     basename = os.path.basename(file_path)
     if('.' in basename):
@@ -101,7 +99,7 @@ def load_template(file_path, sheets='all'):
         xs.title = str(misc[1])
         #check for duplicate title inputs
         if(xs.title in titles):
-            raise(fields_class.EMFError("""Cross-sections should have unique title entries. title: "%s" in sheet: "%s" is used by at least one other sheet.""" % (xs.title, k)))
+            raise(fields_class.EMFError("""Cross-sections should have unique title entries. Title "%s" in sheet "%s" is used by at least one other sheet.""" % (xs.title, k)))
         else:
             titles.append(xs.title)
         xs.soil_resistivity = misc[3]
@@ -111,28 +109,12 @@ def load_template(file_path, sheets='all'):
         xs.lROW = misc[7]
         xs.rROW = misc[8]
         #load hot conductors
-        names, x, y = [], [], []
         for i in range(df[3].dropna().shape[0]):
             #initialize a Conductor
             cond = fields_class.Conductor(df[2].iat[i])
-            #check for conductors with identical names
-            if(cond.name in names):
-                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique names. The conductor name "%s" in sheet:     "%s" is used at least twice."""
-                % (cond.name, k)))
-            else:
-                names.append(cond.name)
             #cond.freq = misc[2]
             cond.x = df[3].iat[i]
             cond.y = df[4].iat[i]
-            #check for conductors with identical x,y coordinates
-            if(cond.x in x):
-                idx = x.index(cond.x)
-                if(cond.y == y[idx]):
-                    raise(fields_class.EMFError("""Conductors cannot have identical x,y coordinates. Conductor "%s" is in the exact same place as conductor "%s"."""
-                % (cond.name, names[idx])))
-            else:
-                x.append(cond.x)
-                y.append(cond.y)
             cond.subconds = df.iat[i,5]
             cond.d_cond = df.iat[i,6]
             cond.d_bund = df.iat[i,7]
@@ -141,28 +123,13 @@ def load_template(file_path, sheets='all'):
             cond.phase = df.iat[i,10]
             xs.add_conductor(cond)
         #load grounded conductors
-        names, x, y = [], [], []
-        for i in range(df[12].dropna().shape[0]):
+        for i in range(df[11].dropna().shape[0]):
             #initialize a Conductor
             cond = fields_class.Conductor(df.iat[i,11])
             #check for conductors with identical names (names/labels)
-            if(cond.name in names):
-                raise(fields_class.EMFError("""Conductors in a Cross Section must have unique names. The conductor name "%s" in sheet: "%s" is used at least twice."""
-                % (cond.name, k)))
-            else:
-                names.append(cond.name)
             #cond.freq = misc[2]
             cond.x = df.iat[i,12]
             cond.y = df.iat[i,13]
-            #check for conductors with identical x,y coordinates
-            if(cond.x in x):
-                idx = x.index(cond.x)
-                if(cond.y == y[idx]):
-                    raise(fields_class.EMFError("""Conductors cannot have identical x,y coordinates. Conductor "%s" is in the exact same place as conductor "%s"."""
-                % (cond.name, names[idx])))
-            else:
-                x.append(cond.x)
-                y.append(cond.y)
             cond.subconds = 1.
             cond.d_cond = df.iat[i,14]
             cond.d_bund = df.iat[i,14]
@@ -319,7 +286,7 @@ def optimize_phasing(xs, circuits='all', **kw):
 
 def target_fields(xs, names='all', B_l=False, B_r=False, E_l=False, E_r=False,
         max_iter=1e3, rel_err=1.0e-6, hhigh=1.0e6, **kw):
-    """Increase conductor y coordinates until max fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result. If 
+    """Increase conductor y coordinates until max fields at ROW edges are below thresholds. All selected conductors are adjusted by the same amount. If any of the thresholds are empty or false, None is returned for their adjustment result. If
     args:
         xs - CrossSection object to perform adjustments on
     optional args:

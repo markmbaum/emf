@@ -3,7 +3,9 @@ import pstats
 
 from emf import fields as fld
 
-print fld.read_FLDs(r'G:\Projects\215106_NeedhamEMF\Models\initial-modeling\FIELDS input and output files')
+fn = r"G:\Projects\EMF Resources\fields-practice\MMB\practice-cross-section.xlsx"
+
+fld.to_FLDs(fn)
 
 #cProfile.run("""
 #xc = fields.load_template('../working_files/practice_xcs.xlsx').sample()

@@ -29,6 +29,8 @@ _ax_frameon = False
 _ax_ticks_on = False
 _leg_edge_on = False
 _leg_kw = dict(numpoints=1, loc='center left', bbox_to_anchor=(1.025, 0.5))
+#a list of rgb values for plots with multiple lines which can be edited to
+#contain any number of colors (at least two)
 _colormap = [(0, 0.4470, 0.7410),(0.8500, 0.3250,0.0980),
             (0.9290, 0.6940, 0.1250),(0.4940, 0.1840, 0.5560),
             (0.4660, 0.6740, 0.1880),(0.3010, 0.7450, 0.9330),
@@ -259,8 +261,9 @@ def plot_Bmax(xs, **kw):
     #init handles and labels lists for legend
     kw['H'], kw['L'] = [], []
     #plot the field curve
-    kw['H'].append(ax.plot(xs.fields['Bmax'][-xmax:xmax],
-                color=_B_color, linewidth=_fields_linewidth)[0])
+    x = xs.fields['Bmax'][-xmax:xmax].index.values
+    y = xs.fields['Bmax'][-xmax:xmax].values
+    kw['H'].append(ax.plot(x, y, color=_B_color, linewidth=_fields_linewidth)[0])
     kw['L'].append(r'Magnetic Field $(mG)$')
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
@@ -298,8 +301,9 @@ def plot_Emax(xs, **kw):
     #init handles and labels lists for legend
     kw['H'], kw['L'] = [], []
     #plot the field curve
-    kw['H'].append(ax.plot(xs.fields['Emax'][-xmax:xmax], color=_E_color,
-                linewidth=_fields_linewidth)[0])
+    x = xs.fields['Emax'][-xmax:xmax].index.values
+    y = xs.fields['Emax'][-xmax:xmax].values
+    kw['H'].append(ax.plot(x, y, color=_E_color, linewidth=_fields_linewidth)[0])
     kw['L'].append(r'Electric Field $(kV/m)$')
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, xs.fields['Emax'], **kw)
@@ -339,12 +343,13 @@ def plot_max_fields(xs, **kw):
     #get plotting specs
     xmax = _find_xmax(xs)
     #plot the field curves
-    kw['H'] = [ax_B.plot(xs.fields['Bmax'][-xmax:xmax], color=_B_color,
-                        linewidth=_fields_linewidth)[0],
-                ax_E.plot(xs.fields['Emax'][-xmax:xmax], color=_E_color,
-                        linewidth=_fields_linewidth)[0]]
-    kw['L'] = [r'Magnetic Field $(mG)$',
-            r'Electric Field $(kV/m)$']
+    Bx = xs.fields['Bmax'][-xmax:xmax].index.values
+    By = xs.fields['Bmax'][-xmax:xmax].values
+    Ex = xs.fields['Emax'][-xmax:xmax].index.values
+    Ey = xs.fields['Emax'][-xmax:xmax].values
+    kw['H'] = [ax_B.plot(Bx, By, color=_B_color, linewidth=_fields_linewidth)[0],
+            ax_E.plot(Ex, Ey, color=_E_color, linewidth=_fields_linewidth)[0]]
+    kw['L'] = [r'Magnetic Field $(mG)$', r'Electric Field $(kV/m)$']
     #plot wires
     _plot_wires(ax_B, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
     _check_und_conds([xs], [ax_B, ax_E], **kw)
@@ -411,11 +416,13 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit, **kw):
         field - string, column label of field to be plotted (Bmax/Emax)"""
 
     #plot absolute error
-    h_abs = ax_abs.plot(pan['Absolute Difference'][field],
+    h_abs = ax_abs.plot(pan['Absolute Difference'][field].index.values,
+            pan['Absolute Difference'][field].values,
             color=mpl.rcParams['axes.labelcolor'], zorder=-2)
-    ax_abs.set_ylabel('Absolute Difference' + unit)
+    ax_abs.set_ylabel('Absolute Difference ' + unit)
     #plot percentage error
-    h_per = ax_per.plot(pan['Percent Difference'][field],
+    h_per = ax_per.plot(pan['Percent Difference'][field].index.values,
+            pan['Percent Difference'][field].values,
             color='firebrick', zorder=-1)
     ax_per.set_ylabel('Percent Difference', color='firebrick')
     #set error axes legend
@@ -426,7 +433,7 @@ def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit, **kw):
                     color=_colormap[1])[0],
                 ax_mag.plot(pan['python_results'][field],
                     color=_colormap[0])[0]]
-    kw['L'] += ['FIELDS', 'New Code']
+    kw['L'] += ['FIELDS', 'emf.fields']
     ax_mag.set_xlabel('Distance from ROW Center $(ft)$')
 
 def _plot_DAT_comparison(xs, pan, **kw):
@@ -464,7 +471,6 @@ def _plot_DAT_comparison(xs, pan, **kw):
         _format_line_axes_legends(ax_abs, ax_per, ax_mag)
         #_format_twin_axes(ax_abs, ax_per)
         _save_fig(xs.sheet + s, fig, **kw)
-        plt.close(fig)
 
 #-------------------------------------------------------------------------------
 #plotting routines working primarily with a SectionBook object
@@ -491,12 +497,15 @@ def _plot_group_fields(ax, xss, field, **kw):
     for i in range(len(fields_list)):
         #plot
         if(xmax):
-            kw['H'].append(ax.plot(fields_list[i][-xmax:xmax],
-                    color = _colormap[i%7],
-                    linewidth = _fields_linewidth)[0])
+            kw['H'].append(ax.plot(fields_list[i][-xmax:xmax].index.values,
+                    fields_list[i][-xmax:xmax].values,
+                    color=_colormap[i%len(_colormap)],
+                    linewidth=_fields_linewidth)[0])
         else:
-            kw['H'].append(ax.plot(fields_list[i], color = _colormap[i%7],
-                    linewidth = _fields_linewidth)[0])
+            kw['H'].append(ax.plot(fields_list[i].index.values,
+                    fields_list[i].values,
+                    color=_colormap[i%len(_colormap)],
+                    linewidth=_fields_linewidth)[0])
         kw['L'].append(xss[i].sheet)
 
 def _plot_group_wires(ax, xss, max_field, **kw):
@@ -627,10 +636,10 @@ def plot_groups(sb, **kw):
     #check kws
     B_flag = True
     if('B' in kw):
-        B_flag = kw['B']
+        B_flag = bool(kw['B'])
     E_flag = True
     if('E' in kw):
-        E_flag = kw['E']
+        E_flag = bool(kw['E'])
     ugroups = sb.unique_group_names
     if('groups' in kw):
         ugroups = set(kw['groups'])
@@ -641,7 +650,11 @@ def plot_groups(sb, **kw):
         else:
             return_figs = False
     else:
-        if(len(ugroups) <= 4):
+        if((not B_flag) or (not E_flag)):
+            group_lim = 8
+        else:
+            group_lim = 4
+        if(len(ugroups) <= group_lim):
             return_figs = True
             figs = {'E': {}, 'B': {}}
         else:
@@ -745,7 +758,7 @@ def _plot_group_bars(ax, xss, field, side):
     #plot the bars
     x = range(len(xss))
     values = [xs.ROW_edge_fields[field].values[side] for xs in xss]
-    ax.bar(x, values, color=[_colormap[i%7] for i in range(len(xss))],
+    ax.bar(x, values, color=[_colormap[i%len(_colormap)] for i in range(len(xss))],
             bottom=0.0, align='center', alpha=0.8, width=0.6)
     ax.set_xticks(x)
     ax.set_xticklabels([textwrap.fill(xs.sheet, 15) for xs in xss],
@@ -823,10 +836,10 @@ def plot_groups_at_ROW(sb, **kw):
     #check kws
     B_flag = True
     if('B' in kw):
-        B_flag = kw['B']
+        B_flag = bool(kw['B'])
     E_flag = True
     if('E' in kw):
-        E_flag = kw['E']
+        E_flag = bool(kw['E'])
     ugroups = sb.unique_group_names
     if('groups' in kw):
         ugroups = set(kw['groups'])
@@ -837,7 +850,11 @@ def plot_groups_at_ROW(sb, **kw):
         else:
             return_figs = False
     else:
-        if(len(ugroups) <= 4):
+        if((not B_flag) or (not E_flag)):
+            group_lim = 8
+        else:
+            group_lim = 4
+        if(len(ugroups) <= group_lim):
             return_figs = True
             figs = {'E': {}, 'B': {}}
         else:
