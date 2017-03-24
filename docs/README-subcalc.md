@@ -1,3 +1,5 @@
+![substation](img/substation.jpg)
+
 # `emf.subcalc`
 
 ![biot-savart](img/biot-savart.png)

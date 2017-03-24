@@ -16,6 +16,7 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipy.interpolate import interpn as _interpn
+from mpl_toolkits.mplot3d import Axes3D as _Axes3D
 from matplotlib.patches import Rectangle as _Rectangle
 from pkg_resources import resource_filename as _resource_filename
 

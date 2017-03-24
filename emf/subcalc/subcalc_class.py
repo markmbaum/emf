@@ -444,15 +444,20 @@ class Model(object):
         S = self.segments
         #get sample points
         x, y, z = self.x, np.sort(self.y), self.z
+        x_sample = np.repeat(x, len(y))
+        y_sample = np.tile(y, len(x))
+        z_sample = z*np.ones((len(x)*len(y),), dtype=float)
         #compute one set of phasors to get arrays started
-        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_grid(
-                S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
+        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_segment(
+                S[0][0], S[0][1], S[0][2], S[0][3],
+                x_sample, y_sample, z_sample)
         #updates
         print('wire segments complete: 1/%d' % len(S)),
         #compute the fields of all other segments and add the phasors
         for i in range(1,len(S)):
-            Ph = subcalc_calcs.B_field_grid(
-                    S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
+            Ph = subcalc_calcs.B_field_segment(
+                    S[i][0], S[i][1], S[i][2], S[i][3],
+                    x_sample, y_sample, z_sample)
             Ph_x += Ph[0]
             Ph_y += Ph[1]
             Ph_z += Ph[2]
@@ -554,19 +559,20 @@ class Model(object):
         #get wire segments
         S = self.segments
         #compute one set of phasors to get arrays started
-        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_general(
+        Ph_x, Ph_y, Ph_z = subcalc_calcs.B_field_segment(
                 S[0][0], S[0][1], S[0][2], S[0][3], x, y, z)
         #updates
-        print('segment calculations complete: 1/%d' % len(S)),
+        print('wire segments complete: 1/%d' % len(S)),
         #compute the fields of all other segments and add the phasors
         for i in range(1,len(S)):
-            Ph = subcalc_calcs.B_field_general(
+            Ph = subcalc_calcs.B_field_segment(
                     S[i][0], S[i][1], S[i][2], S[i][3], x, y, z)
             Ph_x += Ph[0]
             Ph_y += Ph[1]
             Ph_z += Ph[2]
-            print('\rsegment calculations complete: %d/%d' % (i+1, len(S))),
+            print('\rwire segments complete: %d/%d' % (i+1, len(S))),
         #get the real components
+        print('\rwire segments complete. computing magnitudes from phasors.'),
         Bx,By,Bz,Bres,Bmax = subcalc_calcs.phasors_to_magnitudes(Ph_x,Ph_y,Ph_z)
         #create a dataframe
         dist = subcalc_funks.cumulative_distance(x, y, z)
@@ -578,7 +584,8 @@ class Model(object):
         df = pd.DataFrame(data=data, index=index)
         #print elapsed time
         t_end = datetime.datetime.now()
-        print('\ntotal calculation time: %g seconds' % (t_end - t_start).total_seconds())
+        print('\rall calculations complete. total calculation time: %g seconds.' %
+                (t_end - t_start).total_seconds())
         #return
         return(df)
 

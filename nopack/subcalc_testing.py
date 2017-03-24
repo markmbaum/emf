@@ -1,13 +1,11 @@
 #import cProfile
 #import pstats
 
-import pandas as pd
-
 import emf.subcalc as sc
 
-res = sc.load_towers('../working_files/subcalc/TEST1.INP', True).calculate()
+mod = sc.load_towers(r"G:\Projects\EMF_Resources\mmb-python-package\working_files\subcalc\TEST1.INP", True)
 
-print res.info
+print mod.sample(1,1,range(1000))
 
 #cProfile.run(code, filename='profile')
 #pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

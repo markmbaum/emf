@@ -41,3 +41,7 @@ from FIELDS_io import (to_FLD,
                         read_DAT,
                         convert_DAT,
                         convert_DAT_walk)
+
+import enviro
+
+__all__ = ['enviro']

@@ -1,0 +1,65 @@
+======================  GENERAL PARAMETERS  ====================== 
+Title............................:  ENVIRO: Sample #3 - Double Circuit 115 kV 
+System of measurement............:  ENGLISH 
+Field sensor height (feet).......:  3.28 
+Altitude (meters above sea level):  1400 
+Earthresistivity (ohm-meters)....:  500.00 
+
+
+=====================  BUNDLE SPECIFICATIONS  =================== 
+Bnd Cir    Voltage        Current    No. of Reg   Coordinates 
+No. No. Phase (kV L-L)  (Amps) Angle Subcnd Bnd  x(ft)   Y(ft) 
+ 1   1    A    121.00  -215.00    0    1    YES   -9.25  45.00 
+ 2   1    C    121.00  -215.00  120    1    YES  -11.25  35.00 
+ 3   1    B    121.00  -215.00  240    1    YES   -9.25  25.00 
+ 4   1   G0      0.00     0.00    0    1    YES    0.00  53.58 
+ 5   2    B    121.00  -190.00  240    1    YES    9.25  45.00 
+ 6   2    A    121.00  -190.00    0    1    YES   11.25  35.00 
+ 7   2    C    121.00  -190.00  120    1    YES    9.25  25.00 
+ 
+
+
+=========  SUBCONDUCTOR SPECIFICATIONS (REGULAR BUNDLES) ======== 
+                      Subcnd.Subcnd. DC Res.  60Hz Res.   60Hz 
+Bnd.  Subconductor    Spacing Diam.  at 25øC   at 25øC  Reactance 
+ No.      Name          (in)  (in)  (ohms/mi) (ohms/mi) (ohms/mi) 
+  1  CANTON             0.00 0.721   0.27430   0.27600   0.45900 
+  2  CANTON             0.00 0.721   0.27430   0.27600   0.45900 
+  3  CANTON             0.00 0.721   0.27430   0.27600   0.45900 
+  4  3/8EHS             0.00 0.360   6.74000   6.93000   1.44000 
+  5  CANTON             0.00 0.721   0.27430   0.27600   0.45900 
+  6  CANTON             0.00 0.721   0.27430   0.27600   0.45900 
+  7  CANTON             0.00 0.721   0.27430   0.27600   0.45900 
+ 
+
+
+========  SUBCONDUCTOR SPECIFICATIONS (IRREGULAR BUNDLES) ======= 
+ 
+
+================  LATERAL PROFILE SPECIFICATIONS  =============== 
+              Start    Stop    Increment 
+ Interval    (feet)   (feet)    (feet) 
+    1       -150.00   -50.00    2.00 
+    2        -49.00    49.00    1.00 
+    3         50.00   150.00    2.00 
+ 
+
+
+=====================  WEATHER MODEL DATA  ====================== 
+Fog information 
+--------------- 
+  Starting time (military time)...:   0000 
+  Duration (hours)................:   9.00 
+
+                                      DAY      NIGHT 
+                                      ===      ===== 
+Rain information: 
+----------------- 
+  Duration (hours)................:   2.50     1.50 
+  Periods.........................:      3        2 
+  Median rate (in/hour)...........:   0.15     0.08 
+  L5 rate (in/hour)...............:   0.75     0.40 
+
+Snow information: 
+----------------- 
+  Duration (hours)................:   2.00     3.00 

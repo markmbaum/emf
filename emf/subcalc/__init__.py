@@ -19,8 +19,7 @@ from subcalc_funks import (drop_tower_template,
                         load_towers,
                         cumulative_distance)
 
-from subcalc_calcs import (B_field_general,
-                        B_field_grid,
+from subcalc_calcs import (B_field_segment,
                         grid_segment_results,
                         phasors_to_magnitudes)
 
@@ -28,6 +27,7 @@ from subcalc_plots import (plot_cross_sections,
                         plot_contour,
                         plot_pcolormesh,
                         plot_path,
+                        plot_wires_3D,
                         ion,
                         show,
                         close,

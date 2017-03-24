@@ -119,7 +119,7 @@ def _sig_figs(v, figs):
 def _check_intable(f):
     """If a float is a whole number, convert it to an integer"""
     if(_is_int(f)):
-        return(int(f))
+        return(int(float(f)))
     else:
         return(float(f))
 

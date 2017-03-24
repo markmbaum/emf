@@ -256,7 +256,7 @@ class CrossSection(object):
     params = property(_get_params, None, None, 'Get a list of the parameter/property names which must be set for the object to be "complete".')
 
     def _check_complete(self):
-        """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values.
+        """Check that all variables in each conductor in the CrossSection are set, and not left with the initial None values. Also check that CrossSection properties needed for calculations (max_dist, step, lROW, rROW) are set.
         returns:
             b - True if all Conductors are complete, False if not
             s - sentence indicating which conductor is unset and which
@@ -265,7 +265,7 @@ class CrossSection(object):
             return(False, 'There are no Conductors in CrossSection "%s".' % self.sheet)
         for p in self.params:
             if(eval('self.%s' % p) is None):
-                return(False, 'The "%s" paramter of CrossSection "%s" is unset.' % (p, self.sheet))
+                return(False, 'The "%s" property of CrossSection "%s" is unset.' % (p, self.sheet))
         for c in self.conds:
             b, s = c.complete
             if(b is False):
@@ -521,6 +521,11 @@ class CrossSection(object):
 
     def _calculate_fields(self):
         """Calculate electric and magnetic fields across the ROW and store the results in the self.fields DataFrame"""
+        #check for completeness (all variables that are needed for calculations
+        #have been set to allowable values)
+        b, s = self.complete
+        if(not b):
+            raise(EMFError("Cannot calculate fields. %s" % s))
         #pull arrays with conductor and sampling information
         x_sample, y_sample = self.x_sample, self.y_sample
         x, y, I, V, phase = self.x, self.y, self.I, self.V, self.phase
@@ -533,11 +538,61 @@ class CrossSection(object):
                                         x_sample, y_sample)
         Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
         #store the values
-        df = pd.DataFrame({'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
-                                    'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
-                                    index=x_sample)
+        df = pd.DataFrame({
+                'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
+                'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
+                index=x_sample)
         df.index.name = 'Distance (ft)'
         self._fields = df
+
+    def sample(self, *args):
+        """Calculate electric and magnetic fields at an arbitrary set of x,y points in the CrossSection
+        args:
+            x_sample* - iterable of numbers or a single number, the x
+                        coordinate(s) of the sample point(s)
+            y_sample* - iterable of numbers or a single number, the y
+                        coordinate(s) of the sample point(s)
+
+                *if both args are iterables, they must be the same length"""
+        #deal with lengths and make sure to work with np arrays
+        args = list(args)
+        if(len(args) == 1):
+            noy = True
+            args.append(self.sample_height)
+        elif(len(args) != 0):
+            raise(EMFError("The sample method of a CrossSection object accepts 1 or 2 arguments, not %d" % len(args)))
+        args = [fields_funks._check_to_array(i) for i in args]
+        L = max([len(i) for i in args])
+        if(L != 1):
+            for i in range(len(args)):
+                if(len(args[i]) == 1):
+                    args[i] = np.array([float(args[i][0])]*L)
+                elif(len(args[i]) != L):
+                    raise(EMFError("Cannot parse inputs if multiple inputs are iterables (vectors) and they have different lenghts. Inputs must be numbers or iterables with the same length as other iterable inputs."))
+        #unpack sample points
+        x_sample, y_sample = args
+        #pull out other modeling inputs
+        x, y, I, V, phase = self.x, self.y, self.I, self.V, self.phase
+        subconds, d_cond, d_bund = self.subconds, self.d_cond, self.d_bund
+        #calculate magnetic field
+        Bx, By = fields_calcs.B_field(x, y, I, phase, x_sample, y_sample)
+        Bx, By, Bprod, Bmax = fields_calcs.phasors_to_magnitudes(Bx, By)
+        #calculate electric field
+        Ex, Ey = fields_calcs.E_field(x, y, subconds, d_cond, d_bund, V, phase,
+                                        x_sample, y_sample)
+        Ex, Ey, Eprod, Emax = fields_calcs.phasors_to_magnitudes(Ex, Ey)
+        #store the values
+        if(noy):
+            idx = x_sample
+        else:
+            idx = pd.MultiIndex.from_arrays([x_sample,y_sample], names=['x','y'])
+        df = pd.DataFrame(
+                {'Ex':Ex,'Ey':Ey,'Eprod':Eprod,'Emax':Emax,
+                'Bx':Bx,'By':By,'Bprod':Bprod,'Bmax':Bmax},
+                index=idx)
+        if(noy):
+            df.index.name = 'Distance (ft)'
+        return(df)
 
     def compare_DAT(self, DAT_path, **kw):
         """Load a FIELDS output file (.DAT) to calculate absolute and percentage differences between it and the CrossSection object's results. The results in the DAT file must be sampled at the same x coordinates as those in the CrossSection. A panel of comparison results is returned. If the 'save' or 'path' keywords are used, the comparison results will be saved with plots demonstrating the comparisons.
@@ -570,21 +625,22 @@ class CrossSection(object):
                         f[c].loc[i] = float('%.3f' % f[c].loc[i])
         else:
             f = self.fields
-        #create the panel
-        frames = ['FIELDS_DAT_results', 'python_results',
-                'Absolute Difference', 'Percent Difference']
+        #create a panel (the frame names matter in the _plot_comparison function
+        #called below)
+        frames = ['FIELDS-results', 'emf.fields-results',
+                'absolute-difference', 'percent-difference']
         pan = pd.Panel(data={frames[0] : df,
                 frames[1]: f,
                 frames[2]: f - df,
                 frames[3]: 100*(f - df)/f})
         #make plots of the absolute and percent error
-        figs = fields_plots._plot_DAT_comparison(self, pan, **kw)
+        figs = fields_plots._plot_comparison(self, pan, 'FIELDS', **kw)
         #write data and save figures if called for
         if('path' in kw):
             kw['save'] = True
         if('save' in kw):
             if(kw['save']):
-                fn = fields_funks._path_manage(self.sheet + '-DAT_comparison',
+                fn = fields_funks._path_manage(self.sheet + '-DAT-comparison',
                     '.xlsx', **kw)
                 xl = pd.ExcelWriter(fn, engine='xlsxwriter')
                 for f in frames:
@@ -594,7 +650,7 @@ class CrossSection(object):
         #return the Panel
         return(pan, figs)
 
-    def sample(self, *args):
+    def rand(self, *args):
         """Get a random Conductor  or a list of random Conductors from the CrossSection
         args:
             an input integer determines the number of random xss fetched,
@@ -726,7 +782,7 @@ class SectionBook(object):
     def __str__(self):
         return(fields_print._str_SectionBook(self))
 
-    def sample(self, *args):
+    def rand(self, *args):
         """Get a random CrossSection from the SectionBook or a list of random CrossSection objects
         args:
             an input integer determines the number of random CrossSections returned in a list, which may not be unique"""

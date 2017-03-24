@@ -112,6 +112,7 @@ def _format_line_axes_legends(*args, **kw):
             ax.tick_params(axis = 'both', which = 'both',
                 bottom = 'off', top = 'off', left = 'off', right = 'off')
 
+
 def _format_twin_axes(*args):
     """take care of scaling problems"""
     if(len(args) > 1):
@@ -343,12 +344,11 @@ def plot_max_fields(xs, **kw):
     #get plotting specs
     xmax = _find_xmax(xs)
     #plot the field curves
-    Bx = xs.fields['Bmax'][-xmax:xmax].index.values
+    x = xs.fields[-xmax:xmax].index.values
     By = xs.fields['Bmax'][-xmax:xmax].values
-    Ex = xs.fields['Emax'][-xmax:xmax].index.values
     Ey = xs.fields['Emax'][-xmax:xmax].values
-    kw['H'] = [ax_B.plot(Bx, By, color=_B_color, linewidth=_fields_linewidth)[0],
-            ax_E.plot(Ex, Ey, color=_E_color, linewidth=_fields_linewidth)[0]]
+    kw['H'] = [ax_B.plot(x, By, color=_B_color, linewidth=_fields_linewidth)[0],
+            ax_E.plot(x, Ey, color=_E_color, linewidth=_fields_linewidth)[0]]
     kw['L'] = [r'Magnetic Field $(mG)$', r'Electric Field $(kV/m)$']
     #plot wires
     _plot_wires(ax_B, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
@@ -406,41 +406,46 @@ def plot_xs(xs, **kw):
     #return
     return(fig, ax)
 
-def _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit, **kw):
+def _plot_comparison_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit,
+        other_program_name, **kw):
     """Handle plotting of DAT comparison features that don't require unique strings
     args:
         ax_abs - axis of absolute error plot
         ax_per - axis of percentage error plot
         ax_mag - axis of field magnitude plot
         pan - pandas.Panel object containing results and errors
-        field - string, column label of field to be plotted (Bmax/Emax)"""
+        field - string, column label of field to be plotted (Bmax/Emax)
+        other_program_name - the name of the program being compared,
+                             like FIELDS or ENVIRO"""
 
     #plot absolute error
-    h_abs = ax_abs.plot(pan['Absolute Difference'][field].index.values,
-            pan['Absolute Difference'][field].values,
+    h_abs = ax_abs.plot(pan['absolute-difference'][field].index.values,
+            pan['absolute-difference'][field].values,
             color=mpl.rcParams['axes.labelcolor'], zorder=-2)
     ax_abs.set_ylabel('Absolute Difference ' + unit)
     #plot percentage error
-    h_per = ax_per.plot(pan['Percent Difference'][field].index.values,
-            pan['Percent Difference'][field].values,
+    h_per = ax_per.plot(pan['percent-difference'][field].index.values,
+            pan['percent-difference'][field].values,
             color='firebrick', zorder=-1)
     ax_per.set_ylabel('Percent Difference', color='firebrick')
     #set error axes legend
     #ax_per.legend(h_abs + h_per, ['Absolute Difference','Percent Difference'], **_leg_kw)
     #ax_per.get_legend().set_zorder(1)
     #plot full results profiles
-    kw['H'] += [ax_mag.plot(pan['FIELDS_DAT_results'][field],
+    kw['H'] += [ax_mag.plot(pan['%s-results' % other_program_name][field],
                     color=_colormap[1])[0],
-                ax_mag.plot(pan['python_results'][field],
+                ax_mag.plot(pan['emf.fields-results'][field],
                     color=_colormap[0])[0]]
-    kw['L'] += ['FIELDS', 'emf.fields']
-    ax_mag.set_xlabel('Distance from ROW Center $(ft)$')
+    kw['L'] += [other_program_name + ' Results', 'emf.fields Results']
+    ax_mag.set_xlabel('Distance $(ft)$')
 
-def _plot_DAT_comparison(xs, pan, **kw):
+def _plot_comparison(xs, pan, other_program_name, **kw):
     """Generate 2 subplots showing the FIELDS results (from a .DAT file) compared to the results of this code and the error.
     args:
         xs - CrossSection object
         pan - pandas.Panel object containing results and errors
+        other_program_name - the name of the program being compared,
+                             like FIELDS or ENVIRO
     kw:
         save - bool, toggle plot saving
         path - string, destination/filename for saved figure
@@ -449,7 +454,8 @@ def _plot_DAT_comparison(xs, pan, **kw):
     pans = ['Bmax', 'Emax']
     units = ['$(mG)$', '$(kV/m)$']
     title_app = [', Max Magnetic Field', ', Max Electric Field']
-    save_suf = ['-DAT-comparison-Bmax', '-DAT-comparison-Emax']
+    save_suf = ['-%s-comparison-Bmax' % other_program_name,
+                '-%s-comparison-Emax' % other_program_name]
 
     for p,u,t,s in zip(pans, units, title_app, save_suf):
         #figure object and axes
@@ -460,8 +466,9 @@ def _plot_DAT_comparison(xs, pan, **kw):
         #Bmax
         #init handles and labels lists for legend
         kw['H'], kw['L'] = [], []
-        _plot_DAT_repeatables(ax_abs, ax_per, ax_mag, pan, p, u, **kw)
-        _plot_wires(ax_mag, xs.hot, xs.gnd, pan['python_results'][p], **kw)
+        _plot_comparison_repeatables(ax_abs, ax_per, ax_mag, pan, p, u,
+                other_program_name, **kw)
+        _plot_wires(ax_mag, xs.hot, xs.gnd, pan['emf.fields-results'][p], **kw)
         _check_und_conds([xs], [ax_mag], **kw)
         ax_abs.set_title('Absolute and Percent Difference' + t)
         ax_mag.set_ylabel(p + ' ' + u)

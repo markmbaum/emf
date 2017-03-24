@@ -1,0 +1,646 @@
+
+    <html lang="en">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>enviro</title>
+            <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Open+Sans" rel="stylesheet">
+            <style>body {
+    color: #ABB2BF;
+    background-color: #282C34;
+    font-family: 'Anonymous Pro', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: scroll;
+}
+
+#back-to-top {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    padding: 3px;
+    margin: 0;
+    background-color: inherit;
+    color: #828997;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    text-decoration: none;
+    border-top: 1px solid #505050;
+    border-left: 1px solid #505050;
+}
+
+#mod-docstr {
+    margin: 0;
+    text-align: justify;
+    line-height: 150%;
+    color: #ABB2BF;
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+}
+
+.monospace-span {
+    font-family: 'Anonymous Pro', monospace;
+    font-size: 125%;
+}
+
+#nav-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0 5px 0 0;
+    min-height: 1vh;
+    background-color: #20242C;
+}
+
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    padding: 0.5cm;
+    min-height: 1vh;
+    background-color: inherit;
+    border-right: 1px solid #505050;
+}
+
+#nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+#nav h2 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 24pt;
+    margin: 0.25cm 0;
+}
+
+#nav-ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.nav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 18pt;
+    margin: 0.5cm 0;
+}
+
+.nav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.5cm 0;
+}
+
+.subnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 13pt;
+    margin: 0.15cm 0;
+}
+
+.subnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.4cm 0;
+}
+
+.subsubnav-li {
+    font-family: "Open Sans", sans-serif;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+.subsubsubnav-ul {
+    list-style-type: none;
+    padding: 0 0 0 0.5cm;
+    margin: 0.3cm 0;
+}
+
+.subsubsubnav-li {
+    font-family: "Anonymous Pro", monospace;
+    font-size: 11pt;
+    margin: 0.15cm 0;
+}
+
+.subsubsubnav-li a {
+    text-decoration: none;
+    color: #828997;
+}
+
+#nav a:hover {
+    font-weight: 700;
+    color: #ABB2BF;
+}
+
+#main {
+    float: right;
+    z-index: -1;
+}
+
+#main h1 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: normal;
+    font-size: 400%;
+    text-align: center;
+    margin: 1cm 0;
+}
+
+.section {
+    margin: 1cm;
+    padding: 5% 5% 5% 1cm;
+    border: 1px solid #484848;
+    border-radius: 12px;
+}
+
+.section h2 {
+    font-weight: normal;
+    font-size: 250%;
+    font-family: "Open Sans", sans-serif;
+    text-align: center;
+    margin: 0 0 1cm 0;
+}
+
+.docstr {
+    margin: .5cm 0 .5cm 1cm;
+    font-size: 90%;
+    text-align: justify;
+    line-height: 125%;
+    color: #98C379;
+}
+
+.docstr pre {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+}
+
+.class {
+    border-top: 1px solid #404040;
+}
+
+.class h3 {
+    font-weight: normal;
+    font-size: 200%;
+    font-family: "Open Sans", sans-serif;
+    padding: 0;
+    margin: 1cm 0 0 0.5cm;
+}
+
+#classes .class {
+    margin-top: 1cm;
+}
+
+.class .function {
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties {
+    margin: 1cm 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.properties h4 {
+    font-weight: normal;
+    font-family: "Open Sans", sans-serif;
+    font-size: 150%;
+}
+
+.properties .property {
+    margin-left: 1cm;
+    padding-left: 0.1cm;
+    border-left: 1px solid #383838;
+}
+
+.methods {
+    margin: 1cm 0 0 0;
+    padding-left: 0.1cm;
+    border-left: 1px solid #404040;
+}
+
+.methods h4 {
+  font-weight: normal;
+  font-family: "Open Sans", sans-serif;
+  font-size: 150%;
+}
+
+.methods .function {
+    margin-left: 1cm;
+    border-left: 1px solid #383838;
+}
+
+#functions .function {
+    border-top: 1px solid #404040;
+}
+
+.function .function-name {
+    color: #61AFEF;
+}
+
+.function .function-arg {
+    color: #D19A66;
+}
+
+.function .default-str {
+    color: #98C379;
+}
+
+.source {
+    display: inline-block;
+    margin: .5cm 0 .5cm 1cm;
+    border: 1px solid #383838;
+    border-radius: 12px;
+}
+
+.source h4 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 400;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0.25cm;
+    cursor: pointer;
+}
+
+.source .code {
+    display: none;
+    overflow: auto;
+    padding: 0 0.5cm 0.5cm 0.5cm;
+    font-size: 10pt;
+}
+
+.other {
+    margin: 0.5cm 0;
+}
+
+.other-type {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other-value {
+    margin: .1cm .1cm .1cm 0;
+    color: #5C6370;
+}
+
+.other .comments {
+    margin: 0;
+    padding: 0.5cm 0 0.5 1cm;
+}
+
+.other pre {
+    margin: 0;
+    padding: 0 0 0 1.5cm;
+}
+.highlight .k  {color: #C678DD;}
+
+.highlight .nf {color: #61AFEF;}
+.highlight .nf .n {color: #D19A66;}
+.highlight .nb {color: #56B6C2;}
+
+.highlight .o  {font-weight: bold;}
+.highlight .ow {color: #C678DD;}
+
+.highlight .s1 {color: #98C379;}
+.highlight .s2 {color: #98C379;}
+.highlight .sd {color: #98C379;}
+.highlight .si {color: #D19A66;}
+
+.highlight .mi {color: #D19A66;}
+.highlight .mf {color: #D19A66;}
+.highlight .mh {color: #D19A66;}
+.highlight .mo {color: #D19A66;}
+
+.highlight .bp {color: #D19A66;}
+.highlight .bp2 {color: #E06C75;}
+
+
+.highlight .c1 {color: #5C6370;}
+</style>
+            <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67200904-4', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+            <!--Control the width and height of the #main element-->
+            <script type="text/javascript">
+function arrange(){
+    var nav_wrapper = document.getElementById('nav-wrapper');
+    var nav = document.getElementById('nav');
+    var main = document.getElementById('main');
+    var body = document.body;
+
+    var w_nav = nav.offsetWidth + 1;
+    var m = w_nav.toString() + 'px';
+    var w = (body.offsetWidth - w_nav).toString() + 'px';
+
+    main.setAttribute('style', 'margin-left: ' + m);
+    main.style.marginLeft = m;
+
+    main.setAttribute('style', 'width: ' + w);
+    main.style.width = w;
+
+    console.log('arrange')
+
+};
+
+function toggleSource(obj){
+    var parent = obj.parentElement;
+    var children = parent.children;
+
+    var header = children[0];
+    var code = children[1];
+    var codeDisplay = code.style.display;
+
+    if(codeDisplay == 'block'){
+        code.style.display = 'none';
+        header.innerHTML = 'show source';
+        parent.style.borderColor = '#383838'
+    }else{
+        code.style.display = 'block';
+        header.innerHTML = 'hide source';
+        parent.style.borderColor = '#C678DD'
+    };
+
+    arrange();
+};
+</script>
+    	</head>
+        <body onresize="arrange()" onload="arrange()">
+
+            <!--Back to Top Button-->
+            <a id="back-to-top" href="#">back to top</a>
+
+            <!--Navigation Sidebar-->
+            <div id="nav-wrapper">
+                <div id="nav">
+                    <h2>contents</h2>
+                    <ul id="nav-ul">
+            <li class="nav-li"><a href="#functions">functions</a>
+                <ul class="subnav-ul"><li class="subnav-li"><a href="#read_o01">read_o01</a></li></li><li class="subnav-li"><a href="#read_o01s">read_o01s</a></li></li><li class="subnav-li"><a href="#read_o02">read_o02</a></li></li></ul></ul></div></div>
+
+            <div id="main">
+                <h1>enviro</h1>
+                <!--module docstring section-->
+                <div class="section"><p id="mod-docstr">This module contains functions for reading the files generated/used by the ENVIRO program, which is part of the same software suite as the SUBCALC program. ENVIRO is very similary to FIELDS. It models the electric and magnetic fields in the vicinity of groups of parallel power lines. There are, however, some differences between ENVIRO and FIELDS that might impact modeling results:<br> * ENVIRO asks for more physical parameters of the power lines (resistance and reactance)<br> * ENVIRO can take rain, fog, and snow into account somehow<br>Aside from those differences, ENVIRO appears to perform the same calculations as FIELDS and emf.fields<br><br>ENVIRO makes use of several input/output files with different extensions:<br> * i01, input data<br> * o01, formatted and heavily annotated model results<br> * o02, formatted and annotated input data<br> * o03, table of audible noise results without column headers<br> * o04, table of electric field results without column headers<br> * o05, table of magnetic field results without column headers<br><br>The functions in this module read some of the above file types.</p></div>
+
+                <!--functions section-->
+                <div class="section" id="functions"><h2>functions</h2><div class="function" id="read_o01"><p class="function-str"><span class="function-name">read_o01</span>(<span class="function-arg">fn</span>)</p><p class="docstr">Read a formatted output file of the ENVIRO program and extract the electric and magnetic fields across the model's transect, returning them in a DataFrame<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fn - str, path to the target file, must have a ".o01" extension<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;df - DataFrame of fields across the transect</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_o01</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a formatted output file of the ENVIRO program and extract the
+    electric and magnetic fields across the model&#39;s transect, returning them in
+    a DataFrame
+    args:</span>
+<span class="sd">        fn - str, path to the target file, must have a &quot;.o01&quot; extension</span>
+<span class="sd">    returns:</span>
+<span class="sd">        df - DataFrame of fields across the transect&quot;&quot;&quot;</span>
+
+    <span class="c1">#check extension</span>
+    <span class="n">fields_funks</span><span class="o">.</span><span class="n">_check_extension</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s1">&#39;o01&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Expected a file with .o01 extension&#39;</span><span class="p">)</span>
+    <span class="c1">#open file for reading</span>
+    <span class="n">ifile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="c1">#read to the electric field profile</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;ELECTRIC FIELD PROFILE&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="c1">#pick out the sample height</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">sample_height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_advance_lines</span><span class="p">(</span><span class="n">ifile</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="c1">#capture the electric field profile</span>
+    <span class="n">dist</span><span class="p">,</span> <span class="n">Emax</span><span class="p">,</span> <span class="n">Ey</span><span class="p">,</span> <span class="n">Ex</span><span class="p">,</span> <span class="n">Eprod</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields_funks</span><span class="o">.</span><span class="n">_check_intable</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="n">dist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">Emax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">Ey</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">Ex</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">Eprod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="c1">#read to the magnetic field profile</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;MAGNETIC FIELD PROFILE&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_advance_lines</span><span class="p">(</span><span class="n">ifile</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="c1">#capture the electric field profile</span>
+    <span class="n">Bmax</span><span class="p">,</span> <span class="n">By</span><span class="p">,</span> <span class="n">Bx</span><span class="p">,</span> <span class="n">Bprod</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields_funks</span><span class="o">.</span><span class="n">_check_intable</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="n">Bmax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">By</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">Bx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">Bprod</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="n">ifile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">Emax</span><span class="o">=</span><span class="n">Emax</span><span class="p">,</span> <span class="n">Ex</span><span class="o">=</span><span class="n">Ex</span><span class="p">,</span> <span class="n">Ey</span><span class="o">=</span><span class="n">Ey</span><span class="p">,</span> <span class="n">Eprod</span><span class="o">=</span><span class="n">Eprod</span><span class="p">,</span>
+            <span class="n">Bmax</span><span class="o">=</span><span class="n">Bmax</span><span class="p">,</span> <span class="n">Bx</span><span class="o">=</span><span class="n">Bx</span><span class="p">,</span> <span class="n">By</span><span class="o">=</span><span class="n">By</span><span class="p">,</span> <span class="n">Bprod</span><span class="o">=</span><span class="n">Bprod</span><span class="p">),</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">dist</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Distance (ft)&#39;</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="read_o01s"><p class="function-str"><span class="function-name">read_o01s</span>(<span class="function-arg">dir_name</span>)</p><p class="docstr">Extract fields from all "o01" files encountered in a directory, returning them in a dictionary keyed by the filenames (without extensions)<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dir_name - str, path to directory to search for o01 files<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dfs - dict of DataFrames created with read_o01, a single DataFrame<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  for each o01 file encountered</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_o01s</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract fields from all &quot;o01&quot; files encountered in a directory, returning
+    them in a dictionary keyed by the filenames (without extensions)
+    args:</span>
+<span class="sd">        dir_name - str, path to directory to search for o01 files</span>
+<span class="sd">    returns:</span>
+<span class="sd">        dfs - dict of DataFrames created with read_o01, a single DataFrame</span>
+<span class="sd">              for each o01 file encountered&quot;&quot;&quot;</span>
+
+    <span class="n">dfs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">fn</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;.o01&#39;</span><span class="p">):</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.o01&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.O01&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">dfs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_o01</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="read_o02"><p class="function-str"><span class="function-name">read_o02</span>(<span class="function-arg">fn</span>)</p><p class="docstr">Read a formatted input file of the ENVIRO program, which occur with ".o02" extensions. The relevant inputs are loaded into a CrossSection object. Because the inputs may specify a group of samples with non-uniform spacing, a DataFrame containing the fields at the points specified in the model (generated from the returned CrossSection) is also returned.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fn - str, path to the formatted input file, must have an o02 extension<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;xs - CrossSection object constructed from parameters in the input file<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;df - DataFrame containing fields at the sample points given in the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; input file</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_o02</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a formatted input file of the ENVIRO program, which occur with
+    &quot;.o02&quot; extensions. The relevant inputs are loaded into a CrossSection
+    object. Because the inputs may specify a group of samples with non-uniform
+    spacing, a DataFrame containing the fields at the points specified in the
+    model (generated from the returned CrossSection) is also returned.
+    args:</span>
+<span class="sd">        fn - str, path to the formatted input file, must have an o02 extension</span>
+<span class="sd">    returns:</span>
+<span class="sd">        xs - CrossSection object constructed from parameters in the input file</span>
+<span class="sd">        df - DataFrame containing fields at the sample points given in the</span>
+<span class="sd">             input file&quot;&quot;&quot;</span>
+
+    <span class="c1">#check extension</span>
+    <span class="n">fields_funks</span><span class="o">.</span><span class="n">_check_extension</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s1">&#39;o02&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Expected a file with .o02 extension&#39;</span><span class="p">)</span>
+    <span class="c1">#open file for reading</span>
+    <span class="n">ifile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_advance_lines</span><span class="p">(</span><span class="n">ifile</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1">#read general parameters</span>
+    <span class="n">gen</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;====&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gen</span><span class="p">[</span><span class="n">line</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="c1">#read bundle specifications</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_advance_lines</span><span class="p">(</span><span class="n">ifile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;V&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;phase&#39;</span><span class="p">,</span> <span class="s1">&#39;subconds&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;====&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="c1">#for each bundle creat a subdictionary containing modeling params</span>
+            <span class="c1">#   and the bundle name</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="p">[</span><span class="n">fields_funks</span><span class="o">.</span><span class="n">_check_intable</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">8</span><span class="p">:])]</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="c1">#read regular bundle specifications</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_advance_lines</span><span class="p">(</span><span class="n">ifile</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;====&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;d_cond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;d_bund&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+    <span class="c1">#read irregular bundle specifications</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;====&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c1">#read to the next bundle</span>
+        <span class="k">while</span><span class="p">((</span><span class="s1">&#39;====&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;No.&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">)):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="c1">#check if a bundle is There</span>
+        <span class="k">if</span><span class="p">(</span><span class="s1">&#39;No.&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+            <span class="c1">#advance one line to the table of irregular bundle specs</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="c1">#read bundle specs and number into a dict</span>
+            <span class="n">irr</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;d_cond&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+                <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+                <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;d_cond&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">4</span><span class="p">]))</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="c1">#replace the irregular bundle with the new conductors</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;subconds&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]):</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">fields_class</span><span class="o">.</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Number of subconductors indicated
+                in the &quot;BUNDLE SPECIFICATIONS&quot; section for bundle &quot;</span><span class="si">%s</span><span class="s1">&quot; does not
+                match the number of subconductors printed in the &quot;IRREGULAR
+                BUNDLES&quot; section. Cannot parse.&#39;</span> <span class="o">%</span> <span class="n">k</span><span class="p">))</span><span class="n">
+</span>            <span class="k">del</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">irr</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]):</span>
+                <span class="n">newk</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="s1">&#39;sub&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">12.0</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">12.0</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;d_cond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;d_cond&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;subconds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;d_bund&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;d_cond&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">C</span><span class="p">[</span><span class="n">newk</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;I&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">irr</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
+
+    <span class="c1">#read lateral profile info</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_advance_lines</span><span class="p">(</span><span class="n">ifile</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span><span class="p">(</span><span class="s1">&#39;====&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">lat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">stop</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="p">)))</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">ifile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">x_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">fields_funks</span><span class="o">.</span><span class="n">_flatten</span><span class="p">(</span><span class="n">lat</span><span class="p">)))</span>
+
+    <span class="c1">#ignore the weather section, close the file</span>
+    <span class="n">ifile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1">#create a CrossSection object</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">fields_class</span><span class="o">.</span><span class="n">CrossSection</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.o02&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="p">[</span><span class="n">fields_class</span><span class="o">.</span><span class="n">Conductor</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">C</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;params&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">C</span><span class="p">])</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">gen</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">sample_height</span> <span class="o">=</span> <span class="n">gen</span><span class="p">[</span><span class="s1">&#39;field sensor height (feet)&#39;</span><span class="p">]</span>
+    <span class="n">xs</span><span class="o">.</span><span class="n">max_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_sample</span><span class="p">))</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">lROW</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">rROW</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">lROW</span> <span class="o">=</span> <span class="o">-</span><span class="n">xs</span><span class="o">.</span><span class="n">max_dist</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">rROW</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">max_dist</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x_sample</span><span class="p">))</span>
+</pre></div>
+
+                    </div>
+                </div></div></div>
+
+                <!--classes section-->
+                
+
+                <!--others section-->
+                
+            </div>
+
+        </body>
+
+
+
+    </html>
+    

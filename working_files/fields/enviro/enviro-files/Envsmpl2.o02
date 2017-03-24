@@ -1,0 +1,81 @@
+======================  GENERAL PARAMETERS  ====================== 
+Title............................:  ENVIRO: Sample #2 - Three Trans. Lines 
+System of measurement............:  ENGLISH 
+Field sensor height (feet).......:  3.28 
+Altitude (meters above sea level):  1200 
+Earthresistivity (ohm-meters)....:  450.00 
+
+
+=====================  BUNDLE SPECIFICATIONS  =================== 
+Bnd Cir    Voltage        Current    No. of Reg   Coordinates 
+No. No. Phase (kV L-L)  (Amps) Angle Subcnd Bnd  x(ft)   Y(ft) 
+ 1   1    C    242.00   689.00  120    1    YES -134.50  27.00 
+ 2   1    B    242.00   689.00  240    1    YES -115.00  30.00 
+ 3   1    A    242.00   689.00    0    1    YES  -95.50  27.00 
+ 4   1   G0      0.00     0.00    0    1    YES -125.25  51.33 
+ 5   1   G0      0.00     0.00    0    1    YES -104.75  51.33 
+ 6   2    C    242.00   698.00  120    2    YES  -19.50  27.00 
+ 7   2    B    242.00   698.00  240    2    YES    0.00  30.00 
+ 8   2    A    242.00   698.00    0    2    YES   19.50  27.00 
+ 9   2   G0      0.00     0.00    0    1    YES  -10.25  51.33 
+10   2   G0      0.00     0.00    0    1    YES   10.25  51.33 
+11   3    C    550.00  1822.00  120    3    YES  115.00  33.00 
+12   3    B    550.00  1822.00  240    3    YES  135.00  67.67 
+13   3    A    550.00  1822.00    0    3    YES  155.00  33.00 
+14   3   G0      0.00     0.00    0    1    YES  119.25 112.17 
+15   3   G0      0.00     0.00    0    1    YES  150.75 112.17 
+ 
+
+
+=========  SUBCONDUCTOR SPECIFICATIONS (REGULAR BUNDLES) ======== 
+                      Subcnd.Subcnd. DC Res.  60Hz Res.   60Hz 
+Bnd.  Subconductor    Spacing Diam.  at 25øC   at 25øC  Reactance 
+ No.      Name          (in)  (in)  (ohms/mi) (ohms/mi) (ohms/mi) 
+  1  LAPWING            0.00 1.504   0.05830   0.06200   0.36400 
+  2  LAPWING            0.00 1.504   0.05830   0.06200   0.36400 
+  3  LAPWING            0.00 1.504   0.05830   0.06200   0.36400 
+  4  3/8EHS             0.00 0.360   6.74000   6.93000   1.44000 
+  5  3/8EHS             0.00 0.360   6.74000   6.93000   1.44000 
+  6  ROOK              18.00 0.977   0.14460   0.14600   0.41500 
+  7  ROOK              18.00 0.977   0.14460   0.14600   0.41500 
+  8  ROOK              18.00 0.977   0.14460   0.14600   0.41500 
+  9  3/8EHS             0.00 0.360   6.74000   6.93000   1.44000 
+ 10  3/8EHS             0.00 0.360   6.74000   6.93000   1.44000 
+ 11  LAPWING           18.00 1.504   0.05830   0.06200   0.36400 
+ 12  LAPWING           18.00 1.504   0.05830   0.06200   0.36400 
+ 13  LAPWING           18.00 1.504   0.05830   0.06200   0.36400 
+ 14  19#9AW             0.00 0.572   1.11800   1.14000   0.70100 
+ 15  19#9AW             0.00 0.572   1.11800   1.14000   0.70100 
+ 
+
+
+========  SUBCONDUCTOR SPECIFICATIONS (IRREGULAR BUNDLES) ======= 
+ 
+
+================  LATERAL PROFILE SPECIFICATIONS  =============== 
+              Start    Stop    Increment 
+ Interval    (feet)   (feet)    (feet) 
+    1       -210.00  -130.00    5.00 
+    2       -128.00   232.00    2.00 
+    3        234.00   235.00    1.00 
+ 
+
+
+=====================  WEATHER MODEL DATA  ====================== 
+Fog information 
+--------------- 
+  Starting time (military time)...:   0000 
+  Duration (hours)................:   9.00 
+
+                                      DAY      NIGHT 
+                                      ===      ===== 
+Rain information: 
+----------------- 
+  Duration (hours)................:   2.50     1.50 
+  Periods.........................:      3        2 
+  Median rate (in/hour)...........:   0.15     0.08 
+  L5 rate (in/hour)...............:   0.75     0.40 
+
+Snow information: 
+----------------- 
+  Duration (hours)................:   2.00     3.00 

@@ -2,7 +2,7 @@ from .. import os, np, pd, shutil, itertools, _resource_filename
 
 from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
                         _check_intable, _flatten, _sig_figs,
-                        _path_str_condition)
+                        _path_str_condition, _check_to_array)
 
 import fields_class
 import fields_calcs
@@ -47,7 +47,7 @@ def run(template_path, **kw):
         if(template_dir):
             kw['path'] = template_dir
     #import templates
-    sb = load_template(template_path)
+    sb = load_template(template_path, **kw)
     #export the full results workbook
     sb.results_export(**kw)
     #export ROW edge results
@@ -69,7 +69,11 @@ def load_template(file_path, sheets='all'):
                         workbook
     optional args:
         sheets - list of strings, a list of sheet names to load, default is
-                'all' sheets"""
+                'all' sheets
+    returns:
+        sb - SectionBook object containing each sheet of the excel template
+             as a CrossSection object"""
+
     #import the cross sections as a dictionary of pandas DataFrames, also
     #getting a list of the ordered sheets
     file_path = _check_extension(file_path, 'xlsx', """Templates must be excel workbooks. The input target path "%s" is not recognized as an excel file""" % file_path)

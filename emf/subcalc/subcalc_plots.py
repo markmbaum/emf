@@ -1,4 +1,4 @@
-from .. import os, np, mpl, plt, textwrap, _Rectangle
+from .. import os, np, mpl, plt, textwrap, _Rectangle, _Axes3D
 
 from ..emf_plots import _save_fig, _prepare_fig
 
@@ -151,13 +151,16 @@ def _equal_ax_objs(x_range, y_range, max_width, max_height, legend_pad):
     #return
     return(fig, ax)
 
-def _plot_footprints(ax, res, cmap, ci):
+def _plot_footprints(ax, res, cmap, ci, fp_max, fp_text):
     """Plot and label footprint outlines
     args:
         ax - Axes object to plot in
         res - Results object containing the Footprint objects
         cmap - Colormap object for coloring points of concern
         ci - function for indexing colormap (from _make_color_indexer)
+        fp_max - bool, toggle whether the maximum fields along footprints
+                 "of concern" are labeled
+        fp_text - bool, toggle footprint group labeling with text
     returns:
         handles - list of plotted handles for legend
         labels - list of labels for the handles"""
@@ -211,10 +214,11 @@ def _plot_footprints(ax, res, cmap, ci):
                     zorder=_footprint_zorder)
 
         #label the footprints themselves
-        _label_footprint_group(ax, fps)
+        if(fp_text):
+            _label_footprint_group(ax, fps)
 
     #mark maximum fields on footprints 'of concern'
-    if(be_concerned):
+    if(be_concerned and fp_max):
         #get fields
         x, y, B = res.concern_points()
         #plot points and label
@@ -374,16 +378,20 @@ def _make_cbar(ax, min_val, max_val, cmap, ci):
     ax.tick_params(axis='y', direction='out')
     ax.set_yticklabels([('%g mG' % i) for i in ax.get_yticks()])
 
-def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
-    max_fig_width=12, max_fig_height=8, legend_padding=3, **kw):
+def plot_contour(res, scale='lin', show_max=True, fp_max=True, fp_text=True,
+        cmap='viridis_r', max_fig_width=12, max_fig_height=8, legend_padding=3,
+        **kw):
     """Generate a contour plot from the magnetic field results and
     Footprint objects stored in a Results object
     args:
         res - Results object
     optional args:
         scale - str, can be 'log' or 'lin' (default is 'lin')
-        label_max - bool, toggle labeling of the maximum field location,
+        show_max - bool, toggle labeling of the maximum field location,
                     default is True
+        fp_max - bool, toggle whether the maximum fields along footprints
+                 "of concern" are labeled
+        fp_text - bool, toggle footprint group labeling with text
         cmap - str, name of matplotlib colormap, see:
                http://matplotlib.org/examples/color/colormaps_reference.html
         max_fig_width - float/int, inches, maximum width of figure
@@ -443,7 +451,7 @@ def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
     handles, labels = [], []
 
     #plot location of maximum field
-    if(label_max):
+    if(show_max):
         peak_B, yidx, xidx = subcalc_funks._2Dmax(res.B)
         peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
         handles.append(ax.plot(res.x[xidx], res.y[yidx], 'o',
@@ -454,7 +462,7 @@ def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
         labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, res, cmap, ci)
+    H, L = _plot_footprints(ax, res, cmap, ci, fp_max, fp_text)
     handles += H
     labels += L
 
@@ -485,15 +493,19 @@ def plot_contour(res, scale='lin', label_max=True, cmap='viridis_r',
 
     return(fig, ax, CS)
 
-def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
-    max_fig_height=8, legend_padding=5, **kw):
+def plot_pcolormesh(res, show_max=True, fp_max=True, fp_text=True,
+        cmap='magma_r', max_fig_width=12, max_fig_height=8, legend_padding=5,
+        **kw):
     """Generate a color mesh plot of the magnetic field results and
     Footprint objects stored in a Results object
     args:
         res - Results object
     optional args:
-        label_max - bool, toggle labeling of the maximum field location,
+        show_max - bool, toggle labeling of the maximum field location,
                     default is True
+        fp_max - bool, toggle whether the maximum fields along footprints
+                 "of concern" are labeled
+        fp_text - bool, toggle footprint group labeling with text
         cmap - str, name of matplotlib colormap, see:
                http://matplotlib.org/examples/color/colormaps_reference.html
         max_fig_width - float/int, inches, maximum width of figure
@@ -537,7 +549,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
     handles, labels = [], []
 
     #plot location of maximum field
-    if(label_max):
+    if(show_max):
         peak_B, yidx, xidx = subcalc_funks._2Dmax(res.B)
         peak_B = str(subcalc_funks._sig_figs(peak_B, 3))
         handles.append(ax.plot(res.x[xidx], res.y[yidx], 'o',
@@ -548,7 +560,7 @@ def plot_pcolormesh(res, label_max=True, cmap='magma_r', max_fig_width=12,
         labels.append('Maximum Modeled\nMagnetic Field\n(%s mG)' % peak_B)
 
     #plot footprints
-    H, L = _plot_footprints(ax, res, cmap, ci)
+    H, L = _plot_footprints(ax, res, cmap, ci, fp_max, fp_text)
     handles += H
     labels += L
 
@@ -668,8 +680,8 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
 
 def plot_cross_sections(obj, paths, xs_label_size=12, xs_color='black',
         map_style='contour', scale='lin', n=101, x_labeling='distance',
-        label_max=True, cmap='viridis_r', max_fig_width=12, max_fig_height=8,
-        legend_padding=6, **kw):
+        show_max=True, fp_max=True, fp_text=True, cmap='viridis_r',
+        max_fig_width=12, max_fig_height=8, legend_padding=6, **kw):
     """Generate a map style plot (either contour or pcolormesh) with
     cross sections labeled on it and generate plots of the fields corresponding
     to the cross sections
@@ -697,8 +709,11 @@ def plot_cross_sections(obj, paths, xs_label_size=12, xs_color='black',
                       section plots labeled according to the distance along
                       the segment or with the (x,y) coordinates of sample
                       points, default is 'distance'
-        label_max - bool, toggle labeling of the maximum field location,
+        show_max - bool, toggle labeling of the maximum field location,
                     default is True
+        fp_max - bool, toggle whether the maximum fields along footprints
+                 "of concern" are labeled
+        fp_text - bool, toggle footprint group labeling with text
         cmap - str, name of matplotlib colormap, see:
                http://matplotlib.org/examples/color/colormaps_reference.html
         max_fig_width - float/int, inches, maximum width of figure
@@ -771,14 +786,14 @@ def plot_cross_sections(obj, paths, xs_label_size=12, xs_color='black',
 
     #plot the map style figure
     if(map_style == 'contour'):
-        r = plot_contour(res, scale, label_max, cmap, max_fig_width,
-                max_fig_height, legend_padding, **kw)
+        r = plot_contour(res, scale, show_max, fp_max, fp_text, cmap,
+                max_fig_width, max_fig_height, legend_padding, **kw)
         R.append(r)
         fig, ax = r[0], r[1]
         fn = fn_prefix + 'contour-with-cross-sections' + fn_suffix
     else:
-        r = plot_pcolormesh(res, label_max, cmap, max_fig_width, max_fig_height,
-                legend_padding, **kw)
+        r = plot_pcolormesh(res, show_max, fp_max, fp_text, cmap, max_fig_width,
+                max_fig_height, legend_padding, **kw)
         R.append(r)
         fig, ax = r[0], r[1]
         fn = fn_prefix + 'pcolormesh-with-cross-sections' + fn_suffix
@@ -813,3 +828,23 @@ def plot_cross_sections(obj, paths, xs_label_size=12, xs_color='black',
             _save_fig(fn, fig, **save_kw)
 
     return(tuple(R))
+
+def plot_wires_3D(mod, include_fields=False, Bkey='Bmax'):
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for seg in mod.segments:
+        x = (seg[0][0], seg[1][0])
+        y = (seg[0][1], seg[1][1])
+        z = (seg[0][2], seg[1][2])
+        ax.plot(x, y, z, 'k')
+    ax.set_xlabel('x (ft)')
+    ax.set_ylabel('y (ft)')
+    ax.set_zlabel('z (ft)')
+    ax.set_title(mod.name)
+
+    if(include_fields):
+        res = mod.calculate()
+        res.Bkey = Bkey
+        ax.contour(res.X, res.Y, res.B, offset=mod.z)
+        ax.set_title(mod.name + '-' + Bkey)

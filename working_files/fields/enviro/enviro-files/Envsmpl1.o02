@@ -1,0 +1,88 @@
+======================  GENERAL PARAMETERS  ====================== 
+Title............................:  ENVIRO: Sample #1 - Double Circuit Line 
+System of measurement............:  ENGLISH 
+Field sensor height (feet).......:  3.28 
+Altitude (meters above sea level):  0 
+Earthresistivity (ohm-meters)....:  100.00 
+
+
+=====================  BUNDLE SPECIFICATIONS  =================== 
+Bnd Cir    Voltage        Current    No. of Reg   Coordinates 
+No. No. Phase (kV L-L)  (Amps) Angle Subcnd Bnd  x(ft)   Y(ft) 
+ 1   1    A    500.00   500.00    0    2    YES  -46.60  35.00 
+ 2   1    B    500.00   500.00  240    2    YES  -18.60  35.00 
+ 3   1    C    500.00   500.00  120    2    YES  -18.60  73.00 
+ 4   2    A    500.00   500.00    0    3     NO   46.60  35.00 
+ 5   2    B    500.00   500.00  240    3     NO   18.60  73.00 
+ 6   2    C    500.00   500.00  120    3     NO   18.60  35.00 
+ 7   1   G0      0.00     0.00    0    1    YES  -12.00  85.00 
+ 8   2   G0      0.00     0.00    0    1    YES   12.00  85.00 
+ 
+
+
+=========  SUBCONDUCTOR SPECIFICATIONS (REGULAR BUNDLES) ======== 
+                      Subcnd.Subcnd. DC Res.  60Hz Res.   60Hz 
+Bnd.  Subconductor    Spacing Diam.  at 25øC   at 25øC  Reactance 
+ No.      Name          (in)  (in)  (ohms/mi) (ohms/mi) (ohms/mi) 
+  1  JESSAMINE         18.00 1.525   0.05319   0.05850   0.36600 
+  2  JESSAMINE         18.00 1.525   0.05319   0.05850   0.36600 
+  3  JESSAMINE         18.00 1.525   0.05319   0.05850   0.36600 
+  7  37#7AW             0.00 1.010   0.36300   0.23270   0.63200 
+  8  37#7AW             0.00 1.010   0.36300   0.23270   0.63200 
+ 
+
+
+========  SUBCONDUCTOR SPECIFICATIONS (IRREGULAR BUNDLES) ======= 
+FOR BUNDLE NUMBER:  3 
+                               Subcond. DC Res. 60HzRes. 60 Hz 
+ Bnd. Subconductor   Coordinates Diam.  @ 25øC  @ 25øC   React 
+ No.     Name        X(in) Y(in) (in) (ohms/mi)(ohms/mi)(ohms/mi) 
+   4 JESSAMINE       0.00  6.00 1.525  0.05319  0.05850  0.36600 
+   4 JESSAMINE      -5.00 -4.00 1.525  0.05319  0.05850  0.36600 
+   4 JESSAMINE       5.00 -4.00 1.525  0.05319  0.05850  0.36600 
+ 
+FOR BUNDLE NUMBER:  4 
+                               Subcond. DC Res. 60HzRes. 60 Hz 
+ Bnd. Subconductor   Coordinates Diam.  @ 25øC  @ 25øC   React 
+ No.     Name        X(in) Y(in) (in) (ohms/mi)(ohms/mi)(ohms/mi) 
+   5 JESSAMINE       0.00  6.00 1.525  0.05319  0.05850  0.36600 
+   5 JESSAMINE      -5.00 -4.00 1.525  0.05319  0.05850  0.36600 
+   5 JESSAMINE       5.00 -4.00 1.525  0.05319  0.05850  0.36600 
+ 
+FOR BUNDLE NUMBER:  5 
+                               Subcond. DC Res. 60HzRes. 60 Hz 
+ Bnd. Subconductor   Coordinates Diam.  @ 25øC  @ 25øC   React 
+ No.     Name        X(in) Y(in) (in) (ohms/mi)(ohms/mi)(ohms/mi) 
+   6 JESSAMINE       0.00  6.00 1.525  0.05319  0.05850  0.36600 
+   6 JESSAMINE      -5.00 -4.00 1.525  0.05319  0.05850  0.36600 
+   6 JESSAMINE       5.00 -4.00 1.525  0.05319  0.05850  0.36600 
+ 
+ 
+
+================  LATERAL PROFILE SPECIFICATIONS  =============== 
+              Start    Stop    Increment 
+ Interval    (feet)   (feet)    (feet) 
+    1       -200.00   -75.00   25.00 
+    2        -75.00    75.00   10.00 
+    3         75.00   200.00   25.00 
+ 
+
+
+=====================  WEATHER MODEL DATA  ====================== 
+Fog information 
+--------------- 
+  Starting time (military time)...:   0000 
+  Duration (hours)................:   9.00 
+
+                                      DAY      NIGHT 
+                                      ===      ===== 
+Rain information: 
+----------------- 
+  Duration (hours)................:   2.50     1.50 
+  Periods.........................:      3        2 
+  Median rate (in/hour)...........:   0.15     0.08 
+  L5 rate (in/hour)...............:   0.75     0.40 
+
+Snow information: 
+----------------- 
+  Duration (hours)................:   2.00     3.00 

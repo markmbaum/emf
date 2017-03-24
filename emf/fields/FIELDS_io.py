@@ -112,7 +112,7 @@ def read_FLD(file_path, group_line=1, title_line=2):
         xs - CrossSection object representing the information in the FLD file"""
 
     #check extension
-    fields_funks._check_extension(file_path, 'FLD', """Input file must have a '.FLD' extention""")
+    fn = fields_funks._check_extension(file_path, 'FLD', """Input file must have a '.FLD' extention""")
     #get a list of lines
     with open(file_path, 'r') as ifile:
         lines = ifile.readlines()
