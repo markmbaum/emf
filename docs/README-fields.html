@@ -57,7 +57,33 @@
 
 <p><a href="img/both-equations.png" target="_blank"><img src="img/both-equations.png" alt="equations" style="max-width:100%;"></a></p>
 
-<p>Documentation of <code>emf.fields</code> can be found <a href="emf.fields.html">here</a></p>
+<p>Full documentation of <code>emf.fields</code> can be found <a href="emf.fields.html">here</a>.</p>
+
+<h3>
+<a id="user-content-programs-for-modeilng-2d-emf" class="anchor" href="#programs-for-modeilng-2d-emf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Programs for modeilng 2D emf</h3>
+
+<p>There are several programs available for modeling the electric and magnetic fields near parallel power lines. The one that <code>emf.fields</code> is primarily based on (and meant to replace) is an old program called FIELDS. To compute electric and magnetic fields near a group of parallel power lines, <code>emf.fields</code> and FIELDS:</p>
+
+<ul>
+<li>treat the time-varying voltage and current signals on each power line as two dimensional <a href="https://en.wikipedia.org/wiki/Phasor">phasors</a>
+</li>
+<li>approximate each of the parallel power lines as infinitely long wires</li>
+<li>apply <a href="https://en.wikipedia.org/wiki/Biot%E2%80%93Savart_law">Biot-Savart</a> to compute magnetic field phasors at the desired points in space</li>
+<li>use <a href="https://en.wikipedia.org/wiki/Coefficients_of_potential">coefficients of potential</a> to compute electric charge on each line from its voltage, then computes electric field phasors from the charges at the desired points in space, assuming the ground surface is at zero voltage</li>
+<li>compute the following time-independent quantities from the electric and magnetic field phasors:
+
+<ol>
+<li>maximum field magnitude achieved in the x direction (<code>Bx</code> and <code>Ex</code>)</li>
+<li>maximum field magnitude achieved in the y direction (<code>By</code> and <code>Ey</code>)</li>
+<li>maximum field magnitude achieved in any direction, which is generally the quantity of interest (<code>Bmax</code> and <code>Emax</code>)</li>
+<li>the "product" of the maximum x and y components, sqrt(<code>Bx</code>^2 + <code>By</code>^2) and sqrt(<code>Ex</code>^2 + <code>Ey</code>^2) (<code>Bprod</code> and <code>Eprod</code>)</li>
+</ol>
+</li>
+</ul>
+
+<p>In addition to FIELDS, another program called ENVIRO has been inspected. ENVIRO is part of the same software suite as SUBCALC, after which <code>emf.subcalc</code> is designed. ENVIRO is very similar to FIELDS and <code>emf.fields</code>. It computes fields across a line perpendicular to groups of parallel conductors. The results of ENVIRO are very similar to those of <code>emf.fields</code> for nearly identical inputs, although the difference is larger than between <code>emf.fields</code> and FIELDS. The difference between <code>emf.fields</code> and ENVIRO might be partly attributable to how the programs handle conductor bundles with multiple subconductors. There is some ambiguity with respect to how bundle diameters should be calculated from subconductor diameters and spacing. It also appears that ENVIRO accounts for "earth return currents" and for "induced currents on shield wires." These factors affect the magnetic field and difference between ENVIRO and <code>emf.fields</code> is generally greater for magnetic fields. Aside from these differences, ENVIRO calculations likely follow the same procedure as those of <code>emf.fields</code> and FIELDS.</p>
+
+<p>To facilitate comparison between <code>emf.fields</code> and ENVIRO, there is a submodule of <code>emf.fields</code> called <code>emf.fields.enviro</code> with several functions for reading ENVIRO files. The documentation for <code>emf.fields.enviro</code> is <a href="emf.fields.enviro.html">here</a>.</p>
 
 <h3>
 <a id="user-content-emffields-vs-fields" class="anchor" href="#emffields-vs-fields" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>emf.fields</code> vs FIELDS</h3>
@@ -73,6 +99,7 @@
 <li>Model resolution/extent are limited in FIELDS, with a maximum of 602 samples. Having a genuine need for more than 602 samples is unlikely, but...</li>
 <li>Results are written to delimited files with <code>.DAT</code> extensions, but these files contain results rounded/truncated to three digits and often have formatting complications or printing errors. For example, numbers that require more than four digits to the left of a decimal (including negative signs, like -1233.0) are printed on their own lines with "%" in front of them for some reason, <a href="other/32P.DAT">like so</a>. (<code>emf.fields.read_DAT</code> is a function that will read these output files into <a href="http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html">DataFrames</a> and handle all of their known eccentricities, a function mostly leftover from when <code>emf.fields</code> couldn't do EMF calculations on its own.)</li>
 <li>Nothing is scriptable. Any changes require re-navigating the menus, <code>.FLD</code> files, and <code>.DAT</code> files.</li>
+<li>The original documentation of FIELDS seems to have disappeared.</li>
 </ul>
 
 <p>FIELDS is useful for performing the EMF calculations, but the rest of the program is an impediment.</p>

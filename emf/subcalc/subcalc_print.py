@@ -1,4 +1,4 @@
-from ..emf_funks import _sig_figs
+from ..emf_funks import _sig_figs, _is_number
 
 perc_g = lambda x: ('%g' % x)
 
@@ -46,8 +46,12 @@ def _str_Model(mod):
 
 def _str_Results(res):
 
-    spacing = tuple([str(_sig_figs(i, 6)) for i in res.spacing])
-    spacing = '%s ft along x axis, %s ft along y axis' % res.spacing
+    spacing = res.spacing
+    if(_is_number(spacing)):
+        spacing = '%g ft' % spacing
+    else:
+        spacing = tuple([str(_sig_figs(i, 6)) for i in spacing])
+        spacing = '%s ft along x axis, %s ft along y axis' % res.spacing
 
     return(
         '\n    '.join(

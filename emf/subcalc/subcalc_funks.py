@@ -47,11 +47,61 @@ def drop_tower_template(*args, **kw):
     shutil.copyfile(fn_template, fn_drop)
     print('subcalc tower template written to: %s' % fn_drop)
 
-def load_towers(fn, return_model=False, **kw):
+def _read_csv_or_xlsx(fn, **kw):
+
+    #load the template file into a DataFrame
+    if('.' in fn):
+        ext = fn[fn.rfind('.')+1:]
+        if(ext == 'xlsx'):
+            dfs = pd.read_excel(fn, sheetname=None)
+            if(len(dfs.keys()) > 1):
+                if('sheet' in kw):
+                    name = kw['sheet']
+                    df = dfs[name]
+                else:
+                    raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed to load_towers, the target sheet must be specified with the keyword argument 'sheet'."""))
+            else:
+                df = dfs[dfs.keys()[0]]
+        elif(ext == 'csv'):
+            df = pd.read_csv(fn)
+            name = os.path.basename(fn)
+            if('.' in name):
+                name = name[:name.rfind('.')]
+        else:
+            raise(subcalc_class.EMFError("Only csv, xlsx, and INP files can be passed to load_towers."))
+    else:
+        raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s". File names passed to load_towers must have .csv or .xlsx extensions.""" % fn))
+
+    return(df)
+
+def _parse_tower_template(df):
+    """Read Tower objects out of a DataFrame loaded from an emf.subcalc tower template
+    args:
+        df - tower template DataFrame
+    returns:
+        towers - list of Tower objects created from the info in df"""
+
+    #condition data a little
+    df = df.dropna(how='all').fillna(method='ffill')
+    #match the columns with string distance method
+    cols = ['group', 'sequence', 'tower x', 'tower y', 'rotation', 'h', 'v', 'I', 'phase']
+    df.columns = _Levenshtein_group(df.columns, cols)
+    #parse to Towers
+    towers = []
+    for (group, seq), df in df.groupby(['group','sequence']):
+        row = df.iloc[0]
+        t = subcalc_class.Tower(group, seq, row['tower x'], row['tower y'], row['rotation'],
+                df['h'].values, df['v'].values, df['I'].values, df['phase'].values)
+        towers.append(t)
+    return(towers)
+
+def load_towers(towers, return_model=False, **kw):
     """Read an emf.subcalc tower template or a SUBCALC INP file and create a new list of Tower objects. The list of Tower objects is returned by default, but a new Model object containing the Tower objects can be returned by using return_model=True.
     args:
-        fn - string, the path string to the emf.subcalc tower template file
-             (excel or csv) or a SUBCALC INP file
+        towers - string or DataFrame. If string, 'towers' is the path string
+                 to an emf.subcalc tower template file (excel or csv) or to
+                 a SUBCALC INP file. If DataFrame, 'towers' is a previously
+                 loaded emf.subcalc tower template.
     optional args:
         return_model - bool, if False, a list of Tower objects is returned.
                        If True, a new Model object containing the Towers is
@@ -62,56 +112,36 @@ def load_towers(fn, return_model=False, **kw):
     returns:
         a list of Towers or a Model object, depending on return_model"""
 
-    #check if the target file is an INP
-    if('.INP' in fn):
-        towers = SUBCALC_io.read_INP(fn)
-        name = os.path.basename(fn)
-        if('.' in name):
-            name = name[:name.rfind('.')]
-    else:
-        #load the template file into a DataFrame
-        if('.' in fn):
-            ext = fn[fn.rfind('.')+1:]
-            if(ext == 'xlsx'):
-                dfs = pd.read_excel(fn, sheetname=None)
-                if(len(dfs.keys()) > 1):
-                    if('sheet' in kw):
-                        name = kw['sheet']
-                        df = dfs[name]
-                    else:
-                        raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed to load_towers, the target sheet must be specified with the keyword argument 'sheet'."""))
-                else:
-                    df = dfs[dfs.keys()[0]]
-            elif(ext == 'csv'):
-                df = pd.read_csv(fn)
-                name = os.path.basename(fn)
-                if('.' in name):
-                    name = name[:name.rfind('.')]
-            else:
-                raise(subcalc_class.EMFError("Only csv, xlsx, and INP files can be passed to load_towers."))
+    t = type(towers)
+    name = None
+    if((t is str) or (t is unicode)):
+        #check if the target file is an INP
+        if('.INP' in fn):
+            towers = SUBCALC_io.read_INP(fn)
+            name = os.path.basename(fn)
+            if('.' in name):
+                name = name[:name.rfind('.')]
         else:
-            raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s" passed to load_towers. File names passed to load_towers must have .csv or .xlsx extensions.""" % fn))
-        #condition data a little
-        df = df.dropna(how='all').fillna(method='ffill')
-        #match the columns with string distance method
-        cols = ['group', 'sequence', 'tower x', 'tower y', 'rotation', 'h', 'v', 'I', 'phase']
-        df.columns = _Levenshtein_group(df.columns, cols)
-        #parse to Towers
-        towers = []
-        for (group, seq), df in df.groupby(['group','sequence']):
-            row = df.iloc[0]
-            t = subcalc_class.Tower(group, seq, row['tower x'], row['tower y'], row['rotation'],
-                    df['h'].values, df['v'].values, df['I'].values, df['phase'].values)
-            towers.append(t)
+            #load the template file into a DataFrame
+            df = _read_csv_or_xlsx(fn, **kw)
+            towers = _parse_tower_template(df)
+
+    elif(t is pd.DataFrame):
+        #parse the existing DataFrame
+        towers = _parse_tower_template(towers)
 
     #return Towers directly or in a Model
     if(return_model):
-        return(subcalc_class.Model(name=name.replace('-towers',''), towers=towers))
+        if(name is not None):
+            name = name.replace('-towers', '')
+            return(subcalc_class.Model(name=name, towers=towers))
+        else:
+            return(subcalc_class.Model(towers=towers))
     else:
         return(towers)
 
 def load_results(*args, **kw):
-    """Read a .REF output file and load the data into a Results object
+    """Read a .REF output file or an excel file created by the Results.export() method, then load the data into a Results object
     args:
         results_path - string, path to the output .REF file of field results or to
                 the excel file exported by a Results object
@@ -123,6 +153,12 @@ def load_results(*args, **kw):
                      - can be 'Bx', 'By', 'Bz', 'Bmax', or 'Bres'
                      - default is 'Bmax'
                      - all components are stored, none are lost
+        kw:
+            delim - single character, if the REF file contains delimited
+                    output data (this is an option in SUBCALC), it will be
+                    detected automatically. In this case, the delimiter is
+                    assumed to be a comma and must be specified in the 'delim'
+                    argument if is something else.
     returns
         res - Results object containing results"""
 
@@ -142,9 +178,7 @@ def load_results(*args, **kw):
     if(fn[-3:] == 'REF'):
 
         #pull data from the REF file
-        data, info = SUBCALC_io.read_REF(args[0])
-        #get the gridded arrays
-        data = mesh_dict_grids(data)
+        data, info = SUBCALC_io.read_REF(args[0], **kw)
         #initialize Results object
         res = subcalc_class.Results(data, info, Bkey=Bkey)
         #check for footprint file path and load if present
@@ -197,35 +231,6 @@ def load_results(*args, **kw):
 
     #return
     return(res)
-
-def mesh_dict_grids(flat_data):
-    """Convert raw grid data read from a SubCalc output file (by the read_REF function) into meshed grids of X, Y coordinates and their corresponding B field values. This function would generally only be used on the results of subcalc_funks.read_REF to reshape 1D arrays of values pulled from REF files. However, the load_results function calls these functions to read a REF file, reshape the results, and return them in a Results object. Thus, the load_results function is almost always the more convenient way to load REF data into Python objects.
-    args:
-        flat_data - dict, keyed by 'x', 'y', 'bx', 'by', 'bz', 'bmax', 'bres'
-    returns:
-        grid_data - dict with 2D arrays keyed by
-                'X', 'Y', 'Bx', 'By', 'Bz', 'Bmax', 'Bres'
-    """
-    #find the number of points in a row
-    x = flat_data['x']
-    y = flat_data['y']
-    count = 0
-    v = y[0]
-    while(y[count] == v):
-        count += 1
-    #get ncols and nrows
-    L = len(x)
-    ncols = count
-    nrows = L/ncols
-    #map old to new keys
-    mapk = dict(zip(['x','y','bx','by','bz','bmax','bres'],
-                    ['X','Y','Bx','By','Bz','Bmax','Bres']))
-    #replace with 2D arrays
-    k = [mapk[i] for i in flat_data]
-    v = [np.reshape(flat_data[i], (nrows, ncols)) for i in flat_data]
-    grid_data = dict(zip(k, v))
-
-    return(grid_data)
 
 def _bilinear_interp(res, x, y):
     """Use Results to interpolate linearly in two dimensions for an estimate of any x,y coordinate inside the grid.

@@ -26,7 +26,7 @@ grip.api.export(path='../README.md', out_filename='../README.html')
 
 #convert notebooks to html by calling batch file
 if(len(sys.argv) > 1):
-    notebooks = bool(int(sys.argv[1]))
+    notebooks = bool(float(sys.argv[1]))
 else:
     notebooks = True
 if(notebooks):

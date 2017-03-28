@@ -4,7 +4,24 @@
 
 ![equations](img/both-equations.png)
 
-Documentation of `emf.fields` can be found [here](emf.fields.html)
+Full documentation of `emf.fields` can be found [here](emf.fields.html).
+
+### Programs for modeilng 2D emf
+
+There are several programs available for modeling the electric and magnetic fields near parallel power lines. The one that `emf.fields` is primarily based on (and meant to replace) is an old program called FIELDS. To compute electric and magnetic fields near a group of parallel power lines, `emf.fields` and FIELDS:
+* treat the time-varying voltage and current signals on each power line as two dimensional [phasors](https://en.wikipedia.org/wiki/Phasor)
+* approximate each of the parallel power lines as infinitely long wires
+* apply [Biot-Savart](https://en.wikipedia.org/wiki/Biot%E2%80%93Savart_law) to compute magnetic field phasors at the desired points in space
+* use [coefficients of potential](https://en.wikipedia.org/wiki/Coefficients_of_potential) to compute electric charge on each line from its voltage, then computes electric field phasors from the charges at the desired points in space, assuming the ground surface is at zero voltage
+* compute the following time-independent quantities from the electric and magnetic field phasors:
+  1. maximum field magnitude achieved in the x direction (`Bx` and `Ex`)
+  2. maximum field magnitude achieved in the y direction (`By` and `Ey`)
+  3. maximum field magnitude achieved in any direction, which is generally the quantity of interest (`Bmax` and `Emax`)
+  4. the "product" of the maximum x and y components, sqrt(`Bx`^2 + `By`^2) and sqrt(`Ex`^2 + `Ey`^2) (`Bprod` and `Eprod`)
+
+In addition to FIELDS, another program called ENVIRO has been inspected. ENVIRO is part of the same software suite as SUBCALC, after which `emf.subcalc` is designed. ENVIRO is very similar to FIELDS and `emf.fields`. It computes fields across a line perpendicular to groups of parallel conductors. The results of ENVIRO are very similar to those of `emf.fields` for nearly identical inputs, although the difference is larger than between `emf.fields` and FIELDS. The difference between `emf.fields` and ENVIRO might be partly attributable to how the programs handle conductor bundles with multiple subconductors. There is some ambiguity with respect to how bundle diameters should be calculated from subconductor diameters and spacing. It also appears that ENVIRO accounts for "earth return currents" and for "induced currents on shield wires." These factors affect the magnetic field and difference between ENVIRO and `emf.fields` is generally greater for magnetic fields. Aside from these differences, ENVIRO calculations likely follow the same procedure as those of `emf.fields` and FIELDS.
+
+To facilitate comparison between `emf.fields` and ENVIRO, there is a submodule of `emf.fields` called `emf.fields.enviro` with several functions for reading ENVIRO files. The documentation for `emf.fields.enviro` is [here](emf.fields.enviro.html).
 
 ### `emf.fields` vs FIELDS
 
@@ -17,6 +34,7 @@ The main problems with FIELDS:
 * Model resolution/extent are limited in FIELDS, with a maximum of 602 samples. Having a genuine need for more than 602 samples is unlikely, but...
 * Results are written to delimited files with `.DAT` extensions, but these files contain results rounded/truncated to three digits and often have formatting complications or printing errors. For example, numbers that require more than four digits to the left of a decimal (including negative signs, like -1233.0) are printed on their own lines with "%" in front of them for some reason, [like so](other/32P.DAT). (`emf.fields.read_DAT` is a function that will read these output files into [DataFrames](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html) and handle all of their known eccentricities, a function mostly leftover from when `emf.fields` couldn't do EMF calculations on its own.)
 * Nothing is scriptable. Any changes require re-navigating the menus, `.FLD` files, and `.DAT` files.
+* The original documentation of FIELDS seems to have disappeared.
 
 FIELDS is useful for performing the EMF calculations, but the rest of the program is an impediment.
 

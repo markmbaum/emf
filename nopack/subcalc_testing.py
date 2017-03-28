@@ -3,9 +3,10 @@
 
 import emf.subcalc as sc
 
-mod = sc.load_towers(r"G:\Projects\EMF_Resources\mmb-python-package\working_files\subcalc\TEST1.INP", True)
+res = sc.load_results(r"G:\Projects\215106_NeedhamEMF\Models\second-round-ir\subcalc\R18.REF")
 
-print mod.sample(1,1,range(1000))
+sc.plot_contour(res)
+sc.show()
 
 #cProfile.run(code, filename='profile')
 #pstats.Stats('profile').strip_dirs().sort_stats('time').print_stats(50)

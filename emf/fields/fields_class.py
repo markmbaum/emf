@@ -468,6 +468,10 @@ class CrossSection(object):
         for c in self.conds:
             yield(c)
 
+    def __len__(self):
+        'The length of a CrossSection is the number of Conductors in it.'
+        return(len(self._conds))
+
     def add_conductor(self, cond):
         """Add a copy of a Conductor object to the CrossSection, which can be accessed by indexing the CrossSection like a dictionary, using the Conductor's 'name' attribute.
         args:
@@ -594,10 +598,13 @@ class CrossSection(object):
             df.index.name = 'Distance (ft)'
         return(df)
 
-    def compare_DAT(self, DAT_path, **kw):
+    def compare_DAT(self, DAT_path, plot=True, **kw):
         """Load a FIELDS output file (.DAT) to calculate absolute and percentage differences between it and the CrossSection object's results. The results in the DAT file must be sampled at the same x coordinates as those in the CrossSection. A panel of comparison results is returned. If the 'save' or 'path' keywords are used, the comparison results will be saved with plots demonstrating the comparisons.
         args:
             DAT_path - path of FIELDS results file
+        optional args:
+            plot - bool, if True, two figures are returned in the figs
+                   return variable
         kw:
             save - bool, toggle whether output Panel and figures are saved,
                     also saves figures with error and comparison plots
@@ -609,7 +616,8 @@ class CrossSection(object):
         returns:
             pan - pandas Panel with DAT results, results of this code,
                 the absolute error between, and the relative error between
-            figs - two figures comparing electric and magnetic fields results"""
+            figs - two figures comparing electric and magnetic fields results,
+                   only returned if 'plot' is True"""
         #load the .DAT file into a dataframe
         df = FIELDS_io.read_DAT(DAT_path)
         #prepare a dictionary to create a Panel
@@ -634,7 +642,8 @@ class CrossSection(object):
                 frames[2]: f - df,
                 frames[3]: 100*(f - df)/f})
         #make plots of the absolute and percent error
-        figs = fields_plots._plot_comparison(self, pan, 'FIELDS', **kw)
+        if(plot):
+            figs = fields_plots._plot_comparison(self, pan, 'FIELDS', **kw)
         #write data and save figures if called for
         if('path' in kw):
             kw['save'] = True
@@ -648,7 +657,10 @@ class CrossSection(object):
                 xl.save()
                 print('DAT comparison book saved to: %s' % fn)
         #return the Panel
-        return(pan, figs)
+        if(plot):
+            return(pan, figs)
+        else:
+            return(pan)
 
     def rand(self, *args):
         """Get a random Conductor  or a list of random Conductors from the CrossSection

@@ -10,11 +10,11 @@ from subcalc_class import (Model,
                         Tower,
                         Conductor,
                         Results,
-                        Footprint)
+                        Footprint,
+                        EMFError)
 
 from subcalc_funks import (drop_tower_template,
                         drop_footprint_template,
-                        mesh_dict_grids,
                         load_results,
                         load_towers,
                         cumulative_distance)

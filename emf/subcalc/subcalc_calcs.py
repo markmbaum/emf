@@ -37,12 +37,12 @@ def B_field_segment(a, b, I, ph, x, y, z):
                the z direction"""
 
     #conversions
-    a  = a*0.3048       #convert to meters
-    b  = b*0.3048       #convert to meters
-    x  = x*0.3048       #convert to meters
-    y  = y*0.3048       #convert to meters
-    z  = z*0.3048       #convert to meters
-    ph = ph*2*np.pi/360 #convert to radians
+    a  = a*0.3048           #convert to meters
+    b  = b*0.3048           #convert to meters
+    x  = x*0.3048           #convert to meters
+    y  = y*0.3048           #convert to meters
+    z  = z*0.3048           #convert to meters
+    ph = ph*2.0*np.pi/360.0 #convert to radians
 
     #pull out the coordinates of the starting and ending point of the wire
     xa, ya, za = a

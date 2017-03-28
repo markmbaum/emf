@@ -1,8 +1,12 @@
-"""This module contains functions for reading the files generated/used by the ENVIRO program, which is part of the same software suite as the SUBCALC program. ENVIRO is very similary to FIELDS. It models the electric and magnetic fields in the vicinity of groups of parallel power lines. There are, however, some differences between ENVIRO and FIELDS that might impact modeling results:
+"""This module contains functions for reading the files generated/used by the ENVIRO program, which is part of the same software suite as the SUBCALC program. ENVIRO is very similar to FIELDS. It models the electric and magnetic fields in the vicinity of groups of parallel power lines. There are, however, some differences between ENVIRO and FIELDS that might impact modeling results:
+
  * ENVIRO asks for more physical parameters of the power lines (resistance and reactance)
+ * ENVIRO may handle subconductors within conductor bundles slightly differently than emf.fields and FIELDS
  * ENVIRO can take rain, fog, and snow into account somehow
  * ENVIRO doesn't appear to be able to model underground lines
-Aside from those differences, ENVIRO appears to perform the same calculations as FIELDS and emf.fields
+ * ENVIRO appears to account for "earth return currents" and for "induced currents on shield wires," both of which affect magnetic field calculations
+
+Aside from these differences, ENVIRO calculations likely follow the same procedure as those of `emf.fields` and FIELDS.
 
 ENVIRO makes use of several input/output files with different extensions:
  * i01, unlabeled input data
@@ -12,7 +16,7 @@ ENVIRO makes use of several input/output files with different extensions:
  * o04, table of electric field results without column headers
  * o05, table of magnetic field results without column headers
 
-The functions in this module read some of the above file types.
+The functions in this module read information out of some of the above file types.
 """
 
 from .. import os, np, pd, plt
@@ -221,18 +225,26 @@ def read_o02(fn):
 
     return(xs, xs.sample(x_sample))
 
-def compare_o01_o02(fn_o01, fn_o02, **kw):
+def compare_o01_o02(fn_o01, fn_o02, plot=True, **kw):
     """Compare the results of an ENVIRO model to those of emf.fields. Inputs to the ENVIRO model are read from an o02 file into an emf.fields CrossSection object to compute fields. The computed fields are compared to the results of the same ENVIRO model, contained in a o01 file.
     args:
         fn_o01 - str, the path to a o01 file created by ENVIRO, which
                  contains formatted model results
         fn_o02 - str, the path to a o02 file created by ENVIRO, which
                  contains formatted input parameters of the model
+    optional args:
+        plot - bool, if True, two figures are returned in the figs
+               return variable
+    kw:
+        save - bool, toggle plot saving
+        path - string, destination/filename for saved figure
+        format - string, saved plot format/extension (default 'png')
     returns:
         pan - pandas Panel object with the results of both programs and
               DataFrames with the absolute and percentage error between them
         figs - list of matplotlib Figure objects, one comparing magnetic
-               field results and another comparing electric field results"""
+               field results and another comparing electric field results,
+               only returned if 'plot' is True"""
 
     #create output filename for later
     fn_out = os.path.basename(fn_o01).replace('.o01','').replace('.O01','')
@@ -260,7 +272,8 @@ def compare_o01_o02(fn_o01, fn_o02, **kw):
             frames[3]: 100*(df2 - df1)/df1})
 
     #make plots of the absolute and percent error
-    figs = fields_plots._plot_comparison(xs, pan, 'ENVIRO', **kw)
+    if(plot):
+        figs = fields_plots._plot_comparison(xs, pan, 'ENVIRO', **kw)
 
     if('path' in kw):
         kw['save'] = True
@@ -273,4 +286,7 @@ def compare_o01_o02(fn_o01, fn_o02, **kw):
             xl.save()
             print('ENVIRO comparison book saved to: %s' % fn)
 
-    return(pan, figs)
+    if(plot):
+        return(pan, figs)
+    else:
+        return(pan)

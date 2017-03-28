@@ -841,6 +841,7 @@ def plot_wires_3D(mod, include_fields=False, Bkey='Bmax'):
     ax.set_xlabel('x (ft)')
     ax.set_ylabel('y (ft)')
     ax.set_zlabel('z (ft)')
+    plt.axis('equal')
     ax.set_title(mod.name)
 
     if(include_fields):
