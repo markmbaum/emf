@@ -33,6 +33,7 @@ def _str_Model(mod):
             'name: %s' % repr(mod.name),
             'x limits: %g to %g ft' % (mod.xmin, mod.xmax),
             'y limits: %g to %g ft' % (mod.ymin, mod.ymax),
+            'sample height (z): %g ft' % mod.z,
             'total samples: %d' % mod.N,
             'sample spacing: %g ft' % mod.spacing,
             'number of Tower objects: %d' % len(mod.towers),
@@ -46,18 +47,25 @@ def _str_Model(mod):
 
 def _str_Results(res):
 
-    spacing = res.spacing
-    if(_is_number(spacing)):
-        spacing = '%g ft' % spacing
+    s = res.spacing
+    if(_is_number(s)):
+        spacing = '%g ft' % s
+    elif(type(s) is str):
+        spacing = '%s'
     else:
-        spacing = tuple([str(_sig_figs(i, 6)) for i in spacing])
-        spacing = '%s ft along x axis, %s ft along y axis' % res.spacing
+        s = list(s)
+        for i in range(len(s)):
+            if(_is_number(s[i])):
+                s[i] = '%g ft' % s[i]
+        s = tuple(s)
+        spacing = '%s along x axis, %s along y axis' % s
 
     return(
         '\n    '.join(
             ['Results object',
             'name: %s' % repr(res.name),
             'components/Bkeys: %s' % (', '.join([repr(i) for i in res.Bkeys])),
+            'active component/Bkey: %s' % repr(res.Bkey),
             '%s range: %g to %g mG' % (res.Bkey, res.Bmin, res.Bmax),
             'x limits: %g to %g ft' % (res.xmin, res.xmax),
             'y limits: %g to %g ft' % (res.ymin, res.ymax),

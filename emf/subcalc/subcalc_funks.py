@@ -59,7 +59,7 @@ def _read_csv_or_xlsx(fn, **kw):
                     name = kw['sheet']
                     df = dfs[name]
                 else:
-                    raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed to load_towers, the target sheet must be specified with the keyword argument 'sheet'."""))
+                    raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed, the target sheet must be specified with the keyword argument 'sheet'."""))
             else:
                 df = dfs[dfs.keys()[0]]
         elif(ext == 'csv'):
@@ -68,9 +68,9 @@ def _read_csv_or_xlsx(fn, **kw):
             if('.' in name):
                 name = name[:name.rfind('.')]
         else:
-            raise(subcalc_class.EMFError("Only csv, xlsx, and INP files can be passed to load_towers."))
+            raise(subcalc_class.EMFError("Only csv and xlsx files can be parsed by _read_csv_or_xlsx."))
     else:
-        raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s". File names passed to load_towers must have .csv or .xlsx extensions.""" % fn))
+        raise(subcalc_class.EMFError("""No extension was detected at the end of file name "%s". File names passed to _read_csv_or_xlsx must have .csv or .xlsx extensions.""" % fn))
 
     return(df)
 
@@ -115,8 +115,9 @@ def load_towers(towers, return_model=False, **kw):
     t = type(towers)
     name = None
     if((t is str) or (t is unicode)):
+        fn = towers
         #check if the target file is an INP
-        if('.INP' in fn):
+        if('.inp' in fn.lower()):
             towers = SUBCALC_io.read_INP(fn)
             name = os.path.basename(fn)
             if('.' in name):
@@ -153,12 +154,11 @@ def load_results(*args, **kw):
                      - can be 'Bx', 'By', 'Bz', 'Bmax', or 'Bres'
                      - default is 'Bmax'
                      - all components are stored, none are lost
-        kw:
-            delim - single character, if the REF file contains delimited
-                    output data (this is an option in SUBCALC), it will be
-                    detected automatically. In this case, the delimiter is
-                    assumed to be a comma and must be specified in the 'delim'
-                    argument if is something else.
+        delim - single character, if the REF file contains delimited
+                output data (this is an option in SUBCALC), it will be
+                detected automatically. In this case, the delimiter is
+                assumed to be a comma and must be specified in the 'delim'
+                argument if is something else.
     returns
         res - Results object containing results"""
 
@@ -172,11 +172,9 @@ def load_results(*args, **kw):
     try:
         fn = _check_extension(args[0], '.REF', '')
     except(subcalc_class.EMFError):
-        fn = _check_extension(args[0], '.xlsx', """
-        Can only load Results from .REF or .xlsx files""")
+        fn = _check_extension(args[0], '.xlsx', """Can only load Results from .REF or .xlsx files""")
 
     if(fn[-3:] == 'REF'):
-
         #pull data from the REF file
         data, info = SUBCALC_io.read_REF(args[0], **kw)
         #initialize Results object

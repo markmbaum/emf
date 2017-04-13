@@ -60,7 +60,7 @@ def show():
     plt.show()
 
 def close(*args):
-    """Call plt.close() on any Figure objects or lists of Figure objects passed in. If nothing is passed, all Figure objects are closed with plt.close('all')"""
+    """Call plt.close() on any Figure objects or lists of Figure objects passed in. If nothing is passed, all Figure objects are closed."""
     if(args):
         for a in args:
             if(hasattr(a, '__len__')):
@@ -597,7 +597,7 @@ def plot_pcolormesh(res, show_max=True, fp_max=True, fp_text=True,
     return(fig, ax, QM, ax_cbar)
 
 def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
-    cmap='viridis_r', edgecolors='gray', **kw):
+    cmap='viridis_r', edgecolors='gray', Bkey='Bmax', **kw):
     """Plot a Results object's fields along a line segment in the results domian,
     essentially a cross section of the fields
     args:
@@ -615,6 +615,7 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
                http://matplotlib.org/examples/color/colormaps_reference.html
         edgecolors - color or sequence of colors, to set facecolors to
                      edgecolors, use 'face'
+        Bkey - str, the Bkey (component of fields) to plot
     kw:
         ax - target Axes
         fig - Figure object, target figure for plotting, overridden by 'ax'
@@ -631,15 +632,25 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
 
     #compute the path
     if(type(obj) is subcalc_class.Results):
+        #store the original Bkey of the Results, then switch it to the
+        #selected key for plotting, to be switched back after interpolation
+        init_Bkey = obj.Bkey
+        obj.Bkey = Bkey
+        #interpolate
         x, y, B_interp = obj.path(points, n)
-        bkey = obj.Bkey
+        #switch Bkey back to original
+        obj.Bkey = init_Bkey
+        #get the maxima and minima for coloring points
         bmin, bmax = obj.Bmin, obj.Bmax
+        #compute distance along path
         dist = subcalc_funks.cumulative_distance(x, y)
     elif(type(obj) is subcalc_class.Model):
+        #unpack points
         x, y = zip(*points)
-        df = obj.sample(x, y, obj.z, n=n)
-        B_interp, dist = df['Bmax'].values, df['dist'].values
-        bkey = 'Bmax'
+        #sample
+        df = obj.sample(x, y, n=n)
+        B_interp, dist = df[Bkey].values, df['dist'].values
+        #store minima and maxima for coloring
         bmin, bmax = min(B_interp), max(B_interp)
 
     #get plotting objects
@@ -672,7 +683,7 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
     #tight layout
     fig.tight_layout(pad=3)
     #write Bkey
-    _write_Bkey(fig, ax, bkey)
+    _write_Bkey(fig, ax, Bkey)
     #save or not
     _save_fig('segment-plot', fig, **kw)
 
@@ -824,28 +835,63 @@ def plot_cross_sections(obj, paths, xs_label_size=12, xs_color='black',
         c = alphabet[i]
         ax.set_title("Cross Section %s-%s'" % (c, c))
         if(save):
-            fn = '%scross-section-%s' % (fn_prefix, c + fn_suffix)
+            fn = '%scross-section%s' % (fn_prefix, c + fn_suffix)
             _save_fig(fn, fig, **save_kw)
 
     return(tuple(R))
 
-def plot_wires_3D(mod, include_fields=False, Bkey='Bmax'):
+def plot_wires_3D(mod, include_fields=False, cmap='viridis_r', Bkey='Bmax'):
+    """Create a 3D plot showing wire segments in space.
+    args:
+        mod - Model object
+    optional args:
+        include_fields - bool, if True, a contour slice is drawn at the
+                         modeled grid height
+        cmap - string, colormap used to draw contours
+               http://matplotlib.org/examples/color/colormaps_reference.html
+        Bkey - if include_fields is True, Bkey can be used to specify which
+               component of the fields is used to draw contours
+    returns:
+        fig - Figure object
+        ax - matplotlib Axes3D object"""
 
-    fig = plt.figure()
+    #make the plot
+    fig = plt.figure(figsize=(10,8))
     ax = fig.add_subplot(111, projection='3d')
+    x, y, z = [], [], []
     for seg in mod.segments:
-        x = (seg[0][0], seg[1][0])
-        y = (seg[0][1], seg[1][1])
-        z = (seg[0][2], seg[1][2])
-        ax.plot(x, y, z, 'k')
+        x.append(seg[0][0])
+        x.append(seg[1][0])
+        y.append(seg[0][1])
+        y.append(seg[1][1])
+        z.append(seg[0][2])
+        z.append(seg[1][2])
+        ax.plot(x[-2:], y[-2:], z[-2:], 'k')
+    #set limits to span equal ranges
+    xlim = min(x), max(x)
+    ylim = min(y), max(y)
+    zlim = min(z), max(z)
+    xr = xlim[1] - xlim[0]
+    yr = ylim[1] - ylim[0]
+    zr = zlim[1] - zlim[0]
+    xm = sum(xlim)/2.0
+    ym = sum(ylim)/2.0
+    zm = sum(zlim)/2.0
+    hmr = max([xr, yr, zr])/2.0
+    ax.set_xlim(xm - hmr, xm + hmr)
+    ax.set_ylim(ym - hmr, ym + hmr)
+    ax.set_zlim(zm - hmr, zm + hmr)
+    #add text
     ax.set_xlabel('x (ft)')
     ax.set_ylabel('y (ft)')
     ax.set_zlabel('z (ft)')
-    plt.axis('equal')
+    ax.axis('equal')
     ax.set_title(mod.name)
 
     if(include_fields):
         res = mod.calculate()
         res.Bkey = Bkey
-        ax.contour(res.X, res.Y, res.B, offset=mod.z)
+        ax.contour(res.X, res.Y, res.B, offset=mod.z, cmap=cmap)
         ax.set_title(mod.name + '-' + Bkey)
+
+    return(fig, ax)

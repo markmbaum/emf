@@ -6,8 +6,7 @@ emf.fields still contains functions streamlining the use of FIELDS. At this poin
 
 from fields_class import (Conductor,
                         CrossSection,
-                        SectionBook,
-                        EMFError)
+                        SectionBook)
 
 from fields_funks import (drop_template,
 						load_template,

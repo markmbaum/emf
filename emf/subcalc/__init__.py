@@ -10,8 +10,7 @@ from subcalc_class import (Model,
                         Tower,
                         Conductor,
                         Results,
-                        Footprint,
-                        EMFError)
+                        Footprint)
 
 from subcalc_funks import (drop_tower_template,
                         drop_footprint_template,

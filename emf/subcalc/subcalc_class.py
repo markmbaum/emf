@@ -1064,15 +1064,24 @@ class Results(object):
         x, y = self.x, self.y
         xr = np.max(x) - np.min(x)
         yr = np.max(y) - np.min(y)
+        #get x spacing
         if(np.any(np.abs(np.diff(np.diff(x))) > 1e-9*xr)):
             sx = 'non-uniform'
         else:
             sx = abs(x[1] - x[0])
+        #get y spacing
         if(np.any(np.abs(np.diff(np.diff(y))) > 1e-9*yr)):
             sy = 'non-uniform'
         else:
             sy = abs(y[0] - y[1])
-        if((sx - sy)/(sx + sy) > 1e-9):
+        #return appropriate spacing
+        if((type(sx) is str) or (type(sy) is str)):
+            #the spacing along one axis is non-uniform
+            if(sx == sy):
+                return(sx)
+            else:
+                return(sx, sy)
+        elif((sx - sy)/(sx + sy) > 1e-9):
             return(sx, sy)
         else:
             return(sx)

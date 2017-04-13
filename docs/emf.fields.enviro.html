@@ -399,7 +399,7 @@ function toggleSource(obj){
                     <h2>contents</h2>
                     <ul id="nav-ul">
             <li class="nav-li"><a href="#functions">functions</a>
-                <ul class="subnav-ul"><li class="subnav-li"><a href="#compare_o01_o02">compare_o01_o02</a></li></li><li class="subnav-li"><a href="#read_o01">read_o01</a></li></li><li class="subnav-li"><a href="#read_o01s">read_o01s</a></li></li><li class="subnav-li"><a href="#read_o02">read_o02</a></li></li></ul></ul></div></div>
+                <ul class="subnav-ul"><li class="subnav-li"><a href="#compare_o01_o02">compare_o01_o02</a></li></li><li class="subnav-li"><a href="#read_o01">read_o01</a></li></li><li class="subnav-li"><a href="#read_o01s">read_o01s</a></li></li><li class="subnav-li"><a href="#read_o02">read_o02</a></li></li><li class="subnav-li"><a href="#read_o02s">read_o02s</a></li></li></ul></ul></div></div>
 
             <div id="main">
                 <h1>emf.fields.enviro</h1>
@@ -547,13 +547,14 @@ function toggleSource(obj){
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id="read_o01s"><p class="function-str"><span class="function-name">read_o01s</span>(<span class="function-arg">dir_name</span>)</p><p class="docstr">Extract fields from all "o01" files encountered in a directory, returning them in a dictionary keyed by the filenames (without extensions)<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dir_name - str, path to directory to search for o01 files<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dfs - dict of DataFrames created with read_o01, a single DataFrame<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  for each o01 file encountered</p>
+                </div></div><div class="function" id="read_o01s"><p class="function-str"><span class="function-name">read_o01s</span>(<span class="function-arg">dir_name</span>)</p><p class="docstr">Extract fields from all "o01" files encountered in a directory, returning them in a dictionary keyed by the filenames (without extensions). To search the current directory, use '.' for the dir_name.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dir_name - str, path to directory to search for o01 files<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dfs - dict of DataFrames created with read_o01, a single DataFrame<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  for each o01 file encountered</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
                         <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_o01s</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Extract fields from all &quot;o01&quot; files encountered in a directory, returning
-    them in a dictionary keyed by the filenames (without extensions)
+    them in a dictionary keyed by the filenames (without extensions). To search
+    the current directory, use &#39;.&#39; for the dir_name.
     args:</span>
 <span class="sd">        dir_name - str, path to directory to search for o01 files</span>
 <span class="sd">    returns:</span>
@@ -704,6 +705,40 @@ function toggleSource(obj){
         <span class="n">xs</span><span class="o">.</span><span class="n">rROW</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">max_dist</span>
 
     <span class="k">return</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">x_sample</span><span class="p">))</span>
+</pre></div>
+
+                    </div>
+                </div></div><div class="function" id="read_o02s"><p class="function-str"><span class="function-name">read_o02s</span>(<span class="function-arg">dir_name</span>)</p><p class="docstr">Read all o02 files found in a directory, loading each into a CrossSection object and computing fields at the sample points specified in each file. The CrossSection objects are put in a SectionBook objects, which is then returned. The DataFrames are returned in a dictionary keyed by each filename (without extension). To search the current directory, use '.' for the dir_name.<br>&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dir_name - str, path to directory to search for o01 files<br>&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sb - SectionBook containing a CrossSection for each file found<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;dfs - dict of DataFrames created with read_o02, a single DataFrame<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  of field results for each o02 file encountered</p>
+                <div class="source">
+                    <h4 onclick="toggleSource(this)">show source</h4>
+                    <div class="code">
+                        <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">read_o02s</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read all o02 files found in a directory, loading each into a CrossSection
+    object and computing fields at the sample points specified in each file. The
+    CrossSection objects are put in a SectionBook objects, which is then
+    returned. The DataFrames are returned in a dictionary keyed by each filename
+    (without extension). To search the current directory, use &#39;.&#39; for the
+    dir_name.
+    args:</span>
+<span class="sd">        dir_name - str, path to directory to search for o01 files</span>
+<span class="sd">    returns:</span>
+<span class="sd">        sb - SectionBook containing a CrossSection for each file found</span>
+<span class="sd">        dfs - dict of DataFrames created with read_o02, a single DataFrame</span>
+<span class="sd">              of field results for each o02 file encountered&quot;&quot;&quot;</span>
+
+    <span class="n">dfs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">xss</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dir_name</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">fn</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;.o02&#39;</span><span class="p">):</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.o02&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.O02&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">xs</span><span class="p">,</span> <span class="n">dfs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_o02</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_name</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+                <span class="n">xss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="c1">#create SectionBook</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">dir_name</span><span class="p">)</span>
+    <span class="n">sb</span> <span class="o">=</span> <span class="n">fields_class</span><span class="o">.</span><span class="n">SectionBook</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">xss</span><span class="p">)</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">sb</span><span class="p">,</span> <span class="n">dfs</span><span class="p">)</span>
 </pre></div>
 
                     </div>

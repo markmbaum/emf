@@ -47,7 +47,11 @@ def run(template_path, **kw):
         if(template_dir):
             kw['path'] = template_dir
     #import templates
-    sb = load_template(template_path, **kw)
+    if('sheets' in kw):
+        sheets = kw['sheets']
+    else:
+        sheets = 'all'
+    sb = load_template(template_path, sheets)
     #export the full results workbook
     sb.results_export(**kw)
     #export ROW edge results

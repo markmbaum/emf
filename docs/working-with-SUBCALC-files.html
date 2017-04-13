@@ -190,7 +190,7 @@ div#notebook {
 <span class="c1">#commands to make plots appear inside this notebook</span>
 <span class="n">sc</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
-<span class="c1">#the &quot;pretty printing&quot; module to print variables more nicely</span>
+<span class="c1">#the &quot;pretty printing&quot; module is used to print variables more readably</span>
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 </pre></div>
 
@@ -233,13 +233,55 @@ div#notebook {
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>{&apos;bmax&apos;: array([ 0.26,  0.26,  0.26, ...,  0.07,  0.07,  0.07]),
- &apos;bres&apos;: array([ 0.26,  0.26,  0.26, ...,  0.07,  0.07,  0.07]),
- &apos;bx&apos;: array([ 0.13,  0.13,  0.13, ...,  0.02,  0.02,  0.02]),
- &apos;by&apos;: array([ 0.12,  0.12,  0.12, ...,  0.01,  0.01,  0.01]),
- &apos;bz&apos;: array([ 0.19,  0.19,  0.19, ...,  0.06,  0.06,  0.06]),
- &apos;x&apos;: array([   0.,    1.,    2., ...,  498.,  499.,  500.]),
- &apos;y&apos;: array([ 500.,  500.,  500., ...,    0.,    0.,    0.])}
+<pre>{&apos;Bmax&apos;: array([[ 0.26,  0.26,  0.26, ...,  0.09,  0.09,  0.09],
+       [ 0.26,  0.26,  0.26, ...,  0.09,  0.09,  0.09],
+       [ 0.26,  0.26,  0.27, ...,  0.09,  0.09,  0.09],
+       ..., 
+       [ 0.22,  0.22,  0.22, ...,  0.07,  0.07,  0.07],
+       [ 0.21,  0.22,  0.22, ...,  0.07,  0.07,  0.07],
+       [ 0.21,  0.21,  0.22, ...,  0.07,  0.07,  0.07]]),
+ &apos;Bres&apos;: array([[ 0.26,  0.26,  0.26, ...,  0.09,  0.09,  0.09],
+       [ 0.26,  0.26,  0.26, ...,  0.09,  0.09,  0.09],
+       [ 0.26,  0.26,  0.27, ...,  0.09,  0.09,  0.09],
+       ..., 
+       [ 0.22,  0.22,  0.22, ...,  0.07,  0.07,  0.07],
+       [ 0.21,  0.22,  0.22, ...,  0.07,  0.07,  0.07],
+       [ 0.21,  0.21,  0.22, ...,  0.07,  0.07,  0.07]]),
+ &apos;Bx&apos;: array([[ 0.13,  0.13,  0.13, ...,  0.05,  0.05,  0.05],
+       [ 0.13,  0.13,  0.14, ...,  0.05,  0.05,  0.05],
+       [ 0.14,  0.14,  0.14, ...,  0.05,  0.05,  0.05],
+       ..., 
+       [ 0.06,  0.06,  0.06, ...,  0.02,  0.02,  0.02],
+       [ 0.06,  0.06,  0.06, ...,  0.02,  0.02,  0.02],
+       [ 0.06,  0.06,  0.06, ...,  0.02,  0.02,  0.02]]),
+ &apos;By&apos;: array([[ 0.12,  0.12,  0.12, ...,  0.04,  0.04,  0.04],
+       [ 0.12,  0.12,  0.12, ...,  0.05,  0.04,  0.04],
+       [ 0.12,  0.12,  0.13, ...,  0.05,  0.05,  0.04],
+       ..., 
+       [ 0.02,  0.02,  0.02, ...,  0.01,  0.01,  0.01],
+       [ 0.02,  0.02,  0.02, ...,  0.01,  0.01,  0.01],
+       [ 0.02,  0.02,  0.02, ...,  0.01,  0.01,  0.01]]),
+ &apos;Bz&apos;: array([[ 0.19,  0.19,  0.19, ...,  0.06,  0.06,  0.06],
+       [ 0.19,  0.19,  0.19, ...,  0.06,  0.06,  0.06],
+       [ 0.19,  0.19,  0.19, ...,  0.06,  0.06,  0.06],
+       ..., 
+       [ 0.21,  0.21,  0.21, ...,  0.06,  0.06,  0.06],
+       [ 0.2 ,  0.21,  0.21, ...,  0.06,  0.06,  0.06],
+       [ 0.2 ,  0.2 ,  0.21, ...,  0.06,  0.06,  0.06]]),
+ &apos;X&apos;: array([[   0.,    1.,    2., ...,  498.,  499.,  500.],
+       [   0.,    1.,    2., ...,  498.,  499.,  500.],
+       [   0.,    1.,    2., ...,  498.,  499.,  500.],
+       ..., 
+       [   0.,    1.,    2., ...,  498.,  499.,  500.],
+       [   0.,    1.,    2., ...,  498.,  499.,  500.],
+       [   0.,    1.,    2., ...,  498.,  499.,  500.]]),
+ &apos;Y&apos;: array([[ 500.,  500.,  500., ...,  500.,  500.,  500.],
+       [ 499.,  499.,  499., ...,  499.,  499.,  499.],
+       [ 498.,  498.,  498., ...,  498.,  498.,  498.],
+       ..., 
+       [   2.,    2.,    2., ...,    2.,    2.,    2.],
+       [   1.,    1.,    1., ...,    1.,    1.,    1.],
+       [   0.,    0.,    0., ...,    0.,    0.,    0.]])}
 </pre>
 </div>
 </div>
@@ -321,12 +363,13 @@ div#notebook {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Results object
     name: &apos;TEST&apos;
-    components/Bkeys: &apos;Bres&apos;, &apos;Bmax&apos;, &apos;Bx&apos;, &apos;By&apos;, &apos;Bz&apos;
+    components/Bkeys: &apos;Bmax&apos;, &apos;Bres&apos;, &apos;By&apos;, &apos;Bz&apos;, &apos;Bx&apos;
+    active component/Bkey: &apos;Bmax&apos;
     Bmax range: 0.05 to 25.83 mG
     x limits: 0 to 500 ft
     y limits: 0 to 500 ft
     total samples: 251001
-    sample spacing: 1.0 ft along x axis, 1.0 ft along y axis
+    sample spacing: 1 ft
     number of Footprints: 0
     Footprint groups: 
 </pre>
@@ -415,12 +458,13 @@ div#notebook {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Results object
     name: &apos;TEST&apos;
-    components/Bkeys: &apos;Bmax&apos;, &apos;Bres&apos;, &apos;By&apos;, &apos;Bz&apos;, &apos;Bx&apos;
+    components/Bkeys: &apos;Bres&apos;, &apos;Bmax&apos;, &apos;By&apos;, &apos;Bz&apos;, &apos;Bx&apos;
+    active component/Bkey: &apos;Bmax&apos;
     Bmax range: 0.05 to 25.83 mG
     x limits: 0 to 500 ft
     y limits: 0 to 500 ft
     total samples: 251001
-    sample spacing: 1.0 ft along x axis, 1.0 ft along y axis
+    sample spacing: 1 ft
     number of Footprints: 0
     Footprint groups: 
 </pre>
@@ -443,7 +487,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">load_results</span><span class="p">(</span><span class="s1">&#39;TEST.REF&#39;</span><span class="p">,</span> <span class="s1">&#39;TEST-footprints.csv&#39;</span><span class="p">)</span>
@@ -462,12 +506,13 @@ div#notebook {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Results object
     name: &apos;TEST&apos;
-    components/Bkeys: &apos;Bres&apos;, &apos;Bmax&apos;, &apos;Bx&apos;, &apos;By&apos;, &apos;Bz&apos;
+    components/Bkeys: &apos;Bmax&apos;, &apos;Bres&apos;, &apos;By&apos;, &apos;Bz&apos;, &apos;Bx&apos;
+    active component/Bkey: &apos;Bmax&apos;
     Bmax range: 0.05 to 25.83 mG
     x limits: 0 to 500 ft
     y limits: 0 to 500 ft
     total samples: 251001
-    sample spacing: 1.0 ft along x axis, 1.0 ft along y axis
+    sample spacing: 1 ft
     number of Footprints: 2
     Footprint groups: &apos;T-Line 2&apos;, &apos;T-Line 1&apos;
 </pre>
@@ -490,7 +535,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">sc</span><span class="o">.</span><span class="n">plot_contour</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
@@ -504,13 +549,13 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[9]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(&lt;matplotlib.figure.Figure at 0x16993570&gt;,
- &lt;matplotlib.axes._subplots.AxesSubplot at 0x175be1f0&gt;,
- &lt;matplotlib.contour.QuadContourSet at 0x175d1eb0&gt;)</pre>
+<pre>(&lt;matplotlib.figure.Figure at 0x88b1b50&gt;,
+ &lt;matplotlib.axes._subplots.AxesSubplot at 0x14f66e70&gt;,
+ &lt;matplotlib.contour.QuadContourSet at 0x14f74cf0&gt;)</pre>
 </div>
 
 </div>
@@ -2252,7 +2297,7 @@ gAohhBBCiIKSACqEEEIIIQpKAqgQQgghhCio/w9O+DOa4D10hgAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#Here we load the INP data into a list of Towers, which are then loaded into a</span>
@@ -2276,6 +2321,7 @@ gAohhBBCiIKSACqEEEIIIQpKAqgQQgghhCio/w9O+DOa4D10hgAAAABJRU5ErkJggg==
     name: &apos;TEST&apos;
     x limits: 5.90505 to 440.297 ft
     y limits: 71.6831 to 426.71 ft
+    sample height (z): 3.28 ft
     total samples: 100737
     sample spacing: 1.24186 ft
     number of Tower objects: 8
@@ -2303,7 +2349,7 @@ gAohhBBCiIKSACqEEEIIIQpKAqgQQgghhCio/w9O+DOa4D10hgAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
@@ -2320,21 +2366,19 @@ gAohhBBCiIKSACqEEEIIIQpKAqgQQgghhCio/w9O+DOa4D10hgAAAABJRU5ErkJggg==
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>segment calculations complete. converting phasors to magnitudes.
-
-total calculation time: 1.462 seconds
+<pre>all calculations complete. total calculation time: 1.444 seconds.
 </pre>
 </div>
 </div>
 
-<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>(&lt;matplotlib.figure.Figure at 0x169930b0&gt;,
- &lt;matplotlib.axes._subplots.AxesSubplot at 0x164581d0&gt;,
- &lt;matplotlib.collections.QuadMesh at 0x16523570&gt;,
- &lt;matplotlib.axes._subplots.AxesSubplot at 0x16523850&gt;)</pre>
+<pre>(&lt;matplotlib.figure.Figure at 0x17a9dfd0&gt;,
+ &lt;matplotlib.axes._subplots.AxesSubplot at 0x14f0db70&gt;,
+ &lt;matplotlib.collections.QuadMesh at 0x14f2bb50&gt;,
+ &lt;matplotlib.axes._subplots.AxesSubplot at 0x14f15910&gt;)</pre>
 </div>
 
 </div>

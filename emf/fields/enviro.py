@@ -86,7 +86,7 @@ def read_o01(fn):
     return(df)
 
 def read_o01s(dir_name):
-    """Extract fields from all "o01" files encountered in a directory, returning them in a dictionary keyed by the filenames (without extensions)
+    """Extract fields from all "o01" files encountered in a directory, returning them in a dictionary keyed by the filenames (without extensions). To search the current directory, use '.' for the dir_name.
     args:
         dir_name - str, path to directory to search for o01 files
     returns:
@@ -224,6 +224,29 @@ def read_o02(fn):
         xs.rROW = xs.max_dist
 
     return(xs, xs.sample(x_sample))
+
+def read_o02s(dir_name):
+    """Read all o02 files found in a directory, loading each into a CrossSection object and computing fields at the sample points specified in each file. The CrossSection objects are put in a SectionBook objects, which is then returned. The DataFrames are returned in a dictionary keyed by each filename (without extension). To search the current directory, use '.' for the dir_name.
+    args:
+        dir_name - str, path to directory to search for o01 files
+    returns:
+        sb - SectionBook containing a CrossSection for each file found
+        dfs - dict of DataFrames created with read_o02, a single DataFrame
+              of field results for each o02 file encountered"""
+
+    dfs = dict()
+    xss = []
+    for fn in os.listdir(dir_name):
+        if(len(fn) > 4):
+            if(fn[-4:].lower() == '.o02'):
+                k = fn.replace('.o02', '').replace('.O02', '')
+                xs, dfs[k] = read_o02(os.path.join(dir_name, fn))
+                xss.append(xs)
+    #create SectionBook
+    name = os.path.basename(dir_name)
+    sb = fields_class.SectionBook(name, xss)
+
+    return(sb, dfs)
 
 def compare_o01_o02(fn_o01, fn_o02, plot=True, **kw):
     """Compare the results of an ENVIRO model to those of emf.fields. Inputs to the ENVIRO model are read from an o02 file into an emf.fields CrossSection object to compute fields. The computed fields are compared to the results of the same ENVIRO model, contained in a o01 file.

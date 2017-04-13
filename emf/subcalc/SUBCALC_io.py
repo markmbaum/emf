@@ -20,7 +20,7 @@ def read_INP(file_path):
         a list of Towers"""
 
     #check extension
-    file_path = subcalc_funks._check_extension(file_path, 'INP',
+    subcalc_funks._check_extension(file_path.lower(), 'inp',
             'Target file must have an "INP" extension.')
 
     info = {}

@@ -3,9 +3,9 @@
 
 import emf.subcalc as sc
 
-res = sc.load_results(r"G:\Projects\215106_NeedhamEMF\Models\second-round-ir\subcalc\R18.REF")
-
-sc.plot_contour(res)
+mod = sc.load_towers(r"G:\Projects\EMF_Resources\mmb-python-package\working_files\subcalc\TEST1.INP", True)
+mod.N = 5e4
+sc.plot_wires_3D(mod, True)
 sc.show()
 
 #cProfile.run(code, filename='profile')
