@@ -2117,26 +2117,24 @@ function toggleSource(obj){
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id=Model-to_tower_template><p class="function-str"><span class="function-name">to_tower_template</span>(<span class="function-arg">fmt</span>=<span class="default-str">'csv'</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Export the Towers in the Model object to a template file in csv or excel format. Any Conductor objects in the Model will NOT be written to the tower template.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;optional args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fmt - 'csv' or 'excel'<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, output destination/filename</p>
+                </div></div><div class="function" id=Model-to_tower_template><p class="function-str"><span class="function-name">to_tower_template</span>(<span class="function-arg">save</span>=<span class="function-arg">False</span>, <span class="function-arg">fmt</span>=<span class="default-str">'csv'</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Export the Towers in the Model object to a template file in csv or excel format. Any Conductor objects in the Model will NOT be written to the tower template.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;optional args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;save - bool, toggle whether the DataFrame is written to file<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;fmt - 'csv' or 'excel', controlling which file type is written<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;  to file if save is True<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;path - string, output destination/filename<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;returns:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;df - a DataFrame containing footprint template data in the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; format of emf.subcalc's tower template</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
-                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">to_tower_template</span><span class="p">(</span><span class="bp2">self</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+                        <div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">to_tower_template</span><span class="p">(</span><span class="bp2">self</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Export the Towers in the Model object to a template file in csv or
         excel format. Any Conductor objects in the Model will NOT be written to
         the tower template.
         optional args:</span>
-<span class="sd">            fmt - &#39;csv&#39; or &#39;excel&#39;</span>
+<span class="sd">            save - bool, toggle whether the DataFrame is written to file</span>
+<span class="sd">            fmt - &#39;csv&#39; or &#39;excel&#39;, controlling which file type is written</span>
+<span class="sd">                  to file if save is True</span>
 <span class="sd">        kw:</span>
-<span class="sd">            path - string, output destination/filename&quot;&quot;&quot;</span>
-        <span class="c1">#get filename</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">):</span>
-            <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.csv&#39;</span>
-        <span class="k">elif</span><span class="p">(</span><span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;excel&#39;</span><span class="p">):</span>
-            <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.xlsx&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;fmt argument must be &#39;csv&#39; or &#39;excel&#39;.&quot;</span><span class="p">))</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_path_manage</span><span class="p">(</span><span class="bp2">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;-towers&#39;</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+<span class="sd">            path - string, output destination/filename</span>
+<span class="sd">        returns:</span>
+<span class="sd">            df - a DataFrame containing footprint template data in the</span>
+<span class="sd">                 format of emf.subcalc&#39;s tower template&quot;&quot;&quot;</span>
+
         <span class="c1">#compile template dataframe</span>
         <span class="n">L</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp2">self</span><span class="o">.</span><span class="n">towers</span><span class="p">])</span>
         <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;tower x&#39;</span><span class="p">,</span> <span class="s1">&#39;tower y&#39;</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">,</span>
@@ -2156,11 +2154,23 @@ function toggleSource(obj){
                 <span class="n">df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">count</span><span class="p">,</span><span class="n">cols</span><span class="p">[</span><span class="mi">7</span><span class="p">]]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">df</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">count</span><span class="p">,</span><span class="n">cols</span><span class="p">[</span><span class="mi">8</span><span class="p">]]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">phase</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">):</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c1">#save and return, or just return</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">save</span><span class="p">):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">):</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.csv&#39;</span>
+            <span class="k">elif</span><span class="p">(</span><span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;excel&#39;</span><span class="p">):</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;.xlsx&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s2">&quot;fmt argument must be &#39;csv&#39; or &#39;excel&#39;.&quot;</span><span class="p">))</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_path_manage</span><span class="p">(</span><span class="bp2">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;-towers&#39;</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">):</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;towers in model &quot;</span><span class="si">%s</span><span class="s1">&quot; written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp2">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+            <span class="k">return</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;towers in model &quot;</span><span class="si">%s</span><span class="s1">&quot; written to: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp2">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+            <span class="k">return</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </pre></div>
 
                     </div>
@@ -2256,7 +2266,9 @@ function toggleSource(obj){
                 <span class="bp2">self</span><span class="o">.</span><span class="n">_Bkey</span> <span class="o">=</span> <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;Bkey&#39;</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp2">self</span><span class="o">.</span><span class="n">_Bkey</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
-            <span class="bp2">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp2">self</span><span class="o">.</span><span class="n">_Bkey</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span>
+            <span class="bp2">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="bp2">self</span><span class="o">.</span><span class="n">_Bkey</span><span class="p">:</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">])}</span>
             <span class="c1">#store the info dict if present</span>
             <span class="k">if</span><span class="p">(</span><span class="n">largs</span> <span class="o">==</span> <span class="mi">4</span><span class="p">):</span>
                 <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">):</span>
@@ -2439,7 +2451,7 @@ function toggleSource(obj){
 </pre></div>
 
                     </div>
-                </div></div><div class="function" id=Results-load_footprints><p class="function-str"><span class="function-name">load_footprints</span>(<span class="function-arg">footprints</span>, <span class="function-arg">clear</span>=<span class="function-arg">True</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Read footprint data from a csv/excel file and organize it in Footprint objects stored in self.footprints<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;footprints - string, path to the footprint csv/excel data.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;If footprint data is in an excel workbook with,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;multiple sheets, the sheet name must be passed<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;to the keyword argumment 'sheet'<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;or<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;an existing DataFrame with footprint data<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;optional args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;clear - bool, True will replace all existing footprints with the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;loaded ones, False will simply add loaded footprints to<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the list of existing ones.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sheet - str, specifies the target sheet if an excel workbook with<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;multiple sheets is passed in</p>
+                </div></div><div class="function" id=Results-load_footprints><p class="function-str"><span class="function-name">load_footprints</span>(<span class="function-arg">footprints</span>, <span class="function-arg">clear</span>=<span class="function-arg">True</span>, **<span class="function-arg">kw</span>)</p><p class="docstr">Read footprint data from a csv/excel file and organize it in Footprint objects stored in self.footprints<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;footprints - string, path to the footprint csv/excel data.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;If footprint data is in an excel workbook with,<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;multiple sheets, the sheet name must be passed<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;to the keyword argumment 'sheet'<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;or<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;an existing DataFrame with footprint data<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;or<br><br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;a list of Footprint objects<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;optional args:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;clear - bool, True will replace all existing footprints with the<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;loaded ones, False will simply add loaded footprints to<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;the list of existing ones.<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;kw:<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;sheet - str, specifies the target sheet if an excel workbook with<br>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;multiple sheets is passed in</p>
                 <div class="source">
                     <h4 onclick="toggleSource(this)">show source</h4>
                     <div class="code">
@@ -2455,6 +2467,10 @@ function toggleSource(obj){
 <span class="sd">                            or</span>
 
 <span class="sd">                        an existing DataFrame with footprint data</span>
+
+<span class="sd">                            or</span>
+
+<span class="sd">                        a list of Footprint objects</span>
 <span class="sd">        optional args:</span>
 <span class="sd">            clear - bool, True will replace all existing footprints with the</span>
 <span class="sd">                    loaded ones, False will simply add loaded footprints to</span>
@@ -2464,45 +2480,51 @@ function toggleSource(obj){
 <span class="sd">                    multiple sheets is passed in&quot;&quot;&quot;</span>
         <span class="c1">#load file if footprints is not a DataFrame</span>
         <span class="n">t</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">footprints</span><span class="p">)</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">t</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">footprints</span>
-        <span class="k">elif</span><span class="p">((</span><span class="n">t</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">)):</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_read_csv_or_xlsx</span><span class="p">(</span><span class="n">footprints</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">t</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">footprints</span><span class="p">:</span>
+                <span class="bp2">self</span><span class="o">.</span><span class="n">_footprints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Only pandas DataFrames and path strings can be
-            passed to Results.load_footprints, not type &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span><span class="n">
+
+            <span class="k">if</span><span class="p">(</span><span class="n">t</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">footprints</span>
+            <span class="k">elif</span><span class="p">((</span><span class="n">t</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="ow">is</span> <span class="nb">unicode</span><span class="p">)):</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_read_csv_or_xlsx</span><span class="p">(</span><span class="n">footprints</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="s1">&#39;Only pandas DataFrames, path strings, or lists
+                of Footprint objects can be passed to Results.load_footprints,
+                not type &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span><span class="n">
 </span>
-        <span class="c1">#do a little data conditioning</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
-        <span class="c1">#match columns with string distance method</span>
-        <span class="n">cols</span> <span class="o">=</span> <span class="bp2">self</span><span class="o">.</span><span class="n">_footprint_cols</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_Levenshtein_group</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>
-        <span class="c1">#store an error message</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            The column:</span>
-<span class="s2">                &quot;</span><span class="si">%s</span><span class="s2">&quot;</span>
-<span class="s2">            must contain only a single value for each unique footprint.</span>
-<span class="s2">            The value should simply be repeated to fill all cells.</span>
-<span class="s2">            The column contains multiple values for footprint name:</span>
-<span class="s2">                &quot;</span><span class="si">%s</span><span class="s2">&quot; &quot;&quot;&quot;</span>
-        <span class="c1">#pick out some columns</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
-        <span class="c1">#clear the footprints list</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">clear</span><span class="p">):</span>
-            <span class="bp2">self</span><span class="o">.</span><span class="n">_footprints</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1">#create a footprint out of rows with the same &quot;Name&quot;</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="c1">#check that certain fields only contain a single entry</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
-                <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
-                    <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="n">msg</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span>
-            <span class="c1">#create a footprint object</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">fp</span> <span class="o">=</span> <span class="n">Footprint</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
-                    <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                    <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">]],</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">6</span><span class="p">]])</span>
-            <span class="c1">#append the Footprint to the Results object&#39;s list</span>
-            <span class="bp2">self</span><span class="o">.</span><span class="n">_footprints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="c1">#do a little data conditioning</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span>
+            <span class="c1">#match columns with string distance method</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="bp2">self</span><span class="o">.</span><span class="n">_footprint_cols</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">subcalc_funks</span><span class="o">.</span><span class="n">_Levenshtein_group</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>
+            <span class="c1">#store an error message</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                The column:</span>
+<span class="s2">                    &quot;</span><span class="si">%s</span><span class="s2">&quot;</span>
+<span class="s2">                must contain only a single value for each unique footprint.</span>
+<span class="s2">                The value should simply be repeated to fill all cells.</span>
+<span class="s2">                The column contains multiple values for footprint name:</span>
+<span class="s2">                    &quot;</span><span class="si">%s</span><span class="s2">&quot; &quot;&quot;&quot;</span>
+            <span class="c1">#pick out some columns</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+            <span class="c1">#clear the footprints list</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">clear</span><span class="p">):</span>
+                <span class="bp2">self</span><span class="o">.</span><span class="n">_footprints</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1">#create a footprint out of rows with the same &quot;Name&quot;</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="c1">#check that certain fields only contain a single entry</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="k">raise</span><span class="p">(</span><span class="n">EMFError</span><span class="p">(</span><span class="n">msg</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span>
+                <span class="c1">#create a footprint object</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">fp</span> <span class="o">=</span> <span class="n">Footprint</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">4</span><span class="p">]],</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="mi">6</span><span class="p">]])</span>
+                <span class="c1">#append the Footprint to the Results object&#39;s list</span>
+                <span class="bp2">self</span><span class="o">.</span><span class="n">_footprints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
 </pre></div>
 
                     </div>

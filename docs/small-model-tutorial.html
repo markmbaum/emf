@@ -200,18 +200,18 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Fundamentally, using <code>emf.subcalc</code> requires creating <code>Tower</code> and/or <code>Conductor</code> objects, putting them into a <code>Model</code> object, and running the <code>Model</code> object's <code>calculate</code> method to generate a <code>Results</code> object.</p>
+<p>Performing a modeling task with <code>emf.subcalc</code> requires creating <code>Tower</code> and/or <code>Conductor</code> objects, putting them into a <code>Model</code> object, then running the <code>Model</code> object's <code>calculate</code> method to generate a <code>Results</code> object or its 'sample' method to get a DataFrame of calculated fields.</p>
 <p>First step: creating <code>Tower</code>/<code>Conductor</code> objects</p>
-<p>In this example we'll only use <code>Tower</code> objects because <code>Conductor</code> objects are usually not necessary. A <code>Conductor</code> object represents a single current carrying wire in a model domain, with the coordinates of the wire's path specified explicitly. A <code>Tower</code> object, on the other hand, represents a single tower/pole/frame with power lines strung up on it, with the positions of the wires specified in the tower's frame of reference instead of in explicit x,y,z coordinates. To create a <code>Tower</code>, we have to the following information:</p>
+<p>In this example we'll only use <code>Tower</code> objects because <code>Conductor</code> objects are usually not necessary. A <code>Conductor</code> object represents a single current carrying wire in a model domain, with the coordinates of the wire's path specified only in the model's frame of reference. A <code>Tower</code> object, on the other hand, represents a single tower/pole/frame with power lines strung up on it, with the positions of the wires specified in the tower's frame of reference instead of in the model domian's x,y,z coordinates. To create a <code>Tower</code>, we need the following information (distance unit is feet):</p>
 <ul>
 <li>Group string. The "group" string is used to define which towers have power lines running between them.</li>
 <li>Sequence integer. The "seq" number defines the order in which power lines are strung between towers in the same group. </li>
-<li>x and y coordinates in our model domain</li>
-<li>Rotation angle. The rotation angle is zero along the +x axis and increases toward the +y axis. This is different from the old SUBCALC program, which defines 0 rotation along the -y axis.</li>
+<li>x and y coordinates of the tower in our model domain</li>
+<li>Rotation angle (degrees). The rotation angle is zero along the +x axis and increases toward the +y axis. This is different from the old SUBCALC program, which defines 0 rotation along the -y axis.</li>
 <li>Horizontal coordinates of wires on the tower, in the tower's reference frame. These are simply the horizontal distances of each wire from the tower.</li>
 <li>Vertical coordinates of wires on the tower, which are identical to z coordinates in the model domain. They're simply the distance above ground (where the ground surface is at z=0).</li>
-<li>The current amplitude of each wire</li>
-<li>The phase angle of each wire</li>
+<li>The current amplitude of each wire (Amps)</li>
+<li>The phase angle of each wire (degrees)</li>
 </ul>
 <p>Tower objects, and <code>emf.subcalc</code> in general, expect units of feet, Amps, and degrees.</p>
 <p>The first group of Towers will have three power lines (one circuit). We'll make it run in the +y direction a little, then make a right angle and run in the +x direction:</p>

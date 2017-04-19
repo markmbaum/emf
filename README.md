@@ -26,7 +26,7 @@ Both `fields` and `subcalc` were originally meant to supplement older modeling p
 
 ### Installation
 
-To use `emf` you must first install Python 2.7 and `emf`'s dependencies. '`emf` relies on many other widely available Python libraries, which are listed below. [Anaconda](https://www.continuum.io/downloads) is a widely used distribution that includes everything you need to use `emf`.
+To use `emf` you must first install Python 2.7 and `emf`'s dependencies. `emf` relies on many other widely available Python libraries, which are listed below. [Anaconda](https://www.continuum.io/downloads) is a widely used distribution that includes everything you need to use `emf`.
 
 Once Python and the relevant libraries are installed, you can install `emf` by running the `setup.py` script in the packages root directory. In a command prompt or terminal, simply navigate to the directory that contains `setup.py` and enter the following command.
 

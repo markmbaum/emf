@@ -205,7 +205,7 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><strong>Working with SUBCALC output files</strong></p>
-<p>The SUBCALC program calculates magnetic fields over a fixed-height grid of uniformly spaced points. The grid of results can be exported to a text file by going to "Output &gt; Ascii &gt; Reference Grid (Formatted)" in the toolbar at the top of the SUBCALC window. The text file will have a ".REF" extension, which is short for "Reference Grid." Unfortunately, the formatting of the REF file makes it hard to work with. So, to extract the grid of results, <code>emf.subcalc</code> provides the <code>read_REF</code> function. This function will parse the REF file and return two variables.</p>
+<p>The SUBCALC program calculates magnetic fields over a fixed-height grid of uniformly spaced points. The grid of results can be exported to a text file by going to "Output &gt; Ascii &gt; Reference Grid" in the toolbar at the top of the SUBCALC window. The exported file can be "formatted" or "delimited", and this option is toggled in the "Options &gt; Ascii" menu. The text file will have a ".REF" extension, which is short for "Reference Grid." Unfortunately, the formatting of the REF file makes it hard to work with. So, to extract the grid of results, <code>emf.subcalc</code> provides the <code>read_REF</code> function. This function parses "formatted" or "delimited" REF files and returns two variables.</p>
 <ol>
 <li>The first return variable is a dictionary of <code>numpy</code> vectors, with arrays for the <code>x</code> and <code>y</code> coordinates of each sample and arrays for magnetic field components (<code>Bmax</code>, <code>Bres</code>, <code>Bx</code>, <code>By</code>, <code>Bz</code>) of those samples. These arrays are one dimensional, but can easily converted to 2D grids, which will be demonstrated further down.</li>
 <li>The second return variable is a dictionary of model metadata. It includes information like the date and time that the REF file was created, the number of sample points, etc.</li>
@@ -337,7 +337,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now you could do anything you want with those variables, like writing the data to a flat file. However, the data are more useful as 2D arrays. <code>emf.subcalc</code> has a function called <code>mesh_dict_grids</code> that will convert the 1D arrays into 2D grids, but remember that <code>emf.subcalc</code> also has a <code>Results</code> class that is designed to work with the 2D grid data. Instead of using <code>mesh_dict_grids</code>, we might as well just load the REF file into a <code>Results</code> object. This is accomplished with the <code>load_results</code> function.</p>
+<p>Now you could do anything you want with those variables, like writing the data to a flat file. However, the data are more useful as 2D arrays and the <code>emf.subcalc</code>'s <code>Results</code> class is designed to work with the results in two dimensional format. To read the REF file directly into a <code>Results</code> object, we can use the <code>load_results</code> function, which calls <code>read_REF</code> in the background then load the data into a <code>Results</code> object.</p>
 
 </div>
 </div>
@@ -385,7 +385,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we can take advantage of all the <code>Results</code> object's capabilities, like interpolation, plotting, exporting, etc...</p>
+<p>Now we can take advantage of all the <code>Results</code> object's capabilities, like interpolation, plotting, exporting, etc... See the documentation and the other notebooks for more information and demos.</p>
 
 </div>
 </div>
@@ -433,7 +433,7 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>If you open the new file, TEST.xlsx, you'll see a tab for each component of the magnetic fields arranged as a grid, with the y coordinates along the rows and the x coordinates along the columns. You'll also see an "info" tab for the model metadata. You might <em>also</em> notice that the new excel file is about 12% the size of the original REF file.</p>
-<p>If we want to, we can load the new excel file back into a <code>Results</code> object. The <code>load_results</code> function that we used on above on the REF file can also be used on the excel files created by exporting <code>Results</code> objects. So, if we wanted to, we could delete the REF file and use the excel version exclusively.</p>
+<p>If we want to, we can load the new excel file back into a <code>Results</code> object. The <code>load_results</code> function that we used on the REF file can also be used on the excel files created by exporting <code>Results</code> objects. So, if we wanted to, we could delete the REF file and use the excel version exclusively.</p>
 
 </div>
 </div>

@@ -1,12 +1,12 @@
 from .. import os, np, ctypes, itertools, _resource_filename
 
 #laod C functions in the lift.so extension or fall back to the Python module
-_lift_loaded = False
 fn = _resource_filename(__name__, 'lift')
 try:
     lift = np.ctypeslib.load_library('lift.so', fn)
 except(OSError):
-    print('The C extension for emf.subcalc (lift.so) cannot be loaded. Falling back to Python. Calculations will be slower.')
+    _lift_loaded = False
+    print('The C extension for emf.subcalc (lift.so) cannot be loaded. Falling back to Python.')
     import lift_backup as lift
 else:
     _lift_loaded = True

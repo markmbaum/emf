@@ -589,20 +589,18 @@ class Model(object):
         #return
         return(df)
 
-    def to_tower_template(self, fmt='csv', **kw):
+    def to_tower_template(self, save=False, fmt='csv', **kw):
         """Export the Towers in the Model object to a template file in csv or excel format. Any Conductor objects in the Model will NOT be written to the tower template.
         optional args:
-            fmt - 'csv' or 'excel'
+            save - bool, toggle whether the DataFrame is written to file
+            fmt - 'csv' or 'excel', controlling which file type is written
+                  to file if save is True
         kw:
-            path - string, output destination/filename"""
-        #get filename
-        if(fmt == 'csv'):
-            ext = '.csv'
-        elif(fmt == 'excel'):
-            ext = '.xlsx'
-        else:
-            raise(EMFError("fmt argument must be 'csv' or 'excel'."))
-        fn = subcalc_funks._path_manage(self.name + '-towers', ext, **kw)
+            path - string, output destination/filename
+        returns:
+            df - a DataFrame containing footprint template data in the
+                 format of emf.subcalc's tower template"""
+
         #compile template dataframe
         L = sum([len(t) for t in self.towers])
         cols = ['group', 'sequence', 'tower x', 'tower y', 'rotation',
@@ -622,11 +620,23 @@ class Model(object):
                 df.at[count,cols[7]] = t.I[i]
                 df.at[count,cols[8]] = t.phase[i]
                 count += 1
-        if(fmt == 'csv'):
-            df.to_csv(fn, index=False)
+        #save and return, or just return
+        if(save):
+            if(fmt == 'csv'):
+                ext = '.csv'
+            elif(fmt == 'excel'):
+                ext = '.xlsx'
+            else:
+                raise(EMFError("fmt argument must be 'csv' or 'excel'."))
+            fn = subcalc_funks._path_manage(self.name + '-towers', ext, **kw)
+            if(fmt == 'csv'):
+                df.to_csv(fn, index=False)
+            else:
+                df.to_excel(fn, index=False)
+            print('towers in model "%s" written to: %s' % (self.name, fn))
+            return(df)
         else:
-            df.to_excel(fn, index=False)
-        print('towers in model "%s" written to: %s' % (self.name, fn))
+            return(df)
 
     def _xy_ranges(self):
         'Find the range of x and y coordinaes occupied by Tower and Conductor objects in the Model'
@@ -947,7 +957,9 @@ class Results(object):
                 self._Bkey = kw['Bkey']
             else:
                 self._Bkey = 'unknown'
-            self._grid = {'X': args[0], 'Y': args[1], self._Bkey: args[2]}
+            self._grid = {'X': copy.deepcopy(args[0]),
+                    'Y': copy.deepcopy(args[1]),
+                    self._Bkey: copy.deepcopy(args[2])}
             #store the info dict if present
             if(largs == 4):
                 if(type(args[3]) is not dict):
@@ -1150,6 +1162,10 @@ class Results(object):
                             or
 
                         an existing DataFrame with footprint data
+
+                            or
+
+                        a list of Footprint objects
         optional args:
             clear - bool, True will replace all existing footprints with the
                     loaded ones, False will simply add loaded footprints to
@@ -1159,44 +1175,49 @@ class Results(object):
                     multiple sheets is passed in"""
         #load file if footprints is not a DataFrame
         t = type(footprints)
-        if(t is pd.DataFrame):
-            df = footprints
-        elif((t is str) or (t is unicode)):
-            df = subcalc_funks._read_csv_or_xlsx(footprints, **kw)
+        if(t is list):
+            for fp in footprints:
+                self._footprints.append(fp)
         else:
-            raise(EMFError('Only pandas DataFrames and path strings can be passed to Results.load_footprints, not type "%s"' % str(t)))
 
-        #do a little data conditioning
-        df = df.dropna(how='all').fillna(method='ffill')
-        #match columns with string distance method
-        cols = self._footprint_cols
-        df.columns = subcalc_funks._Levenshtein_group(df.columns.values, cols)
-        #store an error message
-        msg = """
-            The column:
-                "%s"
-            must contain only a single value for each unique footprint.
-            The value should simply be repeated to fill all cells.
-            The column contains multiple values for footprint name:
-                "%s" """
-        #pick out some columns
-        fields = cols[4:]
-        #clear the footprints list
-        if(clear):
-            self._footprints = []
-        #create a footprint out of rows with the same "Name"
-        for name, df in df.groupby(cols[0]):
-            #check that certain fields only contain a single entry
-            for f in fields:
-                if(len(df[f].unique()) > 1):
-                    raise(EMFError(msg % (f,n)))
-            #create a footprint object
-            row = df.iloc[0]
-            fp = Footprint(row[cols[0]], row[cols[1]],
-                    df[cols[2]].values, df[cols[3]].values,
-                    row[cols[4]], row[cols[5]], row[cols[6]])
-            #append the Footprint to the Results object's list
-            self._footprints.append(fp)
+            if(t is pd.DataFrame):
+                df = footprints
+            elif((t is str) or (t is unicode)):
+                df = subcalc_funks._read_csv_or_xlsx(footprints, **kw)
+            else:
+                raise(EMFError('Only pandas DataFrames, path strings, or lists of Footprint objects can be passed to Results.load_footprints, not type "%s"' % str(t)))
+
+            #do a little data conditioning
+            df = df.dropna(how='all').fillna(method='ffill')
+            #match columns with string distance method
+            cols = self._footprint_cols
+            df.columns = subcalc_funks._Levenshtein_group(df.columns.values, cols)
+            #store an error message
+            msg = """
+                The column:
+                    "%s"
+                must contain only a single value for each unique footprint.
+                The value should simply be repeated to fill all cells.
+                The column contains multiple values for footprint name:
+                    "%s" """
+            #pick out some columns
+            fields = cols[4:]
+            #clear the footprints list
+            if(clear):
+                self._footprints = []
+            #create a footprint out of rows with the same "Name"
+            for name, df in df.groupby(cols[0]):
+                #check that certain fields only contain a single entry
+                for f in fields:
+                    if(len(df[f].unique()) > 1):
+                        raise(EMFError(msg % (f,n)))
+                #create a footprint object
+                row = df.iloc[0]
+                fp = Footprint(row[cols[0]], row[cols[1]],
+                        df[cols[2]].values, df[cols[3]].values,
+                        row[cols[4]], row[cols[5]], row[cols[6]])
+                #append the Footprint to the Results object's list
+                self._footprints.append(fp)
 
     def concern_points(self, n=101):
         """Find the maximum fields at all footprint objects in the Results with

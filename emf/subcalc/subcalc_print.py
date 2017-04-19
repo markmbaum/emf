@@ -34,7 +34,7 @@ def _str_Model(mod):
             'x limits: %g to %g ft' % (mod.xmin, mod.xmax),
             'y limits: %g to %g ft' % (mod.ymin, mod.ymax),
             'sample height (z): %g ft' % mod.z,
-            'total samples: %d' % mod.N,
+            'total samples: {:,}'.format(mod.N),
             'sample spacing: %g ft' % mod.spacing,
             'number of Tower objects: %d' % len(mod.towers),
             'number of Tower groups: %d' % len(mod.tower_group_names),
@@ -69,7 +69,7 @@ def _str_Results(res):
             '%s range: %g to %g mG' % (res.Bkey, res.Bmin, res.Bmax),
             'x limits: %g to %g ft' % (res.xmin, res.xmax),
             'y limits: %g to %g ft' % (res.ymin, res.ymax),
-            'total samples: %d' % res.N,
+            'total samples: {:,}'.format(res.N),
             'sample spacing: %s' % spacing,
             'number of Footprints: %d' % len(res.footprints),
             'Footprint groups: %s' % _element_fill_join_indent(
