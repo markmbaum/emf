@@ -9,20 +9,20 @@ Both `fields` and `subcalc` were originally meant to supplement older modeling p
 ### `emf.fields` resources
 
 * [Further discussion](docs/README-fields.md)
-* [Documentation](http://mbaum1122.github.io/emf/emf.fields.ipynb)
-* [Notebook - `fields` modeling from scratch](docs/fields-workflow-from-scratch.ipynb)
-* [Notebook - optimizing underground circuits](docs/underground-line-optimization.ipynb)
-* [Notebook - using a `fields` template](docs/using-a-template.ipynb)
-* [Notebook - varying the depth of an underground circuit](docs/underground-delta-depth-test.ipynb)
+* [Documentation](http://mbaum1122.github.io/emf/emf.fields.html)
+* [Notebook - `fields` modeling from scratch](docs/notebooks/fields/fields-workflow-from-scratch.ipynb)
+* [Notebook - optimizing underground circuits](docs/notebooks/fields/underground-line-optimization.ipynb)
+* [Notebook - using a `fields` template](docs/notebooks/fields/using-a-template.ipynb)
+* [Notebook - varying the depth of an underground circuit](docs/notebooks/fields/underground-delta-depth-test.ipynb)
 
 ### `emf.subcalc` resources
 
 * [Further discussion](docs/README-subcalc.md)
-* [Documentation](http://mbaum1122.github.io/emf/emf.subcalc.ipynb)
-* [Notebook - build a model, compute results, and make plots](docs/small-model-tutorial.ipynb)
-* [Notebook - using `emf.subcalc` templates](docs/tower-and-footprint-templates.ipynb)
-* [Notebook - sampling `Model` objects](docs/sampling-model-objects.ipynb)
-* [Notebook - working with SUBCALC input and output files](docs/working-with-SUBCALC-files.ipynb)
+* [Documentation](http://mbaum1122.github.io/emf/emf.subcalc.html)
+* [Notebook - build a model, compute results, and make plots](docs/notebooks/subcalc/small-model-tutorial.ipynb)
+* [Notebook - using `emf.subcalc` templates](docs/notebooks/subcalc/tower-and-footprint-templates.ipynb)
+* [Notebook - sampling `Model` objects](docs/notebooks/subcalc/sampling-model-objects.ipynb)
+* [Notebook - working with SUBCALC input and output files](docs/notebooks/subcalc/working-with-SUBCALC-files.ipynb)
 
 ### Installation
 
