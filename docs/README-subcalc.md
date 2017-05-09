@@ -4,7 +4,7 @@
 
 ![biot-savart](img/biot-savart.png)
 
-Documentation of `emf.subcalc` can be found [here](emf.subcalc.html)
+Documentation of `emf.subcalc` can be found [here](http://mbaum1122.github.io/emf/emf.subcalc.html)
 
 ### `emf.subcalc` vs SUBCALC
 
