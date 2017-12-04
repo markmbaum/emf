@@ -6,7 +6,7 @@ def _table_iterable_fill(field, a):
     wrapper.subsequent_indent = ' '*len(field)
     v = []
     for i in a:
-        if((type(i) is unicode) or (type(i) is str)):
+        if(type(i) is str):
             v.append(repr(i))
         else:
             v.append(str(i))

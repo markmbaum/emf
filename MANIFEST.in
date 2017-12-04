@@ -1,3 +1,8 @@
+include emf/fields
+include emf/fields/*
+include emf/fields/enviro/*
+include emf/subcalc
+include emf/subcalc/*
 include emf/fields/fields-template.xlsx
 include emf/subcalc/subcalc-tower-template.xlsx
 include emf/subcalc/subcalc-footprint-template.xlsx
@@ -5,8 +10,9 @@ include emf/subcalc/lift/*
 
 prune docs
 prune nopack
-prune working_files
+prune working-files
 prune refs
+prune tests
 
 global-exclude .git*
 global-exclude *.pyc

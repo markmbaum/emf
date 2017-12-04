@@ -20,7 +20,7 @@ from mpl_toolkits.mplot3d import Axes3D as _Axes3D
 from matplotlib.patches import Rectangle as _Rectangle
 from pkg_resources import resource_filename as _resource_filename
 
-import fields
-import subcalc
+from . import fields
+from . import subcalc
 
 __all__ = ['fields', 'subcalc']

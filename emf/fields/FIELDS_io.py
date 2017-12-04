@@ -2,8 +2,8 @@
 
 from .. import os, pd
 
-import fields_funks
-import fields_class
+from . import fields_funks
+from . import fields_class
 
 #-------------------------------------------------------------------------------
 #FUNCTIONS FOR GENERATING INPUT .FLD FILES

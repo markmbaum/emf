@@ -19,11 +19,11 @@ ENVIRO makes use of several input/output files with different extensions:
 The functions in this module read information out of some of the above file types.
 """
 
-from .. import os, np, pd, plt
+from ... import os, np, pd, plt
 
-import fields_funks
-import fields_class
-import fields_plots
+from .. import fields_funks
+from .. import fields_class
+from .. import fields_plots
 
 def _advance_lines(ifile, n):
     for i in range(n):

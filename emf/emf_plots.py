@@ -1,6 +1,6 @@
 from . import plt
 
-import emf_funks
+from . import emf_funks
 
 def _save_fig(filename_if_needed, fig, **kw):
     """Snippet executed at the end of plotting methods to handle saving

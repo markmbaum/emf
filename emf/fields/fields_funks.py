@@ -1,12 +1,12 @@
 from .. import os, np, pd, shutil, itertools, _resource_filename
 
-from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
+from emf.emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
                         _check_intable, _flatten, _sig_figs,
                         _path_str_condition, _check_to_array)
 
-import fields_class
-import fields_calcs
-import fields_plots
+from . import fields_class
+from . import fields_calcs
+from . import fields_plots
 
 def drop_template(*args, **kw):
     """Copy the emf.fields template into the current directory or a directory specified by an input string

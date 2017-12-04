@@ -4,8 +4,8 @@ from ..emf_funks import (_path_manage, _check_extension, _is_number, _is_int,
                         _check_intable, _flatten, _sig_figs, _check_to_array,
                         _Levenshtein_group)
 
-import subcalc_class
-import SUBCALC_io
+from . import subcalc_class
+from . import SUBCALC_io
 
 def drop_footprint_template(*args, **kw):
     """Copy the emf.subcalc footprint template in the current directory or a directory specified by an input string
@@ -61,7 +61,7 @@ def _read_csv_or_xlsx(fn, **kw):
                 else:
                     raise(subcalc_class.EMFError("""If an excel file with multiple sheets is passed, the target sheet must be specified with the keyword argument 'sheet'."""))
             else:
-                df = dfs[dfs.keys()[0]]
+                df = dfs[list(dfs.keys())[0]]
         elif(ext == 'csv'):
             df = pd.read_csv(fn)
             name = os.path.basename(fn)
@@ -186,7 +186,7 @@ def load_results(*args, **kw):
     elif(fn[-4:] == 'xlsx'):
         #get a dict of all sheets in excel file
         dfs = pd.read_excel(args[0], sheetname=None)
-        bkeys = dfs.keys()
+        bkeys = list(dfs.keys())
         if('info' in bkeys):
             bkeys.remove('info')
         if('footprints' in bkeys):

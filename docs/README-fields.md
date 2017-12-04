@@ -6,7 +6,7 @@
 
 Full documentation of `emf.fields` can be found [here](http://mbaum1122.github.io/emf/emf.fields.html).
 
-### Programs for modeilng 2D emf
+### Programs for modeling 2D emf
 
 There are several programs available for modeling the electric and magnetic fields near parallel power lines. The one that `emf.fields` is primarily based on (and meant to replace) is an old program called FIELDS. To compute electric and magnetic fields near a group of parallel power lines, `emf.fields` and FIELDS:
 * treat the time-varying voltage and current signals on each power line as two dimensional [phasors](https://en.wikipedia.org/wiki/Phasor)

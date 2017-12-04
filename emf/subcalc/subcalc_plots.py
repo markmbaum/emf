@@ -2,10 +2,11 @@ from .. import os, np, mpl, plt, textwrap, _Rectangle, _Axes3D
 
 from ..emf_plots import _save_fig, _prepare_fig
 
-import subcalc_class
-import subcalc_funks
+from . import subcalc_class
+from . import subcalc_funks
 
 #rcparams for more static global formatting changes
+mpl.rcParams.update(mpl.rcParamsDefault)
 mpl.rcParams['figure.facecolor'] = 'white'
 mpl.rcParams['figure.figsize'] = (12, 6)
 mpl.rcParams['font.family'] = 'Times New Roman'
@@ -662,7 +663,7 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
     ax.scatter(dist, B_interp, s=15, c=colors, edgecolors=edgecolors)
 
     #label
-    ax.set_ylabel('Magnetic Field ($mG$)')
+    ax.set_ylabel('Magnetic Field (mG)')
     sf = subcalc_funks._sig_figs
     dist = subcalc_funks.cumulative_distance(points)
     x, y = zip(*points)
@@ -670,9 +671,9 @@ def plot_path(obj, points, n=101, x_labeling='distance', scale='lin',
     if(x_labeling == 'location'):
         ax.set_xticks(dist)
         ax.set_xticklabels(point_strings, rotation=45, ha='right')
-        ax.set_xlabel('X, Y Location ($ft$)')
+        ax.set_xlabel('X, Y Location (ft)')
     else:
-        ax.set_xlabel('Distance Along Path ($ft$)')
+        ax.set_xlabel('Distance Along Path (ft)')
     #ax.set_title('Magnetic Field along %s ft Path from %s' %
     #        (str(sf(dist[-1], 3)), ' to '.join(point_strings)))
 

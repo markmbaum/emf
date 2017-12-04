@@ -1,6 +1,6 @@
 from . import os, np, pd
 
-import emf_class
+from . import emf_class
 
 def _path_manage(filename_if_needed, extension, **kwargs):
     """This function takes a path string through the kwarg 'path' and

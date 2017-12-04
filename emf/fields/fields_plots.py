@@ -2,9 +2,10 @@ from .. import np, mpl, plt, textwrap
 
 from ..emf_plots import _save_fig, _prepare_fig
 
-import fields_funks
+from . import fields_funks
 
 #rcparams for more static global formatting changes
+mpl.rcParams.update(mpl.rcParamsDefault)
 mpl.rcParams['figure.facecolor'] = 'white'
 mpl.rcParams['figure.figsize'] = (14, 6)
 mpl.rcParams['font.family'] = 'Times New Roman'
@@ -265,15 +266,15 @@ def plot_Bmax(xs, **kw):
     x = xs.fields['Bmax'][-xmax:xmax].index.values
     y = xs.fields['Bmax'][-xmax:xmax].values
     kw['H'].append(ax.plot(x, y, color=_B_color, linewidth=_fields_linewidth)[0])
-    kw['L'].append(r'Magnetic Field $(mG)$')
+    kw['L'].append(r'Magnetic Field (mG)')
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
     _check_und_conds([xs], [ax], **kw)
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #set axis text and legend
-    ax.set_xlabel(r'Distance $(ft)$')
-    ax.set_ylabel(r'Maximum Magnetic Field $(mG)$')
+    ax.set_xlabel(r'Distance (ft)')
+    ax.set_ylabel(r'Maximum Magnetic Field (mG)')
     ax.set_title(textwrap.fill('Maximum Magnetic Field - %s' % xs.title))
     ax.legend(kw['H'], kw['L'], **_leg_kw)
     _format_line_axes_legends(ax)
@@ -305,15 +306,15 @@ def plot_Emax(xs, **kw):
     x = xs.fields['Emax'][-xmax:xmax].index.values
     y = xs.fields['Emax'][-xmax:xmax].values
     kw['H'].append(ax.plot(x, y, color=_E_color, linewidth=_fields_linewidth)[0])
-    kw['L'].append(r'Electric Field $(kV/m)$')
+    kw['L'].append(r'Electric Field (kV/m)')
     #plot wires
     _plot_wires(ax, xs.hot, xs.gnd, xs.fields['Emax'], **kw)
     _check_und_conds([xs], [ax], **kw)
     #plot ROW lines
     _plot_ROW_edges(ax, xs.lROW, xs.rROW, **kw)
     #set axis text and legend
-    ax.set_xlabel(r'Distance $(ft)$')
-    ax.set_ylabel(r'Maximum Electric Field $(kV/m)$')
+    ax.set_xlabel(r'Distance (ft)')
+    ax.set_ylabel(r'Maximum Electric Field (kV/m)')
     ax.set_title(textwrap.fill('Maximum Electric Field - %s' % xs.title))
     ax.legend(kw['H'], kw['L'], **_leg_kw)
     _format_line_axes_legends(ax)
@@ -349,16 +350,16 @@ def plot_max_fields(xs, **kw):
     Ey = xs.fields['Emax'][-xmax:xmax].values
     kw['H'] = [ax_B.plot(x, By, color=_B_color, linewidth=_fields_linewidth)[0],
             ax_E.plot(x, Ey, color=_E_color, linewidth=_fields_linewidth)[0]]
-    kw['L'] = [r'Magnetic Field $(mG)$', r'Electric Field $(kV/m)$']
+    kw['L'] = [r'Magnetic Field (mG)', r'Electric Field (kV/m)']
     #plot wires
     _plot_wires(ax_B, xs.hot, xs.gnd, xs.fields['Bmax'], **kw)
     _check_und_conds([xs], [ax_B, ax_E], **kw)
     #plot ROW lines
     _plot_ROW_edges(ax_B, xs.lROW, xs.rROW, **kw)
     #set axis text
-    ax_B.set_xlabel(r'Distance $(ft)$')
-    ax_B.set_ylabel(r'Maximum Magnetic Field $(mG)$', color=_B_color)
-    ax_E.set_ylabel(r'Maximum Electric Field $(kV/m)$', color=_E_color)
+    ax_B.set_xlabel(r'Distance (ft)')
+    ax_B.set_ylabel(r'Maximum Magnetic Field (mG)', color=_B_color)
+    ax_E.set_ylabel(r'Maximum Electric Field (kV/m)', color=_E_color)
     ax_B.set_title(textwrap.fill('Maximum Magnetic and Electric Fields - %s' % xs.title))
     #set color of axis spines and ticklabels
     _color_twin_axes(ax_B, _B_color, ax_E, _E_color)
@@ -396,8 +397,8 @@ def plot_xs(xs, **kw):
     _check_und_conds([xs], [ax], **kw)
     #set axis text and legend
     ax.set_title(textwrap.fill('Cross Section Configuration - %s' % xs.title))
-    ax.set_xlabel(r'Distance $(ft)$')
-    ax.set_ylabel(r'Height Above Ground $(ft)$')
+    ax.set_xlabel(r'Distance (ft)')
+    ax.set_ylabel(r'Height Above Ground (ft)')
     ax.legend(kw['H'], kw['L'], **_leg_kw)
     #format
     _format_line_axes_legends(ax)
@@ -437,7 +438,7 @@ def _plot_comparison_repeatables(ax_abs, ax_per, ax_mag, pan, field, unit,
                 ax_mag.plot(pan['emf.fields-results'][field],
                     color=_colormap[0])[0]]
     kw['L'] += [other_program_name + ' Results', 'emf.fields Results']
-    ax_mag.set_xlabel('Distance $(ft)$')
+    ax_mag.set_xlabel('Distance (ft)')
 
 def _plot_comparison(xs, pan, other_program_name, **kw):
     """Generate 2 subplots showing the FIELDS results (from a .DAT file) compared to the results of this code and the error.
@@ -452,7 +453,7 @@ def _plot_comparison(xs, pan, other_program_name, **kw):
         format - string, saved plot format/extension (default 'png')"""
 
     pans = ['Bmax', 'Emax']
-    units = ['$(mG)$', '$(kV/m)$']
+    units = ['(mG)', '(kV/m)']
     title_app = [', Max Magnetic Field', ', Max Electric Field']
     save_suf = ['-%s-comparison-Bmax' % other_program_name,
                 '-%s-comparison-Emax' % other_program_name]
@@ -669,7 +670,7 @@ def plot_groups(sb, **kw):
 
     flags = [B_flag, E_flag]
     fields = ['Bmax', 'Emax']
-    ylabels = ['Maximum Magnetic Field $(mG)$', 'Maximum Electric Field $(kV/m)$']
+    ylabels = ['Maximum Magnetic Field (mG)', 'Maximum Electric Field (kV/m)']
     title_pre = ['Maximum Magnetic Field - ',
                 'Maximum Electric Field - ']
     keys = ['B', 'E']
@@ -696,7 +697,7 @@ def plot_groups(sb, **kw):
                     #plot ROW lines
                     _plot_group_ROW_edges(ax, xss, **kw)
                     #set axis text and legend
-                    ax.set_xlabel('Distance $(ft)$')
+                    ax.set_xlabel('Distance (ft)')
                     ax.set_ylabel(yl)
                     ax.set_title(textwrap.fill(ti + str(xss[0].group)))
                     ax.legend(kw['H'], kw['L'], **_leg_kw)
@@ -783,12 +784,12 @@ def _generate_ROW_value_plot_objects(xss):
     #see if ROW edge distances are unique
     lROW, rROW = set([xs.lROW for xs in xss]), set([xs.rROW for xs in xss])
     if(len(lROW) == 1):
-        lROW_title_add = (r' (%s $ft$)'
+        lROW_title_add = (r' (%s ft)'
                     % str(fields_funks._sig_figs(lROW.pop(), 3)))
     else:
         lROW_title_add = ''
     if(len(rROW) == 1):
-        rROW_title_add = (r' (%s $ft$)'
+        rROW_title_add = (r' (%s ft)'
                     % str(fields_funks._sig_figs(rROW.pop(), 3)))
     else:
         rROW_title_add = ''
@@ -869,7 +870,7 @@ def plot_groups_at_ROW(sb, **kw):
 
     flags = [B_flag, E_flag]
     fields = ['Bmax', 'Emax']
-    ylabels = ['Maximum Magnetic Field $(mG)$', 'Maximum Electric Field $(kV/m)$']
+    ylabels = ['Maximum Magnetic Field (mG)', 'Maximum Electric Field (kV/m)']
     suptitle_pre = ['Maximum Magnetic Fields at ROW Edges - ',
                     'Maximum Electric Fields at ROW Edges - ']
     keys = ['B', 'E']

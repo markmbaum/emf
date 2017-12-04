@@ -4,18 +4,18 @@ emf.fields was originally a small stand-alone package that streamlined the use o
 emf.fields still contains functions streamlining the use of FIELDS. At this point though, it does all the things the old FIELDS program does (including EMF calculations), it does them better, and it has additional features.
 """
 
-from fields_class import (Conductor,
+from .fields_class import (Conductor,
                         CrossSection,
                         SectionBook)
 
-from fields_funks import (drop_template,
+from .fields_funks import (drop_template,
 						load_template,
                         optimize_phasing,
                         target_fields,
                         sb_xs_compare,
                         run)
 
-from fields_calcs import (E_field,
+from .fields_calcs import (E_field,
                         B_field,
                         phasors_to_magnitudes,
                         EPSILON_0,
@@ -23,7 +23,7 @@ from fields_calcs import (E_field,
                         MU_0,
                         magnetic_prefactor)
 
-from fields_plots import (plot_Bmax,
+from .fields_plots import (plot_Bmax,
                         plot_Emax,
                         plot_max_fields,
                         plot_xs,
@@ -33,7 +33,7 @@ from fields_plots import (plot_Bmax,
                         show,
                         close)
 
-from FIELDS_io import (to_FLD,
+from .FIELDS_io import (to_FLD,
                         to_FLDs,
                         to_FLDs_walk,
                         read_FLD,
@@ -42,6 +42,4 @@ from FIELDS_io import (to_FLD,
                         convert_DAT,
                         convert_DAT_walk)
 
-import enviro
-
-__all__ = ['enviro']
+from . import enviro

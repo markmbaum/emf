@@ -3,9 +3,9 @@ from .. import np, pd, os, copy, datetime, textwrap, _interpn
 from ..emf_class import EMFError
 from ..emf_funks import _print_str_list
 
-import subcalc_funks
-import subcalc_calcs
-import subcalc_print
+from . import subcalc_funks
+from . import subcalc_calcs
+from . import subcalc_print
 
 class Model(object):
     """Model objects store Tower and/or Conductor objects, information about the desired model grid, and provide the means of computing magnetic fields. Model objects are designed to make it easy to compute the fields over a uniform height 2 dimensional grid. Model objects store x limits, y limits, a z coordinate, and a grid spacing to automatically construct a 2d grid of sample points and calculate magnetic fields at those points. The calculate() method returns a grid of results in the form of a Results object, which can be used to create plots and analyze the grid. Alternatively, an arbitrary set of x, y, z coordinates can be passed to the sample() method to calculate fields at any set of points in 3d space and bypass the Results object entirely."""
@@ -997,7 +997,7 @@ class Results(object):
     B = property(_get_B, None, None, '2D grid of magnetic field results with y-coordinates decreasing down the rows and x-coordinates inreasing along the columns. For example, B[0,0] retrieves the result at the lowest x value and highest y value and B[-1,-1] retrieves the result at the higest x value and lowest y value. The grid is arranged so that the coordinate arrays print in the same way they are arranged on a cartesian plane.')
 
     def _get_Bkeys(self):
-        k = self._grid.keys()
+        k = list(self._grid.keys())
         k.remove('X')
         k.remove('Y')
         return(set(k))
@@ -1517,7 +1517,8 @@ class Results(object):
                         ).to_excel(xl, sheet_name=k)
         #write metadata if present
         if(self.info):
-            pd.DataFrame([self.info[k] for k in self.info], index=self.info.keys(),
+            pd.DataFrame([self.info[k] for k in self.info],
+                    index=list(self.info.keys()),
                     columns=['Parameter Value']).sort_index().to_excel(
                             xl, sheet_name='info', index_label='Parameter Name')
         #write footprints if present

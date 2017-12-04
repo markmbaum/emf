@@ -2,11 +2,11 @@ from .. import np, pd, copy
 
 from ..emf_class import EMFError
 
-import fields_funks
-import fields_plots
-import fields_calcs
-import fields_print
-import FIELDS_io
+from . import fields_funks
+from . import fields_plots
+from . import fields_calcs
+from . import fields_print
+from . import FIELDS_io
 
 class Conductor(object):
     """A single power line object representing an infintely long conductor and storing basic physical parameters like the line's 2D coordinates, size, voltage, current, phase angle, etc. The Conductor class is the functional unit of emf.fields. Groups of Conductors are organized by higher level CrossSection objects to form complete 2D EMF models of parellel sets of power lines. CrossSection objects use the physical parameters stored in Conductor objects to compute predicted EMF values at a fixed height across a preset distance perpendicular to the power lines."""
@@ -610,8 +610,8 @@ class CrossSection(object):
                     also saves figures with error and comparison plots
             path - string, destination of saved files, will force save == True
             round - int, round the results in self.fields to a certain number
-                    of digits in an attempt to exactly match the FIELDS results, which are printed only to the
-                    thousandths digit
+                    of digits in an attempt to exactly match the FIELDS
+                    results, which are printed only to the thousandths digit
             truncate - bool, truncate results after the thousandths digit
         returns:
             pan - pandas Panel with DAT results, results of this code,
