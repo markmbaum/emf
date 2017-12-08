@@ -13,7 +13,7 @@ setup(
             'numpy', 'pandas', 'matplotlib', 'scipy'],
             #'pkg_resources', 'itertools', 'textwrap', 'shutil', 'ctypes', 'copy', 'os'],
     classifiers=['Natural Language :: English',
-            #'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
             'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Physics']
 )

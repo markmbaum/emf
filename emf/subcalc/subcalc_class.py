@@ -5,6 +5,7 @@ from ..emf_funks import _print_str_list
 
 from . import subcalc_funks
 from . import subcalc_calcs
+from .subcalc_calcs import _lift_loaded
 from . import subcalc_print
 
 class Model(object):
@@ -39,7 +40,10 @@ class Model(object):
         self._ymax = None
         self._z = 3.28
         self._spacing = None
-        self._N = 1e5
+        if(_lift_loaded):
+            self._N = 1e4
+        else:
+            self._N = 2500
 
         self._auto_lim_frac = 0.1
 

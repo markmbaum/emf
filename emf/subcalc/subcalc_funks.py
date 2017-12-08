@@ -398,7 +398,7 @@ def cumulative_distance(*args):
 
     largs = len(args)
     if(largs == 1):
-        args = zip(*args[0])
+        args = list(zip(*args[0]))
         if(len(args) == 2):
             return(_cum_dist_2D(args[0], args[1]))
         elif(len(args) == 3):
