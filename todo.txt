@@ -1,5 +1,1 @@
-change any use of pandas Panel objects, as they are being deprecated
-
 figure out how to recompile lift.c into a compatible shared library
-
-return zip in lists where needed (if len or other functions are called on it)
